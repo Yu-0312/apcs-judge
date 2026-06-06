@@ -415,6 +415,100 @@ output_desc:"輸出你能拿到的最大分數。",
 samples:[{input:"3\n5 3 1\n4 2 6\n",output:"2\n"},{input:"4\n1 2 3 4\n1 2 3 4\n",output:"3\n"}],
 hint:"**關鍵字**：「配對」「最大分數」「對方固定順序」→ **貪心配對**。\n**策略**：對每張對方的牌 b[i]，從你剩下的牌中找**最小但能贏的牌**（剛好大於 b[i]），打掉它。\n**實作**：sort 你的牌，用集合或標記陣列維護「未使用的牌」。"}
 
+,
+// ===== 自製初級題 =====
+{id:"o_avg",title:"班級平均",topic:"基礎運算",date:"自製 初級",diff:"easy",
+desc:"讀入一個班級 n 個學生的成績，計算**平均分數**並**四捨五入到整數**輸出。\n\n四捨五入規則：小數部分 ≥ 0.5 進位，否則捨去。",
+input_desc:"第一行 n（1≤n≤100）；第二行 n 個整數（0≤分數≤100），以空白分隔。",
+output_desc:"輸出四捨五入後的平均分數。",
+samples:[{input:"5\n80 90 70 85 75\n",output:"80\n"},{input:"3\n100 100 100\n",output:"100\n"},{input:"4\n90 91 92 91\n",output:"91\n"}],
+hint:"**關鍵字**：「平均」「四捨五入」→ 先加總再除。\n**四捨五入技巧**：用 `(sum + n/2) / n` 整數運算（避免浮點誤差），或 `round(sum/n)`。\n**Python 注意**：`round()` 對 `.5` 是銀行家捨入，建議用 `int(s/n + 0.5)`。"},
+
+{id:"o_isprime",title:"質數判斷",topic:"數學",date:"自製 初級",diff:"easy",
+desc:"讀入一個正整數 n，判斷它是否為**質數**。\n\n質數定義：大於 1 的整數，只能被 1 和自己整除。",
+input_desc:"輸入一個正整數 n（1≤n≤10⁹）。",
+output_desc:"質數輸出 Yes，否則輸出 No。",
+samples:[{input:"7\n",output:"Yes\n"},{input:"1\n",output:"No\n"},{input:"15\n",output:"No\n"},{input:"2\n",output:"Yes\n"}],
+hint:"**關鍵字**：「質數」→ 試除法 + 重要優化。\n**核心**：只需測試 2 到 √n 的因數（若 n=a×b 且 a≤b，則 a≤√n）。\n**特例**：n≤1 不是質數；n=2 是質數；偶數 > 2 都不是質數。"},
+
+{id:"o_count_digit",title:"位數計算",topic:"迴圈",date:"自製 初級",diff:"easy",
+desc:"讀入一個非負整數 n，計算它有幾位數字。\n\n例：12345 有 5 位；0 有 1 位。",
+input_desc:"輸入一個非負整數 n（0≤n≤10¹⁸）。",
+output_desc:"輸出位數。",
+samples:[{input:"12345\n",output:"5\n"},{input:"0\n",output:"1\n"},{input:"7\n",output:"1\n"},{input:"100\n",output:"3\n"}],
+hint:"**關鍵字**：「位數」「非負整數」→ 用迴圈除以 10。\n**作法**：`while n>0: n//=10; cnt++`。\n**陷阱**：n=0 是特例（直接輸出 1，否則迴圈不會執行）。"},
+
+{id:"o_reverse_num",title:"反轉整數",topic:"迴圈",date:"自製 初級",diff:"easy",
+desc:"讀入一個正整數 n，輸出**反轉後的數字**（去除前導零）。\n\n例：12345 → 54321；100 → 1；1200 → 21。",
+input_desc:"輸入一個正整數 n（1≤n≤10⁹）。",
+output_desc:"輸出反轉後的整數。",
+samples:[{input:"12345\n",output:"54321\n"},{input:"100\n",output:"1\n"},{input:"7\n",output:"7\n"}],
+hint:"**關鍵字**：「反轉」→ 數學方法：`rev = rev*10 + n%10; n //= 10`。\n**Python 一行**：`int(str(n)[::-1])`（但題目通常希望你練習數學作法）。\n**去前導零**：int 轉換時自動處理。"},
+
+{id:"o_count_char",title:"計算字元",topic:"字串",date:"自製 初級",diff:"easy",
+desc:"讀入兩行：第一行是一個字串 s，第二行是一個字元 c。\n\n計算字串 s 中字元 c 出現的次數。",
+input_desc:"第一行字串 s（長度 ≤ 1000，只含可印字元，不含空白）；第二行字元 c。",
+output_desc:"輸出 c 在 s 中出現的次數。",
+samples:[{input:"banana\na\n",output:"3\n"},{input:"hello\nz\n",output:"0\n"},{input:"AAaa\nA\n",output:"2\n"}],
+hint:"**關鍵字**：「出現次數」「區分大小寫」→ 迴圈比對。\n**Python**：`s.count(c)` 直接呼叫。\n**C/C++**：手寫迴圈或用 `std::count(s.begin(), s.end(), c)`。"},
+
+// ===== 自製中級題 =====
+{id:"o_prefix",title:"區間和查詢",topic:"前綴和",date:"自製 中級",diff:"medium",
+desc:"給定一個長度為 n 的整數陣列，接著有 q 個查詢，每次查詢區間 [l, r] 的元素總和（**1-based**, 包含 l 和 r）。\n\n要求每次查詢 O(1)。",
+input_desc:"第一行 n q（1≤n,q≤10⁵）；第二行 n 個整數（-10⁴ ≤ a[i] ≤ 10⁴）；接下來 q 行，每行兩個整數 l r（1≤l≤r≤n）。",
+output_desc:"每個查詢輸出區間和（一行一個）。",
+samples:[{input:"5 3\n1 2 3 4 5\n1 3\n2 4\n1 5\n",output:"6\n9\n15\n"},{input:"3 2\n-1 2 -3\n1 1\n1 3\n",output:"-1\n-2\n"}],
+hint:"**關鍵字**：「多次區間和查詢」「O(1)」→ **前綴和**經典題。\n**預處理**：`prefix[i] = a[0]+...+a[i-1]`，`prefix[0]=0`。\n**查詢**：區間 [l, r]（1-based）= `prefix[r] - prefix[l-1]`。\n**注意**：總和可能超過 int 範圍，建議用 long long。"},
+
+{id:"o_twosum",title:"兩數之和",topic:"雜湊表",date:"自製 中級",diff:"medium",
+desc:"給定一個整數陣列和目標值 target，找出陣列中**兩個數的索引**（1-based），使其和等於 target。\n\n保證恰好有一組解。輸出兩個索引（較小的在前）。",
+input_desc:"第一行 n target（2≤n≤10⁵）；第二行 n 個整數。",
+output_desc:"輸出兩個 1-based 索引，空白分隔。",
+samples:[{input:"4 9\n2 7 11 15\n",output:"1 2\n"},{input:"3 6\n3 2 4\n",output:"2 3\n"},{input:"2 6\n3 3\n",output:"1 2\n"}],
+hint:"**關鍵字**：「兩個數的和」→ **雜湊表（dict/map）** O(n) 解法。\n**作法**：遍歷時對每個 a[i] 查找 `target - a[i]` 是否已在表中。\n**對比**：兩層迴圈是 O(n²)，雜湊表是 O(n)。\n**注意**：1-based 索引，輸出時 +1。"},
+
+{id:"o_2nd_max",title:"第二大的數",topic:"陣列、排序",date:"自製 中級",diff:"medium",
+desc:"給定 n 個整數（可能有重複），輸出**第二大的相異值**。\n\n例：[5, 3, 5, 2] → 最大是 5，第二大是 3。\n\n若沒有第二大（所有元素都相同），輸出 -1。",
+input_desc:"第一行 n（2≤n≤10⁵）；第二行 n 個整數。",
+output_desc:"輸出第二大的相異值，若不存在輸出 -1。",
+samples:[{input:"4\n5 3 5 2\n",output:"3\n"},{input:"3\n7 7 7\n",output:"-1\n"},{input:"5\n1 2 3 4 5\n",output:"4\n"}],
+hint:"**關鍵字**：「第二大」「相異值」→ 不能只取排序後倒數第二個（可能重複）。\n**作法一**：用 set 去重後排序，取倒數第二個。\n**作法二（O(n)）**：一次掃描，維護 `first, second` 兩個變數，注意 `x == first` 時不更新 second。"},
+
+{id:"o_transpose",title:"矩陣轉置",topic:"二維陣列",date:"自製 中級",diff:"medium",
+desc:"給定一個 n×m 矩陣，輸出**轉置矩陣**（m×n）。\n\n轉置：將矩陣行列對調，`b[j][i] = a[i][j]`。",
+input_desc:"第一行 n m（1≤n,m≤50）；接下來 n 行，每行 m 個整數。",
+output_desc:"輸出 m 行，每行 n 個整數（轉置後的矩陣），整數間以空白分隔。",
+samples:[{input:"2 3\n1 2 3\n4 5 6\n",output:"1 4\n2 5\n3 6\n"},{input:"1 4\n7 8 9 10\n",output:"7\n8\n9\n10\n"}],
+hint:"**關鍵字**：「轉置」「行列對調」→ 雙重迴圈直接賦值。\n**作法**：建立 m×n 陣列 b，`b[j][i] = a[i][j]`。\n**輸出格式**：每行末尾無多餘空白，用 `if i: print(' ')` 控制。"},
+
+{id:"o_str_compress",title:"字串壓縮",topic:"字串、計數",date:"自製 中級",diff:"medium",
+desc:"給定一個字串，將**連續相同字元**壓縮為「字元 + 次數」格式。次數為 1 時也要寫出。\n\n例：aaabccdd → a3b1c2d2",
+input_desc:"輸入一行字串（長度 ≤ 1000，只含小寫英文字母）。",
+output_desc:"輸出壓縮後的字串。",
+samples:[{input:"aaabccdd\n",output:"a3b1c2d2\n"},{input:"abcde\n",output:"a1b1c1d1e1\n"},{input:"aaaaa\n",output:"a5\n"}],
+hint:"**關鍵字**：「連續相同」「壓縮」→ 掃描 + 計數器（Run-Length Encoding）。\n**作法**：用 `cur_char` 和 `count` 變數，當字元變化時輸出並重置。\n**邊界**：迴圈結束後別忘了輸出最後一組。"},
+
+// ===== 自製高級題 =====
+{id:"o_edit_dist",title:"編輯距離",topic:"動態規劃（DP）",date:"自製 高級",diff:"hard",
+desc:"給定兩個字串 A 和 B，求將 A 轉換成 B 所需的**最少操作數**。\n\n允許三種操作：插入一個字元、刪除一個字元、替換一個字元。\n\n**Levenshtein 距離**經典問題。",
+input_desc:"輸入兩行，每行一個只含小寫字母的字串（長度 ≤ 1000）。",
+output_desc:"輸出最少操作數。",
+samples:[{input:"horse\nros\n",output:"3\n"},{input:"intention\nexecution\n",output:"5\n"},{input:"abc\nabc\n",output:"0\n"}],
+hint:"**關鍵字**：「最少操作」「插入/刪除/替換」→ **編輯距離 DP**。\n**狀態**：`dp[i][j]` = A 前 i 字元變成 B 前 j 字元的最少操作數。\n**轉移**：\n- A[i]==B[j]：`dp[i][j] = dp[i-1][j-1]`\n- 否則：`dp[i][j] = 1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])`（刪、插、替）\n**邊界**：`dp[0][j]=j, dp[i][0]=i`。"},
+
+{id:"o_nqueen",title:"N 皇后計數",topic:"回溯（Backtracking）",date:"自製 高級",diff:"hard",
+desc:"在 n×n 棋盤上放置 n 個皇后，使得**任意兩個皇后不在同行、同列、同斜線**。\n\n輸出總共有多少種放法（不分對稱）。",
+input_desc:"輸入一個正整數 n（1≤n≤10）。",
+output_desc:"輸出放置方案總數。",
+samples:[{input:"4\n",output:"2\n"},{input:"8\n",output:"92\n"},{input:"1\n",output:"1\n"}],
+hint:"**關鍵字**：「N 皇后」「同行/同列/同斜線」→ **回溯（DFS）**經典題。\n**作法**：逐行放置（自動避免同行衝突），用 3 個 set 記錄：已佔用的「列」「主對角線（r-c）」「副對角線（r+c）」。\n**遞迴**：若 row==n 表示找到一組解，count++ 後 return。"},
+
+{id:"o_kth_min",title:"第 k 小的元素",topic:"排序、快速選擇",date:"自製 高級",diff:"hard",
+desc:"給定 n 個整數，輸出**第 k 小的元素**（1-based，相同值算多次）。\n\n例：[3, 1, 2, 1, 5] 中第 2 小是 1，第 3 小是 2。",
+input_desc:"第一行 n k（1≤k≤n≤10⁵）；第二行 n 個整數。",
+output_desc:"輸出第 k 小的元素。",
+samples:[{input:"5 3\n3 1 2 1 5\n",output:"2\n"},{input:"4 1\n9 7 8 6\n",output:"6\n"},{input:"3 3\n5 5 5\n",output:"5\n"}],
+hint:"**關鍵字**：「第 k 小」→ 排序後取 a[k-1]。\n**簡單作法**：`sort()` + 索引，O(n log n)。\n**進階作法**：**快速選擇（QuickSelect）** O(n) 平均。\n**注意**：1-based 索引轉 0-based 要 -1。"}
 ];
 
 // ── Solutions per language ────────────────────────────────────────────────────
@@ -468,6 +562,20 @@ p2_bee_b:`n=int(input())\nt=list(map(int,input().split()))\nprint(max(t)-min(t))
 p2_bee_m:`n,w=map(int,input().split())\nt=list(map(int,input().split()))\nl=ans=0\nfor r in range(n):\n    while t[r]-t[l]>w: l+=1\n    ans=max(ans,r-l+1)\nprint(ans)`,
 p2_card_b:`n,k=map(int,input().split())\na=sorted(map(int,input().split()))\nprint(sum(a[-k:]))`,
 p2_card_m:`n=int(input())\na=sorted(map(int,input().split()))\nb=list(map(int,input().split()))\n# 貪心：對 b 中的每張，從 a 中找剛好能贏的最小牌\nused=[False]*n; score=0\nfor x in b:\n    # 找 a 中未使用且 > x 的最小者\n    best=-1\n    for i in range(n):\n        if not used[i] and a[i]>x:\n            best=i; break\n    if best>=0:\n        used[best]=True; score+=1\nprint(score)`
+,
+o_avg:`n=int(input())\nscores=list(map(int,input().split()))\nprint((sum(scores)*2+n)//(2*n))`,
+o_isprime:`n=int(input())\nif n<2: print('No')\nelse:\n    is_p=True\n    i=2\n    while i*i<=n:\n        if n%i==0: is_p=False; break\n        i+=1\n    print('Yes' if is_p else 'No')`,
+o_count_digit:`n=int(input())\nif n==0: print(1)\nelse:\n    cnt=0\n    while n>0: cnt+=1; n//=10\n    print(cnt)`,
+o_reverse_num:`n=int(input())\nrev=0\nwhile n>0: rev=rev*10+n%10; n//=10\nprint(rev)`,
+o_count_char:`s=input(); c=input()\nprint(s.count(c))`,
+o_prefix:`n,q=map(int,input().split())\na=list(map(int,input().split()))\npref=[0]*(n+1)\nfor i in range(n): pref[i+1]=pref[i]+a[i]\nfor _ in range(q):\n    l,r=map(int,input().split())\n    print(pref[r]-pref[l-1])`,
+o_twosum:`n,target=map(int,input().split())\na=list(map(int,input().split()))\nseen={}\nfor i,x in enumerate(a):\n    if target-x in seen:\n        print(seen[target-x]+1,i+1); break\n    seen[x]=i`,
+o_2nd_max:`n=int(input())\na=list(map(int,input().split()))\ndist=sorted(set(a),reverse=True)\nprint(dist[1] if len(dist)>=2 else -1)`,
+o_transpose:`n,m=map(int,input().split())\na=[list(map(int,input().split()))for _ in range(n)]\nfor j in range(m):\n    print(' '.join(str(a[i][j])for i in range(n)))`,
+o_str_compress:`s=input()\nres=''; i=0\nwhile i<len(s):\n    j=i\n    while j<len(s)and s[j]==s[i]: j+=1\n    res+=s[i]+str(j-i); i=j\nprint(res)`,
+o_edit_dist:`A=input(); B=input()\nm,n=len(A),len(B)\ndp=[[0]*(n+1)for _ in range(m+1)]\nfor i in range(m+1): dp[i][0]=i\nfor j in range(n+1): dp[0][j]=j\nfor i in range(1,m+1):\n    for j in range(1,n+1):\n        if A[i-1]==B[j-1]: dp[i][j]=dp[i-1][j-1]\n        else: dp[i][j]=1+min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1])\nprint(dp[m][n])`,
+o_nqueen:`n=int(input())\ncount=[0]\ndef solve(row,cols,d1,d2):\n    if row==n: count[0]+=1; return\n    for c in range(n):\n        if c in cols or row-c in d1 or row+c in d2: continue\n        cols.add(c); d1.add(row-c); d2.add(row+c)\n        solve(row+1,cols,d1,d2)\n        cols.remove(c); d1.remove(row-c); d2.remove(row+c)\nsolve(0,set(),set(),set())\nprint(count[0])`,
+o_kth_min:`n,k=map(int,input().split())\na=sorted(map(int,input().split()))\nprint(a[k-1])`
 },
 cpp: {
 b964:`#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nint main(){\n    int n; cin>>n;\n    vector<int> s(n);\n    for(auto& x:s) cin>>x;\n    sort(s.begin(),s.end());\n    for(int i=0;i<n;i++){if(i)cout<<" ";cout<<s[i];}\n    cout<<"\\n";\n    int hf=-1,lp=-1;\n    for(int x:s){if(x<60)hf=x;else if(lp==-1)lp=x;}\n    if(hf==-1)cout<<"best case\\n";else cout<<hf<<"\\n";\n    if(lp==-1)cout<<"worst case\\n";else cout<<lp<<"\\n";\n}`,
@@ -618,6 +726,154 @@ int main(){
     }
     cout<<score<<"\n";
 }`
+
+,
+o_avg:`#include <iostream>
+#include <vector>
+using namespace std;
+int main(){
+    int n;cin>>n;
+    long long s=0;int x;
+    for(int i=0;i<n;i++){cin>>x;s+=x;}
+    cout<<(s*2+n)/(2LL*n)<<"\n";
+}`,
+o_isprime:`#include <iostream>
+using namespace std;
+int main(){
+    long long n;cin>>n;
+    if(n<2){cout<<"No\n";return 0;}
+    for(long long i=2;i*i<=n;i++)if(n%i==0){cout<<"No\n";return 0;}
+    cout<<"Yes\n";
+}`,
+o_count_digit:`#include <iostream>
+using namespace std;
+int main(){
+    long long n;cin>>n;
+    if(n==0){cout<<1<<"\n";return 0;}
+    int cnt=0;
+    while(n>0){cnt++;n/=10;}
+    cout<<cnt<<"\n";
+}`,
+o_reverse_num:`#include <iostream>
+using namespace std;
+int main(){
+    long long n,rev=0;cin>>n;
+    while(n>0){rev=rev*10+n%10;n/=10;}
+    cout<<rev<<"\n";
+}`,
+o_count_char:`#include <iostream>
+#include <string>
+using namespace std;
+int main(){
+    string s;char c;cin>>s>>c;
+    int cnt=0;
+    for(char x:s)if(x==c)cnt++;
+    cout<<cnt<<"\n";
+}`,
+o_prefix:`#include <iostream>
+#include <vector>
+using namespace std;
+int main(){
+    int n,q;cin>>n>>q;
+    vector<long long>pref(n+1,0);
+    for(int i=0;i<n;i++){int x;cin>>x;pref[i+1]=pref[i]+x;}
+    while(q--){int l,r;cin>>l>>r;cout<<pref[r]-pref[l-1]<<"\n";}
+}`,
+o_twosum:`#include <iostream>
+#include <vector>
+#include <unordered_map>
+using namespace std;
+int main(){
+    int n,target;cin>>n>>target;
+    unordered_map<int,int>seen;
+    for(int i=0;i<n;i++){
+        int x;cin>>x;
+        if(seen.count(target-x)){cout<<seen[target-x]+1<<" "<<i+1<<"\n";return 0;}
+        seen[x]=i;
+    }
+}`,
+o_2nd_max:`#include <iostream>
+#include <set>
+using namespace std;
+int main(){
+    int n;cin>>n;
+    set<int,greater<int>>s;
+    for(int i=0;i<n;i++){int x;cin>>x;s.insert(x);}
+    if(s.size()<2){cout<<-1<<"\n";return 0;}
+    auto it=s.begin();++it;
+    cout<<*it<<"\n";
+}`,
+o_transpose:`#include <iostream>
+#include <vector>
+using namespace std;
+int main(){
+    int n,m;cin>>n>>m;
+    vector<vector<int>>a(n,vector<int>(m));
+    for(auto&r:a)for(auto&x:r)cin>>x;
+    for(int j=0;j<m;j++){
+        for(int i=0;i<n;i++){if(i)cout<<" ";cout<<a[i][j];}
+        cout<<"\n";
+    }
+}`,
+o_str_compress:`#include <iostream>
+#include <string>
+using namespace std;
+int main(){
+    string s;cin>>s;
+    int i=0,n=s.size();
+    while(i<n){
+        int j=i;
+        while(j<n&&s[j]==s[i])j++;
+        cout<<s[i]<<(j-i);
+        i=j;
+    }
+    cout<<"\n";
+}`,
+o_edit_dist:`#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+using namespace std;
+int main(){
+    string A,B;cin>>A>>B;
+    int m=A.size(),n=B.size();
+    vector<vector<int>>dp(m+1,vector<int>(n+1,0));
+    for(int i=0;i<=m;i++)dp[i][0]=i;
+    for(int j=0;j<=n;j++)dp[0][j]=j;
+    for(int i=1;i<=m;i++)for(int j=1;j<=n;j++){
+        if(A[i-1]==B[j-1])dp[i][j]=dp[i-1][j-1];
+        else dp[i][j]=1+min({dp[i-1][j],dp[i][j-1],dp[i-1][j-1]});
+    }
+    cout<<dp[m][n]<<"\n";
+}`,
+o_nqueen:`#include <iostream>
+#include <set>
+using namespace std;
+int n,cnt=0;
+set<int>cols,d1,d2;
+void solve(int row){
+    if(row==n){cnt++;return;}
+    for(int c=0;c<n;c++){
+        if(cols.count(c)||d1.count(row-c)||d2.count(row+c))continue;
+        cols.insert(c);d1.insert(row-c);d2.insert(row+c);
+        solve(row+1);
+        cols.erase(c);d1.erase(row-c);d2.erase(row+c);
+    }
+}
+int main(){
+    cin>>n;solve(0);
+    cout<<cnt<<"\n";
+}`,
+o_kth_min:`#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+int main(){
+    int n,k;cin>>n>>k;
+    vector<int>a(n);for(auto&x:a)cin>>x;
+    sort(a.begin(),a.end());
+    cout<<a[k-1]<<"\n";
+}`
 },
 c: {
 b964:`#include <stdio.h>\n#include <stdlib.h>\nint cmp(const void*a,const void*b){return *(int*)a-*(int*)b;}\nint main(){\n    int n;scanf("%d",&n);\n    int s[20];for(int i=0;i<n;i++)scanf("%d",&s[i]);\n    qsort(s,n,sizeof(int),cmp);\n    for(int i=0;i<n;i++){if(i)printf(" ");printf("%d",s[i]);}printf("\\n");\n    int hf=-1,lp=-1;\n    for(int i=0;i<n;i++){if(s[i]<60)hf=s[i];else if(lp==-1)lp=s[i];}\n    if(hf==-1)printf("best case\\n");else printf("%d\\n",hf);\n    if(lp==-1)printf("worst case\\n");else printf("%d\\n",lp);\n    return 0;\n}`,
@@ -757,6 +1013,136 @@ int main(){
         }
     }
     printf("%d\n",score);
+}`
+
+,
+o_avg:`#include <stdio.h>
+int main(){
+    int n;scanf("%d",&n);
+    long long s=0;int x;
+    for(int i=0;i<n;i++){scanf("%d",&x);s+=x;}
+    printf("%lld\n",(s*2+n)/(2LL*n));
+}`,
+o_isprime:`#include <stdio.h>
+int main(){
+    long long n;scanf("%lld",&n);
+    if(n<2){printf("No\n");return 0;}
+    for(long long i=2;i*i<=n;i++)if(n%i==0){printf("No\n");return 0;}
+    printf("Yes\n");
+}`,
+o_count_digit:`#include <stdio.h>
+int main(){
+    long long n;scanf("%lld",&n);
+    if(n==0){printf("1\n");return 0;}
+    int cnt=0;
+    while(n>0){cnt++;n/=10;}
+    printf("%d\n",cnt);
+}`,
+o_reverse_num:`#include <stdio.h>
+int main(){
+    long long n,rev=0;scanf("%lld",&n);
+    while(n>0){rev=rev*10+n%10;n/=10;}
+    printf("%lld\n",rev);
+}`,
+o_count_char:`#include <stdio.h>
+#include <string.h>
+int main(){
+    char s[1001],c;
+    scanf("%s %c",s,&c);
+    int cnt=0;
+    for(int i=0;s[i];i++)if(s[i]==c)cnt++;
+    printf("%d\n",cnt);
+}`,
+o_prefix:`#include <stdio.h>
+long long pref[100001];
+int main(){
+    int n,q;scanf("%d %d",&n,&q);
+    for(int i=0;i<n;i++){int x;scanf("%d",&x);pref[i+1]=pref[i]+x;}
+    while(q--){int l,r;scanf("%d %d",&l,&r);printf("%lld\n",pref[r]-pref[l-1]);}
+}`,
+o_twosum:`#include <stdio.h>
+int a[100001];
+int main(){
+    int n,target;scanf("%d %d",&n,&target);
+    for(int i=0;i<n;i++)scanf("%d",&a[i]);
+    for(int i=0;i<n;i++)for(int j=i+1;j<n;j++)if(a[i]+a[j]==target){printf("%d %d\n",i+1,j+1);return 0;}
+}`,
+o_2nd_max:`#include <stdio.h>
+#include <stdlib.h>
+int cmp(const void*a,const void*b){return *(int*)b-*(int*)a;}
+int main(){
+    int n;scanf("%d",&n);
+    int a[100000];
+    for(int i=0;i<n;i++)scanf("%d",&a[i]);
+    qsort(a,n,sizeof(int),cmp);
+    int sec=-1;
+    for(int i=1;i<n;i++)if(a[i]!=a[0]){sec=a[i];break;}
+    printf("%d\n",sec);
+}`,
+o_transpose:`#include <stdio.h>
+int a[51][51];
+int main(){
+    int n,m;scanf("%d %d",&n,&m);
+    for(int i=0;i<n;i++)for(int j=0;j<m;j++)scanf("%d",&a[i][j]);
+    for(int j=0;j<m;j++){
+        for(int i=0;i<n;i++){if(i)printf(" ");printf("%d",a[i][j]);}
+        printf("\n");
+    }
+}`,
+o_str_compress:`#include <stdio.h>
+#include <string.h>
+int main(){
+    char s[1001];scanf("%s",s);
+    int n=strlen(s),i=0;
+    while(i<n){
+        int j=i;
+        while(j<n&&s[j]==s[i])j++;
+        printf("%c%d",s[i],j-i);
+        i=j;
+    }
+    printf("\n");
+}`,
+o_edit_dist:`#include <stdio.h>
+#include <string.h>
+int dp[1001][1001];
+int min3(int a,int b,int c){int m=a<b?a:b;return m<c?m:c;}
+int main(){
+    char A[1001],B[1001];scanf("%s %s",A,B);
+    int m=strlen(A),n=strlen(B);
+    for(int i=0;i<=m;i++)dp[i][0]=i;
+    for(int j=0;j<=n;j++)dp[0][j]=j;
+    for(int i=1;i<=m;i++)for(int j=1;j<=n;j++){
+        if(A[i-1]==B[j-1])dp[i][j]=dp[i-1][j-1];
+        else dp[i][j]=1+min3(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+    }
+    printf("%d\n",dp[m][n]);
+}`,
+o_nqueen:`#include <stdio.h>
+int n,cnt=0;
+int cols[11],d1[21],d2[21];
+void solve(int row){
+    if(row==n){cnt++;return;}
+    for(int c=0;c<n;c++){
+        if(cols[c]||d1[row-c+10]||d2[row+c])continue;
+        cols[c]=1;d1[row-c+10]=1;d2[row+c]=1;
+        solve(row+1);
+        cols[c]=0;d1[row-c+10]=0;d2[row+c]=0;
+    }
+}
+int main(){
+    scanf("%d",&n);
+    solve(0);
+    printf("%d\n",cnt);
+}`,
+o_kth_min:`#include <stdio.h>
+#include <stdlib.h>
+int cmp(const void*a,const void*b){return *(int*)a-*(int*)b;}
+int main(){
+    int n,k;scanf("%d %d",&n,&k);
+    int a[100000];
+    for(int i=0;i<n;i++)scanf("%d",&a[i]);
+    qsort(a,n,sizeof(int),cmp);
+    printf("%d\n",a[k-1]);
 }`
 },
 java: {
@@ -909,6 +1295,174 @@ public class Main {
             }
         }
         System.out.println(score);
+    }
+}`
+
+,
+o_avg:`import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc=new Scanner(System.in);
+        int n=sc.nextInt();long s=0;
+        for(int i=0;i<n;i++)s+=sc.nextInt();
+        System.out.println((s*2+n)/(2L*n));
+    }
+}`,
+o_isprime:`import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        long n=new Scanner(System.in).nextLong();
+        if(n<2){System.out.println("No");return;}
+        for(long i=2;i*i<=n;i++)if(n%i==0){System.out.println("No");return;}
+        System.out.println("Yes");
+    }
+}`,
+o_count_digit:`import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        long n=new Scanner(System.in).nextLong();
+        if(n==0){System.out.println(1);return;}
+        int cnt=0;
+        while(n>0){cnt++;n/=10;}
+        System.out.println(cnt);
+    }
+}`,
+o_reverse_num:`import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        long n=new Scanner(System.in).nextLong(),rev=0;
+        while(n>0){rev=rev*10+n%10;n/=10;}
+        System.out.println(rev);
+    }
+}`,
+o_count_char:`import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc=new Scanner(System.in);
+        String s=sc.next();char c=sc.next().charAt(0);
+        int cnt=0;
+        for(char x:s.toCharArray())if(x==c)cnt++;
+        System.out.println(cnt);
+    }
+}`,
+o_prefix:`import java.util.*;
+import java.io.*;
+public class Main {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st=new StringTokenizer(br.readLine());
+        int n=Integer.parseInt(st.nextToken()),q=Integer.parseInt(st.nextToken());
+        long[]pref=new long[n+1];
+        st=new StringTokenizer(br.readLine());
+        for(int i=0;i<n;i++)pref[i+1]=pref[i]+Long.parseLong(st.nextToken());
+        StringBuilder sb=new StringBuilder();
+        while(q-->0){
+            st=new StringTokenizer(br.readLine());
+            int l=Integer.parseInt(st.nextToken()),r=Integer.parseInt(st.nextToken());
+            sb.append(pref[r]-pref[l-1]).append('\n');
+        }
+        System.out.print(sb);
+    }
+}`,
+o_twosum:`import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc=new Scanner(System.in);
+        int n=sc.nextInt(),target=sc.nextInt();
+        Map<Integer,Integer>seen=new HashMap<>();
+        for(int i=0;i<n;i++){
+            int x=sc.nextInt();
+            if(seen.containsKey(target-x)){System.out.println((seen.get(target-x)+1)+" "+(i+1));return;}
+            seen.put(x,i);
+        }
+    }
+}`,
+o_2nd_max:`import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc=new Scanner(System.in);
+        int n=sc.nextInt();
+        TreeSet<Integer>s=new TreeSet<>(Collections.reverseOrder());
+        for(int i=0;i<n;i++)s.add(sc.nextInt());
+        if(s.size()<2){System.out.println(-1);return;}
+        Iterator<Integer>it=s.iterator();it.next();
+        System.out.println(it.next());
+    }
+}`,
+o_transpose:`import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc=new Scanner(System.in);
+        int n=sc.nextInt(),m=sc.nextInt();
+        int[][]a=new int[n][m];
+        for(int i=0;i<n;i++)for(int j=0;j<m;j++)a[i][j]=sc.nextInt();
+        StringBuilder sb=new StringBuilder();
+        for(int j=0;j<m;j++){
+            for(int i=0;i<n;i++){if(i>0)sb.append(' ');sb.append(a[i][j]);}
+            sb.append('\n');
+        }
+        System.out.print(sb);
+    }
+}`,
+o_str_compress:`import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        String s=new Scanner(System.in).next();
+        StringBuilder sb=new StringBuilder();
+        int i=0,n=s.length();
+        while(i<n){
+            int j=i;
+            while(j<n&&s.charAt(j)==s.charAt(i))j++;
+            sb.append(s.charAt(i)).append(j-i);
+            i=j;
+        }
+        System.out.println(sb);
+    }
+}`,
+o_edit_dist:`import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc=new Scanner(System.in);
+        String A=sc.next(),B=sc.next();
+        int m=A.length(),n=B.length();
+        int[][]dp=new int[m+1][n+1];
+        for(int i=0;i<=m;i++)dp[i][0]=i;
+        for(int j=0;j<=n;j++)dp[0][j]=j;
+        for(int i=1;i<=m;i++)for(int j=1;j<=n;j++){
+            if(A.charAt(i-1)==B.charAt(j-1))dp[i][j]=dp[i-1][j-1];
+            else dp[i][j]=1+Math.min(Math.min(dp[i-1][j],dp[i][j-1]),dp[i-1][j-1]);
+        }
+        System.out.println(dp[m][n]);
+    }
+}`,
+o_nqueen:`import java.util.*;
+public class Main {
+    static int n,cnt=0;
+    static boolean[]cols,d1,d2;
+    static void solve(int row){
+        if(row==n){cnt++;return;}
+        for(int c=0;c<n;c++){
+            if(cols[c]||d1[row-c+10]||d2[row+c])continue;
+            cols[c]=true;d1[row-c+10]=true;d2[row+c]=true;
+            solve(row+1);
+            cols[c]=false;d1[row-c+10]=false;d2[row+c]=false;
+        }
+    }
+    public static void main(String[] args) {
+        n=new Scanner(System.in).nextInt();
+        cols=new boolean[n+1];d1=new boolean[2*n+1];d2=new boolean[2*n+1];
+        solve(0);
+        System.out.println(cnt);
+    }
+}`,
+o_kth_min:`import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc=new Scanner(System.in);
+        int n=sc.nextInt(),k=sc.nextInt();
+        int[]a=new int[n];for(int i=0;i<n;i++)a[i]=sc.nextInt();
+        Arrays.sort(a);
+        System.out.println(a[k-1]);
     }
 }`
 }
