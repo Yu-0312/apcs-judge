@@ -153,6 +153,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
         <button class="btn btn-run" id="run-btn" onclick="runCode()" disabled>▶ 執行並評分</button>
         <button class="btn btn-sec" onclick="clearEditor()">清空</button>
         <button class="btn btn-sample" onclick="loadSample()">載入解答</button>
+        <button class="btn btn-sec" onclick="showHint()" title="顯示解題思路">💡 思路</button>
         <span style="flex:1"></span>
         <span id="lang-label" style="font-size:11px;color:var(--text-muted);">-</span>
       </div>
@@ -172,122 +173,248 @@ const PROBLEMS=[
 desc:"讀入全班成績，排序後找出不及格中最高分數（或 best case）和及格中最低分數（或 worst case）。及格分數為 60。",
 input_desc:"第一行學生人數，第二行各學生分數（0~100），以空白分隔。學生人數為 1~20 的整數。",
 output_desc:"第一行由小而大印出所有成績；第二行最高不及格分數或 best case；第三行最低及格分數或 worst case。",
-samples:[{input:"10\n0 11 22 33 55 66 77 99 88 44\n",output:"0 11 22 33 44 55 66 77 88 99\n55\n66\n"},{input:"1\n13\n",output:"13\n13\nworst case\n"},{input:"2\n73 65\n",output:"65 73\nbest case\n65\n"}]},
+samples:[{input:"10\n0 11 22 33 55 66 77 99 88 44\n",output:"0 11 22 33 44 55 66 77 88 99\n55\n66\n"},{input:"1\n13\n",output:"13\n13\nworst case\n"},{input:"2\n73 65\n",output:"65 73\nbest case\n65\n"}],hint:"**關鍵字**：「排序」「最高/最低」「不及格中最高」→ `sort()` 後掃過一次。\n**特殊值**：題目說「找不到時印 best case / worst case」→ 用 `None`（Python）或 `-1`（C/C++）當「未找到」標記。\n**輸出格式**：第一行用 `print(*scores)` 自動空白分隔。"},
 {id:"c294",title:"三角形辨別",topic:"條件判斷",date:"2016/10",
 desc:"給定三個線段長度，判斷能否構成三角形；若可以，判斷為 Obtuse / Right / Acute。\n\n若 a+b≤c → No；a²+b²<c² → Obtuse；a²+b²=c² → Right；a²+b²>c² → Acute",
 input_desc:"一行三個正整數，皆小於 30001。",
 output_desc:"第一行由小而大印出三個正整數；第二行輸出 No/Obtuse/Right/Acute。",
-samples:[{input:"3 4 5\n",output:"3 4 5\nRight\n"},{input:"101 100 99\n",output:"99 100 101\nAcute\n"},{input:"10 10 100\n",output:"10 10 100\nNo\n"}]},
+samples:[{input:"3 4 5\n",output:"3 4 5\nRight\n"},{input:"101 100 99\n",output:"99 100 101\nAcute\n"},{input:"10 10 100\n",output:"10 10 100\nNo\n"}],hint:"**關鍵字**：「三邊」「c 為最大值」→ 先 `sort` 把最大邊放在最後。\n**判斷順序**：先檢查 `a+b≤c`（無法構成）→ 再比 `a²+b²` vs `c²`（角度類型）。\n**陷阱**：浮點數比較會有誤差，本題用整數平方 `a*a+b*b == c*c` 比較安全。"},
 {id:"c290",title:"秘密差",topic:"字串",date:"2017/03",
 desc:"將十進位正整數的奇數位數字和稱為 A，偶數位數字和稱為 B，|A－B| 為秘密差。（從個位開始算第 1 位）\n\n例如：263541 → A=6+5+1=12，B=2+3+4=9，秘密差=3。",
 input_desc:"輸入一個十進位正整數 X。",
 output_desc:"輸出 X 的秘密差。",
-samples:[{input:"263541\n",output:"3\n"},{input:"131\n",output:"1\n"}]},
+samples:[{input:"263541\n",output:"3\n"},{input:"131\n",output:"1\n"}],hint:"**關鍵字**：「奇數位」「從個位開始」→ 反轉字串後用索引 `i%2` 區分奇偶位。\n**作法**：`s[::-1]` 反轉 → enumerate → 偶數索引(0,2,4) 是第 1,3,5 位（奇數位）。\n**輸出**：絕對值用 `abs()`。"},
 {id:"c461",title:"邏輯運算子",topic:"條件判斷",date:"2017/10",
 desc:"給非負整數 a, b 和結果 r（0 或 1），判斷哪些邏輯運算（AND/OR/XOR）能讓 a 和 b 得到結果 r。非零整數視為 1。若不可能輸出 IMPOSSIBLE。",
 input_desc:"一行三個整數 a b r。",
 output_desc:"輸出符合的運算（AND/OR/XOR），每行一個。若不可能輸出 IMPOSSIBLE。",
-samples:[{input:"0 0 0\n",output:"AND\nOR\nXOR\n"},{input:"1 1 1\n",output:"AND\nOR\n"},{input:"3 0 1\n",output:"OR\nXOR\n"},{input:"0 0 1\n",output:"IMPOSSIBLE\n"}]},
+samples:[{input:"0 0 0\n",output:"AND\nOR\nXOR\n"},{input:"1 1 1\n",output:"AND\nOR\n"},{input:"3 0 1\n",output:"OR\nXOR\n"},{input:"0 0 1\n",output:"IMPOSSIBLE\n"}],hint:"**關鍵字**：「非負整數」「0 或 1 的運算結果」→ 非零視為 1。\n**作法**：先把 a, b 標準化成 0/1，然後用 Python/C++ 的位元運算 `&`, `|`, `^` 直接套公式。\n**輸出順序**：題目指定 AND, OR, XOR 順序固定，不需排序。"},
 {id:"e283",title:"特殊編碼",topic:"陣列",date:"2018/06",
 desc:"每個字串由 A~F 組成，編碼：A→0101, B→0111, C→0010, D→1101, E→1000, F→1100。\n\n多筆輸入：每筆第一行 N，接下來 N 行各 4 個數字，以 EOF 結束。",
 input_desc:"多筆輸入，每筆第一行 N，接下來 N 行各 4 個 0 或 1，以 EOF 結束。",
 output_desc:"多筆輸出，每筆輸出原始字串。",
-samples:[{input:"1\n0 1 0 1\n1\n0 0 1 0\n2\n1 0 0 0\n1 1 0 0\n4\n1 1 0 1\n1 0 0 0\n0 1 1 1\n1 1 0 1\n",output:"A\nC\nEF\nDEBD\n"}]},
+samples:[{input:"1\n0 1 0 1\n1\n0 0 1 0\n2\n1 0 0 0\n1 1 0 0\n4\n1 1 0 1\n1 0 0 0\n0 1 1 1\n1 1 0 1\n",output:"A\nC\nEF\nDEBD\n"}],hint:"**關鍵字**：「對照表」「4-bit 序列」「直到 EOF」→ 用 dict/map 做查表，迴圈讀到 EOF。\n**作法**：將 4 個輸入數字拼成字串 key 查表得到字元。\n**EOF 處理**：Python 用 `try/except EOFError`；C/C++ 用 `while(cin >> n)` 或 `scanf` 回傳值判斷。"},
 {id:"e313",title:"最少相異字母",topic:"陣列",date:"2018/10",
 desc:"在 N 個字串中，找出含有最少相異字母的字串。有多個時選字典序最小者。",
 input_desc:"第一行 N；接下來 N 行，每行一個只含大寫字母的字串。",
 output_desc:"輸出最少相異字母的字串（字典序最小）。",
-samples:[{input:"3\nABBCAAB\nAABBACC\nAAPPCCSS\n",output:"AABBACC\n"}]},
+samples:[{input:"3\nABBCAAB\nAABBACC\nAAPPCCSS\n",output:"AABBACC\n"}],hint:"**關鍵字**：「最少相異字母」「字典序最小」→ 雙重排序條件。\n**作法**：用 `set` 算相異字母數，更新條件：`count < best_count` 或 `count == best_count and s < best`。\n**注意**：字串比較直接用 `<`（Python/C++ 內建字典序）。"},
 {id:"e286",title:"籃球比賽",topic:"陣列",date:"2019/06",
 desc:"兩隊進行兩場籃球比賽（每場四局）。輸出每場比數，最後輸出主隊勝負：Win/Lose/Tie。",
 input_desc:"四行，每行四個數字（四局分數），第一二行為第一場主客隊，第三四行為第二場。",
 output_desc:"兩行比數（主:客），第三行 Win/Lose/Tie。",
-samples:[{input:"87 87 87 87\n78 78 78 78\n87 87 87 87\n78 78 78 78\n",output:"348:312\n348:312\nWin\n"}]},
+samples:[{input:"87 87 87 87\n78 78 78 78\n87 87 87 87\n78 78 78 78\n",output:"348:312\n348:312\nWin\n"}],hint:"**關鍵字**：「四局分數」「兩場」→ 用 `sum(map(int, input().split()))` 直接相加四局。\n**勝負判斷**：用布林轉整數計算贏的場數，例如 `(h1>c1) + (h2>c2)`。\n**輸出格式**：`{h1}:{c1}` 用 f-string 或 `cout<<h1<<\":\"<<c1`。"},
 {id:"h026",title:"猜拳",topic:"條件判斷",date:"2020/01",
 desc:"出拳：0(石頭)、2(剪刀)、5(布)。哥哥第一輪出 F。策略：若妹妹連續兩輪出同一拳→出打敗該拳；否則→出妹妹前一輪的拳。輸出哥哥每輪出拳及勝負。",
 input_desc:"第一行哥哥第一輪出拳 F；第二行 N；第三行妹妹出的 N 個拳。",
 output_desc:"輸出哥哥每輪出拳及勝負結果（Won/Lost/Drew at round k）。",
-samples:[{input:"0\n4\n2 5 0 2\n",output:"0 : Won at round 1\n"},{input:"5\n4\n5 5 0 0\n",output:"5 5 2 : Lost at round 3\n"},{input:"5\n6\n5 5 2 2 0 0\n",output:"5 5 2 2 0 0 : Drew at round 6\n"}]},
+samples:[{input:"0\n4\n2 5 0 2\n",output:"0 : Won at round 1\n"},{input:"5\n4\n5 5 0 0\n",output:"5 5 2 : Lost at round 3\n"},{input:"5\n6\n5 5 2 2 0 0\n",output:"5 5 2 2 0 0 : Drew at round 6\n"}],hint:"**關鍵字**：「連續兩輪一樣」「打敗的拳」→ 寫 helper function `beat(x)` 處理勝負規則。\n**狀態**：用 `finished` 旗標避免太早 break。\n**核心邏輯**：每輪先檢查勝負，再決定下一輪的拳（i>=1 且 y[i]==y[i-1] 時出 `beat(y[i])`）。"},
 {id:"f579",title:"購物車",topic:"計數",date:"2020/07",
 desc:"給商品編號 a, b。感應器記錄：正整數 x 表示放入 x，負整數 -x 表示移除 x，0 表示結束。統計同時購買兩商品的客人數。",
 input_desc:"第一行 a, b；第二行客人數 n；接下來 n 行每行是購物車紀錄（最後為 0）。",
 output_desc:"輸出同時購買商品 a 與 b 的客人數。",
-samples:[{input:"1 8\n5\n1 8 0\n5 6 0\n2 7 0\n8 1 0\n33 22 0\n",output:"2\n"},{input:"3 9\n2\n3 9 -3 3 9 0\n3 3 -3 -3 9 0\n",output:"1\n"}]},
+samples:[{input:"1 8\n5\n1 8 0\n5 6 0\n2 7 0\n8 1 0\n33 22 0\n",output:"2\n"},{input:"3 9\n2\n3 9 -3 3 9 0\n3 3 -3 -3 9 0\n",output:"1\n"}],hint:"**關鍵字**：「最後購買 = 放入 > 取出」→ 每位客人獨立計數，只追蹤商品 a 和 b。\n**作法**：對每筆紀錄掃描，正數加 1，負數減 1，遇到 0 停止。\n**簡化**：題目只關心兩件商品，用兩個變數 `ca, cb` 即可，不必字典。"},
 {id:"f312",title:"人力分配",topic:"枚舉",date:"2020/10",
 desc:"兩工廠，收益為二次函數 Y₁=A₁X₁²+B₁X₁+C₁，Y₂=A₂X₂²+B₂X₂+C₂。n 個員工全部分配到兩廠，枚舉所有分配方式，輸出最大收益。",
 input_desc:"第一行 A₁ B₁ C₁；第二行 A₂ B₂ C₂；第三行 n（1≤n≤100）。",
 output_desc:"輸出最大收益。",
-samples:[{input:"2 -1 3\n4 -5 2\n2\n",output:"11\n"}]},
+samples:[{input:"2 -1 3\n4 -5 2\n2\n",output:"11\n"}],hint:"**關鍵字**：「每個員工都必須分配」「最大收益」→ 枚舉 X₁ 從 0 到 n。\n**作法**：`X₂ = n - X₁`，套二次式 Y = AX² + BX + C 計算總和。\n**注意**：可能負值，初始化 `best = None` 或 `LONG_MIN`。"},
 {id:"f605",title:"購買力",topic:"枚舉",date:"2021/01",
 desc:"市場 n 個商品，三天價格。若最高最低差≥d 則購買（費用為平均值，保證整數）。輸出購買數量和總費用。",
 input_desc:"第一行 n, d；接下來 n 行，每行三個價格。",
 output_desc:"輸出購買數量和總費用（空格分隔）。",
-samples:[{input:"1 3\n24 27 21\n",output:"1 24\n"},{input:"3 4\n24 33 42\n51 48 60\n77 77 77\n",output:"2 86\n"}]},
+samples:[{input:"1 3\n24 27 21\n",output:"1 24\n"},{input:"3 4\n24 33 42\n51 48 60\n77 77 77\n",output:"2 86\n"}],hint:"**關鍵字**：「最高最低差至少 d」「三天平均」→ 用 `max(prices) - min(prices) >= d` 篩選。\n**作法**：迴圈讀入每商品三天價格，符合條件就 `cnt++; cost += sum(prices)//3`。\n**注意**：題目保證平均為整數，直接整數除法。"},
 {id:"g275",title:"七言對聯",topic:"條件判斷",date:"2021/09",
 desc:"七言對聯三條規則：A 二四不同二六同；B 上句末仄(1)下句末平(0)；C 上下第2,4,6字平仄相反。輸出違反的規則或 None。",
 input_desc:"第一行 n；接下來 2n 行，每行 7 個 0 或 1。",
 output_desc:"對每組對聯輸出違反的規則（A/B/C 組合）或 None。",
-samples:[{input:"1\n1 1 0 0 0 1 1\n1 0 0 0 1 1 0\n",output:"AC\n"},{input:"1\n0 1 1 0 1 1 1\n1 0 1 1 0 0 0\n",output:"None\n"}]},
+samples:[{input:"1\n1 1 0 0 0 1 1\n1 0 0 0 1 1 0\n",output:"AC\n"},{input:"1\n0 1 1 0 1 1 1\n1 0 1 1 0 0 0\n",output:"None\n"}],hint:"**關鍵字**：「平仄 0/1」「7 個字」「規則 A/B/C」→ 用陣列存每個位置，依規則比對。\n**索引對應**：第 2,4,6 字 = 索引 1,3,5；末字 = 索引 6。\n**字串拼接**：違反規則時 `bad += 'A'`，最後判斷是否為空輸出 None。"},
 {id:"g595",title:"修補圍籬",topic:"陣列",date:"2021/11",
 desc:"有 n 個圍籬，高度為 0 的被吹斷。農場主人取左右較小高度填上。保證不會有兩個相鄰的吹斷圍籬。求新增圍籬長度總和。",
 input_desc:"第一行 n（3≤n≤100）；第二行 n 個整數（0≤h[i]≤100）。",
 output_desc:"輸出新增的圍籬長度總和。",
-samples:[{input:"3\n2 0 4\n",output:"2\n"},{input:"9\n0 5 3 0 6 4 0 1 0\n",output:"10\n"}]},
+samples:[{input:"3\n2 0 4\n",output:"2\n"},{input:"9\n0 5 3 0 6 4 0 1 0\n",output:"10\n"}],hint:"**關鍵字**：「相鄰較小高度」「邊界」「不會兩個相鄰吹斷」→ 對每個 0 直接看左右鄰居。\n**邊界處理**：`i==0` 只看右；`i==n-1` 只看左；中間取 `min(h[i-1], h[i+1])`。"},
 {id:"h081",title:"程式交易",topic:"條件判斷",date:"2022/01",
 desc:"股票交易：在時間點 1 買進；持股時遇到 y≥買進價+D 即賣出；未持股時遇到 y≤上次賣出價-D 則買進。若結束仍持股則忽略。輸出總利潤。",
 input_desc:"第一行 n, D；接下來 n 個正整數代表股票價格。",
 output_desc:"輸出總利潤。",
-samples:[{input:"3 10\n50 20 45\n",output:"0\n"},{input:"6 10\n30 20 45 38 10 20\n",output:"25\n"}]},
+samples:[{input:"3 10\n50 20 45\n",output:"0\n"},{input:"6 10\n30 20 45 38 10 20\n",output:"25\n"}],hint:"**關鍵字**：「同時最多持一張」「達到門檻就交易」→ 用 `holding` 布林表示狀態。\n**狀態機**：持股時只檢查賣出條件；未持股時只檢查買進條件。\n**注意**：賣出時更新 `price` 為賣出價（下次買進門檻基準）。"},
 {id:"i399",title:"數字遊戲",topic:"條件判斷、陣列",date:"2022/06",
 desc:"給三個介於 1~9 的整數，先輸出眾數次數 P，再輸出去重後由大到小排列的數字。",
 input_desc:"一行三個整數。",
 output_desc:"輸出 P 和去重後由大到小排列的數字（同一行）。",
-samples:[{input:"6 6 6\n",output:"3 6\n"},{input:"7 9 7\n",output:"2 9 7\n"},{input:"4 1 8\n",output:"1 8 4 1\n"}]},
+samples:[{input:"6 6 6\n",output:"3 6\n"},{input:"7 9 7\n",output:"2 9 7\n"},{input:"4 1 8\n",output:"1 8 4 1\n"}],hint:"**關鍵字**：「眾數次數」「去重」「由大到小」→ 三招組合。\n**作法**：`count()` 找出現次數 → `sort(reverse=True)` → 去重時用 `prev` 變數避免重複。\n**輸出**：`print(P, *unique)` 自動空白分隔。"},
 {id:"i428",title:"巴士站牌",topic:"迴圈",date:"2022/10",
 desc:"n 個巴士站，依序從站 1 到站 n。相鄰兩站行進時間為曼哈頓距離。輸出最大值與最小值。",
 input_desc:"第一行 n（4≤n≤100）；接下來 n 行，每行兩個整數（-100≤x,y≤100）。",
 output_desc:"輸出最大行進時間與最小行進時間。",
-samples:[{input:"4\n1 1\n1 3\n4 5\n2 6\n",output:"5 2\n"},{input:"4\n1 2\n-1 -1\n1 3\n0 0\n",output:"6 4\n"}]},
+samples:[{input:"4\n1 1\n1 3\n4 5\n2 6\n",output:"5 2\n"},{input:"4\n1 2\n-1 -1\n1 3\n0 0\n",output:"6 4\n"}],hint:"**關鍵字**：「曼哈頓距離」「相鄰兩站」「最大值最小值」→ 公式 `|x₁-x₂| + |y₁-y₂|`。\n**作法**：讀入所有座標 → 計算 n-1 個距離 → `max()` 和 `min()` 取結果。"},
 {id:"j605",title:"程式考試",topic:"迴圈、條件判斷",date:"2023/01",
 desc:"K 筆提交紀錄，s=-1 為嚴重錯誤。總分 = 最高分 - K - 嚴重錯誤×2（最小0）。輸出總分和第一次最高分時間。",
 input_desc:"第一行 K；接下來 K 行，每行 t, s（保證第一筆不是嚴重錯誤）。",
 output_desc:"輸出總分和第一次獲得最高分的時間點。",
-samples:[{input:"5\n3 89\n5 -1\n10 90\n15 0\n20 90\n",output:"83 10\n"},{input:"3\n3 0\n5 -1\n6 -1\n",output:"0 3\n"}]},
+samples:[{input:"5\n3 89\n5 -1\n10 90\n15 0\n20 90\n",output:"83 10\n"},{input:"3\n3 0\n5 -1\n6 -1\n",output:"0 3\n"}],hint:"**關鍵字**：「第一次最高分時間」「嚴重錯誤」「最小為 0」→ 用 `>` 而非 `>=` 保留首次最高分時間。\n**公式**：`max(0, best - K - errors*2)`。\n**輸入處理**：s=-1 時 `continue` 跳過更新最高分。"},
 {id:"k731",title:"路徑偵測",topic:"幾何",date:"2023/06",
 desc:"從(0,0)出發，初始方向向右，依序移動到 n 個座標點（只水平或垂直移動）。輸出左轉、右轉、迴轉次數。",
 input_desc:"第一行 n；接下來 n 行，每行座標 x, y。",
 output_desc:"輸出三個整數：左轉、右轉、迴轉次數。",
-samples:[{input:"2\n2 0\n2 1\n",output:"1 0 0\n"},{input:"9\n4 0\n4 9\n4 8\n4 10\n4 2\n4 3\n6 3\n6 10\n6 9\n",output:"2 1 5\n"}]},
+samples:[{input:"2\n2 0\n2 1\n",output:"1 0 0\n"},{input:"9\n4 0\n4 9\n4 8\n4 10\n4 2\n4 3\n6 3\n6 10\n6 9\n",output:"2 1 5\n"}],hint:"**關鍵字**：「方向」「左右轉」「迴轉」→ 用向量外積 (cross) 和內積 (dot) 判斷。\n**判斷規則**：`dot < 0` → 迴轉；`cross > 0` → 左轉；`cross < 0` → 右轉。\n**初始方向**：(1, 0) 代表向右。"},
 {id:"m370",title:"機械鼠",topic:"陣列",date:"2023/10",
 desc:"老鼠在位置 x，n 個食物（n 為奇數）。選左或右方向，輸出最多能吃幾個食物及最後位置。",
 input_desc:"第一行 x, n；第二行 n 個食物位置。",
 output_desc:"輸出最多能吃到的食物數目和最後位置。",
-samples:[{input:"10 3\n1 5 13\n",output:"2 1\n"},{input:"10 9\n-1 13 12 16 100 -9 7 8 25\n",output:"5 100\n"}]},
+samples:[{input:"10 3\n1 5 13\n",output:"2 1\n"},{input:"10 9\n-1 13 12 16 100 -9 7 8 25\n",output:"5 100\n"}],hint:"**關鍵字**：「選方向」「奇數個食物」→ 因為 n 為奇數，左右數量必定不同。\n**作法**：分成左 (`p<x`) 右 (`p>x`) 兩堆 → 比較數量大的方向 → 最後位置是該方向的極值。"},
 {id:"m931",title:"遊戲選角",topic:"排序",date:"2024/01",
 desc:"n 個角色，能力值 = a²+d²（每個相異）。輸出能力值第二大的攻擊力和防禦力。",
 input_desc:"第一行 n（3≤n≤20）；接下來 n 行，每行攻擊力和防禦力。",
 output_desc:"輸出能力值第二大的角色的攻擊力和防禦力。",
-samples:[{input:"3\n3 1\n5 2\n1 4\n",output:"1 4\n"},{input:"6\n6 6\n1 3\n8 6\n5 4\n2 8\n7 2\n",output:"6 6\n"}]},
+samples:[{input:"3\n3 1\n5 2\n1 4\n",output:"1 4\n"},{input:"6\n6 6\n1 3\n8 6\n5 4\n2 8\n7 2\n",output:"6 6\n"}],hint:"**關鍵字**：「能力值 = a²+d²」「第二大」「能力值相異」→ 直接排序。\n**作法**：建立 `(power, a, d)` 陣列 → 由大到小排序 → 取索引 [1] 的 a, d。"},
 {id:"o076",title:"特技表演",topic:"陣列",date:"2024/06",
 desc:"有 n 棟高樓，滑翔路徑的樓高必須越來越低。請找出最長連續下降路徑長度。",
 input_desc:"第一行 n（5≤n≤100）；第二行 n 個正整數代表樓高。",
 output_desc:"輸出最長滑翔路徑長度。",
-samples:[{input:"5\n6 2 5 3 1\n",output:"3\n"},{input:"10\n31 41 97 93 23 89 59 26 15 58\n",output:"4\n"}]},
+samples:[{input:"5\n6 2 5 3 1\n",output:"3\n"},{input:"10\n31 41 97 93 23 89 59 26 15 58\n",output:"4\n"}],hint:"**關鍵字**：「越來越低」「最長」→ 經典最長連續下降序列。\n**作法**：維護 `cur`（目前連續下降長度），若 `h[i]<h[i-1]` 則 `cur++`，否則重置為 1，過程中更新 `ans = max(ans, cur)`。"},
 {id:"o711",title:"裝飲料",topic:"模擬",date:"2024/10",
 desc:"杯子由上下兩段長方體組成（下：w₁×w₁，高h₁；上：w₂×w₂，高h₂）。依序倒 n 次飲料，杯子滿後水位不再上升。輸出最大單次水位上升量。",
 input_desc:"第一行 n；第二行 w₁ w₂ h₁ h₂；第三行 n 個容量。",
 output_desc:"輸出最大水位上升量（整數）。",
-samples:[{input:"1\n4 6 8 5\n200\n",output:"10\n"},{input:"2\n5 10 12 8\n400 600\n",output:"13\n"}]},
+samples:[{input:"1\n4 6 8 5\n200\n",output:"10\n"},{input:"2\n5 10 12 8\n400 600\n",output:"13\n"}],hint:"**關鍵字**：「兩段長方體」「滿後不上升」→ 寫 helper function `height(volume)` 處理分段公式。\n**核心**：若 `v ≤ cap1`（下段未滿）回傳 `v/(w1*w1)`；否則回傳 `h1 + (v-cap1)/(w2*w2)`。\n**水量上限**：`water = min(total_cap, water + v)`。"},
 {id:"q181",title:"等紅綠燈",topic:"週期",date:"2025/01",
 desc:"綠燈 a 秒，紅燈 b 秒循環。n 個小朋友各自騎完一圈時間為 t。若到達時為紅燈需等到下一個綠燈。求共等待幾秒。",
 input_desc:"第一行 a, b；第二行 n；第三行 n 個時間。",
 output_desc:"輸出總等待秒數。",
-samples:[{input:"10 10\n1\n14\n",output:"6\n"},{input:"4 3\n3\n12 16 25\n",output:"5\n"}]},
+samples:[{input:"10 10\n1\n14\n",output:"6\n"},{input:"4 3\n3\n12 16 25\n",output:"5\n"}],hint:"**關鍵字**：「綠燈 a 秒紅燈 b 秒循環」→ 用模運算找週期內位置。\n**作法**：`cycle = a+b`，`r = t % cycle`。若 `r >= a`（在紅燈內）→ 需等 `cycle - r` 秒。"},
 {id:"q836",title:"小心陷阱",topic:"模擬",date:"2025/06",
 desc:"從位置 0 出發，生命值 k。當前生命值 v 時移動到 pos+v。落在 x1 倍數扣 y1，落在 x2 倍數扣 y2。生命值 ≤ 0 時輸出位置。",
 input_desc:"第一行 k；第二行 x1 y1；第三行 x2 y2。",
 output_desc:"輸出遊戲結束所在的位置。",
-samples:[{input:"1\n3 1\n4 1\n",output:"3\n"},{input:"7\n3 2\n2 3\n",output:"18\n"}]}
+samples:[{input:"1\n3 1\n4 1\n",output:"3\n"},{input:"7\n3 2\n2 3\n",output:"18\n"}],hint:"**關鍵字**：「生命值 ≤ 0 結束」→ 用無窮迴圈 `while True` + break。\n**注意**：x1 和 x2 倍數可能同時成立（題目說「總共減去 y1+y2」），所以用兩個獨立 `if` 而非 `elif`。"}
+,
+// ===== 中級（Medium）=====
+{id:"m001",title:"最大連續子陣列和",topic:"Kadane 演算法",date:"中級 ⭐⭐",diff:"medium",
+desc:"給定一個整數陣列（可含負數），找出具有最大和的**連續子陣列**並輸出該最大和。至少要選一個元素。\n\n**Kadane 演算法**：維護 cur（目前子陣列和）和 ans（最大值）。對每個元素 x：cur = max(x, cur+x)，ans = max(ans, cur)。\n\n例：[-2,1,-3,4,-1,2,1,-5,4] → 最大子陣列 [4,-1,2,1]，和為 **6**。",
+input_desc:"第一行 n（1≤n≤100000）；第二行 n 個整數（-10000 ≤ a[i] ≤ 10000）。",
+output_desc:"輸出最大連續子陣列的和。",
+samples:[{input:"9\n-2 1 -3 4 -1 2 1 -5 4\n",output:"6\n"},{input:"3\n1 2 3\n",output:"6\n"},{input:"4\n-1 -2 -3 -4\n",output:"-1\n"}],hint:"**關鍵字**：「最大連續子陣列和」→ **Kadane 演算法**。\n**核心一行**：`cur = max(x, cur+x)` 表示「要嘛延續前面，要嘛從目前重新開始」。\n**全負陣列**：因為「至少要選一個」，所以答案是最大的負數，而非 0。"},
+{id:"m002",title:"爬樓梯",topic:"動態規劃（DP）",date:"中級 ⭐⭐",diff:"medium",
+desc:"有 n 階樓梯，每次可以爬 **1 階**或 **2 階**。請問爬到頂端共有多少種不同的爬法？\n\n分析：f(n) = f(n-1) + f(n-2)，與費氏數列相同：f(1)=1, f(2)=2。",
+input_desc:"輸入一個正整數 n（1 ≤ n ≤ 40）。",
+output_desc:"輸出爬到頂端的方法數。",
+samples:[{input:"3\n",output:"3\n"},{input:"5\n",output:"8\n"},{input:"10\n",output:"89\n"}],hint:"**關鍵字**：「1 階或 2 階」「方法數」→ 經典費氏數列。\n**遞迴式**：`f(n) = f(n-1) + f(n-2)`（最後一步可能是 1 階或 2 階）。\n**底**：f(1)=1, f(2)=2。直接迭代避免遞迴堆疊。"},
+{id:"m003",title:"括號配對",topic:"堆疊（Stack）",date:"中級 ⭐⭐",diff:"medium",
+desc:"給定一個只包含 ()、[]、{} 的字串，判斷括號是否**合法配對**。\n\n演算法：使用堆疊，遇到左括號壓入；遇到右括號時，若堆疊為空或堆頂不匹配則非法；最後堆疊需為空。",
+input_desc:"輸入一個只含括號的字串（長度 ≤ 10000）。",
+output_desc:"若合法輸出 Valid，否則輸出 Invalid。",
+samples:[{input:"([])\n",output:"Valid\n"},{input:"([)]\n",output:"Invalid\n"},{input:"{[]()} \n",output:"Valid\n"},{input:"(((\n",output:"Invalid\n"}],hint:"**關鍵字**：「括號配對」「以正確順序閉合」→ 用**堆疊**。\n**規則**：左括號壓入；右括號時檢查堆頂是否匹配。\n**結束檢查**：最後堆疊必須為空才合法。"},
+{id:"m004",title:"二分搜尋",topic:"二分搜尋",date:"中級 ⭐⭐",diff:"medium",
+desc:"給定一個**嚴格遞增的整數陣列**，以及 m 個查詢，每次查詢一個數 x，找出陣列中**第一個大於等於 x** 的元素的位置（1-based）。若不存在則輸出 -1。",
+input_desc:"第一行 n m；第二行 n 個嚴格遞增整數；接下來 m 行，每行一個查詢 x。",
+output_desc:"每行輸出對應查詢的答案（1-based 索引或 -1）。",
+samples:[{input:"5 3\n1 3 5 7 9\n4\n7\n10\n",output:"3\n4\n-1\n"},{input:"4 4\n2 4 6 8\n1\n2\n7\n9\n",output:"1\n1\n4\n-1\n"}],hint:"**關鍵字**：「嚴格遞增」「第一個大於等於 x」→ **二分搜尋**經典 `lower_bound` 模板。\n**模板**：`lo=0, hi=n-1, ans=-1`；`if a[mid] >= x: ans=mid+1, hi=mid-1; else: lo=mid+1`。"},
+{id:"m005",title:"最長遞增子序列（LIS）",topic:"動態規劃（DP）",date:"中級 ⭐⭐",diff:"medium",
+desc:"給定一個整數序列，找出最長嚴格遞增子序列的長度。\n\n**O(n²) DP**：dp[i] = 以 a[i] 結尾的 LIS 長度。對每個 i，遍歷所有 j<i 且 a[j]<a[i]，取 dp[j]+1 的最大值。\n\n例：[10,9,2,5,3,7,101,18] → LIS = [2,3,7,101]，長度 **4**。",
+input_desc:"第一行 n（1≤n≤1000）；第二行 n 個整數。",
+output_desc:"輸出 LIS 的長度。",
+samples:[{input:"8\n10 9 2 5 3 7 101 18\n",output:"4\n"},{input:"6\n0 1 0 3 2 3\n",output:"4\n"},{input:"3\n5 4 3\n",output:"1\n"}],hint:"**關鍵字**：「最長遞增子序列」「不要求連續」→ **LIS 經典 DP**。\n**狀態**：`dp[i]` = 以 `a[i]` 結尾的 LIS 長度。\n**轉移**：對所有 `j < i` 且 `a[j] < a[i]`，`dp[i] = max(dp[i], dp[j]+1)`。"},
+{id:"m006",title:"質數篩",topic:"篩法",date:"中級 ⭐⭐",diff:"medium",
+desc:"給定正整數 n，使用**埃拉托斯特尼篩法**，輸出所有不大於 n 的質數。\n\n演算法：建立布林陣列 is_prime[0..n]，初始全為 true。對每個質數 p，將 p² 以上的 p 的倍數標記為 false。時間複雜度 O(n log log n)。",
+input_desc:"輸入一個正整數 n（2 ≤ n ≤ 100000）。",
+output_desc:"輸出所有不大於 n 的質數，以空白分隔。",
+samples:[{input:"20\n",output:"2 3 5 7 11 13 17 19\n"},{input:"10\n",output:"2 3 5 7\n"},{input:"2\n",output:"2\n"}],hint:"**關鍵字**：「所有不大於 n 的質數」→ **埃拉托斯特尼篩法**（Sieve）。\n**作法**：建立布林陣列，外迴圈 `i*i <= n` 是優化（小於 i*i 的合數已被更小質數標記）。\n**內迴圈**：從 `i*i` 開始每隔 `i` 標記。"},
+{id:"m007",title:"大數加法",topic:"字串模擬",date:"中級 ⭐⭐",diff:"medium",
+desc:"給定兩個**非常大的非負整數**（以字串表示），計算它們的和並輸出。不可使用語言內建的大數函式庫。\n\n演算法：從個位數開始逐位相加，維護進位 carry。",
+input_desc:"輸入兩行，每行一個非負整數（位數 ≤ 1000）。",
+output_desc:"輸出兩數之和。",
+samples:[{input:"123456789012345678901234567890\n987654321098765432109876543210\n",output:"1111111110111111111011111111100\n"},{input:"0\n0\n",output:"0\n"},{input:"999\n1\n",output:"1000\n"}],hint:"**關鍵字**：「非常大」「不可用大數函式庫」→ **字串模擬手算**。\n**作法**：兩個指標從後往前，逐位相加 + 進位 `carry`。\n**注意**：結果要 reverse；可能比兩個輸入都長（最後 carry=1 時）。"},
+{id:"m008",title:"反轉句子中的單字",topic:"字串",date:"中級 ⭐⭐",diff:"medium",
+desc:"給定一個包含多個單字的句子（單字之間以單個空白分隔，無前導/尾端空白），將句子中的**單字順序反轉**輸出。\n\n例：\"the sky is blue\" → \"blue is sky the\"",
+input_desc:"輸入一行字串（長度 ≤ 10000）。",
+output_desc:"輸出反轉後的句子。",
+samples:[{input:"the sky is blue\n",output:"blue is sky the\n"},{input:"hello world\n",output:"world hello\n"},{input:"APCS\n",output:"APCS\n"}],hint:"**關鍵字**：「反轉單字順序」→ `split()` + `reverse()` + `join`。\n**Python 一行**：`' '.join(reversed(input().split()))`。"},
+// ===== 高級（Hard）=====
+{id:"h001",title:"0/1 背包問題",topic:"動態規劃（DP）",date:"高級 ⭐⭐⭐",diff:"hard",
+desc:"有 n 件物品和一個容量為 W 的背包。第 i 件物品的重量為 w[i]，價值為 v[i]。每件物品**只能選擇拿或不拿**，求背包所能容納物品的**最大總價值**。\n\n**DP**：dp[j] = 容量 j 時的最大價值。對每件物品從大到小更新：dp[j] = max(dp[j], dp[j-w[i]] + v[i])。時間複雜度 O(nW)。",
+input_desc:"第一行 n W（1≤n≤100，1≤W≤1000）；接下來 n 行，每行兩個整數 w[i] v[i]。",
+output_desc:"輸出最大總價值。",
+samples:[{input:"4 7\n1 1\n3 4\n4 5\n5 7\n",output:"9\n"},{input:"3 5\n2 3\n3 4\n4 5\n",output:"7\n"},{input:"1 10\n11 100\n",output:"0\n"}],hint:"**關鍵字**：「每件只拿或不拿」「最大價值」→ **0/1 背包經典 DP**。\n**滾動陣列**：`dp[j]` = 容量 j 時的最大價值。\n**關鍵**：內迴圈 `j` 要從大到小遍歷，避免同一物品被重複選。"},
+{id:"h002",title:"最長共同子序列（LCS）",topic:"動態規劃（DP）",date:"高級 ⭐⭐⭐",diff:"hard",
+desc:"給定兩個字串 A 和 B，找出**最長共同子序列（LCS）**的長度。\n\nDP：dp[i][j] = A 前 i 個字元和 B 前 j 個字元的 LCS 長度。\n- A[i]==B[j]：dp[i][j] = dp[i-1][j-1] + 1\n- 否則：dp[i][j] = max(dp[i-1][j], dp[i][j-1])",
+input_desc:"輸入兩行，每行一個只含大寫英文字母的字串（長度 ≤ 1000）。",
+output_desc:"輸出 LCS 的長度。",
+samples:[{input:"ABCBDAB\nBDCAB\n",output:"4\n"},{input:"AGGTAB\nGXTXAYB\n",output:"4\n"},{input:"ABC\nABC\n",output:"3\n"}],hint:"**關鍵字**：「最長共同子序列」「不要求連續」→ **LCS 經典 DP**。\n**狀態**：`dp[i][j]` = A 前 i 字元和 B 前 j 字元的 LCS 長度。\n**轉移**：字元相同則 `+1`，不同則取兩邊較大值。"},
+{id:"h003",title:"迷宮最短路（BFS）",topic:"廣度優先搜尋（BFS）",date:"高級 ⭐⭐⭐",diff:"hard",
+desc:"給定一個 n×m 的網格迷宮，0 表示可通行，1 表示牆壁。從左上角 (0,0) 出發，每步可向上下左右移動，求到達右下角 (n-1,m-1) 的**最短路徑步數**。若無法到達，輸出 -1。\n\n**BFS** 保證第一次到達目標時的步數最短。",
+input_desc:"第一行 n m（1≤n,m≤100）；接下來 n 行，每行 m 個 0 或 1（以空白分隔）。",
+output_desc:"輸出最短步數，若不可達輸出 -1。",
+samples:[{input:"5 5\n0 0 0 0 0\n1 1 0 1 0\n0 0 0 1 0\n0 1 1 1 0\n0 0 0 0 0\n",output:"8\n"},{input:"3 3\n0 1 0\n0 1 0\n0 0 0\n",output:"4\n"},{input:"2 2\n0 1\n1 0\n",output:"-1\n"}],hint:"**關鍵字**：「網格」「最短路徑」「上下左右」→ **BFS**（不是 DFS！）。\n**為何 BFS**：每步權重相同，BFS 第一次訪問即最短距離。\n**模板**：queue + visited（或 dist 陣列）+ 四方向陣列。"},
+{id:"h004",title:"矩陣螺旋遍歷",topic:"陣列、模擬",date:"高級 ⭐⭐⭐",diff:"hard",
+desc:"給定一個 n×m 的矩陣，按**順時針螺旋順序**遍歷並輸出所有元素。\n\n方向順序：右 → 下 → 左 → 上 → 右 → ...\n\n維護四個邊界 top, bottom, left, right，每次走完一個方向後縮小對應邊界。",
+input_desc:"第一行 n m（1≤n,m≤50）；接下來 n 行，每行 m 個整數。",
+output_desc:"輸出螺旋遍歷的元素序列，以空白分隔。",
+samples:[{input:"3 3\n1 2 3\n4 5 6\n7 8 9\n",output:"1 2 3 6 9 8 7 4 5\n"},{input:"1 4\n1 2 3 4\n",output:"1 2 3 4\n"},{input:"3 4\n1 2 3 4\n5 6 7 8\n9 10 11 12\n",output:"1 2 3 4 8 12 11 10 9 5 6 7\n"}],hint:"**關鍵字**：「順時針螺旋」→ **邊界四指標模擬**。\n**作法**：維護 `top, bottom, left, right`，每走完一邊就縮小對應邊界。\n**注意**：中間兩步要檢查 `top<=bottom` 和 `left<=right` 避免重複輸出。"},
+{id:"h005",title:"快速冪（mod）",topic:"數學、遞迴",date:"高級 ⭐⭐⭐",diff:"hard",
+desc:"計算 **a^n mod m** 的值。\n\n直接乘 n 次在 n 很大時會超時。**快速冪（Binary Exponentiation）**：\n- n 為偶數：a^n = (a^(n/2))²\n- n 為奇數：a^n = a × a^(n-1)\n\n每次問題規模減半，時間複雜度 O(log n)。",
+input_desc:"輸入一行三個整數 a, n, m（0≤a≤10⁹，0≤n≤10¹⁸，1≤m≤10⁹）。",
+output_desc:"輸出 a^n mod m 的值。",
+samples:[{input:"2 10 1000000007\n",output:"1024\n"},{input:"3 13 1000000007\n",output:"1594323\n"},{input:"2 0 7\n",output:"1\n"}],hint:"**關鍵字**：「a^n mod m」「n 很大」→ **快速冪**（O(log n)）。\n**核心**：`if n & 1: r = r*a%m; a = a*a%m; n >>= 1`。\n**特例**：`m == 1` 時答案永遠是 0；n=0 時答案是 1。"},
+
+// ===== APCS P2 系列：簡化初級版 + 原中級版 =====
+{id:"p2_color_b",title:"電子畫布（簡化版）",topic:"陣列、模擬",date:"初級改編",diff:"easy",
+desc:"原 APCS 202406 P2 簡化版：給一個 n×n 的畫布（初始全部為 0），執行 k 次操作，每次給座標 (r, c) 把該格塗成 1。\n\n最後輸出**被塗成 1 的格子總數**。\n\n**簡化說明**：原題涉及多色與覆蓋規則，初級版只要計數即可。",
+input_desc:"第一行 n k（1≤n≤50，1≤k≤2500）；接下來 k 行，每行兩個整數 r c（0≤r,c<n）。",
+output_desc:"輸出被塗色的格子總數。",
+samples:[{input:"3 4\n0 0\n0 1\n0 0\n2 2\n",output:"3\n"},{input:"2 4\n0 0\n0 1\n1 0\n1 1\n",output:"4\n"}],
+hint:"**關鍵字**：「畫布」「塗色」「總數」→ 用 2D 陣列記錄。\n**作法**：建立 n×n 全 0 陣列，每次操作 `g[r][c] = 1`，最後遍歷計算 1 的個數。\n**注意**：同一格可能被重複塗，所以不能單純計算操作數。"},
+
+{id:"p2_color_m",title:"電子畫布（原版）",topic:"陣列、模擬",date:"APCS 202406 P2",diff:"medium",
+desc:"電子畫布是 n×n 的網格，初始全為 0。執行 k 次操作：每次選一個矩形區域 (r1,c1)~(r2,c2) 與顏色 v（1≤v≤9），將該區域所有格子覆蓋成 v。\n\n輸出**最終畫布中不為 0 的格子總數**，以及**所有非 0 格子的數值和**。",
+input_desc:"第一行 n k（1≤n≤100，1≤k≤100）；接下來 k 行，每行 r1 c1 r2 c2 v（0≤r1≤r2<n，0≤c1≤c2<n，1≤v≤9）。",
+output_desc:"輸出兩個整數：非 0 格子數、非 0 格子數值和（空白分隔）。",
+samples:[{input:"3 2\n0 0 1 1 5\n1 1 2 2 3\n",output:"7 26\n"},{input:"2 1\n0 0 1 1 7\n",output:"4 28\n"}],
+hint:"**關鍵字**：「矩形區域覆蓋」→ 對每次操作直接迴圈寫入。\n**作法**：雙重迴圈 `for i in r1..r2: for j in c1..c2: g[i][j] = v`，最後掃描計算總數與總和。\n**進階**：若 n 很大可用差分陣列優化，但 n≤100 直接模擬即可。"},
+
+{id:"p2_str_b",title:"字串解碼（簡化版）",topic:"字串",date:"初級改編",diff:"easy",
+desc:"原 APCS 202206 P2 簡化版：給一個字串，計算其中**英文字母的數量**（不分大小寫）。",
+input_desc:"輸入一行字串（長度 ≤ 100，只含可印字元）。",
+output_desc:"輸出字母總數。",
+samples:[{input:"Hello, World!\n",output:"10\n"},{input:"APCS 2024\n",output:"4\n"},{input:"!!!\n",output:"0\n"}],
+hint:"**關鍵字**：「英文字母」「不分大小寫」→ 用 `isalpha()`。\n**Python**：`sum(1 for c in s if c.isalpha())` 一行解決。\n**C/C++**：用 `isalpha()` from `<ctype.h>` 或範圍判斷 `('a'<=c<='z')||('A'<=c<='Z')`。"},
+
+{id:"p2_str_m",title:"字串解碼（中級版）",topic:"字串、模擬",date:"APCS 202206 P2",diff:"medium",
+desc:"給一個編碼字串，格式為 `數字[字串]`，表示該字串重複若干次。例如 `3[ab]` 解碼後是 `ababab`；`2[a3[b]]` 是 `abbbabbb`。\n\n**簡化**：保證輸入合法，不會出現巢狀超過 3 層。",
+input_desc:"輸入一行編碼字串（長度 ≤ 100）。",
+output_desc:"輸出解碼後的字串（解碼結果長度 ≤ 10000）。",
+samples:[{input:"3[ab]\n",output:"ababab\n"},{input:"2[a3[b]]\n",output:"abbbabbb\n"},{input:"2[ab]3[cd]\n",output:"ababcdcdcd\n"}],
+hint:"**關鍵字**：「重複」「巢狀方括號」→ 用**堆疊**。\n**作法**：堆疊存當前累積字串與重複次數。遇到 `[` 把狀態壓入棧；遇到 `]` 從棧頂取出 (str, count) 然後 `prev_str + cur_str * count`。\n**陷阱**：數字可能是多位數，要連續讀取。"},
+
+{id:"p2_bee_b",title:"蜜蜂觀察（簡化版）",topic:"陣列",date:"初級改編",diff:"easy",
+desc:"原 APCS 202401 P2 簡化版：n 隻蜜蜂飛過一個花圃，第 i 隻在時間 t[i] 經過。\n\n問：**最大時間差**（任兩隻飛過時間之差的絕對值最大值）。",
+input_desc:"第一行 n（2≤n≤100）；第二行 n 個整數 t[i]（1≤t[i]≤10000）。",
+output_desc:"輸出最大時間差。",
+samples:[{input:"4\n5 1 8 3\n",output:"7\n"},{input:"2\n10 10\n",output:"0\n"}],
+hint:"**關鍵字**：「最大差」「絕對值」→ `max(t) - min(t)`。\n**為什麼**：絕對值最大差必定是最大值減最小值（不論順序）。\n**作法**：`max(t) - min(t)` 一行解決。"},
+
+{id:"p2_bee_m",title:"蜜蜂觀察（原版）",topic:"陣列、滑動視窗",date:"APCS 202401 P2",diff:"medium",
+desc:"n 隻蜜蜂在時間 t[1..n] 經過花圃（t 已排序）。給一個觀察視窗長度 w，問：在所有長度為 w 的連續時間區間中，**最多能觀察到幾隻蜜蜂**？\n\n（一隻蜜蜂被觀察到，當且僅當其時間落在 [start, start+w] 內）",
+input_desc:"第一行 n w（2≤n≤1000，1≤w≤10000）；第二行 n 個遞增整數 t[i]（1≤t[i]≤10000）。",
+output_desc:"輸出最大觀察數。",
+samples:[{input:"5 3\n1 2 4 5 9\n",output:"3\n"},{input:"5 10\n1 5 9 12 20\n",output:"4\n"}],
+hint:"**關鍵字**：「連續區間」「最多」+「已排序」→ **雙指標（滑動視窗）**。\n**作法**：左右指標 l, r；當 `t[r] - t[l] > w` 時 `l++`，過程中更新 `max(r - l + 1)`。\n**O(n)**：每個指標只往右動，總共 2n 次。"},
+
+{id:"p2_card_b",title:"卡牌遊戲（簡化版）",topic:"排序",date:"初級改編",diff:"easy",
+desc:"原 APCS 202310 P2 簡化版：你有 n 張卡牌，每張面值為 a[i]。\n\n選**最大的 k 張**，輸出它們的和。",
+input_desc:"第一行 n k（1≤k≤n≤100）；第二行 n 個整數。",
+output_desc:"輸出最大 k 張的和。",
+samples:[{input:"5 3\n1 5 3 9 7\n",output:"21\n"},{input:"4 2\n10 10 10 10\n",output:"20\n"}],
+hint:"**關鍵字**：「最大的 k 張」→ 排序後取後 k 個。\n**Python**：`sum(sorted(a)[-k:])` 一行。\n**C++**：`sort(a, a+n)` 後加總 `a[n-k]` 到 `a[n-1]`。"},
+
+{id:"p2_card_m",title:"卡牌遊戲（原版）",topic:"貪心、排序",date:"APCS 202310 P2",diff:"medium",
+desc:"你和對手各有 n 張卡牌（面值為 a[i] 和 b[i]）。每回合雙方各出一張，**面值高者得 1 分**（平手雙方都不得分）。\n\n你可以**任意決定出牌順序**（對手也是同樣最佳策略，但雙方不知對方下一張）。問：在最佳策略下，你能拿到的**最大分數**？\n\n**模型**：對方按固定順序出牌（給定 b 為對方出牌順序），你決定如何配對。",
+input_desc:"第一行 n（1≤n≤1000）；第二行 n 個整數 a[i]（你的牌）；第三行 n 個整數 b[i]（對方依序出的牌）。",
+output_desc:"輸出你能拿到的最大分數。",
+samples:[{input:"3\n5 3 1\n4 2 6\n",output:"2\n"},{input:"4\n1 2 3 4\n1 2 3 4\n",output:"3\n"}],
+hint:"**關鍵字**：「配對」「最大分數」「對方固定順序」→ **貪心配對**。\n**策略**：對每張對方的牌 b[i]，從你剩下的牌中找**最小但能贏的牌**（剛好大於 b[i]），打掉它。\n**實作**：sort 你的牌，用集合或標記陣列維護「未使用的牌」。"}
+
 ];
 
 // ── Solutions per language ────────────────────────────────────────────────────
@@ -317,6 +444,30 @@ o076:`n=int(input()); h=list(map(int,input().split()))\ncur=ans=1\nfor i in rang
 o711:`n=int(input()); w1,w2,h1,h2=map(int,input().split()); pour=list(map(int,input().split()))\ncap1=w1*w1*h1; total=cap1+w2*w2*h2\ndef ht(v): return v//(w1*w1) if v<=cap1 else h1+(v-cap1)//(w2*w2)\nwater=ans=0\nfor v in pour:\n    oh=ht(water); water=min(total,water+v); ans=max(ans,ht(water)-oh)\nprint(ans)`,
 q181:`a,b=map(int,input().split()); n=int(input()); times=list(map(int,input().split()))\ncycle=a+b; wait=0\nfor t in times:\n    r=t%cycle\n    if r>=a: wait+=cycle-r\nprint(wait)`,
 q836:`k=int(input()); x1,y1=map(int,input().split()); x2,y2=map(int,input().split())\nv=k; pos=0\nwhile True:\n    pos+=v\n    if pos%x1==0: v-=y1\n    if pos%x2==0: v-=y2\n    if v<=0: print(pos); break`
+,
+m001:`n=int(input())\nnums=list(map(int,input().split()))\ncur=ans=nums[0]\nfor x in nums[1:]:\n    cur=max(x,cur+x); ans=max(ans,cur)\nprint(ans)`,
+m002:`n=int(input())\nif n==1: print(1)\nelif n==2: print(2)\nelse:\n    a,b=1,2\n    for _ in range(n-2): a,b=b,a+b\n    print(b)`,
+m003:`import sys\ns=input().strip()\nstack=[]\nmatch={')':'(', ']':'[', '}':'{'}\nfor c in s:\n    if c in '([{': stack.append(c)\n    elif c in ')]}':\n        if not stack or stack[-1]!=match[c]: print('Invalid'); exit()\n        stack.pop()\nprint('Valid' if not stack else 'Invalid')`,
+m004:`n,m=map(int,input().split())\na=list(map(int,input().split()))\nfor _ in range(m):\n    x=int(input()); lo,hi,ans=0,n-1,-1\n    while lo<=hi:\n        mid=(lo+hi)//2\n        if a[mid]>=x: ans=mid+1; hi=mid-1\n        else: lo=mid+1\n    print(ans)`,
+m005:`n=int(input()); a=list(map(int,input().split()))\ndp=[1]*n\nfor i in range(n):\n    for j in range(i):\n        if a[j]<a[i]: dp[i]=max(dp[i],dp[j]+1)\nprint(max(dp))`,
+m006:`n=int(input())\nsieve=[True]*(n+1); sieve[0]=sieve[1]=False\nfor i in range(2,int(n**0.5)+1):\n    if sieve[i]:\n        for j in range(i*i,n+1,i): sieve[j]=False\nprimes=[i for i in range(2,n+1) if sieve[i]]\nprint(' '.join(map(str,primes)))`,
+m007:`a=input().strip(); b=input().strip()\ni,j,carry=len(a)-1,len(b)-1,0; res=[]\nwhile i>=0 or j>=0 or carry:\n    s=carry\n    if i>=0: s+=int(a[i]); i-=1\n    if j>=0: s+=int(b[j]); j-=1\n    res.append(str(s%10)); carry=s//10\nprint(''.join(reversed(res)))`,
+m008:`words=input().split()\nprint(' '.join(reversed(words)))`,
+h001:`n,W=map(int,input().split())\ndp=[0]*(W+1)\nfor _ in range(n):\n    w,v=map(int,input().split())\n    for j in range(W,w-1,-1): dp[j]=max(dp[j],dp[j-w]+v)\nprint(dp[W])`,
+h002:`A=input().strip(); B=input().strip()\nm,n=len(A),len(B)\ndp=[[0]*(n+1) for _ in range(m+1)]\nfor i in range(1,m+1):\n    for j in range(1,n+1):\n        if A[i-1]==B[j-1]: dp[i][j]=dp[i-1][j-1]+1\n        else: dp[i][j]=max(dp[i-1][j],dp[i][j-1])\nprint(dp[m][n])`,
+h003:`from collections import deque\nn,m=map(int,input().split())\ngrid=[list(map(int,input().split()))for _ in range(n)]\nif grid[0][0]==1 or grid[n-1][m-1]==1: print(-1)\nelse:\n    dist=[[-1]*m for _ in range(n)]; dist[0][0]=0\n    q=deque([(0,0)])\n    while q:\n        r,c=q.popleft()\n        if r==n-1 and c==m-1: print(dist[r][c]); exit()\n        for dr,dc in[(-1,0),(1,0),(0,-1),(0,1)]:\n            nr,nc=r+dr,c+dc\n            if 0<=nr<n and 0<=nc<m and grid[nr][nc]==0 and dist[nr][nc]==-1:\n                dist[nr][nc]=dist[r][c]+1; q.append((nr,nc))\n    print(-1)`,
+h004:`n,m=map(int,input().split())\ng=[list(map(int,input().split()))for _ in range(n)]\nt,b,l,r=0,n-1,0,m-1; res=[]\nwhile t<=b and l<=r:\n    for c in range(l,r+1): res.append(g[t][c]); t+=1\n    for row in range(t,b+1): res.append(g[row][r]); r-=1\n    if t<=b:\n        for c in range(r,l-1,-1): res.append(g[b][c]); b-=1\n    if l<=r:\n        for row in range(b,t-1,-1): res.append(g[row][l]); l+=1\nprint(' '.join(map(str,res)))`,
+h005:`a,n,m=map(int,input().split())\ndef pw(a,n,m):\n    if m==1: return 0\n    r=1; a%=m\n    while n>0:\n        if n&1: r=r*a%m\n        a=a*a%m; n>>=1\n    return r\nprint(pw(a,n,m))`
+
+,
+p2_color_b:`n,k=map(int,input().split())\ng=[[0]*n for _ in range(n)]\nfor _ in range(k):\n    r,c=map(int,input().split())\n    g[r][c]=1\nprint(sum(sum(row) for row in g))`,
+p2_color_m:`n,k=map(int,input().split())\ng=[[0]*n for _ in range(n)]\nfor _ in range(k):\n    r1,c1,r2,c2,v=map(int,input().split())\n    for i in range(r1,r2+1):\n        for j in range(c1,c2+1):\n            g[i][j]=v\ncnt=s=0\nfor row in g:\n    for x in row:\n        if x!=0: cnt+=1; s+=x\nprint(cnt,s)`,
+p2_str_b:`s=input()\nprint(sum(1 for c in s if c.isalpha()))`,
+p2_str_m:`s=input().strip()\ndef decode(s):\n    stack=[]; cur=''; num=0\n    for c in s:\n        if c.isdigit(): num=num*10+int(c)\n        elif c=='[': stack.append((cur,num)); cur=''; num=0\n        elif c==']':\n            prev,k=stack.pop()\n            cur=prev+cur*k\n        else: cur+=c\n    return cur\nprint(decode(s))`,
+p2_bee_b:`n=int(input())\nt=list(map(int,input().split()))\nprint(max(t)-min(t))`,
+p2_bee_m:`n,w=map(int,input().split())\nt=list(map(int,input().split()))\nl=ans=0\nfor r in range(n):\n    while t[r]-t[l]>w: l+=1\n    ans=max(ans,r-l+1)\nprint(ans)`,
+p2_card_b:`n,k=map(int,input().split())\na=sorted(map(int,input().split()))\nprint(sum(a[-k:]))`,
+p2_card_m:`n=int(input())\na=sorted(map(int,input().split()))\nb=list(map(int,input().split()))\n# 貪心：對 b 中的每張，從 a 中找剛好能贏的最小牌\nused=[False]*n; score=0\nfor x in b:\n    # 找 a 中未使用且 > x 的最小者\n    best=-1\n    for i in range(n):\n        if not used[i] and a[i]>x:\n            best=i; break\n    if best>=0:\n        used[best]=True; score+=1\nprint(score)`
 },
 cpp: {
 b964:`#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nint main(){\n    int n; cin>>n;\n    vector<int> s(n);\n    for(auto& x:s) cin>>x;\n    sort(s.begin(),s.end());\n    for(int i=0;i<n;i++){if(i)cout<<" ";cout<<s[i];}\n    cout<<"\\n";\n    int hf=-1,lp=-1;\n    for(int x:s){if(x<60)hf=x;else if(lp==-1)lp=x;}\n    if(hf==-1)cout<<"best case\\n";else cout<<hf<<"\\n";\n    if(lp==-1)cout<<"worst case\\n";else cout<<lp<<"\\n";\n}`,
@@ -343,6 +494,130 @@ o076:`#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namesp
 o711:`#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nint main(){\n    int n;cin>>n;\n    long long w1,w2,h1,h2;cin>>w1>>w2>>h1>>h2;\n    vector<int> pour(n);for(auto& x:pour)cin>>x;\n    long long cap1=w1*w1*h1,total=cap1+w2*w2*h2;\n    auto ht=[&](long long v)->long long{return v<=cap1?v/(w1*w1):h1+(v-cap1)/(w2*w2);};\n    long long water=0,ans=0;\n    for(int v:pour){long long oh=ht(water);water=min(total,water+(long long)v);ans=max(ans,ht(water)-oh);}\n    cout<<ans<<"\\n";\n}`,
 q181:`#include <iostream>\nusing namespace std;\nint main(){\n    int a,b;cin>>a>>b;\n    int n;cin>>n;\n    int cycle=a+b,wait=0;\n    for(int i=0;i<n;i++){int t;cin>>t;int r=t%cycle;if(r>=a)wait+=cycle-r;}\n    cout<<wait<<"\\n";\n}`,
 q836:`#include <iostream>\nusing namespace std;\nint main(){\n    int k,x1,y1,x2,y2;\n    cin>>k>>x1>>y1>>x2>>y2;\n    int v=k,pos=0;\n    while(true){pos+=v;if(pos%x1==0)v-=y1;if(pos%x2==0)v-=y2;if(v<=0){cout<<pos<<"\\n";break;}}\n}`
+,
+m001:`#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nint main(){\n    int n;cin>>n;\n    vector<long long>a(n);for(auto&x:a)cin>>x;\n    long long cur=a[0],ans=a[0];\n    for(int i=1;i<n;i++){cur=max(a[i],cur+a[i]);ans=max(ans,cur);}\n    cout<<ans<<"\\n";\n}`,
+m002:`#include <iostream>\nusing namespace std;\nint main(){\n    int n;cin>>n;\n    if(n==1){cout<<1<<"\\n";return 0;}\n    long long a=1,b=2;\n    for(int i=2;i<n;i++){long long t=a+b;a=b;b=t;}\n    cout<<b<<"\\n";\n}`,
+m003:`#include <iostream>\n#include <string>\n#include <stack>\nusing namespace std;\nint main(){\n    string s;cin>>s;\n    stack<char>st;\n    for(char c:s){\n        if(c=='('||c=='['||c=='{')st.push(c);\n        else{if(st.empty()){cout<<"Invalid\\n";return 0;}\n            char t=st.top();st.pop();\n            if((c==')'&&t!='(')||(c==']'&&t!='[')||(c=='}'&&t!='{')){cout<<"Invalid\\n";return 0;}}\n    }\n    cout<<(st.empty()?"Valid":"Invalid")<<"\\n";\n}`,
+m004:`#include <iostream>\n#include <vector>\nusing namespace std;\nint main(){\n    int n,m;cin>>n>>m;\n    vector<int>a(n);for(auto&x:a)cin>>x;\n    while(m--){int x,lo=0,hi=n-1,ans=-1;cin>>x;\n        while(lo<=hi){int mid=(lo+hi)/2;if(a[mid]>=x){ans=mid+1;hi=mid-1;}else lo=mid+1;}\n        cout<<ans<<"\\n";}\n}`,
+m005:`#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nint main(){\n    int n;cin>>n;\n    vector<int>a(n),dp(n,1);for(auto&x:a)cin>>x;\n    for(int i=1;i<n;i++)for(int j=0;j<i;j++)if(a[j]<a[i])dp[i]=max(dp[i],dp[j]+1);\n    cout<<*max_element(dp.begin(),dp.end())<<"\\n";\n}`,
+m006:`#include <iostream>\n#include <vector>\nusing namespace std;\nint main(){\n    int n;cin>>n;\n    vector<bool>sv(n+1,true);sv[0]=sv[1]=false;\n    for(int i=2;(long long)i*i<=n;i++)if(sv[i])for(int j=i*i;j<=n;j+=i)sv[j]=false;\n    bool first=true;\n    for(int i=2;i<=n;i++)if(sv[i]){if(!first)cout<<" ";cout<<i;first=false;}\n    cout<<"\\n";\n}`,
+m007:`#include <iostream>\n#include <string>\n#include <algorithm>\nusing namespace std;\nint main(){\n    string a,b;cin>>a>>b;\n    string res;int carry=0,i=a.size()-1,j=b.size()-1;\n    while(i>=0||j>=0||carry){int s=carry;if(i>=0)s+=a[i--]-'0';if(j>=0)s+=b[j--]-'0';res+=(char)('0'+s%10);carry=s/10;}\n    reverse(res.begin(),res.end());\n    cout<<res<<"\\n";\n}`,
+m008:`#include <iostream>\n#include <sstream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nint main(){\n    string line;getline(cin,line);\n    istringstream iss(line);vector<string>words;string w;\n    while(iss>>w)words.push_back(w);\n    reverse(words.begin(),words.end());\n    for(int i=0;i<(int)words.size();i++){if(i)cout<<" ";cout<<words[i];}cout<<"\\n";\n}`,
+h001:`#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nint main(){\n    int n,W;cin>>n>>W;\n    vector<int>dp(W+1,0);\n    for(int i=0;i<n;i++){int w,v;cin>>w>>v;for(int j=W;j>=w;j--)dp[j]=max(dp[j],dp[j-w]+v);}\n    cout<<dp[W]<<"\\n";\n}`,
+h002:`#include <iostream>\n#include <string>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nint main(){\n    string A,B;cin>>A>>B;\n    int m=A.size(),n=B.size();\n    vector<vector<int>>dp(m+1,vector<int>(n+1,0));\n    for(int i=1;i<=m;i++)for(int j=1;j<=n;j++){if(A[i-1]==B[j-1])dp[i][j]=dp[i-1][j-1]+1;else dp[i][j]=max(dp[i-1][j],dp[i][j-1]);}\n    cout<<dp[m][n]<<"\\n";\n}`,
+h003:`#include <iostream>\n#include <vector>\n#include <queue>\nusing namespace std;\nint main(){\n    int n,m;cin>>n>>m;\n    vector<vector<int>>g(n,vector<int>(m)),dist(n,vector<int>(m,-1));\n    for(auto&r:g)for(auto&x:r)cin>>x;\n    if(g[0][0]||g[n-1][m-1]){cout<<-1<<"\\n";return 0;}\n    queue<pair<int,int>>q;q.push({0,0});dist[0][0]=0;\n    int dr[]={-1,1,0,0},dc[]={0,0,-1,1};\n    while(!q.empty()){auto[r,c]=q.front();q.pop();if(r==n-1&&c==m-1){cout<<dist[r][c]<<"\\n";return 0;}for(int d=0;d<4;d++){int nr=r+dr[d],nc=c+dc[d];if(nr>=0&&nr<n&&nc>=0&&nc<m&&!g[nr][nc]&&dist[nr][nc]==-1){dist[nr][nc]=dist[r][c]+1;q.push({nr,nc});}}}\n    cout<<-1<<"\\n";\n}`,
+h004:`#include <iostream>\n#include <vector>\nusing namespace std;\nint main(){\n    int n,m;cin>>n>>m;\n    vector<vector<int>>g(n,vector<int>(m));for(auto&r:g)for(auto&x:r)cin>>x;\n    int t=0,b=n-1,l=0,r=m-1;bool first=true;\n    while(t<=b&&l<=r){\n        for(int c=l;c<=r;c++){if(!first)cout<<" ";cout<<g[t][c];first=false;}t++;\n        for(int row=t;row<=b;row++)cout<<" "<<g[row][r];r--;\n        if(t<=b){for(int c=r;c>=l;c--)cout<<" "<<g[b][c];b--;}\n        if(l<=r){for(int row=b;row>=t;row--)cout<<" "<<g[row][l];l++;}\n    }\n    cout<<"\\n";\n}`,
+h005:`#include <iostream>\nusing namespace std;\ntypedef long long ll;\nll pw(ll a,ll n,ll m){if(m==1)return 0;ll r=1;a%=m;while(n>0){if(n&1)r=r*a%m;a=a*a%m;n>>=1;}return r;}\nint main(){ll a,n,m;cin>>a>>n>>m;cout<<pw(a,n,m)<<"\\n";}`
+
+,
+p2_color_b:`#include <iostream>
+#include <vector>
+using namespace std;
+int main(){
+    int n,k;cin>>n>>k;
+    vector<vector<int>>g(n,vector<int>(n,0));
+    for(int i=0;i<k;i++){int r,c;cin>>r>>c;g[r][c]=1;}
+    int cnt=0;
+    for(auto&row:g)for(int x:row)if(x)cnt++;
+    cout<<cnt<<"\n";
+}`,
+p2_color_m:`#include <iostream>
+#include <vector>
+using namespace std;
+int main(){
+    int n,k;cin>>n>>k;
+    vector<vector<int>>g(n,vector<int>(n,0));
+    for(int i=0;i<k;i++){
+        int r1,c1,r2,c2,v;cin>>r1>>c1>>r2>>c2>>v;
+        for(int x=r1;x<=r2;x++)for(int y=c1;y<=c2;y++)g[x][y]=v;
+    }
+    int cnt=0,s=0;
+    for(auto&row:g)for(int x:row)if(x){cnt++;s+=x;}
+    cout<<cnt<<" "<<s<<"\n";
+}`,
+p2_str_b:`#include <iostream>
+#include <string>
+#include <cctype>
+using namespace std;
+int main(){
+    string s;getline(cin,s);
+    int cnt=0;
+    for(char c:s)if(isalpha((unsigned char)c))cnt++;
+    cout<<cnt<<"\n";
+}`,
+p2_str_m:`#include <iostream>
+#include <string>
+#include <stack>
+using namespace std;
+int main(){
+    string s;cin>>s;
+    stack<pair<string,int>>st;
+    string cur="";int num=0;
+    for(char c:s){
+        if(isdigit(c))num=num*10+(c-'0');
+        else if(c=='['){st.push({cur,num});cur="";num=0;}
+        else if(c==']'){
+            auto[prev,k]=st.top();st.pop();
+            string rep="";for(int i=0;i<k;i++)rep+=cur;
+            cur=prev+rep;
+        }else cur+=c;
+    }
+    cout<<cur<<"\n";
+}`,
+p2_bee_b:`#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+int main(){
+    int n;cin>>n;
+    vector<int>t(n);for(auto&x:t)cin>>x;
+    cout<<*max_element(t.begin(),t.end())-*min_element(t.begin(),t.end())<<"\n";
+}`,
+p2_bee_m:`#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+int main(){
+    int n,w;cin>>n>>w;
+    vector<int>t(n);for(auto&x:t)cin>>x;
+    int l=0,ans=0;
+    for(int r=0;r<n;r++){
+        while(t[r]-t[l]>w)l++;
+        ans=max(ans,r-l+1);
+    }
+    cout<<ans<<"\n";
+}`,
+p2_card_b:`#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+int main(){
+    int n,k;cin>>n>>k;
+    vector<int>a(n);for(auto&x:a)cin>>x;
+    sort(a.begin(),a.end());
+    long long s=0;
+    for(int i=n-k;i<n;i++)s+=a[i];
+    cout<<s<<"\n";
+}`,
+p2_card_m:`#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+int main(){
+    int n;cin>>n;
+    vector<int>a(n),b(n);
+    for(auto&x:a)cin>>x;
+    for(auto&x:b)cin>>x;
+    sort(a.begin(),a.end());
+    vector<bool>used(n,false);
+    int score=0;
+    for(int x:b){
+        for(int i=0;i<n;i++){
+            if(!used[i]&&a[i]>x){used[i]=true;score++;break;}
+        }
+    }
+    cout<<score<<"\n";
+}`
 },
 c: {
 b964:`#include <stdio.h>\n#include <stdlib.h>\nint cmp(const void*a,const void*b){return *(int*)a-*(int*)b;}\nint main(){\n    int n;scanf("%d",&n);\n    int s[20];for(int i=0;i<n;i++)scanf("%d",&s[i]);\n    qsort(s,n,sizeof(int),cmp);\n    for(int i=0;i<n;i++){if(i)printf(" ");printf("%d",s[i]);}printf("\\n");\n    int hf=-1,lp=-1;\n    for(int i=0;i<n;i++){if(s[i]<60)hf=s[i];else if(lp==-1)lp=s[i];}\n    if(hf==-1)printf("best case\\n");else printf("%d\\n",hf);\n    if(lp==-1)printf("worst case\\n");else printf("%d\\n",lp);\n    return 0;\n}`,
@@ -369,6 +644,120 @@ o076:`#include <stdio.h>\nint main(){\n    int n;scanf("%d",&n);\n    int h[100]
 o711:`#include <stdio.h>\nlong long ht(long long v,long long w1,long long h1,long long w2,long long cap1){return v<=cap1?v/(w1*w1):h1+(v-cap1)/(w2*w2);}\nint main(){\n    int n;scanf("%d",&n);\n    long long w1,w2,h1,h2;scanf("%lld %lld %lld %lld",&w1,&w2,&h1,&h2);\n    long long cap1=w1*w1*h1,total=cap1+w2*w2*h2,water=0,ans=0;\n    for(int i=0;i<n;i++){int v;scanf("%d",&v);long long oh=ht(water,w1,h1,w2,cap1);water+=v;if(water>total)water=total;long long nh=ht(water,w1,h1,w2,cap1);if(nh-oh>ans)ans=nh-oh;}\n    printf("%lld\\n",ans);\n    return 0;\n}`,
 q181:`#include <stdio.h>\nint main(){\n    int a,b;scanf("%d %d",&a,&b);\n    int n;scanf("%d",&n);\n    int cycle=a+b,wait=0;\n    for(int i=0;i<n;i++){int t;scanf("%d",&t);int r=t%cycle;if(r>=a)wait+=cycle-r;}\n    printf("%d\\n",wait);\n    return 0;\n}`,
 q836:`#include <stdio.h>\nint main(){\n    int k,x1,y1,x2,y2;\n    scanf("%d",&k);scanf("%d %d",&x1,&y1);scanf("%d %d",&x2,&y2);\n    int v=k,pos=0;\n    while(1){pos+=v;if(pos%x1==0)v-=y1;if(pos%x2==0)v-=y2;if(v<=0){printf("%d\\n",pos);break;}}\n    return 0;\n}`
+,
+m001:`#include <stdio.h>\n#include <stdlib.h>\nint main(){\n    int n;scanf("%d",&n);\n    long long*a=(long long*)malloc(n*sizeof(long long));\n    for(int i=0;i<n;i++)scanf("%lld",&a[i]);\n    long long cur=a[0],ans=a[0];\n    for(int i=1;i<n;i++){if(cur+a[i]>a[i])cur+=a[i];else cur=a[i];if(cur>ans)ans=cur;}\n    printf("%lld\\n",ans);free(a);return 0;\n}`,
+m002:`#include <stdio.h>\nint main(){\n    int n;scanf("%d",&n);\n    if(n==1){printf("1\\n");return 0;}\n    long long a=1,b=2;\n    for(int i=2;i<n;i++){long long t=a+b;a=b;b=t;}\n    printf("%lld\\n",b);\n}`,
+m003:`#include <stdio.h>\n#include <string.h>\nchar st[10001];int top=0;\nint match(char a,char b){return (a=='('&&b==')')||(a=='['&&b==']')||(a=='{'&&b=='}');}\nint main(){\n    char s[10001];scanf("%s",s);\n    for(int i=0;s[i];i++){\n        if(s[i]=='('||s[i]=='['||s[i]=='{')st[top++]=s[i];\n        else{if(top==0||!match(st[top-1],s[i])){printf("Invalid\\n");return 0;}top--;}\n    }\n    printf(top==0?"Valid\\n":"Invalid\\n");\n}`,
+m004:`#include <stdio.h>\nint a[100001];\nint main(){\n    int n,m;scanf("%d %d",&n,&m);\n    for(int i=0;i<n;i++)scanf("%d",&a[i]);\n    while(m--){int x,lo=0,hi=n-1,ans=-1;scanf("%d",&x);\n        while(lo<=hi){int mid=(lo+hi)/2;if(a[mid]>=x){ans=mid+1;hi=mid-1;}else lo=mid+1;}\n        printf("%d\\n",ans);}\n}`,
+m005:`#include <stdio.h>\nint a[1001],dp[1001];\nint main(){\n    int n;scanf("%d",&n);\n    for(int i=0;i<n;i++){scanf("%d",&a[i]);dp[i]=1;}\n    int ans=1;\n    for(int i=1;i<n;i++){for(int j=0;j<i;j++)if(a[j]<a[i]&&dp[j]+1>dp[i])dp[i]=dp[j]+1;if(dp[i]>ans)ans=dp[i];}\n    printf("%d\\n",ans);\n}`,
+m006:`#include <stdio.h>\n#include <string.h>\nchar sv[100001];\nint main(){\n    int n;scanf("%d",&n);\n    memset(sv,1,sizeof(sv));sv[0]=sv[1]=0;\n    for(int i=2;(long long)i*i<=n;i++)if(sv[i])for(int j=i*i;j<=n;j+=i)sv[j]=0;\n    int first=1;\n    for(int i=2;i<=n;i++)if(sv[i]){if(!first)printf(" ");printf("%d",i);first=0;}\n    printf("\\n");\n}`,
+m007:`#include <stdio.h>\n#include <string.h>\nvoid rev(char*s,int n){for(int i=0;i<n/2;i++){char t=s[i];s[i]=s[n-1-i];s[n-1-i]=t;}}\nint main(){\n    char a[1001],b[1001];scanf("%s %s",a,b);\n    int i=strlen(a)-1,j=strlen(b)-1,carry=0;\n    char res[1002];int k=0;\n    while(i>=0||j>=0||carry){int s=carry;if(i>=0)s+=a[i--]-'0';if(j>=0)s+=b[j--]-'0';res[k++]='0'+s%10;carry=s/10;}\n    res[k]=0;rev(res,k);printf("%s\\n",res);\n}`,
+m008:`#include <stdio.h>\n#include <string.h>\nint main(){\n    char line[10001];fgets(line,sizeof(line),stdin);\n    int len=strlen(line);if(line[len-1]=='\\n')line[--len]=0;\n    char*words[5000];int wc=0;\n    char*p=strtok(line," ");while(p){words[wc++]=p;p=strtok(NULL," ");}\n    for(int i=wc-1;i>=0;i--){if(i<wc-1)printf(" ");printf("%s",words[i]);}printf("\\n");\n}`,
+h001:`#include <stdio.h>\nint dp[1001];\nint main(){\n    int n,W;scanf("%d %d",&n,&W);\n    for(int i=0;i<n;i++){int w,v;scanf("%d %d",&w,&v);for(int j=W;j>=w;j--)if(dp[j-w]+v>dp[j])dp[j]=dp[j-w]+v;}\n    printf("%d\\n",dp[W]);\n}`,
+h002:`#include <stdio.h>\n#include <string.h>\nint dp[1001][1001];\nint main(){\n    char A[1001],B[1001];scanf("%s %s",A,B);\n    int m=strlen(A),n=strlen(B);\n    for(int i=1;i<=m;i++)for(int j=1;j<=n;j++){\n        if(A[i-1]==B[j-1])dp[i][j]=dp[i-1][j-1]+1;\n        else dp[i][j]=dp[i-1][j]>dp[i][j-1]?dp[i-1][j]:dp[i][j-1];\n    }\n    printf("%d\\n",dp[m][n]);\n}`,
+h003:`#include <stdio.h>\n#include <string.h>\n#define MAXN 101\nint g[MAXN][MAXN],dist[MAXN][MAXN],qr[MAXN*MAXN],qc[MAXN*MAXN];\nint main(){\n    int n,m;scanf("%d %d",&n,&m);\n    for(int i=0;i<n;i++)for(int j=0;j<m;j++)scanf("%d",&g[i][j]);\n    if(g[0][0]||g[n-1][m-1]){printf("-1\\n");return 0;}\n    memset(dist,-1,sizeof(dist));dist[0][0]=0;\n    int head=0,tail=0;qr[tail]=0;qc[tail++]=0;\n    int dr[]={-1,1,0,0},dc[]={0,0,-1,1};\n    while(head<tail){int r=qr[head],c=qc[head++];\n        if(r==n-1&&c==m-1){printf("%d\\n",dist[r][c]);return 0;}\n        for(int d=0;d<4;d++){int nr=r+dr[d],nc=c+dc[d];if(nr>=0&&nr<n&&nc>=0&&nc<m&&!g[nr][nc]&&dist[nr][nc]==-1){dist[nr][nc]=dist[r][c]+1;qr[tail]=nr;qc[tail++]=nc;}}}\n    printf("-1\\n");\n}`,
+h004:`#include <stdio.h>\nint g[51][51];\nint main(){\n    int n,m;scanf("%d %d",&n,&m);\n    for(int i=0;i<n;i++)for(int j=0;j<m;j++)scanf("%d",&g[i][j]);\n    int t=0,b=n-1,l=0,r=m-1;int first=1;\n    while(t<=b&&l<=r){\n        for(int c=l;c<=r;c++){if(!first)printf(" ");printf("%d",g[t][c]);first=0;}t++;\n        for(int row=t;row<=b;row++)printf(" %d",g[row][r]);r--;\n        if(t<=b){for(int c=r;c>=l;c--)printf(" %d",g[b][c]);b--;}\n        if(l<=r){for(int row=b;row>=t;row--)printf(" %d",g[row][l]);l++;}\n    }\n    printf("\\n");\n}`,
+h005:`#include <stdio.h>\ntypedef long long ll;\ntypedef unsigned long long ull;\nll pw(ll a,ull n,ll m){if(m==1)return 0;ll r=1;a%=m;while(n>0){if(n&1)r=r*a%m;a=a*a%m;n>>=1;}return r;}\nint main(){ll a,m;ull n;scanf("%lld %llu %lld",&a,&n,&m);printf("%lld\\n",pw(a,n,m));}`
+
+,
+p2_color_b:`#include <stdio.h>
+int g[50][50];
+int main(){
+    int n,k;scanf("%d %d",&n,&k);
+    for(int i=0;i<k;i++){int r,c;scanf("%d %d",&r,&c);g[r][c]=1;}
+    int cnt=0;
+    for(int i=0;i<n;i++)for(int j=0;j<n;j++)if(g[i][j])cnt++;
+    printf("%d\n",cnt);
+}`,
+p2_color_m:`#include <stdio.h>
+int g[100][100];
+int main(){
+    int n,k;scanf("%d %d",&n,&k);
+    for(int i=0;i<k;i++){
+        int r1,c1,r2,c2,v;scanf("%d %d %d %d %d",&r1,&c1,&r2,&c2,&v);
+        for(int x=r1;x<=r2;x++)for(int y=c1;y<=c2;y++)g[x][y]=v;
+    }
+    int cnt=0,s=0;
+    for(int i=0;i<n;i++)for(int j=0;j<n;j++)if(g[i][j]){cnt++;s+=g[i][j];}
+    printf("%d %d\n",cnt,s);
+}`,
+p2_str_b:`#include <stdio.h>
+#include <ctype.h>
+int main(){
+    char s[200];fgets(s,sizeof(s),stdin);
+    int cnt=0;
+    for(int i=0;s[i];i++)if(isalpha((unsigned char)s[i]))cnt++;
+    printf("%d\n",cnt);
+}`,
+p2_str_m:`#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+char st_str[100][10001];int st_n[100];int sp=0;
+char cur[10001]="";int curlen=0;
+int main(){
+    char s[101];scanf("%s",s);
+    int num=0;
+    for(int i=0;s[i];i++){
+        char c=s[i];
+        if(isdigit(c))num=num*10+(c-'0');
+        else if(c=='['){strcpy(st_str[sp],cur);st_n[sp]=num;sp++;cur[0]=0;curlen=0;num=0;}
+        else if(c==']'){
+            sp--;
+            char tmp[10001];strcpy(tmp,st_str[sp]);
+            for(int k=0;k<st_n[sp];k++)strcat(tmp,cur);
+            strcpy(cur,tmp);curlen=strlen(cur);
+        }else{cur[curlen++]=c;cur[curlen]=0;}
+    }
+    printf("%s\n",cur);
+}`,
+p2_bee_b:`#include <stdio.h>
+int main(){
+    int n;scanf("%d",&n);
+    int t[100],mx=-1,mn=1000000;
+    for(int i=0;i<n;i++){scanf("%d",&t[i]);if(t[i]>mx)mx=t[i];if(t[i]<mn)mn=t[i];}
+    printf("%d\n",mx-mn);
+}`,
+p2_bee_m:`#include <stdio.h>
+int main(){
+    int n,w;scanf("%d %d",&n,&w);
+    int t[1000];
+    for(int i=0;i<n;i++)scanf("%d",&t[i]);
+    int l=0,ans=0;
+    for(int r=0;r<n;r++){
+        while(t[r]-t[l]>w)l++;
+        if(r-l+1>ans)ans=r-l+1;
+    }
+    printf("%d\n",ans);
+}`,
+p2_card_b:`#include <stdio.h>
+#include <stdlib.h>
+int cmp(const void*a,const void*b){return *(int*)a-*(int*)b;}
+int main(){
+    int n,k;scanf("%d %d",&n,&k);
+    int a[100];
+    for(int i=0;i<n;i++)scanf("%d",&a[i]);
+    qsort(a,n,sizeof(int),cmp);
+    long long s=0;
+    for(int i=n-k;i<n;i++)s+=a[i];
+    printf("%lld\n",s);
+}`,
+p2_card_m:`#include <stdio.h>
+#include <stdlib.h>
+int cmp(const void*a,const void*b){return *(int*)a-*(int*)b;}
+int main(){
+    int n;scanf("%d",&n);
+    int a[1000],b[1000],used[1000]={0};
+    for(int i=0;i<n;i++)scanf("%d",&a[i]);
+    for(int i=0;i<n;i++)scanf("%d",&b[i]);
+    qsort(a,n,sizeof(int),cmp);
+    int score=0;
+    for(int i=0;i<n;i++){
+        for(int j=0;j<n;j++){
+            if(!used[j]&&a[j]>b[i]){used[j]=1;score++;break;}
+        }
+    }
+    printf("%d\n",score);
+}`
 },
 java: {
 b964:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc=new Scanner(System.in);\n        int n=sc.nextInt();\n        int[] s=new int[n];for(int i=0;i<n;i++)s[i]=sc.nextInt();\n        Arrays.sort(s);\n        StringBuilder sb=new StringBuilder();\n        for(int i=0;i<n;i++){if(i>0)sb.append(" ");sb.append(s[i]);}\n        System.out.println(sb);\n        int hf=-1,lp=-1;\n        for(int x:s){if(x<60)hf=x;else if(lp==-1)lp=x;}\n        System.out.println(hf==-1?"best case":hf);\n        System.out.println(lp==-1?"worst case":lp);\n    }\n}`,
@@ -395,6 +784,133 @@ o076:`import java.util.*;\npublic class Main {\n    public static void main(Stri
 o711:`import java.util.*;\npublic class Main {\n    static long w1,w2,h1,cap1;\n    static long ht(long v){return v<=cap1?v/(w1*w1):h1+(v-cap1)/(w2*w2);}\n    public static void main(String[] args) {\n        Scanner sc=new Scanner(System.in);int n=sc.nextInt();\n        w1=sc.nextLong();w2=sc.nextLong();h1=sc.nextLong();long h2=sc.nextLong();\n        cap1=w1*w1*h1;long total=cap1+w2*w2*h2,water=0,ans=0;\n        for(int i=0;i<n;i++){long v=sc.nextLong();long oh=ht(water);water=Math.min(total,water+v);ans=Math.max(ans,ht(water)-oh);}\n        System.out.println(ans);\n    }\n}`,
 q181:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc=new Scanner(System.in);int a=sc.nextInt(),b=sc.nextInt(),n=sc.nextInt();\n        int cycle=a+b,wait=0;\n        for(int i=0;i<n;i++){int t=sc.nextInt();int r=t%cycle;if(r>=a)wait+=cycle-r;}\n        System.out.println(wait);\n    }\n}`,
 q836:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc=new Scanner(System.in);\n        int k=sc.nextInt(),x1=sc.nextInt(),y1=sc.nextInt(),x2=sc.nextInt(),y2=sc.nextInt();\n        int v=k,pos=0;\n        while(true){pos+=v;if(pos%x1==0)v-=y1;if(pos%x2==0)v-=y2;if(v<=0){System.out.println(pos);break;}}\n    }\n}`
+,
+m001:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc=new Scanner(System.in);int n=sc.nextInt();\n        long[]a=new long[n];for(int i=0;i<n;i++)a[i]=sc.nextLong();\n        long cur=a[0],ans=a[0];\n        for(int i=1;i<n;i++){cur=Math.max(a[i],cur+a[i]);ans=Math.max(ans,cur);}\n        System.out.println(ans);\n    }\n}`,
+m002:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        int n=new Scanner(System.in).nextInt();\n        if(n==1){System.out.println(1);return;}\n        long a=1,b=2;\n        for(int i=2;i<n;i++){long t=a+b;a=b;b=t;}\n        System.out.println(b);\n    }\n}`,
+m003:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        String s=new Scanner(System.in).next();\n        Deque<Character>st=new ArrayDeque<>();\n        for(char c:s.toCharArray()){\n            if("([{".indexOf(c)>=0)st.push(c);\n            else{if(st.isEmpty()){System.out.println("Invalid");return;}\n                char t=st.pop();\n                if((c==')'&&t!='(')||(c==']'&&t!='[')||(c=='}'&&t!='{')){System.out.println("Invalid");return;}}\n        }\n        System.out.println(st.isEmpty()?"Valid":"Invalid");\n    }\n}`,
+m004:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc=new Scanner(System.in);int n=sc.nextInt(),m=sc.nextInt();\n        int[]a=new int[n];for(int i=0;i<n;i++)a[i]=sc.nextInt();\n        while(m-->0){int x=sc.nextInt(),lo=0,hi=n-1,ans=-1;\n            while(lo<=hi){int mid=(lo+hi)/2;if(a[mid]>=x){ans=mid+1;hi=mid-1;}else lo=mid+1;}\n            System.out.println(ans);}\n    }\n}`,
+m005:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc=new Scanner(System.in);int n=sc.nextInt();\n        int[]a=new int[n],dp=new int[n];\n        for(int i=0;i<n;i++){a[i]=sc.nextInt();dp[i]=1;}\n        int ans=1;\n        for(int i=1;i<n;i++){for(int j=0;j<i;j++)if(a[j]<a[i])dp[i]=Math.max(dp[i],dp[j]+1);ans=Math.max(ans,dp[i]);}\n        System.out.println(ans);\n    }\n}`,
+m006:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        int n=new Scanner(System.in).nextInt();\n        boolean[]sv=new boolean[n+1];Arrays.fill(sv,true);sv[0]=sv[1]=false;\n        for(int i=2;(long)i*i<=n;i++)if(sv[i])for(int j=i*i;j<=n;j+=i)sv[j]=false;\n        StringBuilder sb=new StringBuilder();\n        for(int i=2;i<=n;i++)if(sv[i]){if(sb.length()>0)sb.append(' ');sb.append(i);}\n        System.out.println(sb);\n    }\n}`,
+m007:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc=new Scanner(System.in);String a=sc.next(),b=sc.next();\n        int i=a.length()-1,j=b.length()-1,carry=0;\n        StringBuilder res=new StringBuilder();\n        while(i>=0||j>=0||carry>0){int s=carry;if(i>=0)s+=a.charAt(i--)-'0';if(j>=0)s+=b.charAt(j--)-'0';res.append((char)('0'+s%10));carry=s/10;}\n        System.out.println(res.reverse());\n    }\n}`,
+m008:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        String[]words=new Scanner(System.in).nextLine().split(" ");\n        StringBuilder sb=new StringBuilder();\n        for(int i=words.length-1;i>=0;i--){if(sb.length()>0)sb.append(' ');sb.append(words[i]);}\n        System.out.println(sb);\n    }\n}`,
+h001:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc=new Scanner(System.in);int n=sc.nextInt(),W=sc.nextInt();\n        int[]dp=new int[W+1];\n        for(int i=0;i<n;i++){int w=sc.nextInt(),v=sc.nextInt();for(int j=W;j>=w;j--)dp[j]=Math.max(dp[j],dp[j-w]+v);}\n        System.out.println(dp[W]);\n    }\n}`,
+h002:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc=new Scanner(System.in);String A=sc.next(),B=sc.next();\n        int m=A.length(),n=B.length();\n        int[][]dp=new int[m+1][n+1];\n        for(int i=1;i<=m;i++)for(int j=1;j<=n;j++){if(A.charAt(i-1)==B.charAt(j-1))dp[i][j]=dp[i-1][j-1]+1;else dp[i][j]=Math.max(dp[i-1][j],dp[i][j-1]);}\n        System.out.println(dp[m][n]);\n    }\n}`,
+h003:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc=new Scanner(System.in);int n=sc.nextInt(),m=sc.nextInt();\n        int[][]g=new int[n][m];for(int[]r:g)for(int j=0;j<m;j++)r[j]=sc.nextInt();\n        if(g[0][0]==1||g[n-1][m-1]==1){System.out.println(-1);return;}\n        int[][]dist=new int[n][m];for(int[]r:dist)Arrays.fill(r,-1);\n        Queue<int[]>q=new LinkedList<>();q.add(new int[]{0,0});dist[0][0]=0;\n        int[]dr={-1,1,0,0},dc={0,0,-1,1};\n        while(!q.isEmpty()){int[]cur=q.poll();int r=cur[0],c=cur[1];if(r==n-1&&c==m-1){System.out.println(dist[r][c]);return;}for(int d=0;d<4;d++){int nr=r+dr[d],nc=c+dc[d];if(nr>=0&&nr<n&&nc>=0&&nc<m&&g[nr][nc]==0&&dist[nr][nc]==-1){dist[nr][nc]=dist[r][c]+1;q.add(new int[]{nr,nc});}}}\n        System.out.println(-1);\n    }\n}`,
+h004:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc=new Scanner(System.in);int n=sc.nextInt(),m=sc.nextInt();\n        int[][]g=new int[n][m];for(int[]r:g)for(int j=0;j<m;j++)r[j]=sc.nextInt();\n        int t=0,b=n-1,l=0,r=m-1;StringBuilder sb=new StringBuilder();\n        while(t<=b&&l<=r){\n            for(int c=l;c<=r;c++){if(sb.length()>0)sb.append(' ');sb.append(g[t][c]);}t++;\n            for(int row=t;row<=b;row++)sb.append(' ').append(g[row][r]);r--;\n            if(t<=b){for(int c=r;c>=l;c--)sb.append(' ').append(g[b][c]);b--;}\n            if(l<=r){for(int row=b;row>=t;row--)sb.append(' ').append(g[row][l]);l++;}\n        }\n        System.out.println(sb);\n    }\n}`,
+h005:`import java.util.*;\npublic class Main {\n    static long pw(long a,long n,long m){if(m==1)return 0;long r=1;a%=m;while(n>0){if((n&1)==1)r=r*a%m;a=a*a%m;n>>=1;}return r;}\n    public static void main(String[] args) {\n        Scanner sc=new Scanner(System.in);long a=sc.nextLong(),n=sc.nextLong(),m=sc.nextLong();\n        System.out.println(pw(a,n,m));\n    }\n}`
+
+,
+p2_color_b:`import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc=new Scanner(System.in);
+        int n=sc.nextInt(),k=sc.nextInt();
+        int[][]g=new int[n][n];
+        for(int i=0;i<k;i++)g[sc.nextInt()][sc.nextInt()]=1;
+        int cnt=0;
+        for(int[]r:g)for(int x:r)if(x!=0)cnt++;
+        System.out.println(cnt);
+    }
+}`,
+p2_color_m:`import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc=new Scanner(System.in);
+        int n=sc.nextInt(),k=sc.nextInt();
+        int[][]g=new int[n][n];
+        for(int i=0;i<k;i++){
+            int r1=sc.nextInt(),c1=sc.nextInt(),r2=sc.nextInt(),c2=sc.nextInt(),v=sc.nextInt();
+            for(int x=r1;x<=r2;x++)for(int y=c1;y<=c2;y++)g[x][y]=v;
+        }
+        int cnt=0,s=0;
+        for(int[]r:g)for(int x:r)if(x!=0){cnt++;s+=x;}
+        System.out.println(cnt+" "+s);
+    }
+}`,
+p2_str_b:`import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        String s=new Scanner(System.in).nextLine();
+        int cnt=0;
+        for(char c:s.toCharArray())if(Character.isLetter(c))cnt++;
+        System.out.println(cnt);
+    }
+}`,
+p2_str_m:`import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        String s=new Scanner(System.in).next();
+        Deque<String>strs=new ArrayDeque<>();
+        Deque<Integer>nums=new ArrayDeque<>();
+        StringBuilder cur=new StringBuilder();int num=0;
+        for(char c:s.toCharArray()){
+            if(Character.isDigit(c))num=num*10+(c-'0');
+            else if(c=='['){strs.push(cur.toString());nums.push(num);cur=new StringBuilder();num=0;}
+            else if(c==']'){
+                int k=nums.pop();
+                StringBuilder rep=new StringBuilder(strs.pop());
+                for(int i=0;i<k;i++)rep.append(cur);
+                cur=rep;
+            }else cur.append(c);
+        }
+        System.out.println(cur);
+    }
+}`,
+p2_bee_b:`import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc=new Scanner(System.in);
+        int n=sc.nextInt();
+        int[]t=new int[n];
+        int mx=Integer.MIN_VALUE,mn=Integer.MAX_VALUE;
+        for(int i=0;i<n;i++){t[i]=sc.nextInt();mx=Math.max(mx,t[i]);mn=Math.min(mn,t[i]);}
+        System.out.println(mx-mn);
+    }
+}`,
+p2_bee_m:`import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc=new Scanner(System.in);
+        int n=sc.nextInt(),w=sc.nextInt();
+        int[]t=new int[n];for(int i=0;i<n;i++)t[i]=sc.nextInt();
+        int l=0,ans=0;
+        for(int r=0;r<n;r++){
+            while(t[r]-t[l]>w)l++;
+            ans=Math.max(ans,r-l+1);
+        }
+        System.out.println(ans);
+    }
+}`,
+p2_card_b:`import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc=new Scanner(System.in);
+        int n=sc.nextInt(),k=sc.nextInt();
+        int[]a=new int[n];for(int i=0;i<n;i++)a[i]=sc.nextInt();
+        Arrays.sort(a);
+        long s=0;for(int i=n-k;i<n;i++)s+=a[i];
+        System.out.println(s);
+    }
+}`,
+p2_card_m:`import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc=new Scanner(System.in);
+        int n=sc.nextInt();
+        int[]a=new int[n],b=new int[n];
+        for(int i=0;i<n;i++)a[i]=sc.nextInt();
+        for(int i=0;i<n;i++)b[i]=sc.nextInt();
+        Arrays.sort(a);
+        boolean[]used=new boolean[n];
+        int score=0;
+        for(int x:b){
+            for(int i=0;i<n;i++){
+                if(!used[i]&&a[i]>x){used[i]=true;score++;break;}
+            }
+        }
+        System.out.println(score);
+    }
+}`
 }
 };
 
@@ -522,7 +1038,9 @@ function renderProblemList() {
     const active = currentProblem?.id === p.id ? ' active' : '';
     return `<div class="problem-item${active}" onclick="selectProblem(${i})">
       <span class="pnum">${String(i+1).padStart(2,'0')}</span>
-      <span class="ptitle">${p.title}</span>${sh}</div>`;
+      <span class="ptitle">${p.title}</span>
+      ${p.diff==='medium'?'<span style="font-size:9px;color:#d29922;margin-left:2px">⭐⭐</span>':p.diff==='hard'?'<span style="font-size:9px;color:#f85149;margin-left:2px">⭐⭐⭐</span>':''}
+      ${sh}</div>`;
   }).join('');
 
   // Solved count for current language
@@ -563,6 +1081,7 @@ function renderProblemContent() {
       <span class="badge">${p.id}</span>
       <span class="badge lang">${cfg.icon} ${cfg.name}</span>
       ${p.topic ? `<span class="badge topic">${p.topic}</span>` : ''}
+      ${p.diff==='medium'?'<span class="badge" style="color:#d29922;background:rgba(210,153,34,.15);border-color:rgba(210,153,34,.3);">⭐⭐ 中級</span>':p.diff==='hard'?'<span class="badge" style="color:#f85149;background:rgba(248,81,73,.15);border-color:rgba(248,81,73,.3);">⭐⭐⭐ 高級</span>':'<span class="badge" style="color:#3fb950;background:rgba(63,185,80,.15);border-color:rgba(63,185,80,.3);">⭐ 初級</span>'}
     </div>
     <div class="section-label">題目說明</div><div class="desc-text">${marked.parse(p.desc)}</div>
     <div class="section-label">輸入說明</div><div class="desc-text">${marked.parse(p.input_desc)}</div>
@@ -682,14 +1201,44 @@ function loadSample() {
   if (!currentProblem || !currentLang) { alert('請先選擇語言和題目'); return; }
   const sol = SOLUTIONS[currentLang][currentProblem.id];
   if (!sol) { alert('此題目目前沒有參考解答'); return; }
-  if (editor.getValue().trim() && !confirm('確定要載入參考解答？')) return;
+  if (editor.getValue().trim() && !confirm('確定要載入參考解答？（會同時顯示解題思路）')) return;
   editor.setValue(sol);
   editor.focus();
+  // Show hint panel if hint exists
+  if (currentProblem.hint) showHint();
+}
+
+function showHint() {
+  if (!currentProblem || !currentProblem.hint) return;
+  const html = marked.parse(currentProblem.hint);
+  document.getElementById('hint-content').innerHTML = html;
+  document.getElementById('hint-overlay').style.display = 'flex';
+}
+
+function hideHint() {
+  document.getElementById('hint-overlay').style.display = 'none';
 }
 
 function escH(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 </script>
+
+<!-- Hint Overlay -->
+<div id="hint-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)hideHint()">
+  <div style="background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;max-width:680px;width:100%;max-height:80vh;overflow:auto;box-shadow:0 8px 40px rgba(0,0,0,.5);">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);">
+      <div style="font-size:15px;font-weight:600;color:var(--lang-color);">💡 解題思路</div>
+      <button onclick="hideHint()" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;line-height:1;">×</button>
+    </div>
+    <div id="hint-content" style="padding:20px;font-size:13px;line-height:1.8;color:#cdd9e5;"></div>
+    <div style="padding:10px 20px 14px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);">💭 提示：好的解題者會從題目敘述中的<strong style="color:var(--text)">關鍵字</strong>與<strong style="color:var(--text)">範例</strong>反推適合的演算法。</div>
+  </div>
+</div>
+<style>
+#hint-content code {background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px;color:var(--lang-color);}
+#hint-content strong {color:var(--text);}
+#hint-content p {margin-bottom:8px;}
+</style>
 </body>
 </html>
