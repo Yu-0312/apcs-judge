@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "apcs-judge-unified",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "5678"],
+      "port": 5678
+    }
+  ]
+}
