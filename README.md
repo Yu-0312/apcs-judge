@@ -1,7 +1,9 @@
 # APCS Multi-Language Online Judge / APCS 多語言線上評分系統
 
-> 一個檔案、四種語言、58 道題目、即時瀏覽器評分、附解題思路
-> One file, four languages, 58 problems, in-browser instant grading, with solution hints
+> 一個專案、四種語言、83 道題目、12 章互動式基礎教學、即時瀏覽器評分、附解題思路
+> One project, four languages, 83 problems, 12 interactive tutorial chapters, in-browser instant grading, with solution hints
+
+🔗 **教學頁面 / Tutorial**：[tutorial.html](https://yu-0312.github.io/apcs-judge/tutorial.html)
 
 🔗 **Live Demo / 線上體驗**：**https://yu-0312.github.io/apcs-judge/**
 
@@ -27,8 +29,25 @@
 | 難度 | 題數 | 涵蓋內容 |
 |------|------|---------|
 | ⭐ 初級 | **33 題** | APCS 歷屆 P1 全部 24 題（2016–2025）+ APCS P2 簡化版 4 題 + 自製基礎題 5 題 |
-| ⭐⭐ 中級 | **18 題** | Kadane、LIS、二分搜尋、質數篩、堆疊、前綴和、雙指標 + APCS P2 原版 4 題 |
-| ⭐⭐⭐ 高級 | **7 題** | 0/1 背包、LCS、BFS 最短路、矩陣螺旋、快速冪、編輯距離、N 皇后 |
+| ⭐⭐ 中級 | **32 題** | Kadane、LIS、二分搜尋、質數篩、堆疊、前綴和、雙指標、雜湊表、滑動視窗、後綴運算式、區間合併、GCD、矩陣旋轉、回文等 |
+| ⭐⭐⭐ 高級 | **18 題** | 0/1 背包、無限背包、LIS O(n log n)、LCS、Dijkstra、DSU、BFS、矩陣連乘、Kadane 2D、快速冪、編輯距離、字串雜湊、逆序對、N 皇后等 |
+
+### 📚 基礎教學（tutorial.html）
+
+12 章互動式教學，每章左側 Markdown 教材、右側即時 Python 編輯器：
+
+1. 變數與資料型別
+2. 輸入與輸出 (I/O)
+3. 運算子與表達式
+4. 條件判斷 if/elif/else
+5. 迴圈 for / while
+6. 字串處理
+7. List（一維陣列）
+8. 二維陣列
+9. 函式 def
+10. 字典 Dict 與集合 Set
+11. 演算法基礎（搜尋/排序/前綴和/質數篩/GCD）
+12. APCS 實戰技巧
 
 ### 🚀 使用方式
 
@@ -144,8 +163,12 @@ A web-based practice platform for Taiwan's **APCS (Advanced Placement Computer S
 | Difficulty | Count | Coverage |
 |------------|-------|----------|
 | ⭐ Easy | **33** | All 24 APCS P1 problems (2016–2025) + 4 simplified P2 + 5 custom basics |
-| ⭐⭐ Medium | **18** | Kadane, LIS, binary search, prime sieve, stack, prefix sums, two pointers + 4 original APCS P2 |
-| ⭐⭐⭐ Hard | **7** | 0/1 knapsack, LCS, BFS shortest path, spiral matrix, fast power, edit distance, N-queens |
+| ⭐⭐ Medium | **32** | Kadane, LIS, binary search, prime sieve, stack, prefix sums, two pointers, hash maps, sliding window, RPN, interval merge, GCD, matrix rotation, palindrome, etc. |
+| ⭐⭐⭐ Hard | **18** | 0/1 knapsack, unbounded knapsack, LIS O(n log n), LCS, Dijkstra, DSU, BFS shortest path, matrix chain DP, 2D Kadane, fast power, edit distance, string hashing, inversion count, N-queens, etc. |
+
+### 📚 Tutorial (tutorial.html)
+
+12 interactive chapters, each with a Markdown lesson on the left and a live Pyodide editor on the right.
 
 ### 🚀 How to Use
 

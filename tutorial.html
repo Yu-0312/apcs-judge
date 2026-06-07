@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APCS 初級 Python 教學</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--sidebar-bg:#161b22;--panel-bg:#1c2128;
+  --border:#30363d;--text:#e6edf3;--text-muted:#8b949e;
+  --green:#3fb950;--red:#f85149;--yellow:#d29922;--py:#3fb950;
+  --header-h:56px;
+}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;background:var(--sidebar-bg);border-bottom:1px solid var(--border);gap:12px;flex-shrink:0}
+.logo{font-size:17px;font-weight:700;color:var(--py)}
+.sub{font-size:12px;color:var(--text-muted)}
+.hright{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:12px;color:var(--text-muted)}
+.hright a{color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px}
+.hright a:hover{color:var(--text);border-color:var(--text-muted)}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--yellow);display:inline-block;margin-right:4px;animation:pulse 1.5s infinite}
+.status-dot.ready{background:var(--green);animation:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.layout{display:grid;grid-template-columns:260px 1fr 1fr;height:calc(100vh - var(--header-h));overflow:hidden}
+.sidebar{background:var(--sidebar-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sidebar-hdr{padding:10px 14px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border)}
+.chap-list{overflow-y:auto;flex:1}
+.chap{padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(48,54,61,.5);font-size:13px;transition:background .12s}
+.chap:hover{background:rgba(255,255,255,.03)}
+.chap.active{background:rgba(63,185,80,.08);border-left:2px solid var(--py);padding-left:12px}
+.chap-num{font-size:10px;color:var(--text-muted);font-weight:600}
+.chap-title{font-weight:500;margin-top:2px}
+.lesson-panel{border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.panel-hdr{padding:10px 18px;border-bottom:1px solid var(--border);background:var(--panel-bg);font-size:12px;color:var(--text-muted);display:flex;align-items:center;justify-content:space-between}
+.lesson-body{overflow-y:auto;flex:1;padding:20px 24px;line-height:1.7;font-size:14px;color:#cdd9e5}
+.lesson-body h1{font-size:24px;color:var(--text);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.lesson-body h2{font-size:18px;color:var(--text);margin:22px 0 8px;color:var(--py)}
+.lesson-body h3{font-size:15px;color:var(--text);margin:16px 0 6px}
+.lesson-body p{margin-bottom:10px}
+.lesson-body ul,.lesson-body ol{margin:8px 0 12px 22px}
+.lesson-body li{margin:4px 0}
+.lesson-body code{background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-family:'SFMono-Regular',Consolas,monospace;font-size:12.5px;color:#ffa657}
+.lesson-body pre{background:#0d1117;border:1px solid var(--border);padding:12px 14px;border-radius:6px;overflow-x:auto;margin:10px 0}
+.lesson-body pre code{background:transparent;padding:0;color:#cdd9e5;font-size:12.5px}
+.lesson-body table{border-collapse:collapse;margin:10px 0;font-size:13px}
+.lesson-body th,.lesson-body td{padding:6px 12px;border:1px solid var(--border);text-align:left}
+.lesson-body th{background:var(--panel-bg);font-weight:600}
+.lesson-body blockquote{border-left:3px solid var(--yellow);padding:8px 12px;margin:10px 0;background:rgba(210,153,34,.08);color:#cdd9e5;border-radius:0 4px 4px 0}
+.lesson-body .demo-btn{display:inline-block;background:var(--py);color:#000;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;margin:6px 0;text-decoration:none;border:none}
+.editor-panel{display:flex;flex-direction:column;overflow:hidden}
+.editor-toolbar{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--panel-bg);flex-shrink:0}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;border:none;transition:all .15s}
+.btn-run{background:var(--py);color:#000}
+.btn-run:hover{filter:brightness(1.15)}
+.btn-run:disabled{opacity:.5;cursor:not-allowed}
+.btn-sec{background:transparent;color:var(--text-muted);border:1px solid var(--border)}
+.btn-sec:hover{color:var(--text);border-color:var(--text-muted)}
+.editor-wrap{flex:1;overflow:hidden}
+.CodeMirror{height:100%!important;font-size:13px!important;font-family:'SFMono-Regular',Consolas,monospace!important;line-height:1.6!important}
+.output-panel{border-top:1px solid var(--border);height:200px;overflow-y:auto;background:#0d1117;padding:10px 14px}
+.output-hdr{font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.output-body{font-family:'SFMono-Regular',Consolas,monospace;font-size:12px;color:#cdd9e5;white-space:pre-wrap;line-height:1.5}
+.input-area{padding:8px 14px;border-top:1px solid var(--border);background:var(--panel-bg);display:flex;gap:8px;align-items:center}
+.input-area label{font-size:11px;color:var(--text-muted);font-weight:600}
+.input-area textarea{flex:1;background:#0d1117;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-family:monospace;font-size:11px;resize:vertical;min-height:32px;max-height:80px}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:#30363d;border-radius:3px}
+.lesson-section{margin-bottom:18px}
+.quiz{background:rgba(63,185,80,.06);border:1px solid rgba(63,185,80,.3);padding:12px 14px;border-radius:6px;margin:14px 0}
+.quiz-q{font-weight:600;margin-bottom:8px;color:var(--py)}
+</style>
+</head>
+<body>
+<header>
+  <div><div class="logo">📚 APCS 初級 Python 教學</div><div class="sub">12 章 · 互動式範例 · 即時執行</div></div>
+  <div class="hright">
+    <a href="index.html">🎯 前往題庫</a>
+    <span><span class="status-dot" id="status-dot"></span><span id="status-text">Pyodide 載入中...</span></span>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-hdr">章節目錄</div>
+    <div class="chap-list" id="chap-list"></div>
+  </aside>
+  <div class="lesson-panel">
+    <div class="panel-hdr"><span id="lesson-title">選擇章節開始學習</span><span id="lesson-tag" style="color:var(--py)"></span></div>
+    <div class="lesson-body" id="lesson-body">
+      <div style="text-align:center;padding:60px 20px;color:var(--text-muted)">
+        <div style="font-size:48px;margin-bottom:14px">📖</div>
+        <p>歡迎來到 APCS 初級 Python 教學！</p>
+        <p style="margin-top:8px;font-size:12px">左側選擇章節，右側即可執行範例程式。</p>
+      </div>
+    </div>
+  </div>
+  <div class="editor-panel">
+    <div class="editor-toolbar">
+      <button class="btn btn-run" id="run-btn" onclick="runCode()" disabled>▶ 執行</button>
+      <button class="btn btn-sec" onclick="clearEditor()">清空</button>
+      <button class="btn btn-sec" onclick="resetExample()">↺ 還原範例</button>
+      <span style="flex:1"></span>
+      <span style="font-size:11px;color:var(--text-muted)">Python 3.12</span>
+    </div>
+    <div class="editor-wrap"><textarea id="code-editor"></textarea></div>
+    <div class="input-area">
+      <label>stdin:</label>
+      <textarea id="stdin-input" placeholder="若程式需要 input()，在此填入"></textarea>
+    </div>
+    <div class="output-panel">
+      <div class="output-hdr">📤 輸出</div>
+      <div class="output-body" id="output-body">點擊上方「執行」測試程式</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CHAPTERS = [
+{id:1,title:"變數與資料型別",tag:"基礎",content:`
+# 第 1 章：變數與資料型別
+
+## 1.1 什麼是變數
+變數就是「會記住一個值的盒子」。在 Python 中，用 \`=\` 把右邊的值「貼」到左邊的名字上。
+
+\`\`\`python
+age = 17
+name = "Alice"
+height = 168.5
+\`\`\`
+
+## 1.2 四大基本型別
+
+| 型別 | 名稱 | 範例 |
+|------|------|------|
+| int | 整數 | \`42\`, \`-7\`, \`0\` |
+| float | 浮點數 | \`3.14\`, \`-0.5\` |
+| str | 字串 | \`"hello"\`, \`'APCS'\` |
+| bool | 布林 | \`True\`, \`False\` |
+
+用 \`type()\` 可以看型別：
+
+\`\`\`python
+print(type(42))        # <class 'int'>
+print(type(3.14))      # <class 'float'>
+print(type("hi"))      # <class 'str'>
+print(type(True))      # <class 'bool'>
+\`\`\`
+
+## 1.3 型別轉換
+- \`int("42")\` → \`42\`（字串轉整數）
+- \`str(42)\` → \`"42"\`（整數轉字串）
+- \`float("3.14")\` → \`3.14\`
+
+> **APCS 重點**：input() 讀進來都是字串，必須用 int() 或 float() 轉成數字才能運算！
+
+## 1.4 試試看
+按右側「執行」看看：
+`,
+example:`# 修改 age 試試
+age = 17
+name = "小明"
+print(name, "今年", age, "歲")
+print(name, "明年", age + 1, "歲")
+`},
+
+{id:2,title:"輸入與輸出",tag:"基礎",content:`
+# 第 2 章：輸入與輸出 (I/O)
+
+APCS 實作題九成都需要從 stdin 讀資料、用 print 輸出。
+
+## 2.1 print() 輸出
+\`\`\`python
+print("Hello")           # Hello
+print("a", "b", "c")     # a b c   (預設用空白分隔)
+print(1, 2, sep=",")     # 1,2     (改成逗號分隔)
+print("end", end="!")    # end!    (預設換行，改成 !)
+\`\`\`
+
+## 2.2 input() 輸入
+\`input()\` 讀**一整行**，回傳**字串**。
+
+\`\`\`python
+name = input()             # 讀一行字串
+age  = int(input())        # 讀一行，轉成整數
+\`\`\`
+
+## 2.3 一行多數字
+最常見題型：第一行 n，第二行 n 個數字。
+\`\`\`python
+n = int(input())
+nums = list(map(int, input().split()))
+print(nums)
+\`\`\`
+
+\`split()\` 把字串依空白切成串列，\`map(int, ...)\` 把每個元素都轉成 int。
+
+## 2.4 多行輸入
+\`\`\`python
+n = int(input())
+for _ in range(n):
+    line = input()
+    print(line)
+\`\`\`
+
+> **APCS 陷阱**：題目若沒給 n，可能要讀到 EOF。
+> 用 \`try: ... except EOFError: break\` 或 \`for line in sys.stdin:\`。
+
+## 2.5 試試看
+在右側 stdin 填入：\`5\` 換行 \`1 2 3 4 5\`，然後執行：
+`,
+example:`n = int(input())
+nums = list(map(int, input().split()))
+print("總和:", sum(nums))
+print("平均:", sum(nums) / n)
+print("最大:", max(nums))
+print("最小:", min(nums))
+`,stdin:`5
+1 2 3 4 5
+`},
+
+{id:3,title:"運算子與表達式",tag:"基礎",content:`
+# 第 3 章：運算子與表達式
+
+## 3.1 算術運算子
+
+| 運算子 | 意義 | 範例 | 結果 |
+|--------|------|------|------|
+| \`+\` | 加 | \`3+2\` | 5 |
+| \`-\` | 減 | \`3-2\` | 1 |
+| \`*\` | 乘 | \`3*2\` | 6 |
+| \`/\` | 除（浮點） | \`7/2\` | 3.5 |
+| \`//\` | 整除 | \`7//2\` | 3 |
+| \`%\` | 取餘數 | \`7%2\` | 1 |
+| \`**\` | 次方 | \`2**10\` | 1024 |
+
+## 3.2 比較與邏輯
+
+\`==\` \`!=\` \`<\` \`>\` \`<=\` \`>=\` 結果為 \`True\` / \`False\`。
+
+\`\`\`python
+print(3 > 2 and 5 < 10)   # True
+print(3 > 2 or 5 > 10)    # True
+print(not True)           # False
+\`\`\`
+
+## 3.3 APCS 常見技巧
+
+### 個位、十位數
+\`\`\`python
+n = 263
+print(n % 10)     # 3 (個位)
+print(n // 10 % 10)  # 6 (十位)
+print(n // 100)   # 2 (百位)
+\`\`\`
+
+### 奇偶判斷
+\`\`\`python
+if n % 2 == 0:
+    print("偶數")
+\`\`\`
+
+### 連除取每一位
+\`\`\`python
+n = 12345
+while n > 0:
+    print(n % 10)  # 5, 4, 3, 2, 1
+    n //= 10
+\`\`\`
+
+## 3.4 試試看
+`,
+example:`# 把一個三位數拆開
+n = 752
+hundreds = n // 100
+tens = n // 10 % 10
+ones = n % 10
+print(f"百位={hundreds}, 十位={tens}, 個位={ones}")
+print(f"加總={hundreds+tens+ones}")
+`},
+
+{id:4,title:"條件判斷 if/elif/else",tag:"流程",content:`
+# 第 4 章：條件判斷
+
+## 4.1 基本語法
+\`\`\`python
+if score >= 60:
+    print("及格")
+elif score >= 50:
+    print("補考")
+else:
+    print("不及格")
+\`\`\`
+
+> **重點**：Python 用「縮排」分辨範圍，**4 個空白**或 1 個 tab，不可混用。
+
+## 4.2 巢狀條件
+\`\`\`python
+if age >= 18:
+    if has_license:
+        print("可以開車")
+    else:
+        print("先去考駕照")
+\`\`\`
+
+## 4.3 條件運算式（三元）
+\`\`\`python
+result = "及格" if score >= 60 else "不及格"
+\`\`\`
+
+## 4.4 APCS 案例：三角形辨識
+\`\`\`python
+a, b, c = sorted(map(int, input().split()))
+if a + b <= c:
+    print("No")
+elif a*a + b*b > c*c:
+    print("Acute")
+elif a*a + b*b == c*c:
+    print("Right")
+else:
+    print("Obtuse")
+\`\`\`
+
+> **技巧**：用 \`sorted()\` 先排序，讓最大邊一定是 c，省下大量 if。
+
+## 4.5 試試看
+`,
+example:`# BMI 分類
+weight = 65
+height = 1.70
+bmi = weight / (height ** 2)
+print(f"BMI = {bmi:.1f}")
+
+if bmi < 18.5:
+    print("過輕")
+elif bmi < 24:
+    print("正常")
+elif bmi < 27:
+    print("過重")
+else:
+    print("肥胖")
+`},
+
+{id:5,title:"迴圈 for / while",tag:"流程",content:`
+# 第 5 章：迴圈
+
+## 5.1 for 迴圈
+\`\`\`python
+for i in range(5):       # 0,1,2,3,4
+    print(i)
+
+for i in range(1, 6):    # 1,2,3,4,5
+    print(i)
+
+for i in range(0, 10, 2):  # 0,2,4,6,8
+    print(i)
+\`\`\`
+
+## 5.2 走訪 list / 字串
+\`\`\`python
+for x in [10, 20, 30]:
+    print(x)
+
+for ch in "APCS":
+    print(ch)
+\`\`\`
+
+要同時拿到索引：
+\`\`\`python
+for i, x in enumerate([10, 20, 30]):
+    print(i, x)   # 0 10, 1 20, 2 30
+\`\`\`
+
+## 5.3 while 迴圈
+\`\`\`python
+n = 10
+while n > 0:
+    print(n)
+    n -= 1
+\`\`\`
+
+## 5.4 break / continue
+- \`break\`：直接離開迴圈
+- \`continue\`：跳過剩下，進下一輪
+
+\`\`\`python
+for i in range(10):
+    if i == 5: break          # 印到 4 就停
+    if i % 2 == 0: continue    # 偶數跳過
+    print(i)
+\`\`\`
+
+## 5.5 APCS 案例：找最大值
+\`\`\`python
+nums = list(map(int, input().split()))
+best = nums[0]
+for x in nums:
+    if x > best:
+        best = x
+print(best)
+\`\`\`
+
+當然直接 \`max(nums)\` 更快，但理解迴圈邏輯很重要。
+
+## 5.6 試試看
+`,
+example:`# 印九九乘法表 (3-5)
+for i in range(3, 6):
+    for j in range(1, 10):
+        print(f"{i}x{j}={i*j}", end="  ")
+    print()
+`},
+
+{id:6,title:"字串處理",tag:"資料",content:`
+# 第 6 章：字串
+
+## 6.1 字串基本
+
+\`\`\`python
+s = "Hello, APCS"
+print(len(s))      # 11
+print(s[0])        # H
+print(s[-1])       # S
+print(s.lower())   # hello, apcs
+print(s.upper())   # HELLO, APCS
+\`\`\`
+
+## 6.2 切片 (slicing)
+\`s[start:end]\`，取 start 到 end-1。
+
+\`\`\`python
+s = "ABCDEFG"
+print(s[0:3])    # ABC
+print(s[2:])     # CDEFG
+print(s[:3])     # ABC
+print(s[::-1])   # GFEDCBA  (反轉！)
+\`\`\`
+
+## 6.3 常用方法
+
+| 方法 | 用途 |
+|------|------|
+| \`s.split()\` | 切成 list |
+| \`s.strip()\` | 去頭尾空白 |
+| \`s.replace(a,b)\` | 取代 |
+| \`s.count(c)\` | 算 c 出現次數 |
+| \`s.find(c)\` | 找位置 (找不到回 -1) |
+| \`",".join(L)\` | list 接成字串 |
+| \`s.isdigit()\` | 全是數字嗎？ |
+| \`s.isalpha()\` | 全是字母嗎？ |
+
+## 6.4 APCS 案例：秘密差
+\`\`\`python
+s = input()
+A = sum(int(s[-i-1]) for i in range(len(s)) if i % 2 == 0)  # 奇數位
+B = sum(int(s[-i-1]) for i in range(len(s)) if i % 2 == 1)  # 偶數位
+print(abs(A - B))
+\`\`\`
+
+## 6.5 試試看
+`,
+example:`s = "Hello APCS Python"
+print("長度:", len(s))
+print("反轉:", s[::-1])
+print("大寫:", s.upper())
+print("單字數:", len(s.split()))
+print("把 APCS 換成 程式:", s.replace("APCS", "程式"))
+`},
+
+{id:7,title:"List（一維陣列）",tag:"資料",content:`
+# 第 7 章：List
+
+List 是 APCS 最重要的資料結構，存「一串」資料。
+
+## 7.1 建立 list
+\`\`\`python
+a = [10, 20, 30, 40]
+b = list(map(int, input().split()))   # 從輸入讀
+c = [0] * 5                            # [0,0,0,0,0]
+d = list(range(1, 6))                  # [1,2,3,4,5]
+e = [i*i for i in range(5)]            # [0,1,4,9,16]  (list comprehension)
+\`\`\`
+
+## 7.2 存取與修改
+\`\`\`python
+a[0] = 100
+print(a[-1])   # 最後一個
+print(len(a))
+\`\`\`
+
+## 7.3 常用方法
+
+| 方法 | 用途 | 範例 |
+|------|------|------|
+| \`a.append(x)\` | 尾端加 | \`[1,2].append(3)\` → \`[1,2,3]\` |
+| \`a.pop()\` | 尾端移除 | |
+| \`a.sort()\` | 原地排序 | |
+| \`sorted(a)\` | 回傳新 list | |
+| \`a.reverse()\` | 反轉 | |
+| \`a.count(x)\` | 計數 | |
+| \`a.index(x)\` | 找位置 | |
+| \`sum(a)\` \`max(a)\` \`min(a)\` | | |
+
+## 7.4 APCS 案例：成績指標
+\`\`\`python
+n = int(input())
+scores = sorted(map(int, input().split()))
+print(*scores)
+
+fail = [x for x in scores if x < 60]
+print(max(fail) if fail else "best case")
+
+passed = [x for x in scores if x >= 60]
+print(min(passed) if passed else "worst case")
+\`\`\`
+
+> **技巧**：list comprehension \`[x for x in L if cond]\` 是 APCS 高頻寫法。
+
+## 7.5 試試看
+`,
+example:`nums = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3]
+print("原始:", nums)
+print("排序:", sorted(nums))
+print("總和:", sum(nums))
+print("最大:", max(nums))
+print("出現 5 的次數:", nums.count(5))
+print("偶數:", [x for x in nums if x % 2 == 0])
+`},
+
+{id:8,title:"二維陣列",tag:"資料",content:`
+# 第 8 章：二維陣列
+
+## 8.1 建立 2D list
+\`\`\`python
+# 3x4 全 0 矩陣
+grid = [[0]*4 for _ in range(3)]
+# 注意不要寫 [[0]*4]*3 — 那是 3 個指向同一個 row 的引用！
+\`\`\`
+
+## 8.2 讀入 2D
+題目常見：第一行 n m，接下來 n 行各 m 個數。
+
+\`\`\`python
+n, m = map(int, input().split())
+grid = []
+for _ in range(n):
+    row = list(map(int, input().split()))
+    grid.append(row)
+\`\`\`
+
+或一行：
+\`\`\`python
+grid = [list(map(int, input().split())) for _ in range(n)]
+\`\`\`
+
+## 8.3 走訪
+\`\`\`python
+for i in range(n):
+    for j in range(m):
+        print(grid[i][j], end=" ")
+    print()
+\`\`\`
+
+## 8.4 APCS 案例：對角線總和
+\`\`\`python
+n = int(input())
+g = [list(map(int, input().split())) for _ in range(n)]
+
+main = sum(g[i][i] for i in range(n))
+anti = sum(g[i][n-1-i] for i in range(n))
+print(main, anti)
+\`\`\`
+
+## 8.5 上下左右四方向
+\`\`\`python
+dx = [-1, 1, 0, 0]   # 上 下 左 右
+dy = [0, 0, -1, 1]
+
+for d in range(4):
+    ni, nj = i + dx[d], j + dy[d]
+    if 0 <= ni < n and 0 <= nj < m:
+        # 合法的鄰居
+        pass
+\`\`\`
+
+## 8.6 試試看
+`,
+example:`# 印一個棋盤
+n = 5
+g = [[0]*n for _ in range(n)]
+for i in range(n):
+    for j in range(n):
+        g[i][j] = (i + j) % 2
+
+for row in g:
+    print(' '.join(str(x) for x in row))
+`},
+
+{id:9,title:"函式 def",tag:"結構",content:`
+# 第 9 章：函式
+
+## 9.1 為什麼要函式
+- 重複利用同段邏輯
+- 把複雜問題切小
+- 容易測試與除錯
+
+## 9.2 定義與呼叫
+\`\`\`python
+def add(a, b):
+    return a + b
+
+print(add(3, 5))   # 8
+\`\`\`
+
+## 9.3 多個回傳值
+\`\`\`python
+def min_max(lst):
+    return min(lst), max(lst)
+
+lo, hi = min_max([3, 1, 4, 1, 5, 9])
+print(lo, hi)   # 1 9
+\`\`\`
+
+## 9.4 預設參數
+\`\`\`python
+def greet(name, greeting="Hello"):
+    print(greeting, name)
+
+greet("Alice")              # Hello Alice
+greet("Bob", "Hi")          # Hi Bob
+\`\`\`
+
+## 9.5 APCS 案例：判斷質數
+\`\`\`python
+def is_prime(n):
+    if n < 2: return False
+    for i in range(2, int(n**0.5) + 1):
+        if n % i == 0: return False
+    return True
+
+for x in range(2, 20):
+    if is_prime(x):
+        print(x, end=" ")
+\`\`\`
+
+> **APCS 技巧**：把判斷邏輯拆成 helper function，主程式就清楚很多。
+
+## 9.6 遞迴入門
+函式呼叫自己 = 遞迴。
+\`\`\`python
+def fact(n):
+    if n <= 1: return 1
+    return n * fact(n-1)
+
+print(fact(5))   # 120
+\`\`\`
+
+## 9.7 試試看
+`,
+example:`def is_prime(n):
+    if n < 2: return False
+    for i in range(2, int(n**0.5) + 1):
+        if n % i == 0: return False
+    return True
+
+primes = [x for x in range(2, 50) if is_prime(x)]
+print("50 以下質數:", primes)
+print("個數:", len(primes))
+`},
+
+{id:10,title:"字典 Dict 與集合 Set",tag:"資料",content:`
+# 第 10 章：字典與集合
+
+## 10.1 Dict（鍵-值對）
+\`\`\`python
+score = {"Alice": 90, "Bob": 75}
+print(score["Alice"])         # 90
+score["Cathy"] = 88           # 新增
+score["Alice"] = 100          # 修改
+del score["Bob"]              # 刪除
+print("Alice" in score)       # True
+\`\`\`
+
+走訪：
+\`\`\`python
+for name, s in score.items():
+    print(name, s)
+\`\`\`
+
+## 10.2 計數神器：Counter / get
+APCS 經常要算「每個字出現幾次」：
+
+\`\`\`python
+s = "ABBCAAB"
+cnt = {}
+for c in s:
+    cnt[c] = cnt.get(c, 0) + 1
+print(cnt)   # {'A': 3, 'B': 3, 'C': 1}
+\`\`\`
+
+更簡潔：
+\`\`\`python
+from collections import Counter
+print(Counter("ABBCAAB"))
+\`\`\`
+
+## 10.3 Set（集合，去重）
+\`\`\`python
+nums = [1, 2, 2, 3, 3, 3, 4]
+print(set(nums))         # {1, 2, 3, 4}
+print(len(set(nums)))    # 4 (相異元素數)
+\`\`\`
+
+## 10.4 APCS 案例：最少相異字母
+\`\`\`python
+n = int(input())
+best = None
+for _ in range(n):
+    s = input()
+    k = len(set(s))   # 相異字母數
+    if best is None or k < best[0] or (k == best[0] and s < best[1]):
+        best = (k, s)
+print(best[1])
+\`\`\`
+
+## 10.5 試試看
+`,
+example:`from collections import Counter
+
+words = "the quick brown fox jumps over the lazy dog the fox".split()
+cnt = Counter(words)
+print("字頻:", dict(cnt))
+print("最常見:", cnt.most_common(3))
+print("不同字數:", len(cnt))
+`},
+
+{id:11,title:"演算法基礎",tag:"進階",content:`
+# 第 11 章：APCS 必備演算法
+
+## 11.1 線性搜尋
+\`\`\`python
+def find(L, target):
+    for i, x in enumerate(L):
+        if x == target: return i
+    return -1
+\`\`\`
+
+## 11.2 排序
+Python 內建 \`sort()\` 就夠 APCS 初級用。
+
+\`\`\`python
+nums.sort()                       # 升冪
+nums.sort(reverse=True)           # 降冪
+nums.sort(key=lambda x: -x)       # 自訂排序鍵
+
+# 多條件排序：先依分數降冪，分數同則名字升冪
+students.sort(key=lambda x: (-x[1], x[0]))
+\`\`\`
+
+## 11.3 二分搜尋（中級）
+適用於**已排序**的資料。
+
+\`\`\`python
+def bsearch(L, target):
+    lo, hi = 0, len(L) - 1
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if L[mid] == target: return mid
+        if L[mid] < target: lo = mid + 1
+        else: hi = mid - 1
+    return -1
+\`\`\`
+
+或用內建：\`from bisect import bisect_left\`
+
+## 11.4 前綴和（中級）
+讓「區間總和」變 O(1)。
+
+\`\`\`python
+a = [3, 1, 4, 1, 5, 9, 2, 6]
+ps = [0]
+for x in a:
+    ps.append(ps[-1] + x)
+
+# a[l..r] 總和（含 l, r, 0-indexed）
+def range_sum(l, r):
+    return ps[r+1] - ps[l]
+\`\`\`
+
+## 11.5 質數篩（埃氏篩）
+\`\`\`python
+N = 100
+sieve = [True] * (N+1)
+sieve[0] = sieve[1] = False
+for i in range(2, int(N**0.5)+1):
+    if sieve[i]:
+        for j in range(i*i, N+1, i):
+            sieve[j] = False
+primes = [i for i in range(N+1) if sieve[i]]
+\`\`\`
+
+## 11.6 GCD / LCM
+\`\`\`python
+def gcd(a, b):
+    while b:
+        a, b = b, a % b
+    return a
+
+def lcm(a, b):
+    return a * b // gcd(a, b)
+\`\`\`
+
+## 11.7 試試看
+`,
+example:`# 前綴和應用：找子陣列總和 = K 的個數
+a = [1, 2, 3, 4, 5, 2, 1, 3]
+K = 5
+
+ps = [0]
+for x in a:
+    ps.append(ps[-1] + x)
+
+cnt = 0
+for i in range(len(a)):
+    for j in range(i, len(a)):
+        if ps[j+1] - ps[i] == K:
+            cnt += 1
+            print(f"  a[{i}..{j}] = {a[i:j+1]}")
+print(f"\\n共 {cnt} 個子陣列總和為 {K}")
+`},
+
+{id:12,title:"APCS 實戰技巧",tag:"進階",content:`
+# 第 12 章：APCS 實戰技巧
+
+## 12.1 讀入模板（背起來）
+
+\`\`\`python
+# 模板 1：固定行數
+n = int(input())
+nums = list(map(int, input().split()))
+
+# 模板 2：n 行各一筆
+n = int(input())
+data = [input() for _ in range(n)]
+
+# 模板 3：n x m 矩陣
+n, m = map(int, input().split())
+g = [list(map(int, input().split())) for _ in range(n)]
+
+# 模板 4：讀到 EOF
+import sys
+for line in sys.stdin:
+    line = line.strip()
+    if not line: continue
+    # 處理 line
+\`\`\`
+
+## 12.2 輸出格式
+
+\`\`\`python
+# 空白分隔
+print(*nums)            # 1 2 3 4 5
+
+# 換行分隔
+print(*nums, sep="\\n")
+
+# 自訂分隔
+print(",".join(map(str, nums)))   # 1,2,3,4,5
+
+# 浮點數兩位小數
+print(f"{x:.2f}")
+\`\`\`
+
+## 12.3 常見錯誤
+
+> ❌ \`int(input().split())\` — split 回傳 list，不能直接 int
+> ✅ \`list(map(int, input().split()))\`
+
+> ❌ \`a = b = [0]*5\` 後改 a，b 也變 — 它們指向同一個 list
+> ✅ \`a, b = [0]*5, [0]*5\`
+
+> ❌ \`[[0]*m]*n\` — n 個 row 指向同一個！
+> ✅ \`[[0]*m for _ in range(n)]\`
+
+## 12.4 解題流程（重要！）
+
+1. **讀題**：圈關鍵詞 — 數量級、輸入格式、邊界條件
+2. **想例子**：用小例子算一遍
+3. **設計流程**：先寫註解，再寫程式
+4. **動手寫**：先求對，再求快
+5. **測樣本**：所有樣本都過才提交
+6. **想邊界**：n=1？全相同？空輸入？
+
+## 12.5 時間複雜度速覽
+
+| 寫法 | 大致複雜度 | n 上限 |
+|------|-----------|--------|
+| 兩層 for | O(n²) | n ≤ 5000 |
+| 一層 for + sort | O(n log n) | n ≤ 10⁶ |
+| 一層 for | O(n) | n ≤ 10⁷ |
+| 二分搜尋 | O(log n) | n ≤ 10⁹ |
+
+## 12.6 試試看：綜合練習
+`,
+example:`# APCS 題型總演練：成績指標
+# 輸入: 10 / 0 11 22 33 55 66 77 99 88 44
+# 輸出: 排序成績 / 最高不及格 / 最低及格
+
+stdin = "10\\n0 11 22 33 55 66 77 99 88 44\\n"
+import io, sys
+sys.stdin = io.StringIO(stdin)
+
+n = int(input())
+scores = sorted(map(int, input().split()))
+print(*scores)
+
+fail = [x for x in scores if x < 60]
+print(max(fail) if fail else "best case")
+
+passed = [x for x in scores if x >= 60]
+print(min(passed) if passed else "worst case")
+`}
+];
+
+let pyodide = null;
+let cm = null;
+let currentChap = null;
+
+async function loadPyodide_() {
+  pyodide = await loadPyodide({indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"});
+  document.getElementById('status-dot').classList.add('ready');
+  document.getElementById('status-text').textContent = 'Pyodide 已就緒';
+  document.getElementById('run-btn').disabled = false;
+}
+
+function initEditor() {
+  cm = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+    mode:'python', theme:'dracula', lineNumbers:true, indentUnit:4,
+    tabSize:4, indentWithTabs:false, lineWrapping:true
+  });
+  cm.setValue('# 從左側選一個章節開始\nprint("Hello APCS!")\n');
+}
+
+function renderChapList() {
+  const list = document.getElementById('chap-list');
+  list.innerHTML = '';
+  CHAPTERS.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'chap';
+    div.onclick = () => selectChap(c.id);
+    div.id = 'chap-' + c.id;
+    div.innerHTML = `<div class="chap-num">第 ${c.id} 章 · ${c.tag}</div><div class="chap-title">${c.title}</div>`;
+    list.appendChild(div);
+  });
+}
+
+function selectChap(id) {
+  currentChap = CHAPTERS.find(c => c.id === id);
+  document.querySelectorAll('.chap').forEach(el => el.classList.remove('active'));
+  document.getElementById('chap-' + id).classList.add('active');
+  document.getElementById('lesson-title').textContent = `第 ${currentChap.id} 章：${currentChap.title}`;
+  document.getElementById('lesson-tag').textContent = currentChap.tag;
+  document.getElementById('lesson-body').innerHTML = marked.parse(currentChap.content);
+  cm.setValue(currentChap.example);
+  document.getElementById('stdin-input').value = currentChap.stdin || '';
+  document.getElementById('output-body').textContent = '點擊上方「執行」測試程式';
+}
+
+function clearEditor() { cm.setValue(''); }
+function resetExample() {
+  if (currentChap) {
+    cm.setValue(currentChap.example);
+    document.getElementById('stdin-input').value = currentChap.stdin || '';
+  }
+}
+
+async function runCode() {
+  if (!pyodide) return;
+  const code = cm.getValue();
+  const stdin = document.getElementById('stdin-input').value;
+  const out = document.getElementById('output-body');
+  out.textContent = '執行中...';
+
+  try {
+    pyodide.setStdin({string: stdin});
+    let buffer = '';
+    pyodide.setStdout({batched: (s) => { buffer += s + '\n'; }});
+    pyodide.setStderr({batched: (s) => { buffer += '[stderr] ' + s + '\n'; }});
+    await pyodide.runPythonAsync(code);
+    out.textContent = buffer || '(無輸出)';
+  } catch (e) {
+    out.textContent = '錯誤：\n' + e.message;
+  }
+}
+
+renderChapList();
+initEditor();
+loadPyodide_();
+selectChap(1);
+</script>
+</body>
+</html>

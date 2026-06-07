@@ -117,8 +117,9 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 </head>
 <body>
 <header>
-  <div><div class="logo" id="logo">APCS 初級 多語言評分系統</div><div class="sub">歷屆 24 題 P1 · Python / C++ / C / Java</div></div>
+  <div><div class="logo" id="logo">APCS 多語言評分系統</div><div class="sub">83 題 · 初/中/高級 · Python / C++ / C / Java</div></div>
   <div class="hright">
+    <a href="tutorial.html" style="color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;">📚 基礎教學</a>
     <span><span class="status-dot" id="status-dot"></span><span id="status-text">載入中...</span></span>
   </div>
 </header>
@@ -134,8 +135,8 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 <div class="layout">
   <aside class="sidebar">
     <div class="sidebar-header">
-      <span>題目列表（24 題）</span>
-      <span id="solved-count" style="color:var(--green);font-size:11px;">0 / 24</span>
+      <span>題目列表（83 題）</span>
+      <span id="solved-count" style="color:var(--green);font-size:11px;">0 / 83</span>
     </div>
     <div class="problem-list" id="problem-list"></div>
   </aside>
@@ -508,7 +509,184 @@ desc:"給定 n 個整數，輸出**第 k 小的元素**（1-based，相同值算
 input_desc:"第一行 n k（1≤k≤n≤10⁵）；第二行 n 個整數。",
 output_desc:"輸出第 k 小的元素。",
 samples:[{input:"5 3\n3 1 2 1 5\n",output:"2\n"},{input:"4 1\n9 7 8 6\n",output:"6\n"},{input:"3 3\n5 5 5\n",output:"5\n"}],
-hint:"**關鍵字**：「第 k 小」→ 排序後取 a[k-1]。\n**簡單作法**：`sort()` + 索引，O(n log n)。\n**進階作法**：**快速選擇（QuickSelect）** O(n) 平均。\n**注意**：1-based 索引轉 0-based 要 -1。"}
+hint:"**關鍵字**：「第 k 小」→ 排序後取 a[k-1]。\n**簡單作法**：`sort()` + 索引，O(n log n)。\n**進階作法**：**快速選擇（QuickSelect）** O(n) 平均。\n**注意**：1-based 索引轉 0-based 要 -1。"},
+
+// === 新增中級題（依 635 索引主題） ===
+{id:"m_two_sum",title:"兩數之和",topic:"雜湊表、雙指標",date:"自製 中級",diff:"medium",
+desc:"給 n 個整數與目標值 K，找一組 (i, j) 使得 a[i]+a[j]=K（i<j），輸出索引（1-based）。保證唯一解。",
+input_desc:"第一行 n K；第二行 n 個整數。",
+output_desc:"輸出 i 與 j，以空白分隔。",
+samples:[{input:"4 9\n2 7 11 15\n",output:"1 2\n"},{input:"5 6\n3 2 4 1 5\n",output:"2 5\n"}],
+hint:"**關鍵字**：「兩數之和」「唯一解」→ **雜湊表 O(n)**。\n**作法**：邊掃邊查 `K-a[i]` 是否在已見的字典中。\n**陷阱**：別讓同一個元素加自己（先查再加）。"},
+
+{id:"m_uniq_cnt",title:"相異整數計數",topic:"集合",date:"自製 中級",diff:"medium",
+desc:"輸入 n 個整數，輸出有幾個相異的值。",
+input_desc:"第一行 n；第二行 n 個整數。",
+output_desc:"輸出相異整數的個數。",
+samples:[{input:"7\n3 1 4 1 5 9 2\n",output:"6\n"},{input:"5\n7 7 7 7 7\n",output:"1\n"}],
+hint:"**關鍵字**：「相異」「不同」→ **set**。\n**核心一行**：`print(len(set(a)))`。"},
+
+{id:"m_lcis",title:"最長連續遞增子序列",topic:"陣列、雙指標",date:"自製 中級",diff:"medium",
+desc:"給 n 個整數，找最長的「**連續嚴格遞增**」子陣列長度。",
+input_desc:"第一行 n；第二行 n 個整數。",
+output_desc:"輸出最長長度。",
+samples:[{input:"6\n1 3 2 4 5 6\n",output:"4\n"},{input:"5\n5 4 3 2 1\n",output:"1\n"}],
+hint:"**關鍵字**：「連續」「嚴格遞增」→ 一次掃描，遇到 `a[i]>a[i-1]` 就 `cur+=1`，否則重置為 1。\n**注意**：是「連續」不是 LIS，不需要 DP。"},
+
+{id:"m_intervals",title:"區間覆蓋",topic:"貪心、排序",date:"自製 中級",diff:"medium",
+desc:"給 n 條線段 [l, r]，**合併重疊**後輸出剩下幾段。",
+input_desc:"第一行 n；接下來 n 行各兩個整數 l r。",
+output_desc:"輸出合併後段數。",
+samples:[{input:"4\n1 3\n2 6\n8 10\n15 18\n",output:"3\n"},{input:"3\n1 4\n4 5\n10 12\n",output:"2\n"}],
+hint:"**關鍵字**：「合併」「重疊」→ **依左端點排序後線性掃描**。\n**作法**：維護當前段 `[L,R]`；下一段若 `l <= R` 則合併 `R=max(R,r)`，否則段數+1。\n**邊界**：l==R 算重疊（共享端點）。"},
+
+{id:"m_sliding_max",title:"滑動視窗最大值",topic:"滑動視窗",date:"自製 中級",diff:"medium",
+desc:"給 n 個整數與視窗大小 k，輸出每個大小為 k 的視窗中的最大值（共 n-k+1 個），以空白分隔。",
+input_desc:"第一行 n k（1≤k≤n≤2000）；第二行 n 個整數。",
+output_desc:"輸出 n-k+1 個整數，以空白分隔。",
+samples:[{input:"8 3\n1 3 -1 -3 5 3 6 7\n",output:"3 3 5 5 6 7\n"}],
+hint:"**關鍵字**：「滑動視窗」「最大值」→ 入門寫法 O(nk)：每個視窗 `max(a[i:i+k])`。\n**進階**：用 **單調遞減 deque** 達到 O(n)。\n**注意**：輸出用 `print(*ans)` 自動空白分隔。"},
+
+{id:"m_palindrome",title:"回文判斷",topic:"字串",date:"自製 中級",diff:"medium",
+desc:"判斷字串去掉非字母數字後（且不分大小寫）是否為回文。",
+input_desc:"一行字串，長度 1~10⁴。",
+output_desc:"輸出 Yes 或 No。",
+samples:[{input:"A man, a plan, a canal: Panama\n",output:"Yes\n"},{input:"race a car\n",output:"No\n"}],
+hint:"**關鍵字**：「回文」「忽略大小寫與符號」→ 先濾掉非字母數字並轉小寫，再比 `s == s[::-1]`。\n**作法**：`t = ''.join(c.lower() for c in s if c.isalnum())`。"},
+
+{id:"m_bsearch",title:"二分搜尋",topic:"二分搜尋",date:"自製 中級",diff:"medium",
+desc:"給一個**遞增**陣列，查 q 次：每次給 x，回傳 x 在陣列中的位置（1-based），若無則輸出 -1。",
+input_desc:"第一行 n q；第二行 n 個整數（已遞增）；接下來 q 行各一個 x。",
+output_desc:"q 行，每行一個整數。",
+samples:[{input:"5 3\n1 3 5 7 9\n5\n4\n9\n",output:"3\n-1\n5\n"}],
+hint:"**關鍵字**：「已排序」「查詢」→ **二分搜尋 O(log n)**。\n**核心**：`lo=0; hi=n-1; while lo<=hi: mid=(lo+hi)//2 …`。\n**Python 內建**：`from bisect import bisect_left`。"},
+
+{id:"m_prime_cnt",title:"質數計數",topic:"質數篩",date:"自製 中級",diff:"medium",
+desc:"輸出 1~N 之間有多少個質數。",
+input_desc:"一個整數 N（1≤N≤10⁵）。",
+output_desc:"輸出質數個數。",
+samples:[{input:"10\n",output:"4\n"},{input:"100\n",output:"25\n"},{input:"1\n",output:"0\n"}],
+hint:"**關鍵字**：「範圍內質數」→ **埃氏篩 O(N log log N)**。\n**作法**：`sieve=[True]*(N+1); sieve[0]=sieve[1]=False; for i in range(2,...): if sieve[i]: 篩掉倍數`。\n**陷阱**：N<2 時答案 0。"},
+
+{id:"m_gcd_arr",title:"陣列的最大公因數",topic:"數論",date:"自製 中級",diff:"medium",
+desc:"給 n 個正整數，輸出它們的 **GCD**。",
+input_desc:"第一行 n；第二行 n 個整數。",
+output_desc:"輸出 GCD。",
+samples:[{input:"3\n12 18 24\n",output:"6\n"},{input:"2\n17 13\n",output:"1\n"}],
+hint:"**關鍵字**：「最大公因數」→ **歐幾里得演算法**。\n**Python**：`from math import gcd; from functools import reduce; reduce(gcd, a)`。"},
+
+{id:"m_mat_rot",title:"矩陣旋轉 90°",topic:"矩陣",date:"自製 中級",diff:"medium",
+desc:"給 N×N 矩陣，順時針旋轉 90 度後輸出。",
+input_desc:"第一行 N；接下來 N 行各 N 個整數。",
+output_desc:"輸出旋轉後的 N×N 矩陣。",
+samples:[{input:"3\n1 2 3\n4 5 6\n7 8 9\n",output:"7 4 1\n8 5 2\n9 6 3\n"}],
+hint:"**關鍵字**：「順時針 90°」→ 新位置：`new[j][N-1-i] = old[i][j]`。\n**Python 取巧**：`list(zip(*a[::-1]))` 直接旋轉。"},
+
+{id:"m_paren",title:"括號匹配",topic:"堆疊",date:"自製 中級",diff:"medium",
+desc:"給含 `(){}[]` 的字串，判斷括號是否合法配對。",
+input_desc:"一行字串，長度 ≤ 10⁵。",
+output_desc:"輸出 Yes 或 No。",
+samples:[{input:"({[]})\n",output:"Yes\n"},{input:"([)]\n",output:"No\n"},{input:"((\n",output:"No\n"}],
+hint:"**關鍵字**：「括號配對」→ **堆疊**。\n**作法**：開括號入棧，閉括號比對棧頂。\n**結束檢查**：所有字符處理完畢時棧必須空。"},
+
+{id:"m_postfix",title:"後綴運算式求值",topic:"堆疊",date:"自製 中級",diff:"medium",
+desc:"給後綴（RPN）運算式，求結果。運算子有 `+ - * /`（整數除法，向零截斷），數字為整數。",
+input_desc:"一行字串，token 以空白分隔。",
+output_desc:"輸出結果整數。",
+samples:[{input:"3 4 +\n",output:"7\n"},{input:"5 1 2 + 4 * + 3 -\n",output:"14\n"}],
+hint:"**關鍵字**：「後綴」「逆波蘭」→ **堆疊**。\n**作法**：碰到數字 push；碰到運算子 pop 兩次計算後 push 回去。\n**陷阱**：負數除法在 Python 用 `int(a/b)` 而非 `a//b`（後者向下取整）。"},
+
+{id:"m_reverse_num",title:"反轉整數",topic:"數學",date:"自製 中級",diff:"medium",
+desc:"將一個整數反轉。若反轉後超出 32-bit 有號範圍（-2³¹ ~ 2³¹-1）輸出 0。",
+input_desc:"一個整數 x。",
+output_desc:"反轉後整數或 0。",
+samples:[{input:"123\n",output:"321\n"},{input:"-120\n",output:"-21\n"},{input:"1534236469\n",output:"0\n"}],
+hint:"**關鍵字**：「反轉」「溢位檢查」→ 字串反轉或數學循環取餘。\n**作法**：保留正負號，反轉絕對值字串，再加回正負號。\n**檢查**：`if abs(r) > 2**31 - 1: r = 0`。"},
+
+{id:"m_prefix_sum_q",title:"區間總和查詢",topic:"前綴和",date:"自製 中級",diff:"medium",
+desc:"給 n 個整數與 q 次查詢，每次查 a[l..r] 的總和（1-based，包含 l, r）。",
+input_desc:"第一行 n q；第二行 n 個整數；接下來 q 行各 l r。",
+output_desc:"q 行，每行查詢結果。",
+samples:[{input:"5 3\n1 2 3 4 5\n1 3\n2 4\n1 5\n",output:"6\n9\n15\n"}],
+hint:"**關鍵字**：「多次區間總和」→ **前綴和 O(1) 查詢**。\n**核心**：`ps[i] = ps[i-1] + a[i]`；`sum(l..r) = ps[r] - ps[l-1]`。"},
+
+{id:"m_two_ptr",title:"兩數距離最大",topic:"雙指標",date:"自製 中級",diff:"medium",
+desc:"給 n 個非負整數，找 i<j 使 `min(a[i],a[j]) * (j-i)` 最大。",
+input_desc:"第一行 n；第二行 n 個整數。",
+output_desc:"輸出最大值。",
+samples:[{input:"9\n1 8 6 2 5 4 8 3 7\n",output:"49\n"}],
+hint:"**關鍵字**：「兩端點」「最大」→ **雙指標** 從兩端往中間。\n**移動策略**：較小那邊的指標前進（因為換大的才可能更好）。\n**複雜度**：O(n)。"},
+
+// === 新增高級題 ===
+{id:"h_lis_logn",title:"最長遞增子序列(LIS O(n log n))",topic:"DP、二分搜尋",date:"自製 高級",diff:"hard",
+desc:"給 n 個整數，輸出最長**嚴格遞增**子序列長度。n 可大到 10⁵，需 O(n log n)。",
+input_desc:"第一行 n；第二行 n 個整數。",
+output_desc:"輸出長度。",
+samples:[{input:"8\n10 9 2 5 3 7 101 18\n",output:"4\n"},{input:"5\n5 4 3 2 1\n",output:"1\n"}],
+hint:"**關鍵字**：「最長遞增」「n 很大」→ **耐心排序 + 二分搜尋**。\n**作法**：維護 `tails` 陣列；對每個 x 用 `bisect_left` 找位置取代。\n**注意**：「嚴格遞增」用 `bisect_left`；「非遞減」用 `bisect_right`。"},
+
+{id:"h_knap_unbound",title:"無限背包",topic:"DP",date:"自製 高級",diff:"hard",
+desc:"有 n 種物品，每種有重量 w 與價值 v，**可重複拿無限次**。背包容量 W。求最大總價值。",
+input_desc:"第一行 n W；接下來 n 行各 w v。",
+output_desc:"最大總價值。",
+samples:[{input:"3 10\n3 4\n4 5\n2 3\n",output:"15\n"}],
+hint:"**關鍵字**：「可重複拿」→ **完全背包**，**正向**更新 dp。\n**核心**：`for j in range(w, W+1): dp[j] = max(dp[j], dp[j-w]+v)`。\n**對比**：0/1 背包要**反向** `range(W, w-1, -1)`。"},
+
+{id:"h_dijkstra",title:"單源最短路 (Dijkstra)",topic:"圖論、最短路",date:"自製 高級",diff:"hard",
+desc:"無向圖 n 點 m 邊，每邊有正權。輸出從點 1 到所有點的最短距離，不可達輸出 -1，以空白分隔。",
+input_desc:"第一行 n m；接下來 m 行各 u v w（無向）。",
+output_desc:"n 個整數，第 i 個為點 1 到點 i 的最短距離。",
+samples:[{input:"5 6\n1 2 2\n1 3 5\n2 3 1\n2 4 3\n3 4 2\n4 5 1\n",output:"0 2 3 5 6\n"}],
+hint:"**關鍵字**：「正權最短路」→ **Dijkstra + 優先佇列**。\n**Python**：`import heapq`，距離初始化為無限大，每次 pop 最短的點，更新鄰居。\n**鄰接表**：`adj = [[] for _ in range(n+1)]`。"},
+
+{id:"h_dsu_island",title:"連通元件 (DSU)",topic:"並查集",date:"自製 高級",diff:"hard",
+desc:"n 個點 m 條無向邊，輸出**連通元件數**。",
+input_desc:"第一行 n m；接下來 m 行各 u v。",
+output_desc:"連通元件數。",
+samples:[{input:"5 3\n1 2\n2 3\n4 5\n",output:"2\n"},{input:"6 0\n",output:"6\n"}],
+hint:"**關鍵字**：「連通元件」→ **DSU (Union-Find)** 或 **BFS/DFS**。\n**DSU 模板**：`parent=list(range(n+1))`；`find` 路徑壓縮；`union` 合併兩根。\n**計數**：最後算 `parent[i]==i` 的個數。"},
+
+{id:"h_matchain",title:"矩陣連乘 (區間 DP)",topic:"區間 DP",date:"自製 高級",diff:"hard",
+desc:"給 n 個矩陣的維度（共 n+1 個整數，第 i 個矩陣為 p[i-1]×p[i]），求**最少乘法次數**。",
+input_desc:"第一行 n；第二行 n+1 個整數 p[0..n]。",
+output_desc:"最少乘法次數。",
+samples:[{input:"3\n10 30 5 60\n",output:"4500\n"},{input:"4\n40 20 30 10 30\n",output:"26000\n"}],
+hint:"**關鍵字**：「最少乘法」「矩陣連乘」→ **區間 DP**。\n**狀態**：`dp[i][j]` = 連乘第 i~j 矩陣的最少次數。\n**轉移**：`dp[i][j] = min(dp[i][k] + dp[k+1][j] + p[i-1]*p[k]*p[j])`。"},
+
+{id:"h_fast_pow",title:"快速冪取模",topic:"數論",date:"自製 高級",diff:"hard",
+desc:"求 a^b mod m。",
+input_desc:"一行三個整數 a b m（0≤a, b≤10¹⁸，1≤m≤10⁹）。",
+output_desc:"輸出結果。",
+samples:[{input:"2 10 1000\n",output:"24\n"},{input:"3 100 7\n",output:"4\n"},{input:"5 0 13\n",output:"1\n"}],
+hint:"**關鍵字**：「a^b mod m」「b 超大」→ **快速冪 O(log b)**。\n**Python**：`pow(a, b, m)` 直接內建支援！\n**手寫**：二進位拆解 b，每次平方累乘。"},
+
+{id:"h_inversion",title:"逆序對計數",topic:"分治、合併排序",date:"自製 高級",diff:"hard",
+desc:"給 n 個整數，求逆序對個數（i<j 但 a[i]>a[j]）。n ≤ 10⁵。",
+input_desc:"第一行 n；第二行 n 個整數。",
+output_desc:"逆序對個數。",
+samples:[{input:"5\n2 4 1 3 5\n",output:"3\n"},{input:"4\n4 3 2 1\n",output:"6\n"}],
+hint:"**關鍵字**：「逆序對」「n 很大」→ **合併排序計數** O(n log n)。\n**作法**：歸併兩半時，若左半的 a[i] > 右半的 a[j]，則 a[i] 後面的左半全部都形成逆序對。\n**或用**：BIT (樹狀陣列) 也是 O(n log n)。"},
+
+{id:"h_kadane2d",title:"最大子矩陣和",topic:"DP、Kadane",date:"自製 高級",diff:"hard",
+desc:"給 n×m 矩陣，找一塊「**連續矩形**」使得內部元素總和最大。元素可正可負。",
+input_desc:"第一行 n m（≤ 50）；接下來 n 行各 m 個整數。",
+output_desc:"最大子矩陣和。",
+samples:[{input:"3 3\n1 -2 3\n-1 5 -3\n2 -1 4\n",output:"8\n"}],
+hint:"**關鍵字**：「子矩陣和最大」→ **列方向壓縮 + Kadane**。\n**作法**：枚舉上下界 (u, d)，把第 u~d 列各欄壓成一個和，再對這個一維陣列跑 Kadane。\n**複雜度**：O(n²m)。"},
+
+{id:"h_string_hash",title:"字串雜湊比對",topic:"字串、雜湊",date:"自製 高級",diff:"hard",
+desc:"給字串 S 與 T，輸出 T 在 S 中出現的次數（允許重疊）。",
+input_desc:"第一行 S；第二行 T。長度 ≤ 10⁵。",
+output_desc:"出現次數。",
+samples:[{input:"ababab\nab\n",output:"3\n"},{input:"aaaa\naa\n",output:"3\n"}],
+hint:"**關鍵字**：「字串出現次數」「重疊」→ Python 偷吃步：`for i in range(len(S)-len(T)+1): if S[i:i+len(T)]==T: cnt+=1`。\n**正解**：**KMP** 或 **Rabin-Karp** 滾動雜湊 O(n+m)。\n**陷阱**：別用 `S.count(T)` — 它不算重疊！"},
+
+{id:"h_edit_dist2",title:"編輯距離（含操作數）",topic:"DP",date:"自製 高級",diff:"hard",
+desc:"求把 A 變成 B 的最少操作數（插入/刪除/取代各算 1）。",
+input_desc:"第一行 A；第二行 B。長度 ≤ 1000。",
+output_desc:"最少操作數。",
+samples:[{input:"horse\nros\n",output:"3\n"},{input:"intention\nexecution\n",output:"5\n"}],
+hint:"**關鍵字**：「插入刪除取代」→ **編輯距離 DP**。\n**狀態**：`dp[i][j]` = A 前 i 字到 B 前 j 字的最少操作。\n**轉移**：相同則 `dp[i-1][j-1]`；否則 `1 + min(三方向)`。"}
 ];
 
 // ── Solutions per language ────────────────────────────────────────────────────
@@ -575,7 +753,32 @@ o_transpose:`n,m=map(int,input().split())\na=[list(map(int,input().split()))for 
 o_str_compress:`s=input()\nres=''; i=0\nwhile i<len(s):\n    j=i\n    while j<len(s)and s[j]==s[i]: j+=1\n    res+=s[i]+str(j-i); i=j\nprint(res)`,
 o_edit_dist:`A=input(); B=input()\nm,n=len(A),len(B)\ndp=[[0]*(n+1)for _ in range(m+1)]\nfor i in range(m+1): dp[i][0]=i\nfor j in range(n+1): dp[0][j]=j\nfor i in range(1,m+1):\n    for j in range(1,n+1):\n        if A[i-1]==B[j-1]: dp[i][j]=dp[i-1][j-1]\n        else: dp[i][j]=1+min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1])\nprint(dp[m][n])`,
 o_nqueen:`n=int(input())\ncount=[0]\ndef solve(row,cols,d1,d2):\n    if row==n: count[0]+=1; return\n    for c in range(n):\n        if c in cols or row-c in d1 or row+c in d2: continue\n        cols.add(c); d1.add(row-c); d2.add(row+c)\n        solve(row+1,cols,d1,d2)\n        cols.remove(c); d1.remove(row-c); d2.remove(row+c)\nsolve(0,set(),set(),set())\nprint(count[0])`,
-o_kth_min:`n,k=map(int,input().split())\na=sorted(map(int,input().split()))\nprint(a[k-1])`
+o_kth_min:`n,k=map(int,input().split())\na=sorted(map(int,input().split()))\nprint(a[k-1])`,
+m_two_sum:`n,K=map(int,input().split())\na=list(map(int,input().split()))\nseen={}\nfor i,x in enumerate(a):\n    if K-x in seen:\n        print(seen[K-x]+1, i+1); break\n    seen[x]=i`,
+m_uniq_cnt:`n=int(input())\na=list(map(int,input().split()))\nprint(len(set(a)))`,
+m_lcis:`n=int(input())\na=list(map(int,input().split()))\nbest=cur=1\nfor i in range(1,n):\n    if a[i]>a[i-1]: cur+=1\n    else: cur=1\n    if cur>best: best=cur\nprint(best)`,
+m_intervals:`n=int(input())\nsegs=sorted([tuple(map(int,input().split())) for _ in range(n)])\ncnt=1\nL,R=segs[0]\nfor l,r in segs[1:]:\n    if l<=R: R=max(R,r)\n    else: cnt+=1; L,R=l,r\nprint(cnt)`,
+m_sliding_max:`n,k=map(int,input().split())\na=list(map(int,input().split()))\nans=[max(a[i:i+k]) for i in range(n-k+1)]\nprint(*ans)`,
+m_palindrome:`s=input()\nt=''.join(c.lower() for c in s if c.isalnum())\nprint('Yes' if t==t[::-1] else 'No')`,
+m_bsearch:`from bisect import bisect_left\nn,q=map(int,input().split())\na=list(map(int,input().split()))\nfor _ in range(q):\n    x=int(input())\n    i=bisect_left(a,x)\n    if i<n and a[i]==x: print(i+1)\n    else: print(-1)`,
+m_prime_cnt:`N=int(input())\nif N<2: print(0)\nelse:\n    s=[True]*(N+1); s[0]=s[1]=False\n    for i in range(2,int(N**0.5)+1):\n        if s[i]:\n            for j in range(i*i,N+1,i): s[j]=False\n    print(sum(s))`,
+m_gcd_arr:`from math import gcd\nfrom functools import reduce\nn=int(input())\na=list(map(int,input().split()))\nprint(reduce(gcd,a))`,
+m_mat_rot:`N=int(input())\na=[list(map(int,input().split())) for _ in range(N)]\nfor row in zip(*a[::-1]):\n    print(*row)`,
+m_paren:`s=input()\npairs={')':'(',']':'[','}':'{'}\nst=[]\nok=True\nfor c in s:\n    if c in '([{': st.append(c)\n    elif c in ')]}':\n        if not st or st[-1]!=pairs[c]: ok=False; break\n        st.pop()\nprint('Yes' if ok and not st else 'No')`,
+m_postfix:`toks=input().split()\nst=[]\nfor t in toks:\n    if t in '+-*/':\n        b=st.pop(); a=st.pop()\n        if t=='+': st.append(a+b)\n        elif t=='-': st.append(a-b)\n        elif t=='*': st.append(a*b)\n        else: st.append(int(a/b))\n    else: st.append(int(t))\nprint(st[0])`,
+m_reverse_num:`x=int(input())\nsign=-1 if x<0 else 1\nr=sign*int(str(abs(x))[::-1])\nif abs(r)>2**31-1: r=0\nprint(r)`,
+m_prefix_sum_q:`n,q=map(int,input().split())\na=list(map(int,input().split()))\nps=[0]\nfor x in a: ps.append(ps[-1]+x)\nfor _ in range(q):\n    l,r=map(int,input().split())\n    print(ps[r]-ps[l-1])`,
+m_two_ptr:`n=int(input())\na=list(map(int,input().split()))\ni,j=0,n-1; best=0\nwhile i<j:\n    best=max(best, min(a[i],a[j])*(j-i))\n    if a[i]<a[j]: i+=1\n    else: j-=1\nprint(best)`,
+h_lis_logn:`from bisect import bisect_left\nn=int(input())\na=list(map(int,input().split()))\ntails=[]\nfor x in a:\n    i=bisect_left(tails,x)\n    if i==len(tails): tails.append(x)\n    else: tails[i]=x\nprint(len(tails))`,
+h_knap_unbound:`n,W=map(int,input().split())\nitems=[tuple(map(int,input().split())) for _ in range(n)]\ndp=[0]*(W+1)\nfor w,v in items:\n    for j in range(w,W+1):\n        if dp[j-w]+v>dp[j]: dp[j]=dp[j-w]+v\nprint(dp[W])`,
+h_dijkstra:`import heapq\nn,m=map(int,input().split())\nadj=[[] for _ in range(n+1)]\nfor _ in range(m):\n    u,v,w=map(int,input().split())\n    adj[u].append((v,w)); adj[v].append((u,w))\nINF=float('inf')\ndist=[INF]*(n+1); dist[1]=0\npq=[(0,1)]\nwhile pq:\n    d,u=heapq.heappop(pq)\n    if d>dist[u]: continue\n    for v,w in adj[u]:\n        if d+w<dist[v]: dist[v]=d+w; heapq.heappush(pq,(dist[v],v))\nprint(*[dist[i] if dist[i]!=INF else -1 for i in range(1,n+1)])`,
+h_dsu_island:`n,m=map(int,input().split())\np=list(range(n+1))\ndef find(x):\n    while p[x]!=x: p[x]=p[p[x]]; x=p[x]\n    return x\nfor _ in range(m):\n    u,v=map(int,input().split())\n    ru,rv=find(u),find(v)\n    if ru!=rv: p[ru]=rv\nprint(len(set(find(i) for i in range(1,n+1))))`,
+h_matchain:`n=int(input())\np=list(map(int,input().split()))\nINF=float('inf')\ndp=[[0]*(n+1) for _ in range(n+1)]\nfor length in range(2,n+1):\n    for i in range(1,n-length+2):\n        j=i+length-1\n        dp[i][j]=INF\n        for k in range(i,j):\n            c=dp[i][k]+dp[k+1][j]+p[i-1]*p[k]*p[j]\n            if c<dp[i][j]: dp[i][j]=c\nprint(dp[1][n])`,
+h_fast_pow:`a,b,m=map(int,input().split())\nprint(pow(a,b,m))`,
+h_inversion:`def merge_count(a):\n    if len(a)<=1: return a,0\n    mid=len(a)//2\n    L,cL=merge_count(a[:mid]); R,cR=merge_count(a[mid:])\n    merged=[]; i=j=0; c=cL+cR\n    while i<len(L) and j<len(R):\n        if L[i]<=R[j]: merged.append(L[i]); i+=1\n        else: merged.append(R[j]); j+=1; c+=len(L)-i\n    merged+=L[i:]+R[j:]\n    return merged,c\nn=int(input())\na=list(map(int,input().split()))\nprint(merge_count(a)[1])`,
+h_kadane2d:`n,m=map(int,input().split())\ng=[list(map(int,input().split())) for _ in range(n)]\nbest=g[0][0]\nfor u in range(n):\n    col=[0]*m\n    for d in range(u,n):\n        for j in range(m): col[j]+=g[d][j]\n        cur=col[0]; mx=col[0]\n        for x in col[1:]:\n            cur=max(x,cur+x)\n            if cur>mx: mx=cur\n        if mx>best: best=mx\nprint(best)`,
+h_string_hash:`S=input(); T=input()\nL=len(T); cnt=0\nfor i in range(len(S)-L+1):\n    if S[i:i+L]==T: cnt+=1\nprint(cnt)`,
+h_edit_dist2:`A=input(); B=input()\nm,n=len(A),len(B)\ndp=[[0]*(n+1) for _ in range(m+1)]\nfor i in range(m+1): dp[i][0]=i\nfor j in range(n+1): dp[0][j]=j\nfor i in range(1,m+1):\n    for j in range(1,n+1):\n        if A[i-1]==B[j-1]: dp[i][j]=dp[i-1][j-1]\n        else: dp[i][j]=1+min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1])\nprint(dp[m][n])`
 },
 cpp: {
 b964:`#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nint main(){\n    int n; cin>>n;\n    vector<int> s(n);\n    for(auto& x:s) cin>>x;\n    sort(s.begin(),s.end());\n    for(int i=0;i<n;i++){if(i)cout<<" ";cout<<s[i];}\n    cout<<"\\n";\n    int hf=-1,lp=-1;\n    for(int x:s){if(x<60)hf=x;else if(lp==-1)lp=x;}\n    if(hf==-1)cout<<"best case\\n";else cout<<hf<<"\\n";\n    if(lp==-1)cout<<"worst case\\n";else cout<<lp<<"\\n";\n}`,
@@ -1602,7 +1805,7 @@ function renderProblemList() {
     const s = scores[currentLang + '_' + p.id];
     return s && s.passed === s.total;
   }).length;
-  document.getElementById('solved-count').textContent = `${solved} / 24`;
+  document.getElementById('solved-count').textContent = `${solved} / ${PROBLEMS.length}`;
 }
 
 // ── Select problem ────────────────────────────────────────────────────────────
