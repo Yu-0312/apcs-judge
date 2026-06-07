@@ -1536,12 +1536,29 @@ async function runCode() {
   out.textContent = '執行中...';
 
   try {
-    pyodide.setStdin({string: stdin});
-    let buffer = '';
-    pyodide.setStdout({batched: (s) => { buffer += s + '\n'; }});
-    pyodide.setStderr({batched: (s) => { buffer += '[stderr] ' + s + '\n'; }});
-    await pyodide.runPythonAsync(code);
-    out.textContent = buffer || '(無輸出)';
+    // Inject stdin/stdout via Python-side sys module redirection.
+    // This is more reliable than pyodide.setStdin/setStdout across versions.
+    pyodide.globals.set('__user_stdin', stdin);
+    pyodide.globals.set('__user_code', code);
+    await pyodide.runPythonAsync(`
+import sys, io, traceback
+__buf = io.StringIO()
+__old_in, __old_out, __old_err = sys.stdin, sys.stdout, sys.stderr
+sys.stdin = io.StringIO(__user_stdin)
+sys.stdout = __buf
+sys.stderr = __buf
+try:
+    exec(__user_code, {'__name__': '__main__'})
+except SystemExit:
+    pass
+except BaseException:
+    traceback.print_exc(file=__buf)
+finally:
+    sys.stdin, sys.stdout, sys.stderr = __old_in, __old_out, __old_err
+__result = __buf.getvalue()
+`);
+    const result = pyodide.globals.get('__result');
+    out.textContent = result || '(無輸出)';
   } catch (e) {
     out.textContent = '錯誤：\n' + e.message;
   }
