@@ -117,7 +117,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 </head>
 <body>
 <header>
-  <div><div class="logo" id="logo">APCS 多語言評分系統</div><div class="sub">83 題 · 初/中/高級 · Python / C++ / C / Java</div></div>
+  <div><div class="logo" id="logo">APCS 多語言評分系統</div><div class="sub">95 題 · 初/中/高級 · Python / C++ / C / Java</div></div>
   <div class="hright">
     <a href="tutorial.html" style="color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;">📚 基礎教學</a>
     <span><span class="status-dot" id="status-dot"></span><span id="status-text">載入中...</span></span>
@@ -135,7 +135,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 <div class="layout">
   <aside class="sidebar">
     <div class="sidebar-header">
-      <span>題目列表（83 題）</span>
+      <span>題目列表（95 題）</span>
       <span id="solved-count" style="color:var(--green);font-size:11px;">0 / 83</span>
     </div>
     <div class="problem-list" id="problem-list"></div>
@@ -686,7 +686,139 @@ desc:"求把 A 變成 B 的最少操作數（插入/刪除/取代各算 1）。"
 input_desc:"第一行 A；第二行 B。長度 ≤ 1000。",
 output_desc:"最少操作數。",
 samples:[{input:"horse\nros\n",output:"3\n"},{input:"intention\nexecution\n",output:"5\n"}],
-hint:"**關鍵字**：「插入刪除取代」→ **編輯距離 DP**。\n**狀態**：`dp[i][j]` = A 前 i 字到 B 前 j 字的最少操作。\n**轉移**：相同則 `dp[i-1][j-1]`；否則 `1 + min(三方向)`。"}
+hint:"**關鍵字**：「插入刪除取代」→ **編輯距離 DP**。\n**狀態**：`dp[i][j]` = A 前 i 字到 B 前 j 字的最少操作。\n**轉移**：相同則 `dp[i-1][j-1]`；否則 `1 + min(三方向)`。"},
+
+{id:"j_str_digits",title:"字串保留數字",topic:"字串",date:"靈感 202501P2",diff:"medium",
+desc:"給字串 S，輸出由 S 中所有數字字元（'0'-'9'）依原順序組成的新字串。\n若 S 沒有任何數字字元，輸出 `-1`。",
+input_desc:"一行字串 S（長度 ≤ 10⁵）。",
+output_desc:"一行字串。",
+samples:[
+{input:"a1b2c3\n",output:"123\n"},
+{input:"abc\n",output:"-1\n"},
+{input:"0X9Y8Z\n",output:"098\n"}
+],
+hint:"**關鍵字**：「保留數字」→ 走訪字元 + 判斷 `c.isdigit()`。\n**陷阱**：完全沒有數字要輸出 `-1` 不是空字串。"},
+
+{id:"j_gem_pick",title:"蒐集寶石（不可相鄰）",topic:"DP、house robber",date:"靈感 202410P2",diff:"medium",
+desc:"n 顆寶石排成一列，第 i 顆價值 v_i。\n拿了第 i 顆就不能拿第 i-1 與 i+1 顆。求能拿到的最大總價值。",
+input_desc:"第一行整數 n（1 ≤ n ≤ 10⁵）。\n第二行 n 個整數 v_1..v_n（0 ≤ v_i ≤ 10⁴）。",
+output_desc:"一個整數，最大總價值。",
+samples:[
+{input:"5\n2 7 9 3 1\n",output:"12\n"},
+{input:"4\n1 2 3 1\n",output:"4\n"},
+{input:"1\n42\n",output:"42\n"}
+],
+hint:"**關鍵字**：「不可相鄰」→ **House Robber DP**。\n**狀態**：`dp[i] = max(dp[i-1], dp[i-2] + v[i])`。"},
+
+{id:"j_canvas_cc",title:"黑色連通塊",topic:"BFS/DFS、連通元件",date:"靈感 202406P2",diff:"medium",
+desc:"n×m 畫布，每格為 'B' 或 'W'。\n找出 B 構成的四連通塊數量（上下左右相鄰）。",
+input_desc:"第一行 n m（1 ≤ n,m ≤ 50）。\n接下來 n 行，每行 m 個字元，僅含 B 或 W。",
+output_desc:"一個整數，連通塊數量。",
+samples:[
+{input:"3 3\nBWB\nWBW\nBWB\n",output:"5\n"},
+{input:"2 3\nBBW\nWBB\n",output:"1\n"},
+{input:"2 2\nWW\nWW\n",output:"0\n"}
+],
+hint:"**關鍵字**：「連通塊」→ DFS 或 BFS 標記。\n**作法**：對每個還沒走訪的 B 啟動一次 DFS，計數 +1。"},
+
+{id:"j_bee_path",title:"蜜蜂走過的格子",topic:"集合、模擬",date:"靈感 202401P2",diff:"medium",
+desc:"蜜蜂從 (0,0) 出發。給一串方向字串 D，每個字元為 U/D/L/R，依序移動一格。\nU=y+1, D=y-1, R=x+1, L=x-1。\n求蜜蜂走過的不同格子總數（含起點 (0,0)）。",
+input_desc:"一行字串 D（長度 ≤ 10⁵）。",
+output_desc:"一個整數。",
+samples:[
+{input:"URURR\n",output:"6\n"},
+{input:"UUDD\n",output:"3\n"},
+{input:"\n",output:"1\n"}
+],
+hint:"**關鍵字**：「不同格子」→ 用 `set` 存座標。\n**陷阱**：空字串也要算起點，答案 1。"},
+
+{id:"j_card_ends",title:"兩端取卡片最大和",topic:"前綴和、貪心",date:"靈感 202310P2",diff:"medium",
+desc:"n 張卡片排成一列，每張有點數 a_i。\n從左端或右端各拿一張，共拿恰好 k 張（k ≤ n）。求最大總點數。",
+input_desc:"第一行 n k（1 ≤ k ≤ n ≤ 10⁵）。\n第二行 n 個整數。",
+output_desc:"一個整數，最大總點數。",
+samples:[
+{input:"7 3\n1 2 3 4 5 6 1\n",output:"12\n"},
+{input:"4 4\n1 2 3 4\n",output:"10\n"},
+{input:"5 2\n10 1 1 1 10\n",output:"20\n"}
+],
+hint:"**關鍵字**：「兩端拿 k 張」→ 枚舉左拿 i 張、右拿 k-i 張。\n**作法**：用前綴和 O(n)。"},
+
+{id:"j_special_pos",title:"特殊位置矩陣",topic:"矩陣、預處理",date:"靈感 202306P2",diff:"medium",
+desc:"n×n 整數矩陣 A。\n稱 (i,j) 為「特殊位置」若 A[i][j] = (第 i 列總和) - (第 j 行總和)。\n輸出特殊位置的個數。",
+input_desc:"第一行整數 n（1 ≤ n ≤ 100）。\n接下來 n 行各 n 個整數。",
+output_desc:"一個整數。",
+samples:[
+{input:"2\n1 2\n3 4\n",output:"1\n"},
+{input:"1\n0\n",output:"1\n"},
+{input:"2\n0 0\n0 0\n",output:"4\n"}
+],
+hint:"**作法**：先 O(n²) 算每列總和、每行總和，再 O(n²) 檢查每格。\n**陷阱**：列和、行和可能為負，A[i][j] 也可能負。"},
+
+{id:"j_char_freq",title:"字母總次數冠軍",topic:"字典、計數",date:"靈感 202301P2",diff:"medium",
+desc:"給 n 個只含小寫字母的字串，統計每個字母在所有字串中出現的總次數。\n輸出出現次數最多的字母及其次數，以空白分隔。\n若多個字母並列最多，輸出字典序最小者。",
+input_desc:"第一行整數 n（1 ≤ n ≤ 100）。\n接下來 n 行，各為一個小寫字串（長度 ≤ 100）。",
+output_desc:"一行：字母 與 次數，中間用空白。",
+samples:[
+{input:"2\napple\nbanana\n",output:"a 4\n"},
+{input:"1\nabcabc\n",output:"a 2\n"},
+{input:"3\nz\nzz\nzzz\n",output:"z 6\n"}
+],
+hint:"**作法**：開大小 26 的陣列計數，掃過後從 'a' 開始找最大值。"},
+
+{id:"j_rle_decode",title:"RLE 解碼",topic:"字串解析",date:"靈感 202206P2",diff:"medium",
+desc:"給一個壓縮字串。數字（可能多位）後接一個大寫字母，代表該字母重複該次數。沒前綴數字的字母只出現一次。\n例：`3A2BC` → `AAABBC`。\n輸出解碼結果。",
+input_desc:"一行壓縮字串（長度 ≤ 10⁴；解碼後長度 ≤ 10⁵）。",
+output_desc:"一行解碼字串。",
+samples:[
+{input:"3A2BC\n",output:"AAABBC\n"},
+{input:"10X\n",output:"XXXXXXXXXX\n"},
+{input:"A2B\n",output:"ABB\n"}
+],
+hint:"**作法**：邊讀邊累計數字，遇字母就重複輸出並清零。\n**陷阱**：多位數字（如 `10X`）要算完整。"},
+
+{id:"j_match_winner",title:"比賽勝場判定",topic:"計數",date:"靈感 202201P2",diff:"medium",
+desc:"n 場比賽。每場輸入兩隊得分 a, b（A 隊先、B 隊後）。\n統計 A 贏 (a>b) 場數與 B 贏 (b>a) 場數（平手不算）。\n若 A 贏比較多輸出 `A`、B 多輸出 `B`、相同輸出 `Tie`。",
+input_desc:"第一行整數 n（1 ≤ n ≤ 1000）。\n接下來 n 行，各兩個整數 a b。",
+output_desc:"一行：A / B / Tie。",
+samples:[
+{input:"3\n1 2\n3 1\n5 5\n",output:"Tie\n"},
+{input:"2\n10 1\n8 2\n",output:"A\n"},
+{input:"3\n0 1\n0 2\n3 1\n",output:"B\n"}
+],
+hint:"**作法**：兩個變數計數，最後比較。\n**陷阱**：平手不要算成任一方贏。"},
+
+{id:"j_flow_peak",title:"車站最大同時人數",topic:"模擬、前綴和",date:"靈感 202101P2",diff:"medium",
+desc:"車站初始空。n 個時段，每個時段給「進站」p_i 與「出站」q_i 人數（皆為先進後出，當下時段結束時統計）。\n求過程中車站內最大同時人數。",
+input_desc:"第一行整數 n（1 ≤ n ≤ 10⁵）。\n接下來 n 行，各兩個整數 p_i q_i。",
+output_desc:"一個整數。",
+samples:[
+{input:"3\n3 1\n4 2\n1 3\n",output:"4\n"},
+{input:"2\n5 0\n0 3\n",output:"5\n"},
+{input:"1\n0 0\n",output:"0\n"}
+],
+hint:"**作法**：依時段累計 (p-q)，取最大值。\n**陷阱**：當人數可能超過 int 上限時用 long。"},
+
+{id:"j_dice_roll",title:"骰子翻滾",topic:"模擬",date:"靈感 202007P2",diff:"medium",
+desc:"標準六面骰，初始狀態：頂=1、北=2、東=3（相對面和為 7）。\n給一串方向字串 D（N/S/E/W），每次往該方向翻滾一格。\n規則（往 N 滾）：原南面變新頂、原頂變新北、原北變新底、原底變新南。其他方向類推。\n輸出最後頂面數字。",
+input_desc:"一行字串 D（長度 ≤ 10⁵，僅含 N/S/E/W）。",
+output_desc:"一個整數（1~6）。",
+samples:[
+{input:"N\n",output:"5\n"},
+{input:"S\n",output:"2\n"},
+{input:"NE\n",output:"4\n"},
+{input:"\n",output:"1\n"}
+],
+hint:"**作法**：維護 top/bot/N/S/E/W 六個變數，每次翻滾依規則更新。\n**對面驗證**：top+bot=7, N+S=7, E+W=7 必須一直成立。"},
+
+{id:"j_submatrix_sum",title:"子矩陣總和",topic:"二維前綴和",date:"靈感 202001P2",diff:"medium",
+desc:"給 n×m 整數矩陣與 q 個查詢。\n每個查詢 (r1, c1, r2, c2) 詢問子矩陣 [r1..r2] × [c1..c2] 的所有元素總和（座標從 0 開始）。",
+input_desc:"第一行 n m q（1 ≤ n,m ≤ 500；1 ≤ q ≤ 10⁵）。\n接下來 n 行各 m 個整數。\n接著 q 行，每行 4 個整數 r1 c1 r2 c2。",
+output_desc:"q 行，每行一個整數。",
+samples:[
+{input:"2 2 1\n1 2\n3 4\n0 0 1 1\n",output:"10\n"},
+{input:"3 3 2\n1 2 3\n4 5 6\n7 8 9\n0 0 0 2\n1 1 2 2\n",output:"6\n28\n"}
+],
+hint:"**關鍵字**：「多次查詢區間和」→ **二維前綴和**。\n**公式**：`sum = ps[r2+1][c2+1] - ps[r1][c2+1] - ps[r2+1][c1] + ps[r1][c1]`。"}
 ];
 
 // ── Solutions per language ────────────────────────────────────────────────────
@@ -778,7 +910,116 @@ h_fast_pow:`a,b,m=map(int,input().split())\nprint(pow(a,b,m))`,
 h_inversion:`def merge_count(a):\n    if len(a)<=1: return a,0\n    mid=len(a)//2\n    L,cL=merge_count(a[:mid]); R,cR=merge_count(a[mid:])\n    merged=[]; i=j=0; c=cL+cR\n    while i<len(L) and j<len(R):\n        if L[i]<=R[j]: merged.append(L[i]); i+=1\n        else: merged.append(R[j]); j+=1; c+=len(L)-i\n    merged+=L[i:]+R[j:]\n    return merged,c\nn=int(input())\na=list(map(int,input().split()))\nprint(merge_count(a)[1])`,
 h_kadane2d:`n,m=map(int,input().split())\ng=[list(map(int,input().split())) for _ in range(n)]\nbest=g[0][0]\nfor u in range(n):\n    col=[0]*m\n    for d in range(u,n):\n        for j in range(m): col[j]+=g[d][j]\n        cur=col[0]; mx=col[0]\n        for x in col[1:]:\n            cur=max(x,cur+x)\n            if cur>mx: mx=cur\n        if mx>best: best=mx\nprint(best)`,
 h_string_hash:`S=input(); T=input()\nL=len(T); cnt=0\nfor i in range(len(S)-L+1):\n    if S[i:i+L]==T: cnt+=1\nprint(cnt)`,
-h_edit_dist2:`A=input(); B=input()\nm,n=len(A),len(B)\ndp=[[0]*(n+1) for _ in range(m+1)]\nfor i in range(m+1): dp[i][0]=i\nfor j in range(n+1): dp[0][j]=j\nfor i in range(1,m+1):\n    for j in range(1,n+1):\n        if A[i-1]==B[j-1]: dp[i][j]=dp[i-1][j-1]\n        else: dp[i][j]=1+min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1])\nprint(dp[m][n])`
+h_edit_dist2:`A=input(); B=input()\nm,n=len(A),len(B)\ndp=[[0]*(n+1) for _ in range(m+1)]\nfor i in range(m+1): dp[i][0]=i\nfor j in range(n+1): dp[0][j]=j\nfor i in range(1,m+1):\n    for j in range(1,n+1):\n        if A[i-1]==B[j-1]: dp[i][j]=dp[i-1][j-1]\n        else: dp[i][j]=1+min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1])\nprint(dp[m][n])`,
+j_str_digits:`s = input().strip()
+r = ''.join(c for c in s if c.isdigit())
+print(r if r else -1)`,
+j_gem_pick:`n = int(input())
+v = list(map(int, input().split()))
+if n == 1: print(v[0]); exit()
+a = v[0]; b = max(v[0], v[1])
+for i in range(2, n):
+    a, b = b, max(b, a + v[i])
+print(b)`,
+j_canvas_cc:`import sys
+sys.setrecursionlimit(10000)
+n, m = map(int, input().split())
+g = [input() for _ in range(n)]
+seen = [[False]*m for _ in range(n)]
+def dfs(i, j):
+    if i<0 or i>=n or j<0 or j>=m or seen[i][j] or g[i][j]!='B': return
+    seen[i][j] = True
+    dfs(i+1,j); dfs(i-1,j); dfs(i,j+1); dfs(i,j-1)
+cnt = 0
+for i in range(n):
+    for j in range(m):
+        if g[i][j]=='B' and not seen[i][j]:
+            cnt += 1; dfs(i,j)
+print(cnt)`,
+j_bee_path:`d = input()
+x = y = 0
+visited = {(0,0)}
+for c in d:
+    if c=='U': y+=1
+    elif c=='D': y-=1
+    elif c=='R': x+=1
+    elif c=='L': x-=1
+    visited.add((x,y))
+print(len(visited))`,
+j_card_ends:`n, k = map(int, input().split())
+a = list(map(int, input().split()))
+best = 0
+left = 0
+right = sum(a[n-k:])
+best = left + right
+for i in range(1, k+1):
+    left += a[i-1]
+    right -= a[n-k+i-1]
+    if left + right > best: best = left + right
+print(best)`,
+j_special_pos:`n = int(input())
+A = [list(map(int, input().split())) for _ in range(n)]
+rsum = [sum(A[i]) for i in range(n)]
+csum = [sum(A[i][j] for i in range(n)) for j in range(n)]
+cnt = 0
+for i in range(n):
+    for j in range(n):
+        if A[i][j] == rsum[i] - csum[j]: cnt += 1
+print(cnt)`,
+j_char_freq:`n = int(input())
+cnt = [0] * 26
+for _ in range(n):
+    for c in input():
+        cnt[ord(c) - ord('a')] += 1
+best = 0
+for i in range(26):
+    if cnt[i] > cnt[best]: best = i
+print(chr(best + ord('a')), cnt[best])`,
+j_rle_decode:`s = input().strip()
+res = []; num = 0
+for c in s:
+    if c.isdigit(): num = num * 10 + int(c)
+    else:
+        res.append(c * (num if num > 0 else 1))
+        num = 0
+print(''.join(res))`,
+j_match_winner:`n = int(input())
+A = B = 0
+for _ in range(n):
+    a, b = map(int, input().split())
+    if a > b: A += 1
+    elif b > a: B += 1
+if A > B: print('A')
+elif B > A: print('B')
+else: print('Tie')`,
+j_flow_peak:`n = int(input())
+cur = best = 0
+for _ in range(n):
+    p, q = map(int, input().split())
+    cur += p - q
+    if cur > best: best = cur
+print(best)`,
+j_dice_roll:`d = input()
+top, bot, n_, s_, e_, w_ = 1, 6, 2, 5, 3, 4
+for c in d:
+    if c == 'N':  top, n_, bot, s_ = s_, top, n_, bot
+    elif c == 'S': top, s_, bot, n_ = n_, top, s_, bot
+    elif c == 'E': top, e_, bot, w_ = w_, top, e_, bot
+    elif c == 'W': top, w_, bot, e_ = e_, top, w_, bot
+print(top)`,
+j_submatrix_sum:`import sys
+input = sys.stdin.readline
+n, m, q = map(int, input().split())
+g = [list(map(int, input().split())) for _ in range(n)]
+ps = [[0]*(m+1) for _ in range(n+1)]
+for i in range(n):
+    for j in range(m):
+        ps[i+1][j+1] = ps[i+1][j] + ps[i][j+1] - ps[i][j] + g[i][j]
+out = []
+for _ in range(q):
+    r1, c1, r2, c2 = map(int, input().split())
+    out.append(str(ps[r2+1][c2+1] - ps[r1][c2+1] - ps[r2+1][c1] + ps[r1][c1]))
+print('\\n'.join(out))`
 },
 cpp: {
 b964:`#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nint main(){\n    int n; cin>>n;\n    vector<int> s(n);\n    for(auto& x:s) cin>>x;\n    sort(s.begin(),s.end());\n    for(int i=0;i<n;i++){if(i)cout<<" ";cout<<s[i];}\n    cout<<"\\n";\n    int hf=-1,lp=-1;\n    for(int x:s){if(x<60)hf=x;else if(lp==-1)lp=x;}\n    if(hf==-1)cout<<"best case\\n";else cout<<hf<<"\\n";\n    if(lp==-1)cout<<"worst case\\n";else cout<<lp<<"\\n";\n}`,
@@ -1101,7 +1342,181 @@ h_fast_pow:`#include <iostream>\nusing namespace std;\nint main(){long long a,b,
 h_inversion:`#include <iostream>\n#include <vector>\nusing namespace std;\nlong long merge_count(vector<int>&a,int l,int r){if(r-l<=1)return 0;int m=(l+r)/2;long long c=merge_count(a,l,m)+merge_count(a,m,r);vector<int>tmp;int i=l,j=m;while(i<m&&j<r){if(a[i]<=a[j])tmp.push_back(a[i++]);else{tmp.push_back(a[j++]);c+=m-i;}}while(i<m)tmp.push_back(a[i++]);while(j<r)tmp.push_back(a[j++]);for(int k=0;k<(int)tmp.size();k++)a[l+k]=tmp[k];return c;}\nint main(){int n;cin>>n;vector<int>a(n);for(auto&x:a)cin>>x;cout<<merge_count(a,0,n)<<"\\n";}`,
 h_kadane2d:`#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nint main(){int n,m;cin>>n>>m;vector<vector<int>>g(n,vector<int>(m));for(auto&r:g)for(auto&x:r)cin>>x;int best=g[0][0];for(int u=0;u<n;u++){vector<int>col(m,0);for(int d=u;d<n;d++){for(int j=0;j<m;j++)col[j]+=g[d][j];int cur=col[0],mx=col[0];for(int j=1;j<m;j++){cur=max(col[j],cur+col[j]);if(cur>mx)mx=cur;}if(mx>best)best=mx;}}cout<<best<<"\\n";}`,
 h_string_hash:`#include <iostream>\n#include <string>\nusing namespace std;\nint main(){string S,T;cin>>S>>T;int L=T.size(),cnt=0;for(int i=0;i+L<=(int)S.size();i++)if(S.substr(i,L)==T)cnt++;cout<<cnt<<"\\n";}`,
-h_edit_dist2:`#include <iostream>\n#include <string>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nint main(){string A,B;cin>>A>>B;int m=A.size(),n=B.size();vector<vector<int>>dp(m+1,vector<int>(n+1,0));for(int i=0;i<=m;i++)dp[i][0]=i;for(int j=0;j<=n;j++)dp[0][j]=j;for(int i=1;i<=m;i++)for(int j=1;j<=n;j++){if(A[i-1]==B[j-1])dp[i][j]=dp[i-1][j-1];else dp[i][j]=1+min({dp[i-1][j],dp[i][j-1],dp[i-1][j-1]});}cout<<dp[m][n]<<"\\n";}`
+h_edit_dist2:`#include <iostream>\n#include <string>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nint main(){string A,B;cin>>A>>B;int m=A.size(),n=B.size();vector<vector<int>>dp(m+1,vector<int>(n+1,0));for(int i=0;i<=m;i++)dp[i][0]=i;for(int j=0;j<=n;j++)dp[0][j]=j;for(int i=1;i<=m;i++)for(int j=1;j<=n;j++){if(A[i-1]==B[j-1])dp[i][j]=dp[i-1][j-1];else dp[i][j]=1+min({dp[i-1][j],dp[i][j-1],dp[i-1][j-1]});}cout<<dp[m][n]<<"\\n";}`,
+j_str_digits:`#include <iostream>
+#include <string>
+using namespace std;
+int main(){
+    string s; getline(cin, s);
+    string r = "";
+    for(char c : s) if(c>='0' && c<='9') r += c;
+    cout << (r.empty() ? "-1" : r) << "\\n";
+}`,
+j_gem_pick:`#include <iostream>
+#include <algorithm>
+using namespace std;
+int main(){
+    int n; cin >> n;
+    int v[100005];
+    for(int i = 0; i < n; i++) cin >> v[i];
+    if(n == 1){ cout << v[0] << "\\n"; return 0; }
+    int a = v[0], b = max(v[0], v[1]);
+    for(int i = 2; i < n; i++){ int c = max(b, a + v[i]); a = b; b = c; }
+    cout << b << "\\n";
+}`,
+j_canvas_cc:`#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+int n, m;
+vector<string> g;
+vector<vector<bool>> seen;
+void dfs(int i, int j){
+    if(i<0||i>=n||j<0||j>=m||seen[i][j]||g[i][j]!='B') return;
+    seen[i][j] = true;
+    dfs(i+1,j); dfs(i-1,j); dfs(i,j+1); dfs(i,j-1);
+}
+int main(){
+    cin >> n >> m;
+    g.resize(n);
+    for(int i = 0; i < n; i++) cin >> g[i];
+    seen.assign(n, vector<bool>(m, false));
+    int cnt = 0;
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < m; j++)
+            if(g[i][j]=='B' && !seen[i][j]){ cnt++; dfs(i,j); }
+    cout << cnt << "\\n";
+}`,
+j_bee_path:`#include <iostream>
+#include <string>
+#include <set>
+using namespace std;
+int main(){
+    string d; getline(cin, d);
+    set<pair<int,int>> v;
+    int x = 0, y = 0;
+    v.insert({0,0});
+    for(char c : d){
+        if(c=='U') y++;
+        else if(c=='D') y--;
+        else if(c=='R') x++;
+        else if(c=='L') x--;
+        v.insert({x,y});
+    }
+    cout << v.size() << "\\n";
+}`,
+j_card_ends:`#include <iostream>
+using namespace std;
+int main(){
+    int n, k; cin >> n >> k;
+    long long a[100005];
+    for(int i = 0; i < n; i++) cin >> a[i];
+    long long left = 0, right = 0;
+    for(int i = n - k; i < n; i++) right += a[i];
+    long long best = left + right;
+    for(int i = 1; i <= k; i++){
+        left += a[i-1];
+        right -= a[n-k+i-1];
+        if(left + right > best) best = left + right;
+    }
+    cout << best << "\\n";
+}`,
+j_special_pos:`#include <iostream>
+using namespace std;
+int main(){
+    int n; cin >> n;
+    int A[105][105], rs[105]={0}, cs[105]={0};
+    for(int i=0;i<n;i++) for(int j=0;j<n;j++){ cin >> A[i][j]; rs[i]+=A[i][j]; cs[j]+=A[i][j]; }
+    int cnt = 0;
+    for(int i=0;i<n;i++) for(int j=0;j<n;j++)
+        if(A[i][j] == rs[i] - cs[j]) cnt++;
+    cout << cnt << "\\n";
+}`,
+j_char_freq:`#include <iostream>
+#include <string>
+using namespace std;
+int main(){
+    int n; cin >> n;
+    int cnt[26] = {0};
+    for(int i = 0; i < n; i++){
+        string s; cin >> s;
+        for(char c : s) cnt[c - 'a']++;
+    }
+    int best = 0;
+    for(int i = 1; i < 26; i++) if(cnt[i] > cnt[best]) best = i;
+    cout << (char)(best + 'a') << " " << cnt[best] << "\\n";
+}`,
+j_rle_decode:`#include <iostream>
+#include <string>
+using namespace std;
+int main(){
+    string s; getline(cin, s);
+    string res = "";
+    int num = 0;
+    for(char c : s){
+        if(c >= '0' && c <= '9') num = num * 10 + (c - '0');
+        else {
+            int rep = num > 0 ? num : 1;
+            for(int i = 0; i < rep; i++) res += c;
+            num = 0;
+        }
+    }
+    cout << res << "\\n";
+}`,
+j_match_winner:`#include <iostream>
+using namespace std;
+int main(){
+    int n; cin >> n;
+    int A = 0, B = 0;
+    for(int i = 0; i < n; i++){
+        int a, b; cin >> a >> b;
+        if(a > b) A++; else if(b > a) B++;
+    }
+    cout << (A > B ? "A" : B > A ? "B" : "Tie") << "\\n";
+}`,
+j_flow_peak:`#include <iostream>
+using namespace std;
+int main(){
+    int n; cin >> n;
+    long long cur = 0, best = 0;
+    for(int i = 0; i < n; i++){
+        long long p, q; cin >> p >> q;
+        cur += p - q;
+        if(cur > best) best = cur;
+    }
+    cout << best << "\\n";
+}`,
+j_dice_roll:`#include <iostream>
+#include <string>
+using namespace std;
+int main(){
+    string d; getline(cin, d);
+    int top=1, bot=6, N=2, S=5, E=3, W=4;
+    for(char c : d){
+        int t = top, b = bot, n = N, s = S, e = E, w = W;
+        if(c == 'N'){ top = s; N = t; bot = n; S = b; }
+        else if(c == 'S'){ top = n; S = t; bot = s; N = b; }
+        else if(c == 'E'){ top = w; E = t; bot = e; W = b; }
+        else if(c == 'W'){ top = e; W = t; bot = w; E = b; }
+    }
+    cout << top << "\\n";
+}`,
+j_submatrix_sum:`#include <iostream>
+using namespace std;
+long long ps[505][505];
+int main(){
+    ios::sync_with_stdio(false); cin.tie(0);
+    int n, m, q; cin >> n >> m >> q;
+    for(int i = 1; i <= n; i++)
+        for(int j = 1; j <= m; j++){
+            int x; cin >> x;
+            ps[i][j] = ps[i-1][j] + ps[i][j-1] - ps[i-1][j-1] + x;
+        }
+    while(q--){
+        int r1, c1, r2, c2; cin >> r1 >> c1 >> r2 >> c2;
+        cout << ps[r2+1][c2+1] - ps[r1][c2+1] - ps[r2+1][c1] + ps[r1][c1] << "\\n";
+    }
+}`
 },
 c: {
 b964:`#include <stdio.h>\n#include <stdlib.h>\nint cmp(const void*a,const void*b){return *(int*)a-*(int*)b;}\nint main(){\n    int n;scanf("%d",&n);\n    int s[20];for(int i=0;i<n;i++)scanf("%d",&s[i]);\n    qsort(s,n,sizeof(int),cmp);\n    for(int i=0;i<n;i++){if(i)printf(" ");printf("%d",s[i]);}printf("\\n");\n    int hf=-1,lp=-1;\n    for(int i=0;i<n;i++){if(s[i]<60)hf=s[i];else if(lp==-1)lp=s[i];}\n    if(hf==-1)printf("best case\\n");else printf("%d\\n",hf);\n    if(lp==-1)printf("worst case\\n");else printf("%d\\n",lp);\n    return 0;\n}`,
@@ -1396,7 +1811,201 @@ h_fast_pow:`#include <stdio.h>\nint main(){long long a,b,m;scanf("%lld %lld %lld
 h_inversion:`#include <stdio.h>\n#include <stdlib.h>\nlong long tot;\nint tmp[100005];\nvoid msort(int*a,int l,int r){if(r-l<=1)return;int m=(l+r)/2;msort(a,l,m);msort(a,m,r);int i=l,j=m,k=0;while(i<m&&j<r){if(a[i]<=a[j])tmp[k++]=a[i++];else{tmp[k++]=a[j++];tot+=m-i;}}while(i<m)tmp[k++]=a[i++];while(j<r)tmp[k++]=a[j++];for(int x=0;x<k;x++)a[l+x]=tmp[x];}\nint main(){int n;scanf("%d",&n);int a[100005];for(int i=0;i<n;i++)scanf("%d",&a[i]);tot=0;msort(a,0,n);printf("%lld\\n",tot);return 0;}`,
 h_kadane2d:`#include <stdio.h>\nint main(){int n,m;scanf("%d %d",&n,&m);int g[50][50];for(int i=0;i<n;i++)for(int j=0;j<m;j++)scanf("%d",&g[i][j]);int best=g[0][0];for(int u=0;u<n;u++){int col[50]={0};for(int d=u;d<n;d++){for(int j=0;j<m;j++)col[j]+=g[d][j];int cur=col[0],mx=col[0];for(int j=1;j<m;j++){cur=(col[j]>cur+col[j])?col[j]:cur+col[j];if(cur>mx)mx=cur;}if(mx>best)best=mx;}}printf("%d\\n",best);return 0;}`,
 h_string_hash:`#include <stdio.h>\n#include <string.h>\nint main(){char S[100005],T[100005];scanf("%s",S);scanf("%s",T);int n=strlen(S),L=strlen(T),cnt=0;for(int i=0;i+L<=n;i++){int ok=1;for(int j=0;j<L;j++)if(S[i+j]!=T[j]){ok=0;break;}if(ok)cnt++;}printf("%d\\n",cnt);return 0;}`,
-h_edit_dist2:`#include <stdio.h>\n#include <string.h>\nint min3(int a,int b,int c){int x=a<b?a:b;return x<c?x:c;}\nint main(){char A[1005],B[1005];scanf("%s %s",A,B);int m=strlen(A),n=strlen(B);int dp[1005][1005];for(int i=0;i<=m;i++)dp[i][0]=i;for(int j=0;j<=n;j++)dp[0][j]=j;for(int i=1;i<=m;i++)for(int j=1;j<=n;j++){if(A[i-1]==B[j-1])dp[i][j]=dp[i-1][j-1];else dp[i][j]=1+min3(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);}printf("%d\\n",dp[m][n]);return 0;}`
+h_edit_dist2:`#include <stdio.h>\n#include <string.h>\nint min3(int a,int b,int c){int x=a<b?a:b;return x<c?x:c;}\nint main(){char A[1005],B[1005];scanf("%s %s",A,B);int m=strlen(A),n=strlen(B);int dp[1005][1005];for(int i=0;i<=m;i++)dp[i][0]=i;for(int j=0;j<=n;j++)dp[0][j]=j;for(int i=1;i<=m;i++)for(int j=1;j<=n;j++){if(A[i-1]==B[j-1])dp[i][j]=dp[i-1][j-1];else dp[i][j]=1+min3(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);}printf("%d\\n",dp[m][n]);return 0;}`,
+j_str_digits:`#include <stdio.h>
+#include <ctype.h>
+int main(){
+    char s[100005], r[100005];
+    if(!fgets(s, sizeof(s), stdin)) return 0;
+    int k = 0;
+    for(int i = 0; s[i]; i++) if(isdigit(s[i])) r[k++] = s[i];
+    r[k] = 0;
+    if(k == 0) printf("-1\\n"); else printf("%s\\n", r);
+    return 0;
+}`,
+j_gem_pick:`#include <stdio.h>
+int main(){
+    int n; scanf("%d", &n);
+    int v[100005];
+    for(int i = 0; i < n; i++) scanf("%d", &v[i]);
+    if(n == 1){ printf("%d\\n", v[0]); return 0; }
+    int a = v[0], b = v[0] > v[1] ? v[0] : v[1];
+    for(int i = 2; i < n; i++){
+        int t = b > a + v[i] ? b : a + v[i];
+        a = b; b = t;
+    }
+    printf("%d\\n", b);
+    return 0;
+}`,
+j_canvas_cc:`#include <stdio.h>
+int n, m;
+char g[55][55];
+int seen[55][55];
+void dfs(int i, int j){
+    if(i<0||i>=n||j<0||j>=m||seen[i][j]||g[i][j]!='B') return;
+    seen[i][j] = 1;
+    dfs(i+1,j); dfs(i-1,j); dfs(i,j+1); dfs(i,j-1);
+}
+int main(){
+    scanf("%d %d", &n, &m);
+    for(int i = 0; i < n; i++) scanf("%s", g[i]);
+    int cnt = 0;
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < m; j++)
+            if(g[i][j]=='B' && !seen[i][j]){ cnt++; dfs(i,j); }
+    printf("%d\\n", cnt);
+    return 0;
+}`,
+j_bee_path:`#include <stdio.h>
+#include <string.h>
+/* C 沒有原生 set；座標可能 -1e5..1e5，用「軌跡長度」估算後排序去重 */
+int xs[200005], ys[200005], k;
+int cmp(const void* a, const void* b){
+    long long *p = (long long*)a, *q = (long long*)b;
+    return (*p > *q) - (*p < *q);
+}
+int main(){
+    char d[100005] = {0};
+    if(fgets(d, sizeof(d), stdin)) {
+        int n = strlen(d);
+        if(n && d[n-1]=='\\n') d[--n] = 0;
+    }
+    int x = 0, y = 0;
+    long long pts[100005];
+    int m = 0;
+    pts[m++] = 0LL * 200001 + 0 + 100000LL * 200001 + 100000;
+    for(int i = 0; d[i]; i++){
+        if(d[i]=='U') y++;
+        else if(d[i]=='D') y--;
+        else if(d[i]=='R') x++;
+        else if(d[i]=='L') x--;
+        pts[m++] = (long long)(x+100000) * 200001 + (y+100000);
+    }
+    qsort(pts, m, sizeof(long long), cmp);
+    int uniq = 1;
+    for(int i = 1; i < m; i++) if(pts[i] != pts[i-1]) uniq++;
+    printf("%d\\n", uniq);
+    return 0;
+}`,
+j_card_ends:`#include <stdio.h>
+int main(){
+    int n, k; scanf("%d %d", &n, &k);
+    long long a[100005];
+    for(int i = 0; i < n; i++) scanf("%lld", &a[i]);
+    long long left = 0, right = 0;
+    for(int i = n - k; i < n; i++) right += a[i];
+    long long best = left + right;
+    for(int i = 1; i <= k; i++){
+        left += a[i-1];
+        right -= a[n-k+i-1];
+        if(left + right > best) best = left + right;
+    }
+    printf("%lld\\n", best);
+    return 0;
+}`,
+j_special_pos:`#include <stdio.h>
+int main(){
+    int n; scanf("%d", &n);
+    int A[105][105], rs[105]={0}, cs[105]={0};
+    for(int i=0;i<n;i++) for(int j=0;j<n;j++){ scanf("%d", &A[i][j]); rs[i]+=A[i][j]; cs[j]+=A[i][j]; }
+    int cnt = 0;
+    for(int i=0;i<n;i++) for(int j=0;j<n;j++)
+        if(A[i][j] == rs[i] - cs[j]) cnt++;
+    printf("%d\\n", cnt);
+    return 0;
+}`,
+j_char_freq:`#include <stdio.h>
+int main(){
+    int n; scanf("%d", &n);
+    int cnt[26] = {0};
+    char s[105];
+    for(int i = 0; i < n; i++){
+        scanf("%s", s);
+        for(int j = 0; s[j]; j++) cnt[s[j] - 'a']++;
+    }
+    int best = 0;
+    for(int i = 1; i < 26; i++) if(cnt[i] > cnt[best]) best = i;
+    printf("%c %d\\n", 'a' + best, cnt[best]);
+    return 0;
+}`,
+j_rle_decode:`#include <stdio.h>
+#include <string.h>
+int main(){
+    char s[10005], res[100005];
+    fgets(s, sizeof(s), stdin);
+    int n = strlen(s);
+    if(n && s[n-1]=='\\n') s[--n] = 0;
+    int k = 0, num = 0;
+    for(int i = 0; s[i]; i++){
+        char c = s[i];
+        if(c >= '0' && c <= '9') num = num * 10 + c - '0';
+        else {
+            int rep = num > 0 ? num : 1;
+            for(int j = 0; j < rep; j++) res[k++] = c;
+            num = 0;
+        }
+    }
+    res[k] = 0;
+    printf("%s\\n", res);
+    return 0;
+}`,
+j_match_winner:`#include <stdio.h>
+int main(){
+    int n; scanf("%d", &n);
+    int A = 0, B = 0;
+    for(int i = 0; i < n; i++){
+        int a, b; scanf("%d %d", &a, &b);
+        if(a > b) A++; else if(b > a) B++;
+    }
+    printf("%s\\n", A > B ? "A" : B > A ? "B" : "Tie");
+    return 0;
+}`,
+j_flow_peak:`#include <stdio.h>
+int main(){
+    int n; scanf("%d", &n);
+    long long cur = 0, best = 0;
+    for(int i = 0; i < n; i++){
+        long long p, q; scanf("%lld %lld", &p, &q);
+        cur += p - q;
+        if(cur > best) best = cur;
+    }
+    printf("%lld\\n", best);
+    return 0;
+}`,
+j_dice_roll:`#include <stdio.h>
+#include <string.h>
+int main(){
+    char d[100005] = {0};
+    fgets(d, sizeof(d), stdin);
+    int n2 = strlen(d);
+    if(n2 && d[n2-1]=='\\n') d[--n2] = 0;
+    int top=1, bot=6, N=2, S=5, E=3, W=4;
+    for(int i = 0; d[i]; i++){
+        char c = d[i];
+        int t = top, b = bot, n = N, s = S, e = E, w = W;
+        if(c == 'N'){ top = s; N = t; bot = n; S = b; }
+        else if(c == 'S'){ top = n; S = t; bot = s; N = b; }
+        else if(c == 'E'){ top = w; E = t; bot = e; W = b; }
+        else if(c == 'W'){ top = e; W = t; bot = w; E = b; }
+    }
+    printf("%d\\n", top);
+    return 0;
+}`,
+j_submatrix_sum:`#include <stdio.h>
+long long ps[505][505];
+int main(){
+    int n, m, q; scanf("%d %d %d", &n, &m, &q);
+    for(int i = 1; i <= n; i++)
+        for(int j = 1; j <= m; j++){
+            int x; scanf("%d", &x);
+            ps[i][j] = ps[i-1][j] + ps[i][j-1] - ps[i-1][j-1] + x;
+        }
+    while(q--){
+        int r1, c1, r2, c2; scanf("%d %d %d %d", &r1, &c1, &r2, &c2);
+        printf("%lld\\n", ps[r2+1][c2+1] - ps[r1][c2+1] - ps[r2+1][c1] + ps[r1][c1]);
+    }
+    return 0;
+}`
 },
 java: {
 b964:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc=new Scanner(System.in);\n        int n=sc.nextInt();\n        int[] s=new int[n];for(int i=0;i<n;i++)s[i]=sc.nextInt();\n        Arrays.sort(s);\n        StringBuilder sb=new StringBuilder();\n        for(int i=0;i<n;i++){if(i>0)sb.append(" ");sb.append(s[i]);}\n        System.out.println(sb);\n        int hf=-1,lp=-1;\n        for(int x:s){if(x<60)hf=x;else if(lp==-1)lp=x;}\n        System.out.println(hf==-1?"best case":hf);\n        System.out.println(lp==-1?"worst case":lp);\n    }\n}`,
@@ -1742,7 +2351,205 @@ h_fast_pow:`import java.util.*;\npublic class Main {public static void main(Stri
 h_inversion:`import java.util.*;\npublic class Main {static long tot;static int[]tmp;static void msort(int[]a,int l,int r){if(r-l<=1)return;int m=(l+r)/2;msort(a,l,m);msort(a,m,r);int i=l,j=m,k=0;while(i<m&&j<r){if(a[i]<=a[j])tmp[k++]=a[i++];else{tmp[k++]=a[j++];tot+=m-i;}}while(i<m)tmp[k++]=a[i++];while(j<r)tmp[k++]=a[j++];for(int x=0;x<k;x++)a[l+x]=tmp[x];}public static void main(String[] ar){Scanner s=new Scanner(System.in);int n=s.nextInt();int[]a=new int[n];tmp=new int[n];for(int i=0;i<n;i++)a[i]=s.nextInt();tot=0;msort(a,0,n);System.out.println(tot);}}`,
 h_kadane2d:`import java.util.*;\npublic class Main {public static void main(String[] a){Scanner s=new Scanner(System.in);int n=s.nextInt(),m=s.nextInt();int[][]g=new int[n][m];for(int i=0;i<n;i++)for(int j=0;j<m;j++)g[i][j]=s.nextInt();int best=g[0][0];for(int u=0;u<n;u++){int[]col=new int[m];for(int d=u;d<n;d++){for(int j=0;j<m;j++)col[j]+=g[d][j];int cur=col[0],mx=col[0];for(int j=1;j<m;j++){cur=Math.max(col[j],cur+col[j]);if(cur>mx)mx=cur;}if(mx>best)best=mx;}}System.out.println(best);}}`,
 h_string_hash:`import java.util.*;\npublic class Main {public static void main(String[] a){Scanner s=new Scanner(System.in);String S=s.next(),T=s.next();int n=S.length(),L=T.length(),cnt=0;for(int i=0;i+L<=n;i++)if(S.substring(i,i+L).equals(T))cnt++;System.out.println(cnt);}}`,
-h_edit_dist2:`import java.util.*;\npublic class Main {public static void main(String[] a){Scanner s=new Scanner(System.in);String A=s.next(),B=s.next();int m=A.length(),n=B.length();int[][]dp=new int[m+1][n+1];for(int i=0;i<=m;i++)dp[i][0]=i;for(int j=0;j<=n;j++)dp[0][j]=j;for(int i=1;i<=m;i++)for(int j=1;j<=n;j++){if(A.charAt(i-1)==B.charAt(j-1))dp[i][j]=dp[i-1][j-1];else dp[i][j]=1+Math.min(dp[i-1][j-1],Math.min(dp[i-1][j],dp[i][j-1]));}System.out.println(dp[m][n]);}}`
+h_edit_dist2:`import java.util.*;\npublic class Main {public static void main(String[] a){Scanner s=new Scanner(System.in);String A=s.next(),B=s.next();int m=A.length(),n=B.length();int[][]dp=new int[m+1][n+1];for(int i=0;i<=m;i++)dp[i][0]=i;for(int j=0;j<=n;j++)dp[0][j]=j;for(int i=1;i<=m;i++)for(int j=1;j<=n;j++){if(A.charAt(i-1)==B.charAt(j-1))dp[i][j]=dp[i-1][j-1];else dp[i][j]=1+Math.min(dp[i-1][j-1],Math.min(dp[i-1][j],dp[i][j-1]));}System.out.println(dp[m][n]);}}`,
+j_str_digits:`import java.util.*;
+public class Main {
+    public static void main(String[] args){
+        Scanner sc = new Scanner(System.in);
+        String s = sc.nextLine();
+        StringBuilder sb = new StringBuilder();
+        for(char c : s.toCharArray()) if(Character.isDigit(c)) sb.append(c);
+        System.out.println(sb.length()==0 ? "-1" : sb.toString());
+    }
+}`,
+j_gem_pick:`import java.util.*;
+public class Main {
+    public static void main(String[] args){
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int[] v = new int[n];
+        for(int i = 0; i < n; i++) v[i] = sc.nextInt();
+        if(n == 1){ System.out.println(v[0]); return; }
+        int a = v[0], b = Math.max(v[0], v[1]);
+        for(int i = 2; i < n; i++){ int c = Math.max(b, a + v[i]); a = b; b = c; }
+        System.out.println(b);
+    }
+}`,
+j_canvas_cc:`import java.util.*;
+public class Main {
+    static int n, m;
+    static char[][] g;
+    static boolean[][] seen;
+    static void dfs(int i, int j){
+        if(i<0||i>=n||j<0||j>=m||seen[i][j]||g[i][j]!='B') return;
+        seen[i][j] = true;
+        dfs(i+1,j); dfs(i-1,j); dfs(i,j+1); dfs(i,j-1);
+    }
+    public static void main(String[] args){
+        Scanner sc = new Scanner(System.in);
+        n = sc.nextInt(); m = sc.nextInt();
+        g = new char[n][];
+        for(int i = 0; i < n; i++) g[i] = sc.next().toCharArray();
+        seen = new boolean[n][m];
+        int cnt = 0;
+        for(int i = 0; i < n; i++)
+            for(int j = 0; j < m; j++)
+                if(g[i][j]=='B' && !seen[i][j]){ cnt++; dfs(i,j); }
+        System.out.println(cnt);
+    }
+}`,
+j_bee_path:`import java.util.*;
+public class Main {
+    public static void main(String[] args){
+        Scanner sc = new Scanner(System.in);
+        String d = sc.hasNextLine() ? sc.nextLine() : "";
+        Set<Long> v = new HashSet<>();
+        int x = 0, y = 0;
+        v.add(0L);
+        for(char c : d.toCharArray()){
+            if(c=='U') y++;
+            else if(c=='D') y--;
+            else if(c=='R') x++;
+            else if(c=='L') x--;
+            v.add((long)x * 1000000L + y);
+        }
+        System.out.println(v.size());
+    }
+}`,
+j_card_ends:`import java.util.*;
+public class Main {
+    public static void main(String[] args){
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt(), k = sc.nextInt();
+        long[] a = new long[n];
+        for(int i = 0; i < n; i++) a[i] = sc.nextLong();
+        long left = 0, right = 0;
+        for(int i = n - k; i < n; i++) right += a[i];
+        long best = left + right;
+        for(int i = 1; i <= k; i++){
+            left += a[i-1];
+            right -= a[n-k+i-1];
+            if(left + right > best) best = left + right;
+        }
+        System.out.println(best);
+    }
+}`,
+j_special_pos:`import java.util.*;
+public class Main {
+    public static void main(String[] args){
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int[][] A = new int[n][n];
+        int[] rs = new int[n], cs = new int[n];
+        for(int i=0;i<n;i++) for(int j=0;j<n;j++){ A[i][j]=sc.nextInt(); rs[i]+=A[i][j]; cs[j]+=A[i][j]; }
+        int cnt = 0;
+        for(int i=0;i<n;i++) for(int j=0;j<n;j++)
+            if(A[i][j] == rs[i] - cs[j]) cnt++;
+        System.out.println(cnt);
+    }
+}`,
+j_char_freq:`import java.util.*;
+public class Main {
+    public static void main(String[] args){
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int[] cnt = new int[26];
+        for(int i = 0; i < n; i++){
+            String s = sc.next();
+            for(char c : s.toCharArray()) cnt[c - 'a']++;
+        }
+        int best = 0;
+        for(int i = 1; i < 26; i++) if(cnt[i] > cnt[best]) best = i;
+        System.out.println((char)('a' + best) + " " + cnt[best]);
+    }
+}`,
+j_rle_decode:`import java.util.*;
+public class Main {
+    public static void main(String[] args){
+        Scanner sc = new Scanner(System.in);
+        String s = sc.nextLine();
+        StringBuilder sb = new StringBuilder();
+        int num = 0;
+        for(char c : s.toCharArray()){
+            if(Character.isDigit(c)) num = num * 10 + (c - '0');
+            else {
+                int rep = num > 0 ? num : 1;
+                for(int i = 0; i < rep; i++) sb.append(c);
+                num = 0;
+            }
+        }
+        System.out.println(sb);
+    }
+}`,
+j_match_winner:`import java.util.*;
+public class Main {
+    public static void main(String[] args){
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int A = 0, B = 0;
+        for(int i = 0; i < n; i++){
+            int a = sc.nextInt(), b = sc.nextInt();
+            if(a > b) A++; else if(b > a) B++;
+        }
+        System.out.println(A > B ? "A" : B > A ? "B" : "Tie");
+    }
+}`,
+j_flow_peak:`import java.util.*;
+public class Main {
+    public static void main(String[] args){
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        long cur = 0, best = 0;
+        for(int i = 0; i < n; i++){
+            long p = sc.nextLong(), q = sc.nextLong();
+            cur += p - q;
+            if(cur > best) best = cur;
+        }
+        System.out.println(best);
+    }
+}`,
+j_dice_roll:`import java.util.*;
+public class Main {
+    public static void main(String[] args){
+        Scanner sc = new Scanner(System.in);
+        String d = sc.hasNextLine() ? sc.nextLine() : "";
+        int top=1, bot=6, N=2, S=5, E=3, W=4;
+        for(char c : d.toCharArray()){
+            int t = top, b = bot, n = N, s = S, e = E, w = W;
+            if(c == 'N'){ top = s; N = t; bot = n; S = b; }
+            else if(c == 'S'){ top = n; S = t; bot = s; N = b; }
+            else if(c == 'E'){ top = w; E = t; bot = e; W = b; }
+            else if(c == 'W'){ top = e; W = t; bot = w; E = b; }
+        }
+        System.out.println(top);
+    }
+}`,
+j_submatrix_sum:`import java.util.*;
+import java.io.*;
+public class Main {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StreamTokenizer in = new StreamTokenizer(br);
+        in.nextToken(); int n = (int)in.nval;
+        in.nextToken(); int m = (int)in.nval;
+        in.nextToken(); int q = (int)in.nval;
+        long[][] ps = new long[n+1][m+1];
+        for(int i = 1; i <= n; i++)
+            for(int j = 1; j <= m; j++){
+                in.nextToken(); long x = (long)in.nval;
+                ps[i][j] = ps[i-1][j] + ps[i][j-1] - ps[i-1][j-1] + x;
+            }
+        StringBuilder sb = new StringBuilder();
+        for(int k = 0; k < q; k++){
+            in.nextToken(); int r1 = (int)in.nval;
+            in.nextToken(); int c1 = (int)in.nval;
+            in.nextToken(); int r2 = (int)in.nval;
+            in.nextToken(); int c2 = (int)in.nval;
+            sb.append(ps[r2+1][c2+1] - ps[r1][c2+1] - ps[r2+1][c1] + ps[r1][c1]).append('\\n');
+        }
+        System.out.print(sb);
+    }
+}`
 }
 };
 
