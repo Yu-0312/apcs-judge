@@ -8,19 +8,31 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jscpp@2.1.2/dist/JSCPP.es5.min.js"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0f1117;--sidebar-bg:#161b22;--panel-bg:#1c2128;
   --border:#30363d;--text:#e6edf3;--text-muted:#8b949e;
-  --green:#3fb950;--red:#f85149;--yellow:#d29922;--py:#3fb950;
-  --header-h:56px;
+  --green:#3fb950;--red:#f85149;--yellow:#d29922;
+  --py:#3fb950;--cpp:#79c0ff;--c-col:#ffa657;--java:#d2a8ff;
+  --lang-color:var(--py);
+  --header-h:56px;--tab-h:40px;
 }
 html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
 header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;background:var(--sidebar-bg);border-bottom:1px solid var(--border);gap:12px;flex-shrink:0}
-.logo{font-size:17px;font-weight:700;color:var(--py)}
+.logo{font-size:17px;font-weight:700;color:var(--lang-color);transition:color .2s}
+.lang-tabs{height:var(--tab-h);display:flex;align-items:stretch;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0}
+.lang-tab{display:flex;align-items:center;gap:6px;padding:0 16px;cursor:pointer;font-size:12px;font-weight:500;color:var(--text-muted);border-bottom:2px solid transparent;transition:all .15s}
+.lang-tab:hover{color:var(--text);background:rgba(255,255,255,.03)}
+.lang-tab.active-py{color:var(--py);border-color:var(--py);background:rgba(63,185,80,.05)}
+.lang-tab.active-cpp{color:var(--cpp);border-color:var(--cpp);background:rgba(121,192,255,.05)}
+.lang-tab.active-c{color:var(--c-col);border-color:var(--c-col);background:rgba(255,166,87,.05)}
+.lang-tab.active-java{color:var(--java);border-color:var(--java);background:rgba(210,168,255,.05)}
+.btn-run{background:var(--lang-color);color:#000;transition:background .2s}
 .sub{font-size:12px;color:var(--text-muted)}
 .hright{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:12px;color:var(--text-muted)}
 .hright a{color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px}
@@ -28,20 +40,20 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .status-dot{width:7px;height:7px;border-radius:50%;background:var(--yellow);display:inline-block;margin-right:4px;animation:pulse 1.5s infinite}
 .status-dot.ready{background:var(--green);animation:none}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.layout{display:grid;grid-template-columns:260px 1fr 1fr;height:calc(100vh - var(--header-h));overflow:hidden}
+.layout{display:grid;grid-template-columns:260px 1fr 1fr;height:calc(100vh - var(--header-h) - var(--tab-h));overflow:hidden}
 .sidebar{background:var(--sidebar-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
 .sidebar-hdr{padding:10px 14px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border)}
 .chap-list{overflow-y:auto;flex:1}
 .chap{padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(48,54,61,.5);font-size:13px;transition:background .12s}
 .chap:hover{background:rgba(255,255,255,.03)}
-.chap.active{background:rgba(63,185,80,.08);border-left:2px solid var(--py);padding-left:12px}
+.chap.active{background:rgba(255,255,255,.05);border-left:2px solid var(--lang-color);padding-left:12px;transition:border-color .2s}
 .chap-num{font-size:10px;color:var(--text-muted);font-weight:600}
 .chap-title{font-weight:500;margin-top:2px}
 .lesson-panel{border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
 .panel-hdr{padding:10px 18px;border-bottom:1px solid var(--border);background:var(--panel-bg);font-size:12px;color:var(--text-muted);display:flex;align-items:center;justify-content:space-between}
 .lesson-body{overflow-y:auto;flex:1;padding:20px 24px;line-height:1.7;font-size:14px;color:#cdd9e5}
 .lesson-body h1{font-size:24px;color:var(--text);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
-.lesson-body h2{font-size:18px;color:var(--text);margin:22px 0 8px;color:var(--py)}
+.lesson-body h2{font-size:18px;color:var(--lang-color);margin:22px 0 8px;transition:color .2s}
 .lesson-body h3{font-size:15px;color:var(--text);margin:16px 0 6px}
 .lesson-body p{margin-bottom:10px}
 .lesson-body ul,.lesson-body ol{margin:8px 0 12px 22px}
@@ -57,7 +69,6 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .editor-panel{display:flex;flex-direction:column;overflow:hidden}
 .editor-toolbar{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--panel-bg);flex-shrink:0}
 .btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;border:none;transition:all .15s}
-.btn-run{background:var(--py);color:#000}
 .btn-run:hover{filter:brightness(1.15)}
 .btn-run:disabled{opacity:.5;cursor:not-allowed}
 .btn-sec{background:transparent;color:var(--text-muted);border:1px solid var(--border)}
@@ -79,12 +90,21 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 </head>
 <body>
 <header>
-  <div><div class="logo">📚 APCS 初級 Python 教學</div><div class="sub">20 章 · 互動式範例 · 即時執行</div></div>
+  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub">20 章 · Python / C++ / C / Java · 即時執行</div></div>
   <div class="hright">
     <a href="index.html">🎯 前往題庫</a>
     <span><span class="status-dot" id="status-dot"></span><span id="status-text">Pyodide 載入中...</span></span>
   </div>
 </header>
+
+<div class="lang-tabs">
+  <div class="lang-tab" id="ltab-py"   onclick="switchLang('py')"  >🐍 Python</div>
+  <div class="lang-tab" id="ltab-cpp"  onclick="switchLang('cpp')" >⚡ C++</div>
+  <div class="lang-tab" id="ltab-c"    onclick="switchLang('c')"   >🔧 C</div>
+  <div class="lang-tab" id="ltab-java" onclick="switchLang('java')">☕ Java</div>
+  <span style="margin-left:auto;padding:0 16px;font-size:11px;color:var(--text-muted);display:flex;align-items:center;" id="lang-note">Pyodide 本地執行</span>
+</div>
+
 <div class="layout">
   <aside class="sidebar">
     <div class="sidebar-hdr">章節目錄</div>
@@ -1479,6 +1499,14 @@ print(min(passed) if passed else "worst case")
 let pyodide = null;
 let cm = null;
 let currentChap = null;
+let currentLang = 'py';
+
+const LANG_CFG = {
+  py:   { name:'Python', mode:'python',          color:'#3fb950', note:'Pyodide 本地執行' },
+  cpp:  { name:'C++',    mode:'text/x-c++src',   color:'#79c0ff', note:'JSCPP 瀏覽器執行' },
+  c:    { name:'C',      mode:'text/x-csrc',     color:'#ffa657', note:'JSCPP 瀏覽器執行' },
+  java: { name:'Java',   mode:'text/x-java',     color:'#d2a8ff', note:'Piston 雲端執行（需網路）' }
+};
 
 async function loadPyodide_() {
   pyodide = await loadPyodide({indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"});
@@ -1494,6 +1522,139 @@ function initEditor() {
   });
   cm.setValue('# 從左側選一個章節開始\nprint("Hello APCS!")\n');
 }
+
+function switchLang(lang){
+  currentLang = lang;
+  const cfg = LANG_CFG[lang];
+  document.documentElement.style.setProperty('--lang-color', cfg.color);
+  ['py','cpp','c','java'].forEach(l=>{
+    document.getElementById('ltab-'+l).className = 'lang-tab' + (l===lang ? ' active-'+l : '');
+  });
+  document.getElementById('lang-note').textContent = cfg.note;
+  cm.setOption('mode', cfg.mode);
+  if(currentChap) selectChap(currentChap.id);
+}
+
+function getExample(chap){
+  if(currentLang==='py') return chap.example;
+  const ex = MULTI_EXAMPLES[chap.id];
+  return (ex && ex[currentLang]) || `// 此章節的 ${LANG_CFG[currentLang].name} 範例尚未補齊\n// 概念與 Python 相同，請參考左側教學內容`;
+}
+function getStdin(chap){
+  if(currentLang==='py') return chap.stdin || '';
+  const ex = MULTI_EXAMPLES[chap.id];
+  return (ex && ex[currentLang+'_stdin']) || chap.stdin || '';
+}
+
+// ── Per-chapter examples for C++ / C / Java ──────────────────────────────────
+const MULTI_EXAMPLES = {
+1:{
+cpp:`#include <iostream>\n#include <string>\nusing namespace std;\nint main(){\n    int age = 17;\n    string name = "Xiao Ming";\n    cout << name << " is " << age << " years old\\n";\n    cout << name << " will be " << (age+1) << " next year\\n";\n    return 0;\n}`,
+c:`#include <stdio.h>\nint main(){\n    int age = 17;\n    char name[] = "Xiao Ming";\n    printf("%s is %d years old\\n", name, age);\n    printf("%s will be %d next year\\n", name, age+1);\n    return 0;\n}`,
+java:`public class Main {\n    public static void main(String[] args) {\n        int age = 17;\n        String name = "小明";\n        System.out.println(name + " 今年 " + age + " 歲");\n        System.out.println(name + " 明年 " + (age+1) + " 歲");\n    }\n}`
+},
+2:{
+cpp:`#include <iostream>\n#include <climits>\nusing namespace std;\nint main(){\n    int n; cin >> n;\n    int sum=0, mx=INT_MIN, mn=INT_MAX;\n    for(int i=0;i<n;i++){\n        int x; cin >> x;\n        sum += x;\n        if(x>mx) mx=x;\n        if(x<mn) mn=x;\n    }\n    cout << "Sum: " << sum << "\\n";\n    cout << "Avg: " << (double)sum/n << "\\n";\n    cout << "Max: " << mx << "\\n";\n    cout << "Min: " << mn << "\\n";\n    return 0;\n}`,
+cpp_stdin:`5\n1 2 3 4 5\n`,
+c:`#include <stdio.h>\n#include <limits.h>\nint main(){\n    int n; scanf("%d", &n);\n    int sum=0, mx=INT_MIN, mn=INT_MAX;\n    for(int i=0;i<n;i++){\n        int x; scanf("%d", &x);\n        sum += x;\n        if(x>mx) mx=x;\n        if(x<mn) mn=x;\n    }\n    printf("Sum: %d\\n", sum);\n    printf("Avg: %.2f\\n", (double)sum/n);\n    printf("Max: %d\\n", mx);\n    printf("Min: %d\\n", mn);\n    return 0;\n}`,
+c_stdin:`5\n1 2 3 4 5\n`,
+java:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        int sum = 0, mx = Integer.MIN_VALUE, mn = Integer.MAX_VALUE;\n        for (int i = 0; i < n; i++) {\n            int x = sc.nextInt();\n            sum += x;\n            if (x > mx) mx = x;\n            if (x < mn) mn = x;\n        }\n        System.out.println("總和: " + sum);\n        System.out.println("平均: " + (double)sum/n);\n        System.out.println("最大: " + mx);\n        System.out.println("最小: " + mn);\n    }\n}`,
+java_stdin:`5\n1 2 3 4 5\n`
+},
+3:{
+cpp:`#include <iostream>\nusing namespace std;\nint main(){\n    int n = 752;\n    int h = n / 100;\n    int t = n / 10 % 10;\n    int o = n % 10;\n    cout << "h=" << h << " t=" << t << " o=" << o << "\\n";\n    cout << "sum=" << h+t+o << "\\n";\n    return 0;\n}`,
+c:`#include <stdio.h>\nint main(){\n    int n = 752;\n    int h = n / 100, t = n / 10 % 10, o = n % 10;\n    printf("h=%d t=%d o=%d\\n", h, t, o);\n    printf("sum=%d\\n", h+t+o);\n    return 0;\n}`,
+java:`public class Main {\n    public static void main(String[] args) {\n        int n = 752;\n        int h = n/100, t = n/10%10, o = n%10;\n        System.out.println("百位="+h+", 十位="+t+", 個位="+o);\n        System.out.println("加總="+(h+t+o));\n    }\n}`
+},
+4:{
+cpp:`#include <iostream>\nusing namespace std;\nint main(){\n    double weight = 65, height = 1.70;\n    double bmi = weight / (height * height);\n    cout << "BMI = " << bmi << "\\n";\n    if (bmi < 18.5) cout << "underweight\\n";\n    else if (bmi < 24) cout << "normal\\n";\n    else if (bmi < 27) cout << "overweight\\n";\n    else cout << "obese\\n";\n    return 0;\n}`,
+c:`#include <stdio.h>\nint main(){\n    double weight = 65, height = 1.70;\n    double bmi = weight / (height * height);\n    printf("BMI = %.1f\\n", bmi);\n    if (bmi < 18.5) printf("underweight\\n");\n    else if (bmi < 24) printf("normal\\n");\n    else if (bmi < 27) printf("overweight\\n");\n    else printf("obese\\n");\n    return 0;\n}`,
+java:`public class Main {\n    public static void main(String[] args) {\n        double weight = 65, height = 1.70;\n        double bmi = weight / (height * height);\n        System.out.printf("BMI = %.1f%n", bmi);\n        if (bmi < 18.5) System.out.println("過輕");\n        else if (bmi < 24) System.out.println("正常");\n        else if (bmi < 27) System.out.println("過重");\n        else System.out.println("肥胖");\n    }\n}`
+},
+5:{
+cpp:`#include <iostream>\nusing namespace std;\nint main(){\n    for (int i = 3; i <= 5; i++) {\n        for (int j = 1; j <= 9; j++)\n            cout << i << "x" << j << "=" << i*j << "  ";\n        cout << "\\n";\n    }\n    return 0;\n}`,
+c:`#include <stdio.h>\nint main(){\n    for (int i = 3; i <= 5; i++) {\n        for (int j = 1; j <= 9; j++)\n            printf("%dx%d=%d  ", i, j, i*j);\n        printf("\\n");\n    }\n    return 0;\n}`,
+java:`public class Main {\n    public static void main(String[] args) {\n        for (int i = 3; i <= 5; i++) {\n            for (int j = 1; j <= 9; j++)\n                System.out.printf("%dx%d=%d  ", i, j, i*j);\n            System.out.println();\n        }\n    }\n}`
+},
+6:{
+cpp:`#include <iostream>\n#include <string>\n#include <algorithm>\n#include <sstream>\nusing namespace std;\nint main(){\n    string s = "Hello APCS Python";\n    cout << "len: " << s.size() << "\\n";\n    string r = s;\n    reverse(r.begin(), r.end());\n    cout << "rev: " << r << "\\n";\n    string upper = s;\n    for (auto& c : upper) c = toupper(c);\n    cout << "upper: " << upper << "\\n";\n    // count words\n    int words = 1;\n    for (char c : s) if (c == ' ') words++;\n    cout << "words: " << words << "\\n";\n    return 0;\n}`,
+c:`#include <stdio.h>\n#include <string.h>\n#include <ctype.h>\nint main(){\n    char s[] = "Hello APCS Python";\n    int n = strlen(s);\n    printf("len: %d\\n", n);\n    char r[64];\n    for (int i = 0; i < n; i++) r[i] = s[n-1-i];\n    r[n] = 0;\n    printf("rev: %s\\n", r);\n    char upper[64];\n    for (int i = 0; i <= n; i++) upper[i] = toupper(s[i]);\n    printf("upper: %s\\n", upper);\n    int words = 1;\n    for (int i = 0; i < n; i++) if (s[i] == ' ') words++;\n    printf("words: %d\\n", words);\n    return 0;\n}`,
+java:`public class Main {\n    public static void main(String[] args) {\n        String s = "Hello APCS Python";\n        System.out.println("長度: " + s.length());\n        System.out.println("反轉: " + new StringBuilder(s).reverse());\n        System.out.println("大寫: " + s.toUpperCase());\n        System.out.println("單字數: " + s.split(" ").length);\n        System.out.println("替換: " + s.replace("APCS", "程式"));\n    }\n}`
+},
+7:{
+cpp:`#include <iostream>\n#include <vector>\n#include <algorithm>\n#include <numeric>\nusing namespace std;\nint main(){\n    vector<int> nums = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3};\n    cout << "原始: ";\n    for (int x : nums) cout << x << " ";\n    cout << "\\n";\n    vector<int> sorted_v = nums;\n    sort(sorted_v.begin(), sorted_v.end());\n    cout << "排序: ";\n    for (int x : sorted_v) cout << x << " ";\n    cout << "\\n";\n    int sum = accumulate(nums.begin(), nums.end(), 0);\n    int mx = *max_element(nums.begin(), nums.end());\n    cout << "總和: " << sum << "\\n";\n    cout << "最大: " << mx << "\\n";\n    int cnt5 = count(nums.begin(), nums.end(), 5);\n    cout << "出現 5 的次數: " << cnt5 << "\\n";\n    return 0;\n}`,
+c:`#include <stdio.h>\n#include <stdlib.h>\nint cmp(const void* a, const void* b){return *(int*)a - *(int*)b;}\nint main(){\n    int nums[] = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3};\n    int n = 10;\n    printf("原始: ");\n    for (int i = 0; i < n; i++) printf("%d ", nums[i]);\n    printf("\\n");\n    int sorted[10];\n    for (int i = 0; i < n; i++) sorted[i] = nums[i];\n    qsort(sorted, n, sizeof(int), cmp);\n    printf("排序: ");\n    for (int i = 0; i < n; i++) printf("%d ", sorted[i]);\n    printf("\\n");\n    int sum = 0, mx = nums[0];\n    for (int i = 0; i < n; i++) { sum += nums[i]; if (nums[i] > mx) mx = nums[i]; }\n    printf("總和: %d\\n", sum);\n    printf("最大: %d\\n", mx);\n    return 0;\n}`,
+java:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        int[] nums = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3};\n        System.out.println("原始: " + Arrays.toString(nums));\n        int[] sorted = nums.clone();\n        Arrays.sort(sorted);\n        System.out.println("排序: " + Arrays.toString(sorted));\n        int sum = 0, mx = Integer.MIN_VALUE;\n        for (int x : nums) { sum += x; if (x > mx) mx = x; }\n        System.out.println("總和: " + sum);\n        System.out.println("最大: " + mx);\n    }\n}`
+},
+8:{
+cpp:`#include <iostream>\nusing namespace std;\nint main(){\n    int n = 5;\n    int g[5][5];\n    for (int i = 0; i < n; i++)\n        for (int j = 0; j < n; j++)\n            g[i][j] = (i + j) % 2;\n    for (int i = 0; i < n; i++) {\n        for (int j = 0; j < n; j++) cout << g[i][j] << " ";\n        cout << "\\n";\n    }\n    return 0;\n}`,
+c:`#include <stdio.h>\nint main(){\n    int n = 5;\n    int g[5][5];\n    for (int i = 0; i < n; i++)\n        for (int j = 0; j < n; j++)\n            g[i][j] = (i + j) % 2;\n    for (int i = 0; i < n; i++) {\n        for (int j = 0; j < n; j++) printf("%d ", g[i][j]);\n        printf("\\n");\n    }\n    return 0;\n}`,
+java:`public class Main {\n    public static void main(String[] args) {\n        int n = 5;\n        int[][] g = new int[n][n];\n        for (int i = 0; i < n; i++)\n            for (int j = 0; j < n; j++)\n                g[i][j] = (i + j) % 2;\n        StringBuilder sb = new StringBuilder();\n        for (int i = 0; i < n; i++) {\n            for (int j = 0; j < n; j++) sb.append(g[i][j]).append(' ');\n            sb.append('\\n');\n        }\n        System.out.print(sb);\n    }\n}`
+},
+9:{
+cpp:`#include <iostream>\nusing namespace std;\nbool is_prime(int n){\n    if (n < 2) return false;\n    for (int i = 2; i*i <= n; i++)\n        if (n % i == 0) return false;\n    return true;\n}\nint main(){\n    int count = 0;\n    cout << "50 以下質數: ";\n    for (int x = 2; x < 50; x++)\n        if (is_prime(x)) { cout << x << " "; count++; }\n    cout << "\\n個數: " << count << "\\n";\n    return 0;\n}`,
+c:`#include <stdio.h>\nint is_prime(int n){\n    if (n < 2) return 0;\n    for (int i = 2; i*i <= n; i++)\n        if (n % i == 0) return 0;\n    return 1;\n}\nint main(){\n    int count = 0;\n    printf("50 以下質數: ");\n    for (int x = 2; x < 50; x++)\n        if (is_prime(x)) { printf("%d ", x); count++; }\n    printf("\\n個數: %d\\n", count);\n    return 0;\n}`,
+java:`public class Main {\n    static boolean isPrime(int n) {\n        if (n < 2) return false;\n        for (int i = 2; i*i <= n; i++)\n            if (n % i == 0) return false;\n        return true;\n    }\n    public static void main(String[] args) {\n        StringBuilder sb = new StringBuilder("50 以下質數: ");\n        int count = 0;\n        for (int x = 2; x < 50; x++)\n            if (isPrime(x)) { sb.append(x).append(' '); count++; }\n        sb.append("\\n個數: ").append(count);\n        System.out.println(sb);\n    }\n}`
+},
+10:{
+cpp:`#include <iostream>\n#include <map>\n#include <string>\n#include <sstream>\nusing namespace std;\nint main(){\n    string text = "the quick brown fox jumps over the lazy dog the fox";\n    map<string,int> cnt;\n    stringstream ss(text);\n    string w;\n    while (ss >> w) cnt[w]++;\n    cout << "字頻:\\n";\n    for (auto& p : cnt) cout << "  " << p.first << ": " << p.second << "\\n";\n    cout << "不同字數: " << cnt.size() << "\\n";\n    return 0;\n}`,
+c:`/* C 沒有原生 dict/set。\n * 此範例用「平行陣列」做簡單計數。 */\n#include <stdio.h>\n#include <string.h>\nint main(){\n    char* words[] = {"the","quick","brown","fox","jumps","over","the","lazy","dog","the","fox"};\n    int n = 11;\n    char keys[20][20] = {0};\n    int vals[20] = {0}, k = 0;\n    for (int i = 0; i < n; i++) {\n        int found = 0;\n        for (int j = 0; j < k; j++)\n            if (strcmp(keys[j], words[i]) == 0) { vals[j]++; found = 1; break; }\n        if (!found) { strcpy(keys[k], words[i]); vals[k] = 1; k++; }\n    }\n    printf("字頻:\\n");\n    for (int i = 0; i < k; i++) printf("  %s: %d\\n", keys[i], vals[i]);\n    printf("不同字數: %d\\n", k);\n    return 0;\n}`,
+java:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        String text = "the quick brown fox jumps over the lazy dog the fox";\n        Map<String,Integer> cnt = new HashMap<>();\n        for (String w : text.split(" "))\n            cnt.merge(w, 1, Integer::sum);\n        System.out.println("字頻: " + cnt);\n        System.out.println("不同字數: " + cnt.size());\n        // Top 3\n        cnt.entrySet().stream()\n            .sorted((a,b) -> b.getValue() - a.getValue())\n            .limit(3)\n            .forEach(e -> System.out.println("  " + e));\n    }\n}`
+},
+11:{
+cpp:`#include <iostream>\n#include <vector>\nusing namespace std;\nint main(){\n    vector<int> a = {1, 2, 3, 4, 5, 2, 1, 3};\n    int K = 5;\n    vector<int> ps(a.size()+1, 0);\n    for (size_t i = 0; i < a.size(); i++) ps[i+1] = ps[i] + a[i];\n    int cnt = 0;\n    for (size_t i = 0; i < a.size(); i++)\n        for (size_t j = i; j < a.size(); j++)\n            if (ps[j+1] - ps[i] == K) {\n                cout << "  a[" << i << ".." << j << "] sum = " << K << "\\n";\n                cnt++;\n            }\n    cout << "\\n共 " << cnt << " 個子陣列總和為 " << K << "\\n";\n    return 0;\n}`,
+c:`#include <stdio.h>\nint main(){\n    int a[] = {1, 2, 3, 4, 5, 2, 1, 3};\n    int n = 8, K = 5;\n    int ps[9] = {0};\n    for (int i = 0; i < n; i++) ps[i+1] = ps[i] + a[i];\n    int cnt = 0;\n    for (int i = 0; i < n; i++)\n        for (int j = i; j < n; j++)\n            if (ps[j+1] - ps[i] == K) {\n                printf("  a[%d..%d] sum = %d\\n", i, j, K);\n                cnt++;\n            }\n    printf("\\n共 %d 個子陣列總和為 %d\\n", cnt, K);\n    return 0;\n}`,
+java:`public class Main {\n    public static void main(String[] args) {\n        int[] a = {1, 2, 3, 4, 5, 2, 1, 3};\n        int K = 5;\n        int n = a.length;\n        int[] ps = new int[n+1];\n        for (int i = 0; i < n; i++) ps[i+1] = ps[i] + a[i];\n        int cnt = 0;\n        for (int i = 0; i < n; i++)\n            for (int j = i; j < n; j++)\n                if (ps[j+1] - ps[i] == K) {\n                    System.out.println("  a[" + i + ".." + j + "] sum = " + K);\n                    cnt++;\n                }\n        System.out.println("\\n共 " + cnt + " 個子陣列總和為 " + K);\n    }\n}`
+},
+12:{
+cpp:`#include <iostream>\n#include <iomanip>\nusing namespace std;\nint main(){\n    int n = 7;\n    int g[10][10] = {0};\n    for (int i = 0; i < n; i++) { g[i][0] = 1; g[i][i] = 1; }\n    for (int i = 2; i < n; i++)\n        for (int j = 1; j < i; j++)\n            g[i][j] = g[i-1][j-1] + g[i-1][j];\n    for (int i = 0; i < n; i++) {\n        for (int s = 0; s < n - i; s++) cout << "  ";\n        for (int j = 0; j <= i; j++) cout << setw(3) << g[i][j] << " ";\n        cout << "\\n";\n    }\n    return 0;\n}`,
+c:`#include <stdio.h>\nint main(){\n    int n = 7;\n    int g[10][10] = {0};\n    for (int i = 0; i < n; i++) { g[i][0] = 1; g[i][i] = 1; }\n    for (int i = 2; i < n; i++)\n        for (int j = 1; j < i; j++)\n            g[i][j] = g[i-1][j-1] + g[i-1][j];\n    for (int i = 0; i < n; i++) {\n        for (int s = 0; s < n - i; s++) printf("  ");\n        for (int j = 0; j <= i; j++) printf("%3d ", g[i][j]);\n        printf("\\n");\n    }\n    return 0;\n}`,
+java:`public class Main {\n    public static void main(String[] args) {\n        int n = 7;\n        int[][] g = new int[n][n];\n        for (int i = 0; i < n; i++) { g[i][0] = 1; g[i][i] = 1; }\n        for (int i = 2; i < n; i++)\n            for (int j = 1; j < i; j++)\n                g[i][j] = g[i-1][j-1] + g[i-1][j];\n        for (int i = 0; i < n; i++) {\n            for (int s = 0; s < n - i; s++) System.out.print("  ");\n            for (int j = 0; j <= i; j++) System.out.printf("%3d ", g[i][j]);\n            System.out.println();\n        }\n    }\n}`
+},
+13:{
+cpp:`// C++ 沒有 list comprehension，用標準迴圈或 STL algorithm 取代\n#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nbool is_prime(int n){if(n<2)return false;for(int i=2;i*i<=n;i++)if(n%i==0)return false;return true;}\nint main(){\n    cout << "九九乘法表中乘積為質數的位置:\\n";\n    for (int i = 2; i < 10; i++)\n        for (int j = i; j < 10; j++)\n            if (is_prime(i * j))\n                cout << "  " << i << " x " << j << " = " << i*j << "\\n";\n    return 0;\n}`,
+c:`/* C 沒有 list comprehension，用標準迴圈取代 */\n#include <stdio.h>\nint is_prime(int n){if(n<2)return 0;for(int i=2;i*i<=n;i++)if(n%i==0)return 0;return 1;}\nint main(){\n    printf("九九乘法表中乘積為質數的位置:\\n");\n    for (int i = 2; i < 10; i++)\n        for (int j = i; j < 10; j++)\n            if (is_prime(i * j))\n                printf("  %d x %d = %d\\n", i, j, i*j);\n    return 0;\n}`,
+java:`// Java 沒有 list comprehension，但有 Stream\nimport java.util.stream.*;\npublic class Main {\n    static boolean isPrime(int n) {\n        if (n < 2) return false;\n        for (int i = 2; i*i <= n; i++) if (n % i == 0) return false;\n        return true;\n    }\n    public static void main(String[] args) {\n        System.out.println("九九乘法表中乘積為質數的位置:");\n        IntStream.range(2, 10).forEach(i ->\n            IntStream.range(i, 10).filter(j -> isPrime(i*j))\n                .forEach(j -> System.out.printf("  %d x %d = %d%n", i, j, i*j)));\n    }\n}`
+},
+14:{
+cpp:`#include <iostream>\n#include <vector>\n#include <tuple>\n#include <string>\n#include <algorithm>\nusing namespace std;\nint main(){\n    vector<tuple<string,int,int>> students = {\n        {"Alice", 85, 17},\n        {"Bob",   92, 16},\n        {"Cara",  85, 18},\n        {"Dan",   92, 15}\n    };\n    // 分數降冪，分數同則年齡升冪\n    sort(students.begin(), students.end(), [](const auto& a, const auto& b){\n        if (get<1>(a) != get<1>(b)) return get<1>(a) > get<1>(b);\n        return get<2>(a) < get<2>(b);\n    });\n    for (auto& s : students)\n        cout << get<0>(s) << ": 分數=" << get<1>(s) << ", 年齡=" << get<2>(s) << "\\n";\n    return 0;\n}`,
+c:`#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\ntypedef struct { char name[20]; int score, age; } S;\nint cmp(const void* a, const void* b){\n    const S* x = (const S*)a;\n    const S* y = (const S*)b;\n    if (x->score != y->score) return y->score - x->score;  /* 分數降冪 */\n    return x->age - y->age;                                  /* 年齡升冪 */\n}\nint main(){\n    S st[] = {{"Alice",85,17},{"Bob",92,16},{"Cara",85,18},{"Dan",92,15}};\n    int n = 4;\n    qsort(st, n, sizeof(S), cmp);\n    for (int i = 0; i < n; i++)\n        printf("%s: 分數=%d, 年齡=%d\\n", st[i].name, st[i].score, st[i].age);\n    return 0;\n}`,
+java:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        int[][] students = {{0,85,17},{1,92,16},{2,85,18},{3,92,15}};\n        String[] names = {"Alice","Bob","Cara","Dan"};\n        // 分數降冪，分數同則年齡升冪\n        Arrays.sort(students, (a, b) -> {\n            if (a[1] != b[1]) return b[1] - a[1];\n            return a[2] - b[2];\n        });\n        for (int[] s : students)\n            System.out.printf("%s: 分數=%d, 年齡=%d%n", names[s[0]], s[1], s[2]);\n    }\n}`
+},
+15:{
+cpp:`#include <iostream>\nusing namespace std;\nint N, cnt;\nvoid solve(int row, int cols, int d1, int d2){\n    if (row == N) { cnt++; return; }\n    for (int c = 0; c < N; c++) {\n        int cb = 1 << c;\n        int d1b = 1 << (row - c + N);\n        int d2b = 1 << (row + c);\n        if ((cols & cb) || (d1 & d1b) || (d2 & d2b)) continue;\n        solve(row + 1, cols | cb, d1 | d1b, d2 | d2b);\n    }\n}\nint main(){\n    for (N = 4; N <= 8; N++) {\n        cnt = 0;\n        solve(0, 0, 0, 0);\n        cout << N << " 皇后有 " << cnt << " 種放法\\n";\n    }\n    return 0;\n}`,
+c:`#include <stdio.h>\nint N, cnt;\nvoid solve(int row, int cols, int d1, int d2){\n    if (row == N) { cnt++; return; }\n    for (int c = 0; c < N; c++) {\n        int cb = 1 << c;\n        int d1b = 1 << (row - c + N);\n        int d2b = 1 << (row + c);\n        if ((cols & cb) || (d1 & d1b) || (d2 & d2b)) continue;\n        solve(row + 1, cols | cb, d1 | d1b, d2 | d2b);\n    }\n}\nint main(){\n    for (N = 4; N <= 8; N++) {\n        cnt = 0;\n        solve(0, 0, 0, 0);\n        printf("%d 皇后有 %d 種放法\\n", N, cnt);\n    }\n    return 0;\n}`,
+java:`public class Main {\n    static int N, cnt;\n    static void solve(int row, int cols, int d1, int d2) {\n        if (row == N) { cnt++; return; }\n        for (int c = 0; c < N; c++) {\n            int cb = 1 << c;\n            int d1b = 1 << (row - c + N);\n            int d2b = 1 << (row + c);\n            if ((cols & cb) != 0 || (d1 & d1b) != 0 || (d2 & d2b) != 0) continue;\n            solve(row + 1, cols | cb, d1 | d1b, d2 | d2b);\n        }\n    }\n    public static void main(String[] args) {\n        for (N = 4; N <= 8; N++) {\n            cnt = 0;\n            solve(0, 0, 0, 0);\n            System.out.println(N + " 皇后有 " + cnt + " 種放法");\n        }\n    }\n}`
+},
+16:{
+cpp:`#include <iostream>\n#include <vector>\nusing namespace std;\nint main(){\n    vector<int> nums = {3, 1, 4, 1, 5};\n    int target = 8;\n    int n = nums.size();\n    cout << "找總和為 " << target << " 的子集合:\\n";\n    for (int mask = 0; mask < (1 << n); mask++) {\n        int sum = 0;\n        for (int i = 0; i < n; i++) if (mask & (1 << i)) sum += nums[i];\n        if (sum == target) {\n            cout << "  {";\n            for (int i = 0; i < n; i++) if (mask & (1 << i)) cout << nums[i] << " ";\n            cout << "}\\n";\n        }\n    }\n    return 0;\n}`,
+c:`#include <stdio.h>\nint main(){\n    int nums[] = {3, 1, 4, 1, 5};\n    int n = 5, target = 8;\n    printf("找總和為 %d 的子集合:\\n", target);\n    for (int mask = 0; mask < (1 << n); mask++) {\n        int sum = 0;\n        for (int i = 0; i < n; i++) if (mask & (1 << i)) sum += nums[i];\n        if (sum == target) {\n            printf("  {");\n            for (int i = 0; i < n; i++) if (mask & (1 << i)) printf("%d ", nums[i]);\n            printf("}\\n");\n        }\n    }\n    return 0;\n}`,
+java:`public class Main {\n    public static void main(String[] args) {\n        int[] nums = {3, 1, 4, 1, 5};\n        int target = 8;\n        int n = nums.length;\n        System.out.println("找總和為 " + target + " 的子集合:");\n        for (int mask = 0; mask < (1 << n); mask++) {\n            int sum = 0;\n            for (int i = 0; i < n; i++) if ((mask & (1 << i)) != 0) sum += nums[i];\n            if (sum == target) {\n                StringBuilder sb = new StringBuilder("  {");\n                for (int i = 0; i < n; i++) if ((mask & (1 << i)) != 0) sb.append(nums[i]).append(' ');\n                sb.append('}');\n                System.out.println(sb);\n            }\n        }\n    }\n}`
+},
+17:{
+cpp:`#include <iostream>\n#include <queue>\n#include <vector>\n#include <map>\n#include <string>\n#include <sstream>\nusing namespace std;\nint main(){\n    vector<int> nums = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5};\n    // 前 3 小：用小堆\n    priority_queue<int, vector<int>, greater<int>> minH(nums.begin(), nums.end());\n    cout << "前 3 小: ";\n    for (int i = 0; i < 3; i++) { cout << minH.top() << " "; minH.pop(); }\n    cout << "\\n";\n    // 字頻 + Top 2\n    string s = "the quick brown fox jumps over the lazy dog";\n    map<string,int> cnt;\n    stringstream ss(s);\n    string w;\n    while (ss >> w) cnt[w]++;\n    cout << "不同字數: " << cnt.size() << "\\n";\n    return 0;\n}`,
+c:`/* C 沒有 priority_queue，用 sort + 取前 K 個 */\n#include <stdio.h>\n#include <stdlib.h>\nint cmp(const void* a, const void* b){return *(int*)a - *(int*)b;}\nint main(){\n    int nums[] = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5};\n    int n = 11;\n    int sorted[20];\n    for (int i = 0; i < n; i++) sorted[i] = nums[i];\n    qsort(sorted, n, sizeof(int), cmp);\n    printf("前 3 小: ");\n    for (int i = 0; i < 3; i++) printf("%d ", sorted[i]);\n    printf("\\n前 3 大: ");\n    for (int i = n-1; i >= n-3; i--) printf("%d ", sorted[i]);\n    printf("\\n");\n    return 0;\n}`,
+java:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        int[] nums = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5};\n        // 前 3 大用 PriorityQueue\n        PriorityQueue<Integer> minH = new PriorityQueue<>();\n        for (int x : nums) { minH.offer(x); if (minH.size() > 3) minH.poll(); }\n        System.out.println("前 3 大: " + new ArrayList<>(minH));\n        // 字頻\n        String s = "the quick brown fox jumps over the lazy dog";\n        Map<String,Integer> cnt = new HashMap<>();\n        for (String w : s.split(" ")) cnt.merge(w, 1, Integer::sum);\n        System.out.println("不同字數: " + cnt.size());\n    }\n}`
+},
+18:{
+cpp:`#include <iostream>\nusing namespace std;\n// 這支程式想算 1+2+...+n 但有 bug\nint sum_to(int n){\n    int total = 0;\n    for (int i = 0; i < n; i++)  // bug: 應是 i=1; i<=n\n        total += i;\n    return total;\n}\nint main(){\n    cout << "sum_to(5) = " << sum_to(5) << "\\n";\n    cout << "預期是 15 但實際是 " << sum_to(5) << "\\n";\n    // 修正版\n    // for (int i = 1; i <= n; i++) total += i;\n    return 0;\n}`,
+c:`#include <stdio.h>\n/* 這支程式想算 1+2+...+n 但有 bug */\nint sum_to(int n){\n    int total = 0;\n    for (int i = 0; i < n; i++)  /* bug: 應是 i=1; i<=n */\n        total += i;\n    return total;\n}\nint main(){\n    printf("sum_to(5) = %d\\n", sum_to(5));\n    printf("預期是 15 但實際是 %d\\n", sum_to(5));\n    /* 修正：for (int i = 1; i <= n; i++) total += i; */\n    return 0;\n}`,
+java:`public class Main {\n    // 這支程式想算 1+2+...+n 但有 bug\n    static int sumTo(int n) {\n        int total = 0;\n        for (int i = 0; i < n; i++)  // bug: 應是 i=1; i<=n\n            total += i;\n        return total;\n    }\n    public static void main(String[] args) {\n        System.out.println("sumTo(5) = " + sumTo(5));\n        System.out.println("預期是 15 但實際是 " + sumTo(5));\n        // 修正：for (int i = 1; i <= n; i++) total += i;\n    }\n}`
+},
+19:{
+cpp:`#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nint main(){\n    vector<int> a = {-2, 1, -3, 4, -1, 2, 1, -5, 4};\n    int cur = a[0], best = a[0];\n    for (size_t i = 1; i < a.size(); i++) {\n        cur = max(a[i], cur + a[i]);\n        best = max(best, cur);\n    }\n    cout << "輸入: ";\n    for (int x : a) cout << x << " ";\n    cout << "\\n最大連續和: " << best << "\\n";\n    return 0;\n}`,
+c:`#include <stdio.h>\nint main(){\n    int a[] = {-2, 1, -3, 4, -1, 2, 1, -5, 4};\n    int n = 9;\n    int cur = a[0], best = a[0];\n    for (int i = 1; i < n; i++) {\n        cur = (a[i] > cur + a[i]) ? a[i] : cur + a[i];\n        if (cur > best) best = cur;\n    }\n    printf("輸入: ");\n    for (int i = 0; i < n; i++) printf("%d ", a[i]);\n    printf("\\n最大連續和: %d\\n", best);\n    return 0;\n}`,
+java:`public class Main {\n    public static void main(String[] args) {\n        int[] a = {-2, 1, -3, 4, -1, 2, 1, -5, 4};\n        int cur = a[0], best = a[0];\n        for (int i = 1; i < a.length; i++) {\n            cur = Math.max(a[i], cur + a[i]);\n            best = Math.max(best, cur);\n        }\n        StringBuilder sb = new StringBuilder("輸入: ");\n        for (int x : a) sb.append(x).append(' ');\n        sb.append("\\n最大連續和: ").append(best);\n        System.out.println(sb);\n    }\n}`
+},
+20:{
+cpp:`#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nint main(){\n    int n; cin >> n;\n    vector<int> scores(n);\n    for (auto& s : scores) cin >> s;\n    sort(scores.begin(), scores.end());\n    for (int i = 0; i < n; i++) {\n        if (i) cout << " ";\n        cout << scores[i];\n    }\n    cout << "\\n";\n    int hf = -1, lp = -1;\n    for (int s : scores) {\n        if (s < 60) hf = s;\n        else if (lp == -1) lp = s;\n    }\n    if (hf == -1) cout << "best case\\n"; else cout << hf << "\\n";\n    if (lp == -1) cout << "worst case\\n"; else cout << lp << "\\n";\n    return 0;\n}`,
+cpp_stdin:`10\n0 11 22 33 55 66 77 99 88 44\n`,
+c:`#include <stdio.h>\n#include <stdlib.h>\nint cmp(const void* a, const void* b){return *(int*)a - *(int*)b;}\nint main(){\n    int n; scanf("%d", &n);\n    int s[20];\n    for (int i = 0; i < n; i++) scanf("%d", &s[i]);\n    qsort(s, n, sizeof(int), cmp);\n    for (int i = 0; i < n; i++) {\n        if (i) printf(" ");\n        printf("%d", s[i]);\n    }\n    printf("\\n");\n    int hf = -1, lp = -1;\n    for (int i = 0; i < n; i++) {\n        if (s[i] < 60) hf = s[i];\n        else if (lp == -1) lp = s[i];\n    }\n    if (hf == -1) printf("best case\\n"); else printf("%d\\n", hf);\n    if (lp == -1) printf("worst case\\n"); else printf("%d\\n", lp);\n    return 0;\n}`,
+c_stdin:`10\n0 11 22 33 55 66 77 99 88 44\n`,
+java:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        int[] s = new int[n];\n        for (int i = 0; i < n; i++) s[i] = sc.nextInt();\n        Arrays.sort(s);\n        StringBuilder sb = new StringBuilder();\n        for (int i = 0; i < n; i++) {\n            if (i > 0) sb.append(' ');\n            sb.append(s[i]);\n        }\n        System.out.println(sb);\n        int hf = -1, lp = -1;\n        for (int x : s) {\n            if (x < 60) hf = x;\n            else if (lp == -1) lp = x;\n        }\n        System.out.println(hf == -1 ? "best case" : hf);\n        System.out.println(lp == -1 ? "worst case" : lp);\n    }\n}`,
+java_stdin:`10\n0 11 22 33 55 66 77 99 88 44\n`
+}
+};
 
 function renderChapList() {
   const list = document.getElementById('chap-list');
@@ -1515,32 +1676,31 @@ function selectChap(id) {
   document.getElementById('lesson-title').textContent = `第 ${currentChap.id} 章：${currentChap.title}`;
   document.getElementById('lesson-tag').textContent = currentChap.tag;
   document.getElementById('lesson-body').innerHTML = marked.parse(currentChap.content);
-  cm.setValue(currentChap.example);
-  document.getElementById('stdin-input').value = currentChap.stdin || '';
+  cm.setValue(getExample(currentChap));
+  document.getElementById('stdin-input').value = getStdin(currentChap);
   document.getElementById('output-body').textContent = '點擊上方「執行」測試程式';
 }
 
 function clearEditor() { cm.setValue(''); }
 function resetExample() {
   if (currentChap) {
-    cm.setValue(currentChap.example);
-    document.getElementById('stdin-input').value = currentChap.stdin || '';
+    cm.setValue(getExample(currentChap));
+    document.getElementById('stdin-input').value = getStdin(currentChap);
   }
 }
 
 async function runCode() {
-  if (!pyodide) return;
   const code = cm.getValue();
   const stdin = document.getElementById('stdin-input').value;
   const out = document.getElementById('output-body');
   out.textContent = '執行中...';
 
   try {
-    // Inject stdin/stdout via Python-side sys module redirection.
-    // This is more reliable than pyodide.setStdin/setStdout across versions.
-    pyodide.globals.set('__user_stdin', stdin);
-    pyodide.globals.set('__user_code', code);
-    await pyodide.runPythonAsync(`
+    if (currentLang === 'py') {
+      if (!pyodide) { out.textContent = 'Pyodide 尚未載入'; return; }
+      pyodide.globals.set('__user_stdin', stdin);
+      pyodide.globals.set('__user_code', code);
+      await pyodide.runPythonAsync(`
 import sys, io, traceback
 __buf = io.StringIO()
 __old_in, __old_out, __old_err = sys.stdin, sys.stdout, sys.stderr
@@ -1557,15 +1717,33 @@ finally:
     sys.stdin, sys.stdout, sys.stderr = __old_in, __old_out, __old_err
 __result = __buf.getvalue()
 `);
-    const result = pyodide.globals.get('__result');
-    out.textContent = result || '(無輸出)';
+      out.textContent = pyodide.globals.get('__result') || '(無輸出)';
+    } else if (currentLang === 'cpp' || currentLang === 'c') {
+      let buf = '';
+      try {
+        JSCPP.run(code, stdin, { stdio: { write: s => { buf += s; } } });
+        out.textContent = buf || '(無輸出)';
+      } catch (e) {
+        out.textContent = (buf ? buf + '\n' : '') + 'JSCPP 錯誤：\n' + String(e.message || e).split('\n').slice(0, 6).join('\n');
+      }
+    } else { // java
+      const res = await fetch('https://emkc.org/api/v2/piston/execute', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ language: 'java', version: '15.0.2', files: [{ name: 'Main.java', content: code }], stdin, run_timeout: 8000 })
+      });
+      const data = await res.json();
+      const stdout = data.run?.stdout || '';
+      const stderr = data.run?.stderr || data.compile?.stderr || '';
+      out.textContent = (stdout + (stderr ? '\n[stderr]\n' + stderr : '')) || '(無輸出)';
+    }
   } catch (e) {
-    out.textContent = '錯誤：\n' + e.message;
+    out.textContent = '錯誤：\n' + (e.message || e);
   }
 }
 
 renderChapList();
 initEditor();
+switchLang('py');
 loadPyodide_();
 selectChap(1);
 </script>
