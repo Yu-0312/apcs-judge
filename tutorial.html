@@ -1676,8 +1676,8 @@ const CHAPTER_META = {
   ],
   quiz:[
     {q:"程式碼裡開頭是 # 的整行，電腦會怎麼處理？", opts:["當作指令執行","完全跳過（這叫註解）","印出來給使用者看","視為錯誤"], ans:1, why:"# 開頭的是註解，給人看的提示，電腦會略過。"},
-    {q:"右側「執行」按鈕按下去後，結果會出現在哪裡？", opts:["左側目錄","中間教材區","右下「📤 輸出」框","彈出新視窗"], ans:2, why:"輸出永遠出現在右下角的輸出框。"},
-    {q:"新手模式打開時，下列哪一項是正確的？", opts:["只能看 C++","語言只剩 Python、需要依序解鎖章節","所有章節都鎖住","不能執行程式"], ans:1, why:"新手模式專注於 Python 並依序解鎖，避免一次學太多東西。"}
+    {q:"<code>print(\"Hello\")</code> 這行做什麼？", opts:["把 Hello 存進變數","把 Hello 顯示在輸出","把 Hello 寫進檔案","刪除 Hello"], ans:1, why:"print() 是把括號裡的東西顯示出來，是最常用的「輸出」指令。"},
+    {q:"Python 一行程式碼的結尾需要分號 <code>;</code> 嗎？", opts:["一定要","不需要，換行就是結束","只有 print 要","看情況"], ans:1, why:"Python 用換行就代表一行結束，不像 C/C++/Java 一定要寫分號。"}
   ]},
 1:{
   learn:["把資料『存進變數』裡","認識四種基本型別：int / float / str / bool","用 int() / str() 在型別之間轉換"],
@@ -1915,9 +1915,9 @@ const CHAPTER_META = {
     "想想：如果題目改成「最高不及格 + 1」算分？把程式改一下"
   ],
   quiz:[
-    {q:"APCS 題目通常會給什麼？", opts:["只有題目敘述","題目 + 輸入格式 + 輸出格式 + 範例","只有程式碼","只有測資"], ans:1, why:"標準格式：題目 → 輸入規格 → 輸出規格 → 樣本。讀題時四項都要看。"},
+    {q:"成績指標題要先做什麼？", opts:["先排序","先找平均","先輸出","先計算總和"], ans:0, why:"先 sort 才能用一次掃描找到「最高不及格」和「最低及格」。"},
     {q:"<code>print(*scores)</code> 跟 <code>print(scores)</code> 差別？", opts:["沒差","* 會展開成空白分隔，沒 * 會印 [...]","* 會更快","* 會錯誤"], ans:1, why:"print(*lst) 把 list 展開成多個參數，預設用空白分隔；不加星號會印整個 list 含中括號。"},
-    {q:"考前一週最該做什麼？", opts:["背所有演算法","刷題寫程式手感","裝新 IDE","熬夜"], ans:1, why:"APCS 重實作，平常多寫題目培養手感比死背理論有用得多。"}
+    {q:"全班都及格時，「最高不及格」要輸出什麼？", opts:["0","-1","best case","空白"], ans:2, why:"題目特別規定：沒人不及格時印 best case；沒人及格時印 worst case。"}
   ]}
 };
 
@@ -2044,7 +2044,2184 @@ function pickQuiz(chapId, qi, oi){
   if(!quizState[chapId]) quizState[chapId] = {};
   if(quizState[chapId][qi] !== undefined) return; // 已作答
   quizState[chapId][qi] = oi;
-  if(currentChap && currentChap.id === chapId) selectChap(chapId);
+  if(currentChap && currentChap.id === chapId) selectChap(chapId, {preserveEditor:true});
+}
+
+
+// ── 每章的 C++ / C / Java 版教材內容 ─────────────────────────────────────
+const LANG_CONTENT = {
+0:{
+cpp:`
+# 第 0 章：寫程式是什麼一回事？(C++ 版)
+
+歡迎！這是給**完全沒寫過程式**的你的第一章。
+
+## 🤔 程式 = 一份「給電腦看的食譜」
+
+你寫好步驟 → 電腦照做。C++ 的食譜長這樣：
+
+\`\`\`cpp
+#include <iostream>
+using namespace std;
+int main(){
+    cout << "Hello" << endl;
+    return 0;
+}
+\`\`\`
+
+## 🔑 C++ 跟 Python 三大差異
+
+| 項目 | Python | C++ |
+|------|--------|-----|
+| 程式入口 | 從第一行開始 | 從 \`main()\` 開始 |
+| 一行結尾 | 換行就好 | 一定要 \`;\` 分號 |
+| 變數宣告 | \`x = 5\` | \`int x = 5;\` 要先說型別 |
+
+## ▶️ 按一次「執行」
+
+右邊已經準備好 Hello 程式碼，按 **▶ 執行**，看輸出框出現什麼。
+
+> **小提示**：C++ 要編譯後執行。這個教學用 JSCPP 在瀏覽器裡直接執行，不用安裝編譯器。
+`,
+c:`
+# 第 0 章：寫程式是什麼一回事？(C 版)
+
+歡迎！這是給**完全沒寫過程式**的你的第一章。
+
+## 🤔 程式 = 一份「給電腦看的食譜」
+
+C 的食譜長這樣：
+
+\`\`\`c
+#include <stdio.h>
+int main(){
+    printf("Hello\\n");
+    return 0;
+}
+\`\`\`
+
+## 🔑 C 跟 Python 三大差異
+
+| 項目 | Python | C |
+|------|--------|---|
+| 程式入口 | 第一行 | 從 \`main()\` 開始 |
+| 一行結尾 | 換行 | 必須 \`;\` |
+| 變數宣告 | \`x = 5\` | \`int x = 5;\` 要型別 |
+
+## ▶️ 按一次「執行」
+
+按右上的 **▶ 執行**，看 Hello 出現在輸出框。
+
+> **小提示**：C 沒有原生字串型別，要用字元陣列 \`char s[]\`。Python 的 \`"abc"\` 對應 C 的 \`"abc"\`（一樣寫法，但實際是字元陣列）。
+`,
+java:`
+# 第 0 章：寫程式是什麼一回事？(Java 版)
+
+歡迎！這是給**完全沒寫過程式**的你的第一章。
+
+## 🤔 程式 = 一份「給電腦看的食譜」
+
+Java 的食譜長這樣：
+
+\`\`\`java
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello");
+    }
+}
+\`\`\`
+
+## 🔑 Java 跟 Python 三大差異
+
+| 項目 | Python | Java |
+|------|--------|------|
+| 程式入口 | 第一行 | \`public static void main\` |
+| 結構 | 不用 class | 一定要包在 class 裡 |
+| 結尾 | 換行 | \`;\` 分號 |
+
+## ▶️ 按一次「執行」
+
+按右上的 **▶ 執行**，由 Piston 雲端 Java 編譯器跑（需要網路，約 1-2 秒）。
+
+> **小提示**：Java 檔名要叫 \`Main.java\`，class 名也要叫 \`Main\`，必須一致。
+`
+},
+1:{
+cpp:`
+# 第 1 章：變數與資料型別 (C++)
+
+## 1.1 變數要先宣告型別
+C++ 是**強型別**語言，宣告時要說清楚變數是什麼型別：
+
+\`\`\`cpp
+int age = 17;          // 整數
+double height = 168.5; // 浮點數
+string name = "Alice"; // 字串（要 #include <string>）
+bool ok = true;        // 布林
+\`\`\`
+
+## 1.2 四大基本型別
+| 型別 | 範例 | 範圍 |
+|------|------|------|
+| int | \`42\` | 約 ±21 億 |
+| long long | \`42LL\` | 約 ±9×10¹⁸ |
+| double | \`3.14\` | 浮點數 |
+| string | \`"hi"\` | 字串 |
+| bool | \`true / false\` | 真假 |
+
+## 1.3 型別轉換
+\`\`\`cpp
+int x = (int)3.7;          // 3（直接截斷）
+double y = (double)5 / 2;  // 2.5
+string s = to_string(42);  // "42"
+int n = stoi("42");        // 42
+\`\`\`
+
+> **APCS 重點**：整數除法不會自動變浮點！\`5 / 2\` 在 C++ 是 \`2\`（不是 2.5），要 \`(double)5/2\` 才會得到 2.5。
+`,
+c:`
+# 第 1 章：變數與資料型別 (C)
+
+## 1.1 變數要先宣告型別
+\`\`\`c
+int age = 17;
+double height = 168.5;
+char name[] = "Alice";  // C 沒有 string，用字元陣列
+char letter = 'A';      // 單一字元用單引號
+\`\`\`
+
+## 1.2 常用型別
+| 型別 | 範例 | 說明 |
+|------|------|------|
+| int | \`42\` | 整數 |
+| long long | \`42LL\` | 大整數 |
+| double | \`3.14\` | 浮點 |
+| char | \`'A'\` | 單一字元 |
+| char[] | \`"hello"\` | 字串（字元陣列） |
+
+## 1.3 型別轉換
+\`\`\`c
+int x = (int)3.7;  // 3
+double y = 5.0 / 2;  // 2.5（要至少一個是 double）
+\`\`\`
+
+> **APCS 重點**：C 沒有 bool（C99 有 \`stdbool.h\`），常用 \`int\`：0 = false，非 0 = true。
+`,
+java:`
+# 第 1 章：變數與資料型別 (Java)
+
+## 1.1 宣告變數
+\`\`\`java
+int age = 17;
+double height = 168.5;
+String name = "Alice";   // String 是 class，要大寫 S
+boolean ok = true;
+char c = 'A';
+\`\`\`
+
+## 1.2 八大基本型別
+| 型別 | 範例 |
+|------|------|
+| int | \`42\` |
+| long | \`42L\` |
+| double | \`3.14\` |
+| char | \`'A'\` |
+| boolean | \`true / false\` |
+| String*| \`"hi"\` (物件) |
+
+## 1.3 型別轉換
+\`\`\`java
+int x = (int)3.7;              // 3
+double y = (double)5 / 2;      // 2.5
+String s = Integer.toString(42);
+int n = Integer.parseInt("42");
+\`\`\`
+
+> **APCS 重點**：跟 C++ 一樣，\`5 / 2\` 是整數除法得 \`2\`。要浮點結果寫 \`5.0 / 2\` 或 \`(double)5/2\`。
+`
+},
+2:{
+cpp:`
+# 第 2 章：輸入與輸出 (C++)
+
+## 2.1 cout 輸出
+\`\`\`cpp
+cout << "Hello" << endl;        // 換行
+cout << "a" << " " << "b";       // 用 << 連接
+cout << x << "\\n";              // \\n 也可以
+\`\`\`
+
+## 2.2 cin 輸入
+\`\`\`cpp
+int n;
+cin >> n;                        // 讀一個整數
+int a, b;
+cin >> a >> b;                   // 一行讀兩個
+
+string s;
+getline(cin, s);                 // 讀一整行（含空白）
+\`\`\`
+
+## 2.3 讀 n 個數字進 vector
+\`\`\`cpp
+int n; cin >> n;
+vector<int> a(n);
+for(int i = 0; i < n; i++) cin >> a[i];
+\`\`\`
+
+> **加速技巧**：APCS 大量輸入時，在 main 開頭加 \`ios::sync_with_stdio(false); cin.tie(0);\` cin 速度會跟 scanf 一樣快。
+`,
+c:`
+# 第 2 章：輸入與輸出 (C)
+
+## 2.1 printf 輸出
+\`\`\`c
+printf("Hello\\n");
+printf("%d\\n", x);              // 整數
+printf("%.2f\\n", 3.14159);      // 浮點，2 位小數
+printf("%s\\n", "hi");           // 字串
+\`\`\`
+
+## 2.2 scanf 輸入
+\`\`\`c
+int n;
+scanf("%d", &n);                 // 注意 & ！
+int a, b;
+scanf("%d %d", &a, &b);
+char s[100];
+scanf("%s", s);                  // 字串不用 &
+\`\`\`
+
+## 2.3 格式符號速查
+| 符號 | 對應型別 |
+|------|----------|
+| %d | int |
+| %lld | long long |
+| %f / %lf | float / double（printf 都用 %f，scanf 用 %lf） |
+| %c | char |
+| %s | 字串 |
+
+> **新手陷阱**：scanf 一定要記得加 \`&\`！\`scanf("%d", n)\` 會 crash。
+`,
+java:`
+# 第 2 章：輸入與輸出 (Java)
+
+## 2.1 System.out 輸出
+\`\`\`java
+System.out.println("Hello");           // 印完換行
+System.out.print("no newline");        // 不換行
+System.out.printf("%d %s%n", 42, "hi"); // 格式化
+\`\`\`
+
+## 2.2 Scanner 輸入
+\`\`\`java
+import java.util.*;
+Scanner sc = new Scanner(System.in);
+int n = sc.nextInt();
+double d = sc.nextDouble();
+String s = sc.next();         // 不含空白
+String line = sc.nextLine();  // 整行
+\`\`\`
+
+## 2.3 讀 n 個數字進陣列
+\`\`\`java
+int n = sc.nextInt();
+int[] a = new int[n];
+for(int i = 0; i < n; i++) a[i] = sc.nextInt();
+\`\`\`
+
+> **效能技巧**：Scanner 比 BufferedReader 慢 10 倍以上。資料量大時用 BufferedReader + StringTokenizer。
+`
+},
+3:{
+cpp:`
+# 第 3 章：運算子與表達式 (C++)
+
+## 3.1 算術運算子
+跟 Python 大致相同：\`+ - * / %\`
+
+**但要注意：**
+- \`/\` **看型別**！\`5 / 2 = 2\`（整數），\`5.0 / 2 = 2.5\`（浮點）
+- Python 的 \`//\` 在 C++ 就是 \`/\`（當兩邊都是整數時）
+- \`%\` 取餘數：\`17 % 5 = 2\`
+
+## 3.2 拆三位數
+\`\`\`cpp
+int n = 752;
+int h = n / 100;       // 7
+int t = n / 10 % 10;   // 5
+int o = n % 10;        // 2
+\`\`\`
+
+## 3.3 自增 / 自減
+C++ 特有寫法：
+
+\`\`\`cpp
+i++;   // 等同 i = i + 1
+i--;   // 等同 i = i - 1
+\`\`\`
+
+> **整數溢位**：int 最大約 21 億。算次方、階乘容易爆，用 \`long long\` 才安全：\`long long x = 1e18;\`
+`,
+c:`
+# 第 3 章：運算子與表達式 (C)
+
+跟 C++ 完全相同。
+
+## 3.1 算術
+\`+ - * / %\`，整數除法 \`/\` 自動截斷。
+
+\`\`\`c
+int n = 752;
+int h = n / 100;     // 7
+int t = n / 10 % 10; // 5
+int o = n % 10;      // 2
+\`\`\`
+
+## 3.2 自增 / 自減
+\`\`\`c
+i++; i--;
+\`\`\`
+
+## 3.3 邏輯運算子
+\`\`\`c
+if (x > 0 && x < 100)   // and
+if (x == 0 || y == 0)   // or
+if (!flag)              // not
+\`\`\`
+
+> **C 的真假**：沒 bool，用 int：0 是假，非 0 都是真。
+
+> **整數溢位**：int 上限 ~21 億。大數用 \`long long\` 並用 \`%lld\` 印。
+`,
+java:`
+# 第 3 章：運算子與表達式 (Java)
+
+## 3.1 算術
+\`+ - * / %\`，跟 C++ 相同。整數 \`/\` 自動截斷。
+
+\`\`\`java
+int n = 752;
+int h = n / 100;
+int t = n / 10 % 10;
+int o = n % 10;
+\`\`\`
+
+## 3.2 自增
+\`\`\`java
+i++; i--;
+\`\`\`
+
+## 3.3 字串相加
+Java 的 \`+\` 對字串是「連接」，可以跟其他型別混用：
+
+\`\`\`java
+int age = 17;
+String s = "I am " + age + " years old";  // 自動轉
+\`\`\`
+
+> **整數溢位**：int 上限 21 億。\`1L << 40\` 用 long；數字後面加 \`L\` 才會被當 long。
+
+> **整數除法陷阱**：\`(double)(1/2)\` = 0.0！因為 1/2 先算成 0 再轉 double。要 \`1.0/2\` 或 \`(double)1/2\`。
+`
+},
+4:{
+cpp:`
+# 第 4 章：條件判斷 (C++)
+
+## 4.1 if / else if / else
+\`\`\`cpp
+if (score >= 90) {
+    cout << "A";
+} else if (score >= 80) {
+    cout << "B";
+} else {
+    cout << "C";
+}
+\`\`\`
+
+## 4.2 條件運算子（短路三元）
+\`\`\`cpp
+int max_v = (a > b) ? a : b;   // a 大就取 a 不然取 b
+\`\`\`
+
+## 4.3 邏輯運算子
+| 運算子 | Python 對應 |
+|--------|------------|
+| \`&&\` | and |
+| \`\|\|\` | or |
+| \`!\` | not |
+
+## 4.4 switch（多分支）
+\`\`\`cpp
+switch (grade) {
+    case 'A': cout << "Excellent"; break;
+    case 'B': cout << "Good"; break;
+    default: cout << "Try harder";
+}
+\`\`\`
+
+> **常見錯誤**：if 只有一行可以不寫 \`{}\`，但建議都寫，避免 dangling else。
+
+> **比較 == 與 =**：if (x = 5) 是賦值並永遠為真！要 \`==\` 才是比較。
+`,
+c:`
+# 第 4 章：條件判斷 (C)
+
+## 4.1 if / else
+\`\`\`c
+if (score >= 90) {
+    printf("A");
+} else if (score >= 80) {
+    printf("B");
+} else {
+    printf("C");
+}
+\`\`\`
+
+## 4.2 三元運算子
+\`\`\`c
+int max_v = (a > b) ? a : b;
+\`\`\`
+
+## 4.3 邏輯運算子
+\`&&\`(and) \`||\`(or) \`!\`(not)
+
+## 4.4 switch
+\`\`\`c
+switch (n) {
+    case 1: printf("one"); break;
+    case 2: printf("two"); break;
+    default: printf("other");
+}
+\`\`\`
+
+> **常見陷阱**：忘記 \`break\` 會 fall-through，繼續執行下一個 case。
+
+> **C 沒 elif**！要寫 \`else if\` 兩個字。
+`,
+java:`
+# 第 4 章：條件判斷 (Java)
+
+## 4.1 if / else
+\`\`\`java
+if (score >= 90) {
+    System.out.println("A");
+} else if (score >= 80) {
+    System.out.println("B");
+} else {
+    System.out.println("C");
+}
+\`\`\`
+
+## 4.2 三元運算子
+\`\`\`java
+int max = (a > b) ? a : b;
+\`\`\`
+
+## 4.3 邏輯運算子
+\`&&\` \`||\` \`!\`，跟 C++ 相同。
+
+## 4.4 switch（Java 14+ 可用箭頭）
+\`\`\`java
+switch (grade) {
+    case 'A' -> System.out.println("Great");
+    case 'B' -> System.out.println("OK");
+    default -> System.out.println("Try");
+}
+\`\`\`
+
+> **字串比較陷阱**：\`s1 == s2\` 比的是物件位址不是內容！比字串內容用 \`s1.equals(s2)\`。
+`
+},
+5:{
+cpp:`
+# 第 5 章：迴圈 (C++)
+
+## 5.1 for 迴圈
+\`\`\`cpp
+for (int i = 0; i < 10; i++) {
+    cout << i << " ";
+}
+// 對應 Python: for i in range(10)
+\`\`\`
+
+三段：**初始化；條件；每輪結束做的事**
+
+## 5.2 while 迴圈
+\`\`\`cpp
+int n = 100;
+while (n > 0) {
+    cout << n << " ";
+    n /= 2;
+}
+\`\`\`
+
+## 5.3 range-based for（C++11+）
+\`\`\`cpp
+vector<int> nums = {3, 1, 4};
+for (int x : nums) {
+    cout << x << " ";
+}
+\`\`\`
+
+## 5.4 break / continue
+- \`break\` — 立刻離開迴圈
+- \`continue\` — 跳到下一輪
+
+> **巢狀 break 限制**：break 只跳出一層。要全離用 flag 或 \`goto\`（不建議）或包進函式 return。
+`,
+c:`
+# 第 5 章：迴圈 (C)
+
+## 5.1 for
+\`\`\`c
+for (int i = 0; i < 10; i++) {
+    printf("%d ", i);
+}
+\`\`\`
+
+## 5.2 while
+\`\`\`c
+int n = 100;
+while (n > 0) {
+    printf("%d ", n);
+    n /= 2;
+}
+\`\`\`
+
+## 5.3 do-while（至少跑一次）
+\`\`\`c
+int x;
+do {
+    scanf("%d", &x);
+} while (x != 0);
+\`\`\`
+
+## 5.4 break / continue
+跟 C++ 相同。
+
+> **C89 限制**：for 內宣告變數要 C99 以上。老師如果用 Dev-C++ 4.x 可能要先在外面宣告。
+`,
+java:`
+# 第 5 章：迴圈 (Java)
+
+## 5.1 for
+\`\`\`java
+for (int i = 0; i < 10; i++) {
+    System.out.print(i + " ");
+}
+\`\`\`
+
+## 5.2 while / do-while
+\`\`\`java
+while (n > 0) { ... }
+do { ... } while (cond);
+\`\`\`
+
+## 5.3 enhanced for（foreach）
+\`\`\`java
+int[] nums = {3, 1, 4};
+for (int x : nums) {
+    System.out.print(x + " ");
+}
+\`\`\`
+
+## 5.4 break / continue + 標籤
+Java 支援帶標籤的 break，可跳出多層：
+
+\`\`\`java
+outer:
+for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++) {
+        if (g[i][j] == -1) break outer;
+    }
+}
+\`\`\`
+`
+},
+6:{
+cpp:`
+# 第 6 章：字串處理 (C++)
+
+C++ 用 \`std::string\`（需要 \`#include <string>\`）
+
+## 6.1 基本操作
+\`\`\`cpp
+string s = "Hello APCS";
+s.length();              // 10
+s.size();                // 同上
+s[0];                    // 'H'
+s + " Python";           // 連接
+s.substr(6, 4);          // "APCS"（從 6 開始 4 個字元）
+\`\`\`
+
+## 6.2 找子字串
+\`\`\`cpp
+size_t p = s.find("APCS");
+if (p != string::npos) cout << "found at " << p;
+\`\`\`
+
+## 6.3 反轉、大小寫
+\`\`\`cpp
+reverse(s.begin(), s.end());        // <algorithm>
+for (auto& c : s) c = toupper(c);   // <cctype>
+\`\`\`
+
+## 6.4 切割（沒有內建 split）
+要自己用 stringstream 或 substr。
+
+\`\`\`cpp
+stringstream ss(s);
+string word;
+while (ss >> word) {
+    cout << word << "\\n";
+}
+\`\`\`
+
+> **vs Python**：Python 的 \`s.split()\` 對應 stringstream 讀詞。\`s[::-1]\` 對應 \`reverse()\`。
+`,
+c:`
+# 第 6 章：字串處理 (C)
+
+C 沒有 string class，**字串就是字元陣列 + 結尾 \\0**。
+
+## 6.1 宣告與長度
+\`\`\`c
+char s[] = "Hello";
+int len = strlen(s);    // 5（不含 \\0）
+\`\`\`
+
+## 6.2 常用函式（要 <string.h>）
+\`\`\`c
+strlen(s);              // 長度
+strcpy(dst, src);       // 複製：dst = src
+strcat(a, b);           // a 後面接 b
+strcmp(a, b);           // 比較：== 0 表示相同
+strstr(s, "APCS");      // 找子字串，回傳指標或 NULL
+\`\`\`
+
+## 6.3 字元判斷（<ctype.h>）
+\`\`\`c
+isdigit(c);  isalpha(c);  isupper(c);
+toupper(c);  tolower(c);
+\`\`\`
+
+> **C 字串陷阱**：
+> - 不能用 \`==\` 比字串！要用 strcmp
+> - 不能用 \`=\` 賦值！要用 strcpy
+> - 陣列要夠大，否則溢位 crash
+`,
+java:`
+# 第 6 章：字串處理 (Java)
+
+Java 的 \`String\` 是 immutable（不可變）的物件。
+
+## 6.1 基本操作
+\`\`\`java
+String s = "Hello APCS";
+s.length();                // 10
+s.charAt(0);               // 'H'
+s + " Python";             // 連接
+s.substring(6);            // "APCS"
+s.substring(6, 10);        // "APCS"
+\`\`\`
+
+## 6.2 常用方法
+\`\`\`java
+s.toUpperCase();           // "HELLO APCS"
+s.toLowerCase();
+s.indexOf("APCS");         // 6
+s.replace("APCS", "Code"); // "Hello Code"
+s.split(" ");              // 切割回傳 String[]
+s.trim();                  // 去頭尾空白
+\`\`\`
+
+## 6.3 反轉
+\`\`\`java
+String r = new StringBuilder(s).reverse().toString();
+\`\`\`
+
+## 6.4 大量字串連接用 StringBuilder
+\`\`\`java
+StringBuilder sb = new StringBuilder();
+for (int i = 0; i < n; i++) sb.append(i).append(" ");
+System.out.println(sb);
+\`\`\`
+
+> **比較字串**：\`s1.equals(s2)\` 不是 \`==\`！
+`
+},
+7:{
+cpp:`
+# 第 7 章：vector（動態陣列） (C++)
+
+C++ 的 list 對應就是 \`std::vector\`。
+
+## 7.1 建立與操作
+\`\`\`cpp
+#include <vector>
+vector<int> v;                 // 空
+vector<int> v2 = {3, 1, 4};    // 直接給
+vector<int> v3(10, 0);         // 10 個 0
+
+v.push_back(5);                // 加到尾端
+v.pop_back();                  // 移除尾端
+v.size();                      // 大小
+v[0];                          // 存取
+\`\`\`
+
+## 7.2 走訪
+\`\`\`cpp
+for (int i = 0; i < v.size(); i++) cout << v[i];
+for (int x : v) cout << x;     // 簡潔版
+\`\`\`
+
+## 7.3 常用演算法（<algorithm>）
+\`\`\`cpp
+sort(v.begin(), v.end());                      // 排序
+reverse(v.begin(), v.end());                   // 反轉
+int s = accumulate(v.begin(), v.end(), 0);     // 總和 <numeric>
+int mx = *max_element(v.begin(), v.end());     // 最大
+int c = count(v.begin(), v.end(), 5);          // 5 出現幾次
+\`\`\`
+
+> **vs Python**：vector.push_back ↔ list.append；vector 用下標存取很快，跟陣列一樣。
+`,
+c:`
+# 第 7 章：陣列 (C)
+
+C 沒有動態陣列（Python 的 list），用**固定大小陣列**。
+
+## 7.1 宣告
+\`\`\`c
+int a[100];                    // 100 個 int（未初始化）
+int a[100] = {0};              // 全 0
+int a[] = {3, 1, 4, 1, 5};     // 編譯器自動算大小
+int n = sizeof(a) / sizeof(int);
+\`\`\`
+
+## 7.2 存取與走訪
+\`\`\`c
+a[0] = 42;
+for (int i = 0; i < n; i++) printf("%d ", a[i]);
+\`\`\`
+
+## 7.3 排序（qsort）
+\`\`\`c
+int cmp(const void* a, const void* b){
+    return *(int*)a - *(int*)b;
+}
+qsort(a, n, sizeof(int), cmp);
+\`\`\`
+
+## 7.4 常見運算
+\`\`\`c
+int sum = 0, mx = a[0];
+for (int i = 0; i < n; i++) {
+    sum += a[i];
+    if (a[i] > mx) mx = a[i];
+}
+\`\`\`
+
+> **新手陷阱**：陣列大小要編譯時就知道。需要動態大小要用 malloc：
+> \`int* a = (int*)malloc(n * sizeof(int));\`
+`,
+java:`
+# 第 7 章：陣列與 ArrayList (Java)
+
+Java 有兩種：**固定陣列** \`int[]\` 跟 **動態 ArrayList**。
+
+## 7.1 固定陣列
+\`\`\`java
+int[] a = new int[10];          // 10 個 0
+int[] b = {3, 1, 4, 1, 5};      // 直接給
+a.length;                       // 大小（不是 length()）
+a[0] = 42;
+\`\`\`
+
+## 7.2 ArrayList（可變大小）
+\`\`\`java
+import java.util.*;
+ArrayList<Integer> list = new ArrayList<>();
+list.add(5);                    // 加到尾
+list.get(0);                    // 取值
+list.size();                    // 大小
+list.remove(0);                 // 移除某位置
+\`\`\`
+
+## 7.3 排序
+\`\`\`java
+Arrays.sort(a);                 // int[]
+Collections.sort(list);         // ArrayList
+\`\`\`
+
+## 7.4 常用
+\`\`\`java
+int sum = 0, mx = a[0];
+for (int x : a) { sum += x; if (x > mx) mx = x; }
+\`\`\`
+
+> **新手陷阱**：陣列是 \`a.length\`，字串是 \`s.length()\`，注意有沒有括號！
+`
+},
+8:{
+cpp:`
+# 第 8 章：二維陣列 (C++)
+
+## 8.1 兩種建立方式
+**固定陣列**：
+\`\`\`cpp
+int g[5][5] = {0};                // 全 0
+int g[3][3] = {{1,2,3},{4,5,6},{7,8,9}};
+\`\`\`
+
+**動態 vector**：
+\`\`\`cpp
+vector<vector<int>> g(n, vector<int>(m, 0));   // n x m 全 0
+\`\`\`
+
+## 8.2 走訪
+\`\`\`cpp
+for (int i = 0; i < n; i++)
+    for (int j = 0; j < m; j++)
+        cout << g[i][j] << " ";
+\`\`\`
+
+## 8.3 常見模式：棋盤格
+\`\`\`cpp
+for (int i = 0; i < n; i++)
+    for (int j = 0; j < n; j++)
+        g[i][j] = (i + j) % 2;
+\`\`\`
+
+> **vs Python**：Python 的 \`[[0]*m for _ in range(n)]\` 對應 C++ 的 \`vector<vector<int>>(n, vector<int>(m, 0))\`。
+`,
+c:`
+# 第 8 章：二維陣列 (C)
+
+## 8.1 宣告
+\`\`\`c
+int g[5][5] = {0};
+int g[3][3] = {{1,2,3},{4,5,6},{7,8,9}};
+\`\`\`
+
+## 8.2 走訪
+\`\`\`c
+for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++)
+        printf("%d ", g[i][j]);
+    printf("\\n");
+}
+\`\`\`
+
+## 8.3 動態二維陣列
+要兩階段 malloc：
+
+\`\`\`c
+int** g = malloc(n * sizeof(int*));
+for (int i = 0; i < n; i++) g[i] = malloc(m * sizeof(int));
+\`\`\`
+
+> **記憶體配置**：C 的二維陣列 \`g[i][j]\` 是連續記憶體（一塊大的），\`g[i]\` 偏移 \`i * m\` 個元素。
+`,
+java:`
+# 第 8 章：二維陣列 (Java)
+
+## 8.1 宣告
+\`\`\`java
+int[][] g = new int[5][5];           // 全 0
+int[][] m = {{1,2,3},{4,5,6}};       // 直接給
+g.length;                            // 列數
+g[0].length;                         // 行數
+\`\`\`
+
+## 8.2 走訪
+\`\`\`java
+for (int i = 0; i < g.length; i++)
+    for (int j = 0; j < g[i].length; j++)
+        System.out.print(g[i][j] + " ");
+\`\`\`
+
+## 8.3 鋸齒陣列（每列長度不同）
+\`\`\`java
+int[][] g = new int[3][];
+g[0] = new int[]{1};
+g[1] = new int[]{1, 2};
+g[2] = new int[]{1, 2, 3};
+\`\`\`
+
+> **印整個陣列**：\`Arrays.deepToString(g)\` 直接印出二維陣列內容，除錯方便。
+`
+},
+9:{
+cpp:`
+# 第 9 章：函式 (C++)
+
+## 9.1 基本格式
+\`\`\`cpp
+回傳型別 函式名(參數型別 參數名, ...) {
+    // 內容
+    return 值;
+}
+
+int add(int a, int b) {
+    return a + b;
+}
+\`\`\`
+
+## 9.2 沒回傳值用 void
+\`\`\`cpp
+void greet(string name) {
+    cout << "Hello " << name;
+}
+\`\`\`
+
+## 9.3 例：判斷質數
+\`\`\`cpp
+bool isPrime(int n) {
+    if (n < 2) return false;
+    for (int i = 2; i*i <= n; i++)
+        if (n % i == 0) return false;
+    return true;
+}
+\`\`\`
+
+## 9.4 傳參考（不複製）
+\`\`\`cpp
+void swap(int& a, int& b) {   // & 表示參考
+    int t = a; a = b; b = t;
+}
+\`\`\`
+
+> **預設參數**：\`int f(int x, int n = 10)\` — 呼叫時 n 不給就是 10。
+
+> **函式宣告順序**：被呼叫的函式必須先出現，或先在上面寫 prototype \`int add(int, int);\`
+`,
+c:`
+# 第 9 章：函式 (C)
+
+跟 C++ 幾乎一樣，但沒有 reference \`&\`。
+
+## 9.1 基本格式
+\`\`\`c
+int add(int a, int b) {
+    return a + b;
+}
+
+void greet(char* name) {
+    printf("Hello %s\\n", name);
+}
+\`\`\`
+
+## 9.2 例：判斷質數
+\`\`\`c
+int isPrime(int n) {
+    if (n < 2) return 0;
+    for (int i = 2; i*i <= n; i++)
+        if (n % i == 0) return 0;
+    return 1;
+}
+\`\`\`
+
+## 9.3 想改傳入的變數要用指標
+\`\`\`c
+void swap(int* a, int* b) {
+    int t = *a; *a = *b; *b = t;
+}
+// 呼叫：swap(&x, &y);
+\`\`\`
+
+> **遞迴**：跟 Python 寫法一樣，C 也支援。
+`,
+java:`
+# 第 9 章：方法（Java 稱 method） (Java)
+
+## 9.1 基本格式
+方法要在 class 裡，APCS 都加 static：
+
+\`\`\`java
+static int add(int a, int b) {
+    return a + b;
+}
+static void greet(String name) {
+    System.out.println("Hello " + name);
+}
+public static void main(String[] args) {
+    System.out.println(add(3, 5));
+}
+\`\`\`
+
+## 9.2 例：質數
+\`\`\`java
+static boolean isPrime(int n) {
+    if (n < 2) return false;
+    for (int i = 2; i*i <= n; i++)
+        if (n % i == 0) return false;
+    return true;
+}
+\`\`\`
+
+## 9.3 傳陣列會傳參考
+Java 物件（含陣列）傳入方法後可以直接改：
+
+\`\`\`java
+static void doubleAll(int[] a) {
+    for (int i = 0; i < a.length; i++) a[i] *= 2;
+}
+\`\`\`
+
+> **為什麼 static？** main 是 static，static 方法只能直接呼叫 static 方法。
+`
+},
+10:{
+cpp:`
+# 第 10 章：map 與 set (C++)
+
+## 10.1 map（鍵→值）
+\`\`\`cpp
+#include <map>
+map<string, int> cnt;
+cnt["apple"] = 3;
+cnt["banana"]++;          // 自動補 0 再加 1
+
+if (cnt.count("apple")) ...   // 是否有此 key
+cnt.size();                   // 不同 key 數
+
+for (auto& p : cnt)
+    cout << p.first << " " << p.second << "\\n";
+\`\`\`
+
+## 10.2 unordered_map（hash 表，更快）
+\`\`\`cpp
+#include <unordered_map>
+unordered_map<string, int> h;
+\`\`\`
+
+差別：
+- \`map\` 用紅黑樹 O(log n)，自動按 key 排序
+- \`unordered_map\` 用 hash O(1) 但無序
+
+## 10.3 set / unordered_set
+\`\`\`cpp
+set<int> s;
+s.insert(5);
+if (s.count(5)) ...        // 是否存在
+\`\`\`
+
+> **字頻統計**：
+> \`\`\`cpp
+> map<string, int> freq;
+> string w;
+> while (cin >> w) freq[w]++;
+> \`\`\`
+`,
+c:`
+# 第 10 章：簡易字典/集合 (C)
+
+**C 沒有內建 dict 或 set**！要自己實作或用「平行陣列」近似。
+
+## 10.1 平行陣列做字頻
+\`\`\`c
+char keys[100][32];   // 100 個字，每個最多 31 字元
+int vals[100] = {0};
+int k = 0;             // 目前有幾個不同 key
+
+// 加入或計數
+char w[32]; /* 讀進來的字 */
+int found = 0;
+for (int j = 0; j < k; j++)
+    if (strcmp(keys[j], w) == 0) { vals[j]++; found = 1; break; }
+if (!found) { strcpy(keys[k], w); vals[k] = 1; k++; }
+\`\`\`
+
+## 10.2 簡易 set（只記出現過）
+跟上面類似，只是不記次數。
+
+## 10.3 進階：自己寫 hash table
+APCS 不會考，但若想學可看 CS50 課程。
+
+> **替代方案**：
+> - 如果 key 是「數字 0~10⁶」，直接用陣列當作 hash：\`int cnt[1000001] = {0}; cnt[x]++;\`
+> - 這招超快、超簡單，APCS 很常用。
+`,
+java:`
+# 第 10 章：HashMap 與 HashSet (Java)
+
+## 10.1 HashMap
+\`\`\`java
+import java.util.*;
+HashMap<String, Integer> cnt = new HashMap<>();
+cnt.put("apple", 3);
+cnt.getOrDefault("banana", 0);    // 沒有就回 0
+cnt.containsKey("apple");
+cnt.merge("apple", 1, Integer::sum);  // 自動 +1
+cnt.size();
+
+for (Map.Entry<String, Integer> e : cnt.entrySet())
+    System.out.println(e.getKey() + " " + e.getValue());
+\`\`\`
+
+## 10.2 HashSet
+\`\`\`java
+HashSet<Integer> s = new HashSet<>();
+s.add(5);
+s.contains(5);
+s.size();
+\`\`\`
+
+## 10.3 TreeMap / TreeSet（有序版）
+跟 C++ 的 map/set 相同，自動按 key 排序，O(log n)。
+
+> **字頻範例**：
+> \`\`\`java
+> for (String w : text.split(" "))
+>     cnt.merge(w, 1, Integer::sum);
+> \`\`\`
+`
+},
+11:{
+cpp:`
+# 第 11 章：演算法基礎 (C++)
+
+## 11.1 二分搜尋
+\`\`\`cpp
+#include <algorithm>
+vector<int> a = {1, 3, 5, 7, 9};
+sort(a.begin(), a.end());
+
+bool found = binary_search(a.begin(), a.end(), 5);
+auto it = lower_bound(a.begin(), a.end(), 5);  // 第一個 >= 5
+int idx = it - a.begin();                       // 位置
+\`\`\`
+
+## 11.2 前綴和
+\`\`\`cpp
+vector<int> ps(n+1, 0);
+for (int i = 0; i < n; i++) ps[i+1] = ps[i] + a[i];
+// 區間 [l, r] 總和 = ps[r+1] - ps[l]
+\`\`\`
+
+## 11.3 質數篩（Sieve of Eratosthenes）
+\`\`\`cpp
+vector<bool> is_p(n+1, true);
+is_p[0] = is_p[1] = false;
+for (int i = 2; i*i <= n; i++)
+    if (is_p[i])
+        for (int j = i*i; j <= n; j += i) is_p[j] = false;
+\`\`\`
+
+## 11.4 GCD
+\`\`\`cpp
+#include <numeric>
+int g = gcd(12, 18);     // C++17
+// 或自己寫:
+int gcd(int a, int b) { return b == 0 ? a : gcd(b, a%b); }
+\`\`\`
+`,
+c:`
+# 第 11 章：演算法基礎 (C)
+
+## 11.1 二分搜尋
+\`\`\`c
+int* p = bsearch(&key, arr, n, sizeof(int), cmp);
+// 找不到回 NULL，找到回指標
+\`\`\`
+
+或自己寫：
+\`\`\`c
+int lo = 0, hi = n - 1;
+while (lo <= hi) {
+    int m = (lo + hi) / 2;
+    if (a[m] == key) return m;
+    if (a[m] < key) lo = m + 1;
+    else hi = m - 1;
+}
+\`\`\`
+
+## 11.2 前綴和
+\`\`\`c
+int ps[N+1] = {0};
+for (int i = 0; i < n; i++) ps[i+1] = ps[i] + a[i];
+// a[l..r] 和 = ps[r+1] - ps[l]
+\`\`\`
+
+## 11.3 質數篩
+\`\`\`c
+int is_p[N+1];
+for (int i = 0; i <= N; i++) is_p[i] = 1;
+is_p[0] = is_p[1] = 0;
+for (int i = 2; i*i <= N; i++)
+    if (is_p[i])
+        for (int j = i*i; j <= N; j += i) is_p[j] = 0;
+\`\`\`
+
+## 11.4 GCD
+\`\`\`c
+int gcd(int a, int b) { return b == 0 ? a : gcd(b, a%b); }
+\`\`\`
+`,
+java:`
+# 第 11 章：演算法基礎 (Java)
+
+## 11.1 二分搜尋
+\`\`\`java
+int[] a = {1, 3, 5, 7, 9};
+Arrays.sort(a);
+int idx = Arrays.binarySearch(a, 5);   // 找到回 index，找不到回負值
+\`\`\`
+
+## 11.2 前綴和
+\`\`\`java
+int[] ps = new int[n+1];
+for (int i = 0; i < n; i++) ps[i+1] = ps[i] + a[i];
+\`\`\`
+
+## 11.3 質數篩
+\`\`\`java
+boolean[] isP = new boolean[N+1];
+Arrays.fill(isP, true);
+isP[0] = isP[1] = false;
+for (int i = 2; i*i <= N; i++)
+    if (isP[i])
+        for (int j = i*i; j <= N; j += i) isP[j] = false;
+\`\`\`
+
+## 11.4 GCD
+\`\`\`java
+static int gcd(int a, int b) { return b == 0 ? a : gcd(b, a%b); }
+\`\`\`
+`
+},
+12:{
+cpp:`
+# 第 12 章：巢狀迴圈 (C++)
+
+## 12.1 模式：外固定、內變動
+\`\`\`cpp
+for (int i = 0; i < n; i++) {       // 外
+    for (int j = 0; j < n; j++) {    // 內
+        // 對每組 (i, j) 做事
+    }
+}
+\`\`\`
+總共執行 \`n × n = n²\` 次。
+
+## 12.2 巴斯卡三角形
+\`\`\`cpp
+int g[10][10] = {0};
+for (int i = 0; i < n; i++) {
+    g[i][0] = 1;
+    g[i][i] = 1;
+}
+for (int i = 2; i < n; i++)
+    for (int j = 1; j < i; j++)
+        g[i][j] = g[i-1][j-1] + g[i-1][j];
+\`\`\`
+
+## 12.3 提早離開最內層
+\`\`\`cpp
+for (int i = 0; i < n; i++) {
+    for (int j = 0; j < n; j++) {
+        if (g[i][j] == target) { found = true; break; }
+    }
+    if (found) break;   // 再 break 一次跳外層
+}
+\`\`\`
+
+> **複雜度警示**：三層巢狀 \`n=100\` 已是 10⁶ 次，APCS 一秒約跑 10⁸，估算好範圍。
+`,
+c:`
+# 第 12 章：巢狀迴圈 (C)
+
+跟 C++ 完全相同。
+
+## 12.1 雙層 for
+\`\`\`c
+for (int i = 0; i < n; i++)
+    for (int j = 0; j < n; j++)
+        // do something with (i, j)
+\`\`\`
+
+## 12.2 巴斯卡三角形
+\`\`\`c
+int g[10][10] = {0};
+for (int i = 0; i < n; i++) { g[i][0] = 1; g[i][i] = 1; }
+for (int i = 2; i < n; i++)
+    for (int j = 1; j < i; j++)
+        g[i][j] = g[i-1][j-1] + g[i-1][j];
+\`\`\`
+
+## 12.3 跳出多層
+C 可用 goto（不推薦但可行）：
+
+\`\`\`c
+for (...) {
+    for (...) {
+        if (cond) goto done;
+    }
+}
+done:
+\`\`\`
+
+或用 flag 變數。
+`,
+java:`
+# 第 12 章：巢狀迴圈 (Java)
+
+## 12.1 雙層 for
+\`\`\`java
+for (int i = 0; i < n; i++)
+    for (int j = 0; j < n; j++)
+        // ...
+\`\`\`
+
+## 12.2 巴斯卡三角形
+\`\`\`java
+int[][] g = new int[n][n];
+for (int i = 0; i < n; i++) { g[i][0] = 1; g[i][i] = 1; }
+for (int i = 2; i < n; i++)
+    for (int j = 1; j < i; j++)
+        g[i][j] = g[i-1][j-1] + g[i-1][j];
+\`\`\`
+
+## 12.3 帶標籤的 break（跳多層）
+Java 特色：
+
+\`\`\`java
+outer:
+for (int i = 0; i < n; i++) {
+    for (int j = 0; j < n; j++) {
+        if (g[i][j] == target) break outer;
+    }
+}
+\`\`\`
+`
+},
+13:{
+cpp:`
+# 第 13 章：STL Algorithm 進階 (C++)
+
+C++ 沒有 list comprehension，但有強大的 \`<algorithm>\` 庫。
+
+## 13.1 transform（對應 map）
+\`\`\`cpp
+vector<int> a = {1, 2, 3};
+vector<int> b(a.size());
+transform(a.begin(), a.end(), b.begin(), [](int x){ return x*x; });
+// b = {1, 4, 9}
+\`\`\`
+
+## 13.2 copy_if（對應 filter）
+\`\`\`cpp
+vector<int> evens;
+copy_if(a.begin(), a.end(), back_inserter(evens),
+        [](int x){ return x % 2 == 0; });
+\`\`\`
+
+## 13.3 accumulate（reduce）
+\`\`\`cpp
+int sum_sq = accumulate(a.begin(), a.end(), 0,
+                        [](int s, int x){ return s + x*x; });
+\`\`\`
+
+## 13.4 lambda 語法
+\`[捕獲](參數){ 內容 }\`
+
+\`\`\`cpp
+auto f = [](int x){ return x * 2; };
+f(5);    // 10
+\`\`\`
+`,
+c:`
+# 第 13 章：迴圈模式 (C)
+
+C **完全沒有** list comprehension / lambda / STL，全部用迴圈。
+
+## 13.1 篩選 + 轉換
+\`\`\`c
+int result[100], cnt = 0;
+for (int i = 0; i < n; i++) {
+    if (a[i] % 2 == 0) {              // 篩
+        result[cnt++] = a[i] * a[i];  // 轉換並存
+    }
+}
+\`\`\`
+
+## 13.2 求和帶條件
+\`\`\`c
+int sum = 0;
+for (int i = 0; i < n; i++)
+    if (a[i] > 0) sum += a[i];
+\`\`\`
+
+## 13.3 找最大
+\`\`\`c
+int mx = a[0], idx = 0;
+for (int i = 1; i < n; i++)
+    if (a[i] > mx) { mx = a[i]; idx = i; }
+\`\`\`
+
+> **C 的哲學**：清楚、直接，所有操作都看得到。雖然啰嗦但容易除錯。
+`,
+java:`
+# 第 13 章：Stream API (Java)
+
+Java 8+ 的 Stream API 很像 Python 的 list comprehension。
+
+## 13.1 map / filter / collect
+\`\`\`java
+import java.util.stream.*;
+int[] a = {1, 2, 3, 4, 5};
+int[] sq = Arrays.stream(a).map(x -> x*x).toArray();
+int[] even = Arrays.stream(a).filter(x -> x % 2 == 0).toArray();
+\`\`\`
+
+## 13.2 reduce / sum
+\`\`\`java
+int sum = Arrays.stream(a).sum();
+int sumSq = Arrays.stream(a).map(x -> x*x).sum();
+\`\`\`
+
+## 13.3 List 版
+\`\`\`java
+List<Integer> nums = Arrays.asList(1, 2, 3, 4, 5);
+List<Integer> doubled = nums.stream()
+    .map(x -> x * 2)
+    .collect(Collectors.toList());
+\`\`\`
+
+> **APCS 實戰**：Stream 很慢，比賽用普通 for 迴圈即可，Stream 只在程式碼簡潔需求高時用。
+`
+},
+14:{
+cpp:`
+# 第 14 章：排序進階 (C++)
+
+## 14.1 自訂比較函式
+\`\`\`cpp
+struct Student { string name; int score, age; };
+vector<Student> v;
+
+sort(v.begin(), v.end(), [](const Student& a, const Student& b){
+    if (a.score != b.score) return a.score > b.score;   // 分數降冪
+    return a.age < b.age;                                // 年齡升冪
+});
+\`\`\`
+
+## 14.2 pair 排序（預設按 first，再 second）
+\`\`\`cpp
+vector<pair<int, int>> v = {{3, 1}, {1, 2}, {3, 0}};
+sort(v.begin(), v.end());
+// 結果: (1,2), (3,0), (3,1)
+\`\`\`
+
+## 14.3 降冪一招
+\`\`\`cpp
+sort(v.begin(), v.end(), greater<int>());
+\`\`\`
+
+## 14.4 部分排序
+\`\`\`cpp
+partial_sort(v.begin(), v.begin()+3, v.end());   // 前 3 名排好
+nth_element(v.begin(), v.begin()+k, v.end());    // 找第 k 名
+\`\`\`
+`,
+c:`
+# 第 14 章：qsort 進階 (C)
+
+## 14.1 自訂 cmp
+\`\`\`c
+typedef struct { char name[20]; int score, age; } S;
+
+int cmp(const void* a, const void* b) {
+    const S* x = a; const S* y = b;
+    if (x->score != y->score) return y->score - x->score;  // 分數降冪
+    return x->age - y->age;                                 // 年齡升冪
+}
+
+S arr[100];
+qsort(arr, n, sizeof(S), cmp);
+\`\`\`
+
+## 14.2 cmp 回傳值的含意
+- 回傳 **負數**：a 排在 b **前面**
+- 回傳 **正數**：a 排在 b **後面**
+- 回傳 **0**：順序不變
+
+## 14.3 注意：用減法可能溢位
+\`\`\`c
+// 危險：a - b 可能溢位
+int cmp(const void* a, const void* b) {
+    return *(int*)a - *(int*)b;  // 兩個都是大負數時會錯
+}
+
+// 安全寫法
+int cmp(const void* a, const void* b) {
+    int x = *(int*)a, y = *(int*)b;
+    return (x > y) - (x < y);
+}
+\`\`\`
+`,
+java:`
+# 第 14 章：排序進階 (Java)
+
+## 14.1 Comparator with lambda
+\`\`\`java
+int[][] students = {{0,85,17},{1,92,16},{2,85,18}};
+
+Arrays.sort(students, (a, b) -> {
+    if (a[1] != b[1]) return b[1] - a[1];  // 分數降冪
+    return a[2] - b[2];                     // 年齡升冪
+});
+\`\`\`
+
+## 14.2 List 排序
+\`\`\`java
+List<Student> list = new ArrayList<>();
+list.sort(Comparator.comparingInt((Student s) -> -s.score)
+                    .thenComparingInt(s -> s.age));
+\`\`\`
+
+## 14.3 字串排序
+\`\`\`java
+String[] names = {"Bob", "Alice", "Cara"};
+Arrays.sort(names);                          // 字典序
+Arrays.sort(names, Comparator.reverseOrder()); // 反向
+\`\`\`
+
+> **常見錯誤**：對 int[][] 的排序要用 \`Arrays.sort(arr, comparator)\`；對基本型別陣列如 \`int[]\` **不能**指定 Comparator！要先轉成 \`Integer[]\`。
+`
+},
+15:{
+cpp:`
+# 第 15 章：遞迴入門 (C++)
+
+## 15.1 階乘
+\`\`\`cpp
+int fact(int n) {
+    if (n <= 1) return 1;          // base case
+    return n * fact(n - 1);        // recurse
+}
+\`\`\`
+
+## 15.2 費氏數列
+\`\`\`cpp
+int fib(int n) {
+    if (n <= 1) return n;
+    return fib(n-1) + fib(n-2);
+}
+// 注意：fib(40) 已經很慢，要記憶化
+\`\`\`
+
+## 15.3 N 皇后回溯
+\`\`\`cpp
+int N, cnt;
+void solve(int row, int cols, int d1, int d2) {
+    if (row == N) { cnt++; return; }
+    for (int c = 0; c < N; c++) {
+        int cb = 1 << c, d1b = 1 << (row-c+N), d2b = 1 << (row+c);
+        if (cols & cb || d1 & d1b || d2 & d2b) continue;
+        solve(row+1, cols|cb, d1|d1b, d2|d2b);
+    }
+}
+\`\`\`
+
+> **遞迴深度限制**：預設約 1MB 堆疊，太深會 stack overflow，深度 > 10⁵ 改迭代。
+`,
+c:`
+# 第 15 章：遞迴入門 (C)
+
+跟 C++ 寫法完全相同。
+
+## 15.1 階乘
+\`\`\`c
+int fact(int n) {
+    if (n <= 1) return 1;
+    return n * fact(n - 1);
+}
+\`\`\`
+
+## 15.2 費氏
+\`\`\`c
+int fib(int n) {
+    if (n <= 1) return n;
+    return fib(n-1) + fib(n-2);
+}
+\`\`\`
+
+## 15.3 漢諾塔
+\`\`\`c
+void hanoi(int n, char from, char to, char via) {
+    if (n == 1) { printf("%c -> %c\\n", from, to); return; }
+    hanoi(n-1, from, via, to);
+    printf("%c -> %c\\n", from, to);
+    hanoi(n-1, via, to, from);
+}
+\`\`\`
+
+> **遞迴的核心**：
+> 1. 終止條件（base case）
+> 2. 縮小問題後呼叫自己
+> 3. 合併子結果
+`,
+java:`
+# 第 15 章：遞迴入門 (Java)
+
+## 15.1 階乘
+\`\`\`java
+static int fact(int n) {
+    if (n <= 1) return 1;
+    return n * fact(n - 1);
+}
+\`\`\`
+
+## 15.2 費氏（記憶化版）
+\`\`\`java
+static int[] memo = new int[100];
+static int fib(int n) {
+    if (n <= 1) return n;
+    if (memo[n] != 0) return memo[n];
+    return memo[n] = fib(n-1) + fib(n-2);
+}
+\`\`\`
+
+## 15.3 N 皇后
+\`\`\`java
+static int N, cnt;
+static void solve(int row, int cols, int d1, int d2) {
+    if (row == N) { cnt++; return; }
+    for (int c = 0; c < N; c++) {
+        int cb = 1 << c, d1b = 1 << (row-c+N), d2b = 1 << (row+c);
+        if ((cols & cb) != 0 || (d1 & d1b) != 0 || (d2 & d2b) != 0) continue;
+        solve(row+1, cols|cb, d1|d1b, d2|d2b);
+    }
+}
+\`\`\`
+
+> **Java 遞迴深度**：預設 JVM 堆疊 512KB，約 10000 層。
+`
+},
+16:{
+cpp:`
+# 第 16 章：枚舉題型 (C++)
+
+## 16.1 位元遮罩枚舉所有子集
+\`\`\`cpp
+int n = 5;
+for (int mask = 0; mask < (1 << n); mask++) {
+    for (int i = 0; i < n; i++) {
+        if (mask & (1 << i)) {
+            // i 在這個子集裡
+        }
+    }
+}
+\`\`\`
+
+## 16.2 排列枚舉
+\`\`\`cpp
+vector<int> v = {1, 2, 3};
+do {
+    for (int x : v) cout << x << " ";
+    cout << "\\n";
+} while (next_permutation(v.begin(), v.end()));
+\`\`\`
+
+## 16.3 雙層巢狀枚舉所有 pair
+\`\`\`cpp
+for (int i = 0; i < n; i++)
+    for (int j = i+1; j < n; j++)
+        // (a[i], a[j])
+\`\`\`
+
+> **枚舉適用範圍**：
+> - 子集：n ≤ 20（2²⁰ ≈ 100 萬）
+> - 排列：n ≤ 8（8! = 40320）
+> - Pair：n ≤ 10⁴（n² = 10⁸）
+`,
+c:`
+# 第 16 章：枚舉題型 (C)
+
+## 16.1 位元枚舉子集
+\`\`\`c
+for (int mask = 0; mask < (1 << n); mask++) {
+    int sum = 0;
+    for (int i = 0; i < n; i++)
+        if (mask & (1 << i)) sum += a[i];
+    if (sum == target) {
+        // 找到一組
+    }
+}
+\`\`\`
+
+## 16.2 位元運算口訣
+- \`1 << i\` — 只有第 i 位為 1
+- \`mask & (1 << i)\` — 檢查第 i 位
+- \`mask | (1 << i)\` — 把第 i 位設為 1
+- \`mask ^ (1 << i)\` — 翻轉第 i 位
+- \`__builtin_popcount(mask)\` — 算 1 的個數（GCC）
+
+## 16.3 雙層枚舉
+\`\`\`c
+for (int i = 0; i < n; i++)
+    for (int j = i+1; j < n; j++)
+        if (a[i] + a[j] == target) cnt++;
+\`\`\`
+`,
+java:`
+# 第 16 章：枚舉題型 (Java)
+
+## 16.1 位元枚舉子集
+\`\`\`java
+int n = 5;
+for (int mask = 0; mask < (1 << n); mask++) {
+    int sum = 0;
+    for (int i = 0; i < n; i++) {
+        if ((mask & (1 << i)) != 0) sum += nums[i];
+    }
+    if (sum == target) /* 找到 */;
+}
+\`\`\`
+
+> **Java 陷阱**：\`mask & (1 << i)\` 結果不是 boolean！必須寫 \`!= 0\`：
+> \`if ((mask & (1 << i)) != 0)\` 不能寫 \`if (mask & (1 << i))\`
+
+## 16.2 算 1 的個數
+\`Integer.bitCount(mask)\` 直接給你 mask 二進位中 1 的個數。
+
+## 16.3 雙層枚舉
+\`\`\`java
+for (int i = 0; i < n; i++)
+    for (int j = i+1; j < n; j++)
+        if (a[i] + a[j] == target) cnt++;
+\`\`\`
+`
+},
+17:{
+cpp:`
+# 第 17 章：進階資料結構 (C++)
+
+## 17.1 deque（雙端佇列）
+\`\`\`cpp
+#include <deque>
+deque<int> dq;
+dq.push_back(1);   dq.push_front(0);
+dq.pop_back();     dq.pop_front();
+dq.front();        dq.back();
+\`\`\`
+
+## 17.2 priority_queue（堆）
+\`\`\`cpp
+#include <queue>
+priority_queue<int> maxH;             // 預設最大堆
+priority_queue<int, vector<int>, greater<int>> minH;  // 最小堆
+maxH.push(5);
+maxH.top();   // 看最大
+maxH.pop();   // 移除最大
+\`\`\`
+
+## 17.3 stack
+\`\`\`cpp
+stack<int> stk;
+stk.push(5);  stk.top();  stk.pop();
+\`\`\`
+
+## 17.4 queue
+\`\`\`cpp
+queue<int> q;
+q.push(5);  q.front();  q.pop();
+\`\`\`
+
+> **適用場景**：
+> - BFS 用 queue
+> - DFS / 括號配對用 stack
+> - Top-K / Dijkstra 用 priority_queue
+`,
+c:`
+# 第 17 章：進階資料結構 (C)
+
+C 沒有原生堆/佇列，要自己實作或用陣列模擬。
+
+## 17.1 用陣列模擬 stack
+\`\`\`c
+int stk[1000], top = 0;
+stk[top++] = x;       // push
+int v = stk[--top];   // pop
+int peek = stk[top-1]; // peek
+\`\`\`
+
+## 17.2 用陣列模擬 queue（循環）
+\`\`\`c
+int q[1000], head = 0, tail = 0;
+q[tail++] = x;        // enqueue
+int v = q[head++];    // dequeue
+int size = tail - head;
+\`\`\`
+
+## 17.3 取前 K 大 / 小（用 sort）
+\`\`\`c
+qsort(a, n, sizeof(int), cmp);
+// 前 K 小：a[0..K-1]
+// 前 K 大：a[n-K..n-1]
+\`\`\`
+
+> **APCS 替代法**：資料量小的話直接 sort + 切片就解決，不用自己寫 heap。
+`,
+java:`
+# 第 17 章：進階資料結構 (Java)
+
+## 17.1 Deque（兩端都可）
+\`\`\`java
+Deque<Integer> dq = new ArrayDeque<>();
+dq.offerLast(1);   dq.offerFirst(0);
+dq.pollLast();     dq.pollFirst();
+dq.peekFirst();
+\`\`\`
+
+## 17.2 PriorityQueue（預設最小堆）
+\`\`\`java
+PriorityQueue<Integer> minH = new PriorityQueue<>();
+PriorityQueue<Integer> maxH = new PriorityQueue<>(Comparator.reverseOrder());
+minH.offer(5);
+minH.peek();   // 最小
+minH.poll();   // 移除最小
+\`\`\`
+
+## 17.3 Stack / Queue
+\`\`\`java
+Deque<Integer> stk = new ArrayDeque<>();
+stk.push(5);  stk.peek();  stk.pop();
+
+Queue<Integer> q = new LinkedList<>();
+q.offer(5);  q.peek();  q.poll();
+\`\`\`
+
+> **Java 提示**：不要用古老的 \`Stack\` class！用 \`ArrayDeque\` 當 stack，速度快很多。
+`
+},
+18:{
+cpp:`
+# 第 18 章：常見錯誤與除錯 (C++)
+
+## 18.1 整數溢位
+\`\`\`cpp
+int n = 100000;
+int s = n * n;         // 10¹⁰ 超出 int 上限！
+long long s = (long long)n * n;   // 對
+\`\`\`
+
+## 18.2 陣列越界（segmentation fault）
+\`\`\`cpp
+int a[10];
+a[10] = 5;             // 越界！未定義行為
+for (int i = 0; i <= n; i++) ...   // 通常該 < n
+\`\`\`
+
+## 18.3 未初始化變數
+\`\`\`cpp
+int sum;               // 內含垃圾值！
+sum += a[i];           // 結果亂掉
+int sum = 0;           // 對
+\`\`\`
+
+## 18.4 vector 越界用 .at()
+開發時用 \`v.at(i)\` 代替 \`v[i]\`，越界會丟例外而不是 crash。
+
+## 18.5 除錯三招
+1. 把中間結果 \`cout\` 出來
+2. 用小輸入手算驗證
+3. 用 \`assert(condition)\` 卡住預期不該發生的狀態
+`,
+c:`
+# 第 18 章：常見錯誤與除錯 (C)
+
+## 18.1 scanf 忘記 &
+\`\`\`c
+int n;
+scanf("%d", n);    // ❌ 會 crash
+scanf("%d", &n);   // ✅
+\`\`\`
+
+## 18.2 字串緩衝區不夠大
+\`\`\`c
+char s[10];
+strcpy(s, "Hello, world!");   // ❌ 12 個字元，溢位
+char s[100];                   // ✅ 留多一點
+\`\`\`
+
+## 18.3 整數溢位
+\`\`\`c
+int n = 100000;
+long long s = (long long)n * n;   // 要先轉型
+\`\`\`
+
+## 18.4 未初始化變數
+\`\`\`c
+int sum = 0;     // 一定要給初值
+int arr[100] = {0};   // 陣列也要
+\`\`\`
+
+## 18.5 記憶體洩漏
+\`\`\`c
+int* p = malloc(n * sizeof(int));
+// ... 用完
+free(p);         // 不釋放會洩漏
+\`\`\`
+
+> **常見錯誤訊息**：
+> - Segmentation fault → 通常陣列越界或空指標
+> - Stack smashing → 局部陣列溢位
+`,
+java:`
+# 第 18 章：常見錯誤與除錯 (Java)
+
+## 18.1 NullPointerException
+\`\`\`java
+String s = null;
+s.length();             // ❌ NPE
+if (s != null) s.length();
+\`\`\`
+
+## 18.2 ArrayIndexOutOfBoundsException
+\`\`\`java
+int[] a = new int[10];
+a[10] = 5;              // ❌ 索引 0~9
+for (int i = 0; i <= n; i++) ...   // 通常該 < n
+\`\`\`
+
+## 18.3 字串比較用錯
+\`\`\`java
+String a = "abc", b = "abc";
+if (a == b) ...         // ❌ 比的是位址
+if (a.equals(b)) ...    // ✅ 比內容
+\`\`\`
+
+## 18.4 整數溢位
+\`\`\`java
+int n = 100000;
+long s = (long)n * n;   // 要先轉
+\`\`\`
+
+## 18.5 除錯
+\`\`\`java
+System.out.println("debug: i=" + i + " val=" + val);
+assert val > 0 : "val must be positive";
+\`\`\`
+`
+},
+19:{
+cpp:`
+# 第 19 章：綜合練習 — Kadane (C++)
+
+## 19.1 最大連續子陣列和
+\`\`\`cpp
+vector<int> a = {-2, 1, -3, 4, -1, 2, 1, -5, 4};
+int cur = a[0], best = a[0];
+for (size_t i = 1; i < a.size(); i++) {
+    cur = max((int)a[i], cur + a[i]);  // 重啟 or 延續
+    best = max(best, cur);
+}
+cout << best;   // 6 (from [4,-1,2,1])
+\`\`\`
+
+## 19.2 帶位置記錄
+\`\`\`cpp
+int cur = a[0], best = a[0];
+int l = 0, r = 0, tmpL = 0;
+for (int i = 1; i < n; i++) {
+    if (a[i] > cur + a[i]) { cur = a[i]; tmpL = i; }
+    else cur += a[i];
+    if (cur > best) { best = cur; l = tmpL; r = i; }
+}
+\`\`\`
+
+## 19.3 變形：環狀最大和
+\`\`\`cpp
+// 答案 = max(普通 Kadane, 總和 - 最小子陣列和)
+\`\`\`
+`,
+c:`
+# 第 19 章：綜合練習 — Kadane (C)
+
+## 19.1 最大連續子陣列和
+\`\`\`c
+int a[] = {-2, 1, -3, 4, -1, 2, 1, -5, 4};
+int n = 9;
+int cur = a[0], best = a[0];
+for (int i = 1; i < n; i++) {
+    cur = (a[i] > cur + a[i]) ? a[i] : cur + a[i];
+    if (cur > best) best = cur;
+}
+printf("%d\\n", best);
+\`\`\`
+
+## 19.2 全負陣列要注意
+題目通常規定「至少選一個」，所以初始 \`cur = best = a[0]\` 而非 0。
+
+## 19.3 時間複雜度
+O(n) — 只跑一次陣列。
+
+> **Kadane 的精神**：每一格決定「從這裡重新開始」還是「延續前面的」。永遠記得目前最佳的 \`best\`。
+`,
+java:`
+# 第 19 章：綜合練習 — Kadane (Java)
+
+## 19.1 最大連續子陣列和
+\`\`\`java
+int[] a = {-2, 1, -3, 4, -1, 2, 1, -5, 4};
+int cur = a[0], best = a[0];
+for (int i = 1; i < a.length; i++) {
+    cur = Math.max(a[i], cur + a[i]);
+    best = Math.max(best, cur);
+}
+System.out.println(best);
+\`\`\`
+
+## 19.2 為什麼這樣對？
+**DP 思路**：\`dp[i]\` = 以 i 結尾的最大連續和。
+- 要嘛只取 \`a[i]\`（前面全丟）
+- 要嘛接上 \`dp[i-1] + a[i]\`
+
+取較大的，然後追蹤全局最大。
+
+## 19.3 變形題
+- 二維 Kadane（最大子矩陣和）— 列上跑 Kadane + 外層枚舉行區間，O(n³)
+- 不超過 K 個元素的最大和 — 滑動視窗
+`
+},
+20:{
+cpp:`
+# 第 20 章：APCS 實戰技巧 (C++)
+
+## 20.1 加速 I/O
+APCS 大資料時務必加：
+\`\`\`cpp
+ios::sync_with_stdio(false);
+cin.tie(0);
+\`\`\`
+
+## 20.2 常用 STL 速查
+| 功能 | STL |
+|------|-----|
+| 動態陣列 | \`vector\` |
+| 排序 | \`sort(v.begin(), v.end())\` |
+| 二分搜 | \`lower_bound\`, \`upper_bound\` |
+| 對映 | \`map\`, \`unordered_map\` |
+| 集合 | \`set\`, \`unordered_set\` |
+| 堆 | \`priority_queue\` |
+| 字串切 | \`stringstream\` |
+
+## 20.3 成績指標範例
+\`\`\`cpp
+int n; cin >> n;
+vector<int> scores(n);
+for (auto& s : scores) cin >> s;
+sort(scores.begin(), scores.end());
+for (int i = 0; i < n; i++) cout << scores[i] << " \\n"[i==n-1];
+int hf = -1, lp = -1;
+for (int s : scores) {
+    if (s < 60) hf = s;
+    else if (lp == -1) lp = s;
+}
+cout << (hf == -1 ? "best case" : to_string(hf)) << "\\n";
+cout << (lp == -1 ? "worst case" : to_string(lp)) << "\\n";
+\`\`\`
+
+> **考前清單**：
+> ✅ \`vector / sort / map\` 熟練
+> ✅ DP / DFS / BFS 基本模板
+> ✅ 邊界條件多想（n=0, n=1, 全相同）
+`,
+c:`
+# 第 20 章：APCS 實戰技巧 (C)
+
+## 20.1 I/O 已經夠快
+scanf/printf 在 C 已是最快，不用特別調。
+
+## 20.2 必備函式速查
+| 功能 | 標頭檔 |
+|------|--------|
+| 排序 | qsort (stdlib.h) |
+| 字串 | strcpy/strlen/strcmp (string.h) |
+| 字元 | isdigit/isalpha (ctype.h) |
+| 數學 | sqrt/pow/abs (math.h，連結 -lm) |
+| 記憶體 | malloc/free (stdlib.h) |
+
+## 20.3 成績指標範例
+\`\`\`c
+int n; scanf("%d", &n);
+int s[1000];
+for (int i = 0; i < n; i++) scanf("%d", &s[i]);
+qsort(s, n, sizeof(int), cmp);
+for (int i = 0; i < n; i++) printf("%d%c", s[i], i==n-1 ? '\\n':' ');
+int hf = -1, lp = -1;
+for (int i = 0; i < n; i++) {
+    if (s[i] < 60) hf = s[i];
+    else if (lp == -1) lp = s[i];
+}
+if (hf == -1) printf("best case\\n"); else printf("%d\\n", hf);
+if (lp == -1) printf("worst case\\n"); else printf("%d\\n", lp);
+\`\`\`
+
+> **考前清單**：
+> ✅ qsort 用 cmp 寫熟
+> ✅ 陣列大小開夠（題目給 10⁵ 就開 100005）
+> ✅ 一律 \`long long\` 防溢位
+`,
+java:`
+# 第 20 章：APCS 實戰技巧 (Java)
+
+## 20.1 加速輸入（重要！）
+Scanner 在大資料下會 TLE：
+\`\`\`java
+BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+int n = Integer.parseInt(br.readLine().trim());
+StringTokenizer st = new StringTokenizer(br.readLine());
+int a = Integer.parseInt(st.nextToken());
+\`\`\`
+
+## 20.2 加速輸出
+\`\`\`java
+StringBuilder sb = new StringBuilder();
+for (...) sb.append(x).append(' ');
+System.out.print(sb);
+\`\`\`
+
+## 20.3 成績指標範例
+\`\`\`java
+Scanner sc = new Scanner(System.in);
+int n = sc.nextInt();
+int[] s = new int[n];
+for (int i = 0; i < n; i++) s[i] = sc.nextInt();
+Arrays.sort(s);
+StringBuilder sb = new StringBuilder();
+for (int i = 0; i < n; i++) {
+    if (i > 0) sb.append(' ');
+    sb.append(s[i]);
+}
+System.out.println(sb);
+int hf = -1, lp = -1;
+for (int x : s) {
+    if (x < 60) hf = x;
+    else if (lp == -1) lp = x;
+}
+System.out.println(hf == -1 ? "best case" : hf);
+System.out.println(lp == -1 ? "worst case" : lp);
+\`\`\`
+
+> **考前清單**：
+> ✅ BufferedReader 寫熟
+> ✅ Arrays.sort / HashMap / ArrayDeque 熟練
+> ✅ 用 \`long\` 防溢位
+`
+}
+};
+
+// 依目前語言取教材內容（Python 用 chap.content；其他用 LANG_CONTENT）
+function getContent(chap){
+  if(currentLang === 'py') return chap.content;
+  const lc = LANG_CONTENT[chap.id];
+  return (lc && lc[currentLang]) || chap.content;
 }
 
 // ── Per-chapter examples for C++ / C / Java ──────────────────────────────────
@@ -2172,20 +4349,31 @@ function renderChapList() {
   });
 }
 
-function selectChap(id) {
+let _prevChapId = null;
+function selectChap(id, opts) {
+  opts = opts || {};
   currentChap = CHAPTERS.find(c => c.id === id);
   if(!currentChap) return;
+  const body = document.getElementById('lesson-body');
+  const prevScroll = body.scrollTop;
   document.querySelectorAll('.chap').forEach(el => el.classList.remove('active'));
   const el = document.getElementById('chap-' + id);
   if(el) el.classList.add('active');
   document.getElementById('lesson-title').textContent = `第 ${currentChap.id} 章：${currentChap.title}`;
   document.getElementById('lesson-tag').textContent = currentChap.tag;
-  document.getElementById('lesson-body').innerHTML = marked.parse(currentChap.content) + renderMeta(currentChap);
-  cm.setValue(getExample(currentChap));
-  document.getElementById('stdin-input').value = getStdin(currentChap);
-  document.getElementById('output-body').textContent = '點擊上方「執行」測試程式';
-  // 滾回頂端
-  document.getElementById('lesson-body').scrollTop = 0;
+  body.innerHTML = marked.parse(getContent(currentChap)) + renderMeta(currentChap);
+  if(!opts.preserveEditor){
+    cm.setValue(getExample(currentChap));
+    document.getElementById('stdin-input').value = getStdin(currentChap);
+    document.getElementById('output-body').textContent = '點擊上方「執行」測試程式';
+  }
+  // 只有切換到新章節才滾回頂端；同章節重繪（例如答完題）保留位置
+  if(_prevChapId === id && !opts.forceTop){
+    body.scrollTop = prevScroll;
+  } else {
+    body.scrollTop = 0;
+  }
+  _prevChapId = id;
 }
 
 function clearEditor() { cm.setValue(''); }
