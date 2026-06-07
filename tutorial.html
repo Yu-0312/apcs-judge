@@ -79,7 +79,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 </head>
 <body>
 <header>
-  <div><div class="logo">📚 APCS 初級 Python 教學</div><div class="sub">12 章 · 互動式範例 · 即時執行</div></div>
+  <div><div class="logo">📚 APCS 初級 Python 教學</div><div class="sub">20 章 · 互動式範例 · 即時執行</div></div>
   <div class="hright">
     <a href="index.html">🎯 前往題庫</a>
     <span><span class="status-dot" id="status-dot"></span><span id="status-text">Pyodide 載入中...</span></span>
@@ -834,8 +834,557 @@ for i in range(len(a)):
 print(f"\\n共 {cnt} 個子陣列總和為 {K}")
 `},
 
-{id:12,title:"APCS 實戰技巧",tag:"進階",content:`
-# 第 12 章：APCS 實戰技巧
+{id:12,title:"巢狀迴圈",tag:"流程",content:`
+# 第 12 章：巢狀迴圈
+
+## 13.1 雙層迴圈
+\`\`\`python
+for i in range(3):
+    for j in range(4):
+        print(f"({i},{j})", end=" ")
+    print()
+\`\`\`
+
+## 13.2 走訪 2D
+\`\`\`python
+g = [[1,2,3],[4,5,6],[7,8,9]]
+for row in g:
+    for x in row:
+        print(x, end=" ")
+    print()
+\`\`\`
+
+## 13.3 雙重迴圈典型題：找對
+
+「在陣列中找 i<j 且 a[i]+a[j]==K」：
+\`\`\`python
+for i in range(n):
+    for j in range(i+1, n):
+        if a[i] + a[j] == K:
+            print(i, j); break
+\`\`\`
+複雜度 O(n²)，n ≤ 5000 還可以。
+
+## 13.4 進階：三角形枚舉
+枚舉三邊 (i<j<k)：
+\`\`\`python
+for i in range(n):
+    for j in range(i+1, n):
+        for k in range(j+1, n):
+            ...
+\`\`\`
+O(n³)，只能用在 n ≤ 200 左右。
+
+## 13.5 試試看
+`,
+example:`# 印帕斯卡三角形
+n = 7
+g = [[1] for _ in range(n)]
+for i in range(1, n):
+    for j in range(1, i):
+        g[i].insert(j, g[i-1][j-1] + g[i-1][j])
+    g[i].append(1)
+
+for i in range(n):
+    print(" " * (n-i), end="")
+    print(' '.join(f"{x:2}" for x in g[i]))
+`},
+
+{id:13,title:"List Comprehension 進階",tag:"資料",content:`
+# 第 13 章：List Comprehension
+
+## 14.1 基本形式
+\`[expr for x in iterable]\`
+
+\`\`\`python
+squares = [x*x for x in range(10)]
+\`\`\`
+
+## 14.2 加條件過濾
+\`\`\`python
+evens = [x for x in range(20) if x % 2 == 0]
+\`\`\`
+
+## 14.3 條件運算式（三元）
+\`\`\`python
+labels = ['偶' if x % 2 == 0 else '奇' for x in range(10)]
+\`\`\`
+
+## 14.4 雙層 list comprehension
+\`\`\`python
+pairs = [(i, j) for i in range(3) for j in range(3) if i != j]
+\`\`\`
+
+## 14.5 攤平 2D
+\`\`\`python
+g = [[1,2,3],[4,5,6]]
+flat = [x for row in g for x in row]  # [1,2,3,4,5,6]
+\`\`\`
+
+## 14.6 字典/集合 comprehension
+\`\`\`python
+sq_dict = {x: x*x for x in range(5)}     # {0:0, 1:1, 2:4, ...}
+uniq = {x % 3 for x in range(10)}        # {0, 1, 2}
+\`\`\`
+
+## 14.7 APCS 應用：讀矩陣
+\`\`\`python
+g = [list(map(int, input().split())) for _ in range(n)]
+\`\`\`
+
+## 14.8 試試看
+`,
+example:`# 找九九乘法表中是質數的位置
+def is_prime(n):
+    if n < 2: return False
+    for i in range(2, int(n**.5)+1):
+        if n%i == 0: return False
+    return True
+
+primes_in_table = [(i, j, i*j) for i in range(2, 10) for j in range(i, 10) if is_prime(i*j)]
+print(f"九九乘法表中是質數的乘積:")
+for i, j, v in primes_in_table:
+    print(f"  {i} x {j} = {v}")
+`},
+
+{id:14,title:"排序進階：key 與 lambda",tag:"資料",content:`
+# 第 14 章：排序進階
+
+## 15.1 自訂 key
+\`sort(key=函式)\` 可以指定「依什麼排序」。
+
+\`\`\`python
+words = ["apple", "kiwi", "banana"]
+words.sort(key=len)
+print(words)   # ['kiwi', 'apple', 'banana']
+\`\`\`
+
+## 15.2 lambda 速成
+匿名函式：\`lambda 參數: 表達式\`
+
+\`\`\`python
+add = lambda a, b: a + b
+print(add(3, 5))   # 8
+\`\`\`
+
+## 15.3 多條件排序
+回傳 tuple，自動依序比較。
+
+\`\`\`python
+students = [("Alice", 90), ("Bob", 85), ("Cara", 90)]
+# 先依分數降冪，分數同則名字升冪
+students.sort(key=lambda x: (-x[1], x[0]))
+\`\`\`
+
+## 15.4 APCS 案例：成績排名
+\`\`\`python
+n = int(input())
+data = []
+for _ in range(n):
+    name, score = input().split()
+    data.append((name, int(score)))
+
+data.sort(key=lambda x: (-x[1], x[0]))
+for i, (name, score) in enumerate(data, 1):
+    print(f"第 {i} 名: {name} {score}")
+\`\`\`
+
+## 15.5 sorted vs sort
+- \`a.sort()\`：原地修改，回傳 None
+- \`sorted(a)\`：回傳新 list，不動原本的
+
+## 15.6 試試看
+`,
+example:`students = [
+    ("Alice", 85, 17),
+    ("Bob", 92, 16),
+    ("Cara", 85, 18),
+    ("Dan", 92, 15),
+]
+
+# 先依分數降冪，分數同依年齡升冪
+students.sort(key=lambda x: (-x[1], x[2]))
+for name, score, age in students:
+    print(f"{name}: 分數={score}, 年齡={age}")
+`},
+
+{id:15,title:"遞迴入門",tag:"進階",content:`
+# 第 15 章：遞迴 (Recursion)
+
+## 16.1 什麼是遞迴？
+函式呼叫自己。所有遞迴都需要：
+1. **基礎情況 (base case)**：能直接答出的最小問題
+2. **遞迴關係**：把問題化簡成更小的同類問題
+
+## 16.2 階乘
+\`\`\`python
+def fact(n):
+    if n <= 1: return 1       # base
+    return n * fact(n-1)      # 遞迴
+\`\`\`
+
+## 16.3 費氏數列
+\`\`\`python
+def fib(n):
+    if n < 2: return n
+    return fib(n-1) + fib(n-2)
+\`\`\`
+> ⚠️ 直接遞迴算 fib(40) 會很慢！要加 memo。
+
+## 16.4 加記憶（memoization）
+\`\`\`python
+from functools import lru_cache
+
+@lru_cache
+def fib(n):
+    if n < 2: return n
+    return fib(n-1) + fib(n-2)
+
+print(fib(100))   # 瞬間
+\`\`\`
+
+## 16.5 河內塔
+\`\`\`python
+def hanoi(n, a, b, c):  # n 個盤從 a 經 b 移到 c
+    if n == 0: return
+    hanoi(n-1, a, c, b)
+    print(f"移盤 {n}: {a} → {c}")
+    hanoi(n-1, b, a, c)
+
+hanoi(3, 'A', 'B', 'C')
+\`\`\`
+
+## 16.6 APCS 高頻：回溯 (Backtracking)
+\`\`\`python
+def perms(arr, path):
+    if not arr:
+        print(path); return
+    for i in range(len(arr)):
+        perms(arr[:i] + arr[i+1:], path + [arr[i]])
+
+perms([1,2,3], [])
+\`\`\`
+
+## 16.7 試試看
+`,
+example:`# 8 皇后計數
+def queens(n):
+    count = [0]
+    def solve(row, cols, d1, d2):
+        if row == n:
+            count[0] += 1
+            return
+        for c in range(n):
+            if c in cols or row-c in d1 or row+c in d2:
+                continue
+            cols.add(c); d1.add(row-c); d2.add(row+c)
+            solve(row+1, cols, d1, d2)
+            cols.remove(c); d1.remove(row-c); d2.remove(row+c)
+    solve(0, set(), set(), set())
+    return count[0]
+
+for n in range(4, 9):
+    print(f"{n} 皇后有 {queens(n)} 種放法")
+`},
+
+{id:16,title:"枚舉題型",tag:"進階",content:`
+# 第 16 章：枚舉與模擬
+
+## 17.1 枚舉是什麼
+當資料量小，直接「**試所有可能**」就能解。APCS 初級超過半數題目可用枚舉。
+
+## 17.2 一維枚舉
+\`\`\`python
+# 找最佳分配
+best = -1
+for x in range(n+1):
+    val = f(x, n-x)
+    if val > best:
+        best = val
+print(best)
+\`\`\`
+
+## 17.3 二維枚舉（雙重 for）
+\`\`\`python
+# 在矩陣中找符合條件的子矩陣
+for i in range(n):
+    for j in range(n):
+        if check(i, j):
+            ...
+\`\`\`
+
+## 17.4 位元枚舉子集合
+n 個物品有 2ⁿ 種子集合。
+
+\`\`\`python
+n = 4
+for mask in range(1 << n):    # 0 ~ 15
+    subset = [i for i in range(n) if mask & (1 << i)]
+    print(subset)
+\`\`\`
+
+## 17.5 模擬題技巧
+**讀清楚規則 → 一步步照做**。
+
+例如：購物車流動、銀行排隊、機器人移動。
+寫程式前先用紙筆模擬一次！
+
+## 17.6 APCS 案例：機器人路徑
+\`\`\`python
+x, y = 0, 0
+dx = {'N': 0, 'S': 0, 'E': 1, 'W': -1}
+dy = {'N': 1, 'S': -1, 'E': 0, 'W': 0}
+
+for c in input():
+    x += dx[c]; y += dy[c]
+
+print(x, y)
+\`\`\`
+
+## 17.7 試試看
+`,
+example:`# 枚舉所有子集合並算和
+nums = [3, 1, 4, 1, 5]
+n = len(nums)
+target = 8
+
+print(f"找總和為 {target} 的子集合:")
+for mask in range(1 << n):
+    subset = [nums[i] for i in range(n) if mask & (1 << i)]
+    if sum(subset) == target:
+        print(f"  {subset}")
+`},
+
+{id:17,title:"進階資料結構",tag:"進階",content:`
+# 第 17 章：進階資料結構
+
+## 18.1 deque（雙端佇列）
+從兩端都能 O(1) push/pop。
+
+\`\`\`python
+from collections import deque
+
+q = deque([1, 2, 3])
+q.append(4)        # [1,2,3,4]
+q.appendleft(0)    # [0,1,2,3,4]
+q.pop()            # 4
+q.popleft()        # 0
+\`\`\`
+
+**用途**：BFS、滑動視窗。
+
+## 18.2 heap（堆）
+取最小值 O(log n)。Python 是「小堆」。
+
+\`\`\`python
+import heapq
+
+h = []
+heapq.heappush(h, 5)
+heapq.heappush(h, 2)
+heapq.heappush(h, 8)
+print(heapq.heappop(h))   # 2 (最小)
+\`\`\`
+
+**用途**：Dijkstra、第 k 小、合併多串。
+
+## 18.3 Counter
+快速計數。
+\`\`\`python
+from collections import Counter
+c = Counter("APCSAPCS")
+print(c.most_common(2))   # [('A',2), ('P',2)]
+\`\`\`
+
+## 18.4 defaultdict
+自動建立預設值。
+\`\`\`python
+from collections import defaultdict
+d = defaultdict(list)
+d["A"].append(1)
+d["A"].append(2)
+print(d["A"])   # [1, 2]
+\`\`\`
+
+## 18.5 BFS 模板
+\`\`\`python
+from collections import deque
+def bfs(start, grid):
+    n, m = len(grid), len(grid[0])
+    q = deque([start])
+    visited = {start}
+    while q:
+        x, y = q.popleft()
+        for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
+            nx, ny = x+dx, y+dy
+            if 0<=nx<n and 0<=ny<m and grid[nx][ny]==0 and (nx,ny) not in visited:
+                visited.add((nx,ny))
+                q.append((nx,ny))
+\`\`\`
+
+## 18.6 試試看
+`,
+example:`# 用 heap 找前 3 大
+import heapq
+nums = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5]
+print("前 3 大:", heapq.nlargest(3, nums))
+print("前 3 小:", heapq.nsmallest(3, nums))
+
+# 用 Counter 找最常出現的字
+from collections import Counter
+s = "the quick brown fox jumps over the lazy dog"
+c = Counter(s.split())
+print("字頻 Top 2:", c.most_common(2))
+`},
+
+{id:18,title:"常見錯誤與除錯",tag:"進階",content:`
+# 第 18 章：常見錯誤與除錯
+
+## 19.1 縮排錯誤 IndentationError
+**Python 用縮排定範圍。不可混用 tab 與空白。**
+建議：永遠用 4 個空白。
+
+## 19.2 名稱錯誤 NameError
+\`\`\`python
+print(x)   # NameError if x not defined
+\`\`\`
+通常是拼錯字或忘了宣告。
+
+## 19.3 型別錯誤 TypeError
+\`\`\`python
+print("年齡:" + 17)   # TypeError: str + int
+# 改成 print("年齡:" + str(17))
+# 或    print(f"年齡:{17}")
+\`\`\`
+
+## 19.4 索引錯誤 IndexError
+\`\`\`python
+a = [1, 2, 3]
+print(a[3])   # IndexError, 沒有索引 3
+\`\`\`
+記住：len(a) 個元素，索引是 0 ~ len(a)-1。
+
+## 19.5 整數除法陷阱
+\`\`\`python
+print(7 / 2)    # 3.5 (浮點)
+print(7 // 2)   # 3 (整除)
+print(-7 // 2)  # -4 (向下取整，不是 -3！)
+\`\`\`
+
+## 19.6 2D list 的引用陷阱
+\`\`\`python
+g = [[0]*3] * 3
+g[0][0] = 1
+print(g)
+# 期望: [[1,0,0],[0,0,0],[0,0,0]]
+# 實際: [[1,0,0],[1,0,0],[1,0,0]]  全變了！
+# 正解: g = [[0]*3 for _ in range(3)]
+\`\`\`
+
+## 19.7 除錯三招
+
+1. **print 大法**：在關鍵位置印變數值
+2. **小例子試**：n=1, n=2 邊界
+3. **讀錯誤訊息**：行號通常準確
+
+## 19.8 試試看：找 bug
+`,
+example:`# 這支程式想算 1+2+3+...+n 但有 bug
+# 試著修正
+def sum_to(n):
+    total = 0
+    for i in range(n):
+        total += i
+    return total
+
+# 預期: sum_to(5) = 15
+print(sum_to(5))   # 應該是 15 但實際是？
+
+# 提示：range(n) 是 0..n-1
+# 修正方法（取消註解）:
+# def sum_to(n):
+#     total = 0
+#     for i in range(1, n+1):
+#         total += i
+#     return total
+`},
+
+{id:19,title:"綜合練習：完整 APCS 題",tag:"實戰",content:`
+# 第 19 章：完整 APCS 題解析
+
+## 20.1 解題流程示範
+
+題目：**成績指標**（2016/03 APCS 初級）
+
+> 讀入全班成績，排序後找出**不及格中的最高分**和**及格中的最低分**（60 分為及格界線）。
+
+### Step 1：讀清楚題目
+- 輸入：第一行人數 n，第二行 n 個分數
+- 輸出：排序後分數 / 最高不及格 / 最低及格
+- 找不到時印 best case 或 worst case
+
+### Step 2：想小例子
+輸入 \`[55, 88, 60, 30]\`
+排序後 \`[30, 55, 60, 88]\`
+不及格 \`[30, 55]\` → 最高 55
+及格 \`[60, 88]\` → 最低 60
+
+### Step 3：選資料結構與演算法
+- 排序：\`sort()\` 或 \`sorted()\`
+- 篩選：list comprehension
+
+### Step 4：動手寫
+\`\`\`python
+n = int(input())
+scores = sorted(map(int, input().split()))
+print(*scores)
+
+fail = [x for x in scores if x < 60]
+print(max(fail) if fail else "best case")
+
+passed = [x for x in scores if x >= 60]
+print(min(passed) if passed else "worst case")
+\`\`\`
+
+### Step 5：測樣本與邊界
+- 樣本 1：\`[0,11,22,33,55,66,77,99,88,44]\` ✅
+- 樣本 2：\`[13]\` → 全不及格 → worst case ✅
+- 樣本 3：\`[73,65]\` → 全及格 → best case + 65 ✅
+
+## 20.2 APCS 應試節奏
+
+| 時間 | 動作 |
+|------|------|
+| 0-2 分 | 讀題、圈關鍵字 |
+| 2-5 分 | 思考演算法、確認邊界 |
+| 5-15 分 | 寫程式 |
+| 15-18 分 | 用樣本測試 |
+| 18-20 分 | 測邊界值（n=1、全相同） |
+
+## 20.3 試試看：完整流程
+`,
+example:`# 試做：找最大連續子陣列和 (Kadane 演算法)
+# 輸入: 9 個整數 -2 1 -3 4 -1 2 1 -5 4
+# 輸出: 6 (子陣列 [4,-1,2,1])
+
+stdin = "9\\n-2 1 -3 4 -1 2 1 -5 4\\n"
+import io, sys
+sys.stdin = io.StringIO(stdin)
+
+n = int(input())
+a = list(map(int, input().split()))
+
+cur = best = a[0]
+for x in a[1:]:
+    cur = max(x, cur + x)
+    best = max(best, cur)
+
+print(f"輸入: {a}")
+print(f"最大連續和: {best}")
+`},
+
+{id:20,title:"APCS 實戰技巧",tag:"進階",content:`
+# 第 20 章：APCS 實戰技巧
 
 ## 12.1 讀入模板（背起來）
 
