@@ -45,6 +45,11 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .sidebar-hdr{padding:10px 14px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border)}
 .chap-list{overflow-y:auto;flex:1}
 .chap{padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(48,54,61,.5);font-size:13px;transition:background .12s}
+.sec-header{margin:14px 0 6px;padding:8px 10px;background:linear-gradient(90deg,rgba(88,166,255,.12),transparent);border-left:3px solid var(--py);border-radius:4px}
+.sec-header:first-child{margin-top:0}
+.sec-label{font-size:12px;font-weight:700;color:#e6edf3;letter-spacing:.3px}
+.sec-desc{font-size:10.5px;color:var(--text-muted);margin-top:2px;line-height:1.4}
+
 .chap:hover{background:rgba(255,255,255,.03)}
 .chap.active{background:rgba(255,255,255,.05);border-left:2px solid var(--lang-color);padding-left:12px;transition:border-color .2s}
 .chap-num{font-size:10px;color:var(--text-muted);font-weight:600}
@@ -145,7 +150,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 </head>
 <body>
 <header>
-  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub">21 章 · Python / C++ / C / Java · 自由切換</div></div>
+  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub">36 章 · APCS 考試準備 + 實用程式 + 製作專案</div></div>
   <div class="hright">
     <a href="index.html">🎯 前往題庫</a>
     <span><span class="status-dot" id="status-dot"></span><span id="status-text">Pyodide 載入中...</span></span>
@@ -165,7 +170,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
     <div class="sidebar-hdr">學習進度</div>
     <div class="progress-wrap">
       <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
-      <div class="progress-text"><span id="prog-count">0 / 21 章</span><span id="prog-pct">0%</span></div>
+      <div class="progress-text"><span id="prog-count">0 / 36 章</span><span id="prog-pct">0%</span></div>
     </div>
     <div class="chap-list" id="chap-list"></div>
   </aside>
@@ -1619,6 +1624,1383 @@ print(max(fail) if fail else "best case")
 
 passed = [x for x in scores if x >= 60]
 print(min(passed) if passed else "worst case")
+`},
+{id:21,title:"樹的走訪",tag:"進階",content:`
+# 第 21 章：樹的走訪 (Tree Traversal)
+
+> 🎯 **APCS 考試準備**：樹是 3-4 級題的常客。先把走訪寫熟，DP on tree 就只是延伸。
+
+## 21.1 樹是什麼？
+
+樹 = **沒有環的連通圖**。最常見的表示法：
+
+\\\`\\\`\\\`python
+# children[u] = u 的所有子節點
+children = {0:[1,2], 1:[3,4], 2:[], 3:[], 4:[]}
+\\\`\\\`\\\`
+
+或用「父節點陣列」：\\\`parent[i] = i 的父親\\\`。
+
+## 21.2 三種走訪順序
+
+對二元樹（左右子）：
+
+| 順序 | 規則 | 用途 |
+|------|------|------|
+| 前序 (pre) | 根→左→右 | 複製樹、序列化 |
+| 中序 (in) | 左→根→右 | BST 排序輸出 |
+| 後序 (post) | 左→右→根 | 算子樹大小、釋放記憶體 |
+
+## 21.3 一般樹用 DFS 走
+
+\\\`\\\`\\\`python
+def dfs(u, par=-1):
+    # 進入 u 時做的事
+    for v in children[u]:
+        if v != par:
+            dfs(v, u)
+    # 離開 u 時做的事（後序處理）
+\\\`\\\`\\\`
+
+## 21.4 子樹大小（最常考）
+
+\\\`\\\`\\\`python
+size = [1]*n
+def dfs(u, par):
+    for v in children[u]:
+        if v != par:
+            dfs(v, u)
+            size[u] += size[v]
+\\\`\\\`\\\`
+
+這就是「樹 DP」的雛形：子樹算完才能算自己。
+
+## 21.5 注意事項
+
+- **遞迴深度**：Python 預設 1000，深樹要 \\\`sys.setrecursionlimit(10**6)\\\`
+- **不要重訪父節點**：用 \\\`par\\\` 參數擋住
+`,example:`
+# 子樹大小範例
+import sys
+sys.setrecursionlimit(10**6)
+
+# 樹：0─1─3
+#       └─4
+#     └─2
+n = 5
+children = {0:[1,2], 1:[3,4], 2:[], 3:[], 4:[]}
+
+size = [1]*n
+def dfs(u):
+    for v in children[u]:
+        dfs(v)
+        size[u] += size[v]
+
+dfs(0)
+print(*size)  # 5 3 1 1 1
+`},
+{id:22,title:"圖論：BFS / DFS",tag:"進階",content:`
+# 第 22 章：圖論基礎 (BFS / DFS)
+
+> 🎯 **APCS 考試準備**：迷宮、連通分量、最短步數，幾乎都是 BFS。
+
+## 22.1 圖的表示
+
+\\\`\\\`\\\`python
+# 鄰接表（最常用）
+graph = {0:[1,2], 1:[0,3], 2:[0,3], 3:[1,2]}
+\\\`\\\`\\\`
+
+讀邊：
+\\\`\\\`\\\`python
+from collections import defaultdict
+g = defaultdict(list)
+for _ in range(m):
+    u, v = map(int, input().split())
+    g[u].append(v)
+    g[v].append(u)   # 無向圖才加這行
+\\\`\\\`\\\`
+
+## 22.2 BFS：找最短步數
+
+\\\`\\\`\\\`python
+from collections import deque
+def bfs(start):
+    dist = {start: 0}
+    q = deque([start])
+    while q:
+        u = q.popleft()
+        for v in g[u]:
+            if v not in dist:
+                dist[v] = dist[u] + 1
+                q.append(v)
+    return dist
+\\\`\\\`\\\`
+
+**為什麼 BFS = 最短步數？** 一層一層擴展，第一次碰到目標就是最少步數。
+
+## 22.3 DFS：找連通分量
+
+\\\`\\\`\\\`python
+visited = set()
+def dfs(u):
+    visited.add(u)
+    for v in g[u]:
+        if v not in visited:
+            dfs(v)
+
+count = 0
+for node in range(n):
+    if node not in visited:
+        dfs(node)
+        count += 1
+print(count)   # 連通分量數
+\\\`\\\`\\\`
+
+## 22.4 二維迷宮
+
+把 \\\`grid[i][j]\\\` 想成圖中一個節點，四方向就是邊：
+\\\`\\\`\\\`python
+dr = [-1,1,0,0]; dc = [0,0,-1,1]
+for d in range(4):
+    ni, nj = i+dr[d], j+dc[d]
+    if 0<=ni<R and 0<=nj<C and grid[ni][nj]=='.':
+        ...
+\\\`\\\`\\\`
+`,example:`
+# 連通分量數
+n, m = 6, 4
+edges = [(0,1),(1,2),(3,4)]   # 3 個連通分量: {0,1,2}, {3,4}, {5}
+
+from collections import defaultdict
+g = defaultdict(list)
+for u,v in edges:
+    g[u].append(v); g[v].append(u)
+
+visited = set()
+def dfs(u):
+    visited.add(u)
+    for v in g[u]:
+        if v not in visited:
+            dfs(v)
+
+cnt = 0
+for u in range(n):
+    if u not in visited:
+        dfs(u); cnt += 1
+print(cnt)   # 3
+`},
+{id:23,title:"最短路徑與拓樸",tag:"進階",content:`
+# 第 23 章：最短路徑 + 拓樸排序
+
+> 🎯 **APCS 考試準備**：有權重就用 Dijkstra；DAG 排程就用拓樸排序。
+
+## 23.1 Dijkstra：非負權重最短路
+
+核心想法：每次取出「目前距離最短的點」展開。用最小堆（heapq）達成。
+
+\\\`\\\`\\\`python
+import heapq
+def dijkstra(start, n):
+    dist = [float('inf')] * n
+    dist[start] = 0
+    pq = [(0, start)]
+    while pq:
+        d, u = heapq.heappop(pq)
+        if d > dist[u]: continue
+        for v, w in g[u]:           # g[u] = [(鄰居, 邊權)]
+            if dist[u] + w < dist[v]:
+                dist[v] = dist[u] + w
+                heapq.heappush(pq, (dist[v], v))
+    return dist
+\\\`\\\`\\\`
+
+時間：**O((n + m) log n)**
+
+## 23.2 為什麼不用 BFS？
+
+BFS 假設每條邊長度都是 1。一旦邊有不同權重（例：距離、花費），BFS 結果就錯了。
+
+## 23.3 拓樸排序：DAG 的線性排程
+
+「課程先修」、「工序相依」這類題目。Kahn 演算法（BFS 變形）：
+
+\\\`\\\`\\\`python
+from collections import deque
+indeg = [0]*n
+for u in range(n):
+    for v in g[u]:
+        indeg[v] += 1
+
+q = deque([u for u in range(n) if indeg[u]==0])
+order = []
+while q:
+    u = q.popleft()
+    order.append(u)
+    for v in g[u]:
+        indeg[v] -= 1
+        if indeg[v] == 0: q.append(v)
+
+# 若 len(order) < n → 有環
+\\\`\\\`\\\`
+
+## 23.4 速查表
+
+| 情境 | 演算法 | 複雜度 |
+|------|--------|--------|
+| 無權圖最短步數 | BFS | O(n+m) |
+| 非負權最短路 | Dijkstra | O((n+m)log n) |
+| 有負權 | Bellman-Ford | O(nm) |
+| 全點對 | Floyd-Warshall | O(n³) |
+`,example:`
+# Dijkstra 範例
+import heapq
+
+# 4 點圖：0─1(1)─3(1), 0─2(4)─3(1)
+g = {0:[(1,1),(2,4)], 1:[(0,1),(3,1)], 2:[(0,4),(3,1)], 3:[(1,1),(2,1)]}
+n = 4
+
+dist = [float('inf')]*n
+dist[0] = 0
+pq = [(0, 0)]
+while pq:
+    d, u = heapq.heappop(pq)
+    if d > dist[u]: continue
+    for v, w in g[u]:
+        if d + w < dist[v]:
+            dist[v] = d + w
+            heapq.heappush(pq, (dist[v], v))
+
+print(*dist)   # 0 1 4 2
+`},
+{id:24,title:"進階 DP：LIS / 背包",tag:"進階",content:`
+# 第 24 章：進階 DP（LIS、背包、LCS）
+
+> 🎯 **APCS 考試準備**：DP 是 4 級題分水嶺。先把「狀態 / 轉移」想清楚。
+
+## 24.1 DP 的三步驟
+
+1. **定義狀態**：\\\`dp[i]\\\` 代表什麼？
+2. **寫出轉移**：\\\`dp[i]\\\` 怎麼從前面算出來？
+3. **初始 + 順序**：邊界值、計算順序
+
+## 24.2 最長遞增子序列 (LIS)
+
+**狀態**：\\\`dp[i]\\\` = 以 a[i] 結尾的最長遞增子序列長度
+
+\\\`\\\`\\\`python
+def lis(a):
+    n = len(a)
+    dp = [1]*n
+    for i in range(n):
+        for j in range(i):
+            if a[j] < a[i]:
+                dp[i] = max(dp[i], dp[j]+1)
+    return max(dp)
+\\\`\\\`\\\`
+**O(n²)**。進階可用 \\\`bisect\\\` 做到 O(n log n)。
+
+## 24.3 0/1 背包
+
+n 個物品（重量 w[i]、價值 v[i]），背包容量 W，求最大價值總和。
+
+**狀態**：\\\`dp[j]\\\` = 容量 j 時最大價值
+
+\\\`\\\`\\\`python
+def knapsack(w, v, W):
+    dp = [0]*(W+1)
+    for i in range(len(w)):
+        for j in range(W, w[i]-1, -1):    # 注意倒序
+            dp[j] = max(dp[j], dp[j-w[i]] + v[i])
+    return dp[W]
+\\\`\\\`\\\`
+
+**為什麼倒序？** 正序的話會把同一個物品用兩次（變成完全背包）。
+
+## 24.4 最長共同子序列 (LCS)
+
+**狀態**：\\\`dp[i][j]\\\` = a[:i] 和 b[:j] 的 LCS 長度
+
+\\\`\\\`\\\`python
+def lcs(a, b):
+    m, n = len(a), len(b)
+    dp = [[0]*(n+1) for _ in range(m+1)]
+    for i in range(1, m+1):
+        for j in range(1, n+1):
+            if a[i-1] == b[j-1]:
+                dp[i][j] = dp[i-1][j-1] + 1
+            else:
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+    return dp[m][n]
+\\\`\\\`\\\`
+`,example:`
+# 0/1 背包範例
+weights = [2, 3, 4, 5]
+values  = [3, 4, 5, 6]
+W = 5
+
+dp = [0]*(W+1)
+for i in range(len(weights)):
+    for j in range(W, weights[i]-1, -1):
+        dp[j] = max(dp[j], dp[j-weights[i]] + values[i])
+
+print(dp[W])   # 7 (取 w=2 + w=3)
+`},
+{id:25,title:"Union-Find 並查集",tag:"進階",content:`
+# 第 25 章：Union-Find（並查集）
+
+> 🎯 **APCS 考試準備**：判斷連通、最小生成樹、離線查詢的萬用工具。
+
+## 25.1 核心需求
+
+兩件事，都要 O(近乎常數)：
+1. \\\`find(x)\\\` — x 在哪個集合？
+2. \\\`union(x, y)\\\` — 把 x 跟 y 合併成同一個集合
+
+## 25.2 基本實作（路徑壓縮）
+
+\\\`\\\`\\\`python
+parent = list(range(n))    # 一開始每個人自成一群
+
+def find(x):
+    if parent[x] != x:
+        parent[x] = find(parent[x])   # 路徑壓縮
+    return parent[x]
+
+def union(x, y):
+    rx, ry = find(x), find(y)
+    if rx != ry:
+        parent[rx] = ry
+        return True   # 真的合併了
+    return False      # 早就在同一群
+\\\`\\\`\\\`
+
+## 25.3 經典應用：算連通分量數
+
+\\\`\\\`\\\`python
+n, m = map(int, input().split())
+parent = list(range(n))
+for _ in range(m):
+    u, v = map(int, input().split())
+    union(u, v)
+print(len(set(find(i) for i in range(n))))
+\\\`\\\`\\\`
+
+## 25.4 進階：按秩合併
+
+\\\`\\\`\\\`python
+rank = [0]*n
+def union(x, y):
+    rx, ry = find(x), find(y)
+    if rx == ry: return False
+    if rank[rx] < rank[ry]: rx, ry = ry, rx
+    parent[ry] = rx
+    if rank[rx] == rank[ry]: rank[rx] += 1
+    return True
+\\\`\\\`\\\`
+
+## 25.5 解什麼題？
+
+- 朋友圈分組
+- Kruskal 最小生成樹
+- 動態加邊判斷連通
+- 「最早什麼時候 a, b 連通」這種離線題
+`,example:`
+# Union-Find 算連通分量
+n = 6
+edges = [(0,1),(1,2),(3,4)]
+
+parent = list(range(n))
+def find(x):
+    if parent[x] != x:
+        parent[x] = find(parent[x])
+    return parent[x]
+def union(x, y):
+    rx, ry = find(x), find(y)
+    if rx != ry:
+        parent[rx] = ry
+
+for u, v in edges:
+    union(u, v)
+
+groups = len({find(i) for i in range(n)})
+print(groups)   # 3
+`},
+{id:26,title:"字串：hash 與 Trie",tag:"進階",content:`
+# 第 26 章：字串演算法 — hash & Trie
+
+> 🎯 **APCS 考試準備**：字串比對、前綴查詢的兩大利器。
+
+## 26.1 字串 hash：把字串變數字
+
+讓「比對兩段字串是否相同」變 O(1)。
+
+\\\`\\\`\\\`python
+MOD = 10**9 + 7
+BASE = 131
+
+def get_hashes(s):
+    n = len(s)
+    h = [0]*(n+1)
+    p = [1]*(n+1)
+    for i, c in enumerate(s):
+        h[i+1] = (h[i]*BASE + ord(c)) % MOD
+        p[i+1] = p[i]*BASE % MOD
+    return h, p
+
+def sub_hash(h, p, l, r):
+    # s[l..r-1] 的 hash
+    return (h[r] - h[l]*p[r-l]) % MOD
+\\\`\\\`\\\`
+
+預處理 O(n)，每次查詢 O(1)。
+
+## 26.2 KMP（觀念）
+
+「在字串 t 中找 pattern p 的位置」，O(n+m)。重點是 fail array：紀錄「失敗時可以跳到哪」。
+
+實戰 Python 通常直接用 \\\`t.find(p)\\\` 或 \\\`re.search\\\`，但要懂 fail 函數的原理。
+
+## 26.3 Trie（前綴樹）
+
+存大量字串，快速查「有沒有某前綴開頭」。
+
+\\\`\\\`\\\`python
+trie = {}
+def insert(word):
+    node = trie
+    for c in word:
+        node = node.setdefault(c, {})
+    node['$'] = True   # 結尾標記
+
+def search(word):
+    node = trie
+    for c in word:
+        if c not in node: return False
+        node = node[c]
+    return '$' in node
+
+def starts_with(prefix):
+    node = trie
+    for c in prefix:
+        if c not in node: return False
+        node = node[c]
+    return True
+\\\`\\\`\\\`
+
+每次操作 O(L)，L 為字串長度。
+
+## 26.4 什麼時候用？
+
+| 需求 | 解法 |
+|------|------|
+| 比較兩段子字串是否相等 | hash |
+| 找出 p 在 t 出現的所有位置 | KMP |
+| 自動補完、字典查詢 | Trie |
+| 最長公共前綴 | Trie 或 hash |
+`,example:`
+# Trie 範例
+trie = {}
+words = ["app", "apple", "ape", "bat"]
+for w in words:
+    node = trie
+    for c in w:
+        node = node.setdefault(c, {})
+    node['$'] = True
+
+def starts_with(prefix):
+    node = trie
+    for c in prefix:
+        if c not in node: return False
+        node = node[c]
+    return True
+
+print(starts_with("ap"))   # True
+print(starts_with("ba"))   # True
+print(starts_with("cat"))  # False
+`},
+{id:27,title:"檔案 I/O",tag:"實用",content:`
+# 第 27 章：讀寫檔案
+
+> 🛠 **實用程式**：APCS 用 stdin/stdout 就夠；做小工具就一定要會檔案 I/O。
+
+## 27.1 讀整個檔案
+
+\\\`\\\`\\\`python
+with open("data.txt", "r", encoding="utf-8") as f:
+    text = f.read()
+print(text)
+\\\`\\\`\\\`
+
+\\\`with\\\` 是「結束自動關檔」的安全寫法，比 \\\`f.close()\\\` 不容易出錯。
+
+## 27.2 一行一行讀（大檔案用這個）
+
+\\\`\\\`\\\`python
+with open("data.txt", "r", encoding="utf-8") as f:
+    for line in f:
+        line = line.rstrip("\\\\n")    # 去掉尾部換行
+        print(line)
+\\\`\\\`\\\`
+
+## 27.3 寫檔案
+
+\\\`\\\`\\\`python
+with open("out.txt", "w", encoding="utf-8") as f:
+    f.write("Hello\\\\n")
+    f.write("APCS\\\\n")
+\\\`\\\`\\\`
+
+模式：
+- \\\`"r"\\\` 讀 / \\\`"w"\\\` 寫（蓋掉）/ \\\`"a"\\\` 附加
+- \\\`"rb"\\\` / \\\`"wb"\\\` 二進位（圖片、PDF 用）
+
+## 27.4 處理路徑
+
+\\\`\\\`\\\`python
+from pathlib import Path
+p = Path("data") / "scores.txt"
+text = p.read_text(encoding="utf-8")     # 一行搞定
+p.write_text("hello", encoding="utf-8")
+\\\`\\\`\\\`
+
+\\\`pathlib\\\` 比手拼字串路徑安全，自動處理跨平台分隔符。
+
+## 27.5 JSON：結構化資料的最佳搭擋
+
+\\\`\\\`\\\`python
+import json
+data = {"name": "Alice", "scores": [90, 85, 77]}
+# 存
+Path("data.json").write_text(json.dumps(data, ensure_ascii=False, indent=2))
+# 讀
+loaded = json.loads(Path("data.json").read_text())
+print(loaded["scores"])
+\\\`\\\`\\\`
+
+> 💡 **本章練習用 stdin/stdout 模擬**（瀏覽器沙箱不能寫真正檔案）。回到本機再用 \\\`open()\\\`。
+`,example:`
+# 模擬「讀檔內容、算平均」
+# 把 stdin 當成檔案內容
+content = """Alice 90
+Bob 85
+Cathy 77"""
+
+total, n = 0, 0
+for line in content.splitlines():
+    name, score = line.split()
+    total += int(score); n += 1
+print(round(total / n, 1))   # 84.0
+`},
+{id:28,title:"模組與套件",tag:"實用",content:`
+# 第 28 章：模組與 import
+
+> 🛠 **實用程式**：把程式拆成多檔案，才不會變一坨大義大利麵。
+
+## 28.1 為什麼要拆檔案？
+
+當一個檔案超過 200-300 行，找東西就會崩潰。拆成模組：
+- \\\`main.py\\\` — 程式入口
+- \\\`utils.py\\\` — 工具函式
+- \\\`models.py\\\` — 資料結構
+
+## 28.2 import 的三種寫法
+
+\\\`\\\`\\\`python
+import math
+print(math.sqrt(16))             # 4.0
+
+from math import sqrt, pi
+print(sqrt(16), pi)              # 4.0 3.141...
+
+from math import *                # 全部拉進來（不建議）
+\\\`\\\`\\\`
+
+## 28.3 自己寫模組
+
+\\\`\\\`\\\`python
+# utils.py
+def gcd(a, b):
+    return a if b == 0 else gcd(b, a % b)
+
+PI = 3.14159
+\\\`\\\`\\\`
+
+\\\`\\\`\\\`python
+# main.py
+from utils import gcd, PI
+print(gcd(12, 18))    # 6
+\\\`\\\`\\\`
+
+## 28.4 \\\`if __name__ == "__main__":\\\`
+
+\\\`\\\`\\\`python
+# tool.py
+def main():
+    print("Hello")
+
+if __name__ == "__main__":
+    main()
+\\\`\\\`\\\`
+
+意思是「**只有直接執行這個檔案時才跑 main()**，被別人 import 時不跑」。寫小工具務必加。
+
+## 28.5 套件管理：pip
+
+\\\`\\\`\\\`bash
+pip install requests
+pip install pandas matplotlib
+pip list
+pip freeze > requirements.txt
+\\\`\\\`\\\`
+
+\\\`requirements.txt\\\` 是專案的依賴清單，新環境 \\\`pip install -r requirements.txt\\\` 一次裝齊。
+
+## 28.6 虛擬環境（避免套件互相打架）
+
+\\\`\\\`\\\`bash
+python -m venv .venv
+source .venv/bin/activate    # mac/linux
+.venv\\\\Scripts\\\\activate     # windows
+\\\`\\\`\\\`
+`,example:`
+# 用 math 模組
+import math
+
+print(math.sqrt(144))         # 12.0
+print(math.gcd(12, 18))       # 6
+print(round(math.pi, 4))      # 3.1416
+`},
+{id:29,title:"物件導向：class",tag:"實用",content:`
+# 第 29 章：物件導向（OOP）
+
+> 🛠 **實用程式**：把「資料 + 行為」綁在一起，程式碼變得有條理。
+
+## 29.1 第一個 class
+
+\\\`\\\`\\\`python
+class Student:
+    def __init__(self, name, score):
+        self.name = name
+        self.score = score
+
+    def is_pass(self):
+        return self.score >= 60
+
+s = Student("Alice", 85)
+print(s.name, s.is_pass())   # Alice True
+\\\`\\\`\\\`
+
+關鍵字：
+- \\\`class\\\` 定義一個「類別」（藍圖）
+- \\\`__init__\\\` 建立物件時自動呼叫（建構子）
+- \\\`self\\\` = 「這個物件」自己，第一個參數固定是它
+
+## 29.2 為什麼用 class？
+
+對比版本：
+\\\`\\\`\\\`python
+# 程序式：資料散在外面
+students = [{"name":"Alice","score":85}, ...]
+def is_pass(s): return s["score"] >= 60
+
+# OOP：資料 + 方法綁一起
+s = Student("Alice", 85)
+s.is_pass()
+\\\`\\\`\\\`
+
+當邏輯變複雜（成績加權、排名、輸出格式...），OOP 把相關東西聚在一個 class 裡。
+
+## 29.3 繼承
+
+\\\`\\\`\\\`python
+class GraduateStudent(Student):
+    def __init__(self, name, score, advisor):
+        super().__init__(name, score)
+        self.advisor = advisor
+
+    def info(self):
+        return f"{self.name} → {self.advisor}"
+
+g = GraduateStudent("Bob", 90, "Prof. Lin")
+print(g.is_pass(), g.info())
+\\\`\\\`\\\`
+
+\\\`super().__init__(...)\\\` 呼叫父類別建構子。
+
+## 29.4 常用魔術方法
+
+\\\`\\\`\\\`python
+class Point:
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+    def __repr__(self):
+        return f"Point({self.x}, {self.y})"
+    def __add__(self, other):
+        return Point(self.x + other.x, self.y + other.y)
+
+p = Point(1,2) + Point(3,4)
+print(p)    # Point(4, 6)
+\\\`\\\`\\\`
+
+## 29.5 什麼時候不要用 class？
+
+- 只有兩三個函式 → 別 class，浪費精力
+- 純算法解題 → 也別 class
+- 資料 + 行為的組合多次出現 → 開始考慮 class
+`,example:`
+# Student class 範例
+class Student:
+    def __init__(self, name, score):
+        self.name = name
+        self.score = score
+    def grade(self):
+        if self.score >= 90: return 'A'
+        if self.score >= 80: return 'B'
+        if self.score >= 60: return 'C'
+        return 'F'
+
+students = [Student("Alice", 92), Student("Bob", 75), Student("Cathy", 58)]
+for s in students:
+    print(s.name, s.grade())
+`},
+{id:30,title:"錯誤處理 try/except",tag:"實用",content:`
+# 第 30 章：錯誤處理
+
+> 🛠 **實用程式**：程式跑到一半噴錯就死掉？學會接住它。
+
+## 30.1 try / except 基本
+
+\\\`\\\`\\\`python
+try:
+    n = int(input())
+    print(100 // n)
+except ZeroDivisionError:
+    print("不能除以 0")
+except ValueError:
+    print("請輸入整數")
+\\\`\\\`\\\`
+
+執行流程：try 區塊正常跑；發生指定錯誤 → 跳到對應 except；都沒事 → 跳過所有 except。
+
+## 30.2 多重 except / 全包
+
+\\\`\\\`\\\`python
+try:
+    risky_call()
+except (KeyError, IndexError) as e:
+    print(f"找不到資料: {e}")
+except Exception as e:                # 兜底（少用）
+    print(f"意外錯誤: {e}")
+\\\`\\\`\\\`
+
+> ⚠️ **不要寫 \\\`except: pass\\\`**！把所有錯誤吞掉，最難 debug。
+
+## 30.3 finally / else
+
+\\\`\\\`\\\`python
+try:
+    f = open("data.txt")
+    data = f.read()
+except FileNotFoundError:
+    data = ""
+else:
+    print("讀檔成功")
+finally:
+    f.close()      # 不管有沒有錯都會跑
+\\\`\\\`\\\`
+
+實際上現代 Python 用 \\\`with open(...)\\\` 自動關檔，這裡是舊寫法示範。
+
+## 30.4 主動丟錯：raise
+
+\\\`\\\`\\\`python
+def divide(a, b):
+    if b == 0:
+        raise ValueError("除數不能為 0")
+    return a / b
+\\\`\\\`\\\`
+
+呼叫端可以接住，或讓它向上拋。
+
+## 30.5 自訂例外
+
+\\\`\\\`\\\`python
+class InvalidScore(Exception):
+    pass
+
+def add_score(s):
+    if not (0 <= s <= 100):
+        raise InvalidScore(f"成績 {s} 超出範圍")
+\\\`\\\`\\\`
+
+## 30.6 EAFP vs LBYL
+
+Python 風格偏好「先試再說，錯了再接」(EAFP)：
+
+\\\`\\\`\\\`python
+# Pythonic
+try:
+    return d[key]
+except KeyError:
+    return 0
+
+# 不夠 Pythonic
+if key in d:
+    return d[key]
+else:
+    return 0
+\\\`\\\`\\\`
+`,example:`
+# 安全除法示範
+inputs = ["10", "0", "abc", "5"]
+
+for s in inputs:
+    try:
+        n = int(s)
+        print(100 // n)
+    except ZeroDivisionError:
+        print("除以 0")
+    except ValueError:
+        print("不是數字")
+`},
+{id:31,title:"測試與除錯",tag:"實用",content:`
+# 第 31 章：測試 + 系統性除錯
+
+> 🛠 **實用程式**：寫程式 30%，剩下 70% 都在 debug。
+
+## 31.1 用 assert 做隨手測試
+
+\\\`\\\`\\\`python
+def add(a, b):
+    return a + b
+
+assert add(2, 3) == 5
+assert add(-1, 1) == 0
+assert add(0, 0) == 0
+print("all passed")
+\\\`\\\`\\\`
+
+\\\`assert\\\` 為假就 \\\`AssertionError\\\`。簡單但有效。
+
+## 31.2 unittest（標準框架）
+
+\\\`\\\`\\\`python
+import unittest
+
+def is_prime(n):
+    if n < 2: return False
+    i = 2
+    while i*i <= n:
+        if n % i == 0: return False
+        i += 1
+    return True
+
+class TestPrime(unittest.TestCase):
+    def test_small(self):
+        self.assertTrue(is_prime(2))
+        self.assertTrue(is_prime(7))
+    def test_not_prime(self):
+        self.assertFalse(is_prime(1))
+        self.assertFalse(is_prime(9))
+    def test_edge(self):
+        self.assertFalse(is_prime(0))
+        self.assertFalse(is_prime(-5))
+
+if __name__ == "__main__":
+    unittest.main()
+\\\`\\\`\\\`
+
+執行：\\\`python -m unittest test_prime.py\\\`
+
+## 31.3 系統性除錯：4 步驟
+
+1. **重現**：找到「一定會出錯」的最小輸入
+2. **二分**：在中間插 \\\`print(...)\\\`，看哪段開始不對
+3. **假設 → 驗證**：猜原因，寫一個簡單測試證明 / 推翻
+4. **修完加測試**：避免下次再壞
+
+## 31.4 用 pdb 互動除錯
+
+\\\`\\\`\\\`python
+import pdb
+def buggy(a, b):
+    pdb.set_trace()      # 跑到這停下來
+    return a / b
+
+buggy(10, 0)
+\\\`\\\`\\\`
+
+常用指令：\\\`n\\\`（下一行）、\\\`s\\\`（進入函式）、\\\`p var\\\`（印變數）、\\\`c\\\`（繼續）。
+
+## 31.5 logging 比 print 強
+
+\\\`\\\`\\\`python
+import logging
+logging.basicConfig(level=logging.DEBUG, format='%(levelname)s | %(message)s')
+logging.debug("input n=%d", n)
+logging.warning("意外狀況")
+\\\`\\\`\\\`
+
+正式專案不要 print，用 logging — 可調等級、可輸出到檔案。
+`,example:`
+# 用 assert 自我測試
+def is_prime(n):
+    if n < 2: return False
+    i = 2
+    while i*i <= n:
+        if n % i == 0: return False
+        i += 1
+    return True
+
+cases = [(2,True),(3,True),(4,False),(7,True),(9,False),(1,False),(0,False)]
+for n, expected in cases:
+    assert is_prime(n) == expected, f"failed at n={n}"
+print("all passed")
+`},
+{id:32,title:"命令列工具 (CLI)",tag:"專案",content:`
+# 第 32 章：做一個命令列小工具
+
+> 🚀 **製作專案**：把 Python 變成可以 \\\`python tool.py --score 85\\\` 這樣用的工具。
+
+## 32.1 sys.argv：最原始的方式
+
+\\\`\\\`\\\`python
+# greet.py
+import sys
+name = sys.argv[1] if len(sys.argv) > 1 else "World"
+print(f"Hello, {name}!")
+\\\`\\\`\\\`
+
+執行：\\\`python greet.py Alice\\\` → \\\`Hello, Alice!\\\`
+
+\\\`sys.argv[0]\\\` 是檔名本身，\\\`[1:]\\\` 開始才是參數。
+
+## 32.2 argparse：正經做法
+
+\\\`\\\`\\\`python
+import argparse
+
+parser = argparse.ArgumentParser(description="成績分級工具")
+parser.add_argument("score", type=int, help="0-100 的分數")
+parser.add_argument("--strict", action="store_true", help="嚴格模式 (70 才及格)")
+parser.add_argument("--name", default="同學", help="顯示用名字")
+
+args = parser.parse_args()
+
+threshold = 70 if args.strict else 60
+result = "及格" if args.score >= threshold else "不及格"
+print(f"{args.name}: {args.score} → {result}")
+\\\`\\\`\\\`
+
+執行範例：
+\\\`\\\`\\\`bash
+python grade.py 75 --name Alice
+python grade.py 65 --strict
+python grade.py --help        # 自動產生說明！
+\\\`\\\`\\\`
+
+## 32.3 設計一個完整的小工具：成績計算機
+
+\\\`\\\`\\\`python
+# grader.py
+import argparse, sys, statistics
+
+def grade(score):
+    if score >= 90: return 'A'
+    if score >= 80: return 'B'
+    if score >= 70: return 'C'
+    if score >= 60: return 'D'
+    return 'F'
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument("file", help="每行一個分數的檔案；用 - 代表 stdin")
+    p.add_argument("--summary", action="store_true", help="只印統計摘要")
+    args = p.parse_args()
+
+    f = sys.stdin if args.file == "-" else open(args.file)
+    scores = [int(line) for line in f if line.strip()]
+
+    if args.summary:
+        print(f"n={len(scores)} avg={statistics.mean(scores):.1f} "
+              f"max={max(scores)} min={min(scores)}")
+    else:
+        for s in scores:
+            print(s, grade(s))
+
+if __name__ == "__main__":
+    main()
+\\\`\\\`\\\`
+
+執行：
+\\\`\\\`\\\`bash
+echo "85\\\\n72\\\\n50" | python grader.py - --summary
+\\\`\\\`\\\`
+
+## 32.4 進階：打包成可分享的工具
+
+- \\\`setup.py\\\` 或 \\\`pyproject.toml\\\` 定義套件
+- \\\`pip install -e .\\\` 安裝後可以 \\\`grader 85\\\` 直接呼叫
+- 加 README、加 license、push 上 GitHub
+`,example:`
+# 模擬 CLI 行為
+import sys
+
+# 假裝命令列傳入 ["85", "--strict"]
+args = ["85", "--strict"]
+
+score = int(args[0])
+strict = "--strict" in args
+
+threshold = 70 if strict else 60
+print("及格" if score >= threshold else "不及格")
+`},
+{id:33,title:"CSV 資料分析",tag:"專案",content:`
+# 第 33 章：CSV 讀取與分析
+
+> 🚀 **製作專案**：拿到一張成績單 / 銷售表，用 Python 算統計、輸出報表。
+
+## 33.1 csv 模組基本
+
+\\\`\\\`\\\`python
+import csv
+
+with open("scores.csv", encoding="utf-8") as f:
+    reader = csv.reader(f)
+    headers = next(reader)   # 第一列是欄位名
+    for row in reader:
+        print(row)   # ['Alice', '90']
+\\\`\\\`\\\`
+
+## 33.2 用 DictReader 更直覺
+
+\\\`\\\`\\\`python
+with open("scores.csv", encoding="utf-8") as f:
+    for row in csv.DictReader(f):
+        print(row["name"], int(row["score"]))
+\\\`\\\`\\\`
+
+## 33.3 寫 CSV
+
+\\\`\\\`\\\`python
+with open("out.csv", "w", encoding="utf-8", newline="") as f:
+    w = csv.writer(f)
+    w.writerow(["name", "grade"])
+    for name, grade in result:
+        w.writerow([name, grade])
+\\\`\\\`\\\`
+
+> 注意：寫 csv 時記得 \\\`newline=""\\\`，否則 Windows 上會多空行。
+
+## 33.4 小專案：班級成績分析
+
+\\\`\\\`\\\`python
+import csv, statistics
+from collections import Counter
+
+with open("class.csv", encoding="utf-8") as f:
+    rows = list(csv.DictReader(f))
+
+# 1. 班級平均、最高、最低
+scores = [int(r["score"]) for r in rows]
+print(f"平均 {statistics.mean(scores):.1f}")
+print(f"最高 {max(scores)}  最低 {min(scores)}")
+
+# 2. 各分級人數
+def grade(s):
+    return 'A' if s>=90 else 'B' if s>=80 else 'C' if s>=60 else 'F'
+print(Counter(grade(int(r["score"])) for r in rows))
+
+# 3. 前 3 名
+top3 = sorted(rows, key=lambda r: -int(r["score"]))[:3]
+for r in top3:
+    print(r["name"], r["score"])
+\\\`\\\`\\\`
+
+## 33.5 進階：用 pandas（如果要做更多事）
+
+\\\`\\\`\\\`python
+import pandas as pd
+
+df = pd.read_csv("class.csv")
+print(df.describe())
+print(df.groupby("class")["score"].mean())
+df.sort_values("score", ascending=False).head(3)
+\\\`\\\`\\\`
+
+pandas 適合資料超過幾百列、要做 group / merge / 視覺化的情境。
+`,example:`
+# 模擬 CSV 分析
+csv_text = """name,score
+Alice,92
+Bob,75
+Cathy,88
+David,55
+Eve,67"""
+
+rows = csv_text.splitlines()[1:]   # 跳過 header
+data = [r.split(',') for r in rows]
+
+scores = [int(s) for _, s in data]
+print(round(sum(scores)/len(scores), 1))   # 平均
+print(max(scores))                          # 最高
+`},
+{id:34,title:"API 串接與 JSON",tag:"專案",content:`
+# 第 34 章：呼叫網路 API
+
+> 🚀 **製作專案**：拿天氣、股價、翻譯、AI 模型... 全靠 HTTP + JSON。
+
+## 34.1 requests：呼叫 API 的標準套件
+
+\\\`\\\`\\\`python
+import requests
+r = requests.get("https://api.github.com/users/torvalds")
+print(r.status_code)        # 200
+data = r.json()             # 自動解析 JSON
+print(data["name"], data["public_repos"])
+\\\`\\\`\\\`
+
+\\\`\\\`\\\`bash
+pip install requests
+\\\`\\\`\\\`
+
+## 34.2 HTTP 動詞速覽
+
+| 動詞 | 用途 | requests 寫法 |
+|------|------|---------------|
+| GET | 讀取 | \\\`requests.get(url)\\\` |
+| POST | 新增 | \\\`requests.post(url, json={...})\\\` |
+| PUT | 更新 | \\\`requests.put(url, json={...})\\\` |
+| DELETE | 刪除 | \\\`requests.delete(url)\\\` |
+
+## 34.3 查詢參數、header、認證
+
+\\\`\\\`\\\`python
+r = requests.get(
+    "https://api.example.com/search",
+    params={"q": "python", "page": 1},
+    headers={"Authorization": "Bearer YOUR_TOKEN"},
+    timeout=10,
+)
+\\\`\\\`\\\`
+
+## 34.4 處理失敗
+
+\\\`\\\`\\\`python
+try:
+    r = requests.get(url, timeout=5)
+    r.raise_for_status()        # 4xx/5xx 會 raise
+    data = r.json()
+except requests.Timeout:
+    print("逾時")
+except requests.RequestException as e:
+    print("請求失敗:", e)
+\\\`\\\`\\\`
+
+## 34.5 小專案：抓 GitHub 使用者資訊
+
+\\\`\\\`\\\`python
+import requests, sys
+
+def get_user(login):
+    r = requests.get(f"https://api.github.com/users/{login}", timeout=10)
+    if r.status_code == 404:
+        return None
+    r.raise_for_status()
+    return r.json()
+
+def summary(login):
+    u = get_user(login)
+    if not u:
+        print(f"{login}: 找不到")
+        return
+    print(f"{u['login']:15} repos={u['public_repos']:4} followers={u['followers']}")
+
+for name in sys.argv[1:]:
+    summary(name)
+\\\`\\\`\\\`
+
+執行：\\\`python gh.py torvalds gvanrossum\\\`
+
+## 34.6 速率限制、重試、快取
+
+實戰要記得：
+- API 通常有 rate limit → 加 \\\`time.sleep()\\\` 或退避策略
+- 重要請求要 retry（試 \\\`requests-cache\\\` / \\\`tenacity\\\`）
+- 機密 token 用環境變數，不要 commit 到 git
+
+> 💡 瀏覽器沙箱通常不能發外部 HTTP（CORS），本地端跑才能體驗。
+`,example:`
+# 模擬：解析 JSON 字串
+import json
+
+raw = """{
+  "login": "torvalds",
+  "name": "Linus Torvalds",
+  "public_repos": 7,
+  "followers": 200000
+}"""
+
+data = json.loads(raw)
+print(f"{data['login']} - {data['name']}")
+print(f"repos={data['public_repos']}")
+`},
+{id:35,title:"綜合專案：終端機遊戲",tag:"專案",content:`
+# 第 35 章：綜合專案 — 猜數字 + 終端機 2048 雛形
+
+> 🚀 **製作專案**：把學過的東西全部整合。
+
+## 35.1 LV1：猜數字
+
+\\\`\\\`\\\`python
+import random
+
+def play():
+    target = random.randint(1, 100)
+    tries = 0
+    while True:
+        try:
+            guess = int(input("猜 1-100: "))
+        except ValueError:
+            print("請輸入整數"); continue
+        tries += 1
+        if guess < target:
+            print("再大一點")
+        elif guess > target:
+            print("再小一點")
+        else:
+            print(f"中了！用了 {tries} 次")
+            return tries
+
+if __name__ == "__main__":
+    while True:
+        play()
+        if input("再玩一次？ (y/n) ").lower() != "y":
+            break
+\\\`\\\`\\\`
+
+用到的東西：random / try-except / while / if-else / 函式 / main 入口。
+
+## 35.2 LV2：成績管理小系統
+
+\\\`\\\`\\\`python
+import json
+from pathlib import Path
+
+DATA = Path("students.json")
+
+def load():
+    return json.loads(DATA.read_text()) if DATA.exists() else {}
+
+def save(d):
+    DATA.write_text(json.dumps(d, ensure_ascii=False, indent=2))
+
+def menu():
+    print("\\\\n1) 新增  2) 查詢  3) 全部  4) 離開")
+    return input("> ").strip()
+
+def main():
+    data = load()
+    while True:
+        c = menu()
+        if c == "1":
+            name = input("姓名: ")
+            score = int(input("分數: "))
+            data[name] = score
+            save(data); print("已儲存")
+        elif c == "2":
+            name = input("姓名: ")
+            print(data.get(name, "找不到"))
+        elif c == "3":
+            for n, s in sorted(data.items(), key=lambda x: -x[1]):
+                print(f"{n:10} {s}")
+        elif c == "4":
+            break
+
+if __name__ == "__main__":
+    main()
+\\\`\\\`\\\`
+
+用到：dict / JSON / pathlib / sorted + lambda / 函式組合。
+
+## 35.3 LV3：終端機 2048 核心邏輯
+
+\\\`\\\`\\\`python
+import random
+from copy import deepcopy
+
+SIZE = 4
+
+def new_board():
+    b = [[0]*SIZE for _ in range(SIZE)]
+    spawn(b); spawn(b)
+    return b
+
+def spawn(b):
+    empties = [(i,j) for i in range(SIZE) for j in range(SIZE) if b[i][j]==0]
+    if empties:
+        i,j = random.choice(empties)
+        b[i][j] = 2 if random.random()<0.9 else 4
+
+def slide_left(row):
+    new = [x for x in row if x]   # 去除 0
+    for i in range(len(new)-1):
+        if new[i] == new[i+1]:
+            new[i] *= 2; new[i+1] = 0
+    new = [x for x in new if x]
+    return new + [0]*(SIZE-len(new))
+
+def move(b, dir):
+    # dir: 'L','R','U','D'
+    if dir == 'L':
+        return [slide_left(row) for row in b]
+    if dir == 'R':
+        return [slide_left(row[::-1])[::-1] for row in b]
+    # U/D 先轉置
+    t = list(map(list, zip(*b)))
+    if dir == 'U':
+        t = [slide_left(row) for row in t]
+    else:
+        t = [slide_left(row[::-1])[::-1] for row in t]
+    return list(map(list, zip(*t)))
+
+def show(b):
+    for row in b:
+        print(" ".join(f"{x:5}" if x else "    ." for x in row))
+    print()
+
+b = new_board()
+show(b)
+\\\`\\\`\\\`
+
+剩下交給你：補上「按鍵讀取」（用 \\\`input()\\\` 接 w/a/s/d）、勝負判斷、計分。
+
+## 35.4 從這裡可以走去哪？
+
+| 方向 | 推薦學習 |
+|------|----------|
+| Web 後端 | Flask / FastAPI |
+| Web 前端 | JavaScript + HTML/CSS |
+| 資料分析 | pandas / matplotlib |
+| 自動化 | Selenium / Playwright |
+| AI / ML | numpy → scikit-learn → PyTorch |
+| 遊戲 | pygame |
+
+恭喜你完成全部 36 章！從這裡開始，**做一個自己想做的小專案**比讀任何教材都重要。
+`,example:`
+# 猜數字（自動版示範）
+target = 42
+guesses = [50, 25, 37, 43, 40, 42]
+
+for g in guesses:
+    if g < target:
+        print(f"{g} → 再大一點")
+    elif g > target:
+        print(f"{g} → 再小一點")
+    else:
+        print(f"{g} → 中了！")
+        break
 `}
 ];
 
@@ -1947,7 +3329,22 @@ const CHAPTER_META = {
     {q:"<code>print(*scores)</code> 跟 <code>print(scores)</code> 差別？", opts:["沒差","* 會展開成空白分隔，沒 * 會印 [...]","* 會更快","* 會錯誤"], ans:1, why:"print(*lst) 把 list 展開成多個參數，預設用空白分隔；不加星號會印整個 list 含中括號。"},
     {q:"全班都及格時，「最高不及格」要輸出什麼？", opts:["0","-1","best case","空白"], ans:2, why:"題目特別規定：沒人不及格時印 best case；沒人及格時印 worst case。"}
   ],
-  code:{"task": "第一行 n，第二行 n 個整數成績，輸出及格人數（≥ 60）。", "stdin": "5\n55 60 80 30 90\n", "expect": "3"}}
+  code:{"task": "第一行 n，第二行 n 個整數成績，輸出及格人數（≥ 60）。", "stdin": "5\n55 60 80 30 90\n", "expect": "3"}},
+21:{learn:["樹的鄰接表 / 父親陣列表示法", "前序、中序、後序的差別", "用 DFS 算子樹大小（樹 DP 入門）"],try:["把樹改成 6 個節點，重新算子樹大小", "加上深度紀錄：寫一個 depth[u] 陣列", "試試從非根節點開始 dfs，會發生什麼"],code:{"task": "給定 5 節點樹 0-1, 0-2, 1-3, 1-4 (用 children dict 表示)，算出每個節點的子樹大小，一行空白分隔輸出。", "stdin": "", "expect": "5 3 1 1 1"}},
+22:{learn:["用鄰接表存圖", "BFS 求最短步數", "DFS 找連通分量"],try:["把節點數改成 8，邊改 5 條，看分量數變化", "BFS 後印出 dist 字典", "改用遞迴 DFS 比 stack DFS"],code:{"task": "6 節點圖，邊：0-1, 1-2, 3-4。輸出有幾個連通分量。", "stdin": "", "expect": "3"}},
+23:{learn:["Dijkstra 用 heapq 實現", "為什麼 BFS 不能處理權重圖", "拓樸排序處理 DAG"],try:["把邊權改一改，看 dist 怎麼變", "刪掉某條邊，觀察最短路會繞", "拓樸排序試一個小 DAG"],code:{"task": "用 Dijkstra 求 4 點圖 (0,1,1)(0,2,4)(1,3,1)(2,3,1) 從 0 出發的最短距離，空白分隔輸出。", "stdin": "", "expect": "0 1 4 2"}},
+24:{learn:["DP 三步：狀態 / 轉移 / 邊界", "LIS、0/1 背包、LCS 三大經典", "為什麼 0/1 背包要倒序"],try:["把 LIS 改成「最長嚴格遞減子序列」", "把背包改成「物品可拿無限次」(內層改正序)", "用 LCS 算兩段你的姓名共同字元"],code:{"task": "0/1 背包：weights=[2,3,4,5], values=[3,4,5,6], W=5，輸出最大價值。", "stdin": "", "expect": "7"}},
+25:{learn:["find / union 兩個操作", "路徑壓縮怎麼做", "算連通分量的標準寫法"],try:["把節點改成 10、邊改 4 條，看分量數", "加上按秩合併版本", "union 同一群兩次，second 回 False 對嗎"],code:{"task": "6 點圖，邊：0-1, 1-2, 3-4，用 Union-Find 算連通分量數量。", "stdin": "", "expect": "3"}},
+26:{learn:["字串 hash 的滾動式公式", "Trie 用巢狀 dict 實作", "什麼時候該用 hash / KMP / Trie"],try:["在 Trie 插入更多字串，測 starts_with", "算 'banana' 的所有後綴 hash", "用 in 比 Trie，看哪個快"],code:{"task": "建立含 app/apple/ape/bat 四個字串的 Trie，依序輸出 starts_with('ap'), starts_with('ba'), starts_with('cat') 三行 True/False。", "stdin": "", "expect": "True\nTrue\nFalse"}},
+27:{learn:["with open() 安全讀寫", "一行一行讀大檔案", "pathlib 與 JSON 處理"],try:["把 csv 內容當作多行字串，splitlines 處理", "用 json.dumps 美化輸出", "試試 indent=2 跟 ensure_ascii=False"],code:{"task": "給定多行字串 'Alice 90\\\\nBob 85\\\\nCathy 77'，算出平均分（四捨五入到 1 位小數）。", "stdin": "", "expect": "84.0"}},
+28:{learn:["import / from import 三種寫法", "自己拆模組與 __main__", "pip 與虛擬環境的角色"],try:["用 math.sqrt 算 144", "用 math.gcd 比手寫 gcd", "查 math.pi 跟 math.e"],code:{"task": "用 math 模組，依序印 sqrt(144), gcd(12,18), round(pi,4) 三行。", "stdin": "", "expect": "12.0\n6\n3.1416"}},
+29:{learn:["__init__ 和 self 是什麼", "為什麼用 class", "繼承與 super()"],try:["新增方法 letter_grade()", "加 __repr__ 美化 print", "試試 Student 之間用 __eq__ 比較"],code:{"task": "定義 Student class（name, score），grade() 回傳 A(>=90)/B(>=80)/C(>=60)/F。建立 Alice(92), Bob(75), Cathy(58)，依序印「名字 等級」三行。", "stdin": "", "expect": "Alice A\nBob B\nCathy F"}},
+30:{learn:["try/except 抓特定錯誤", "raise 主動丟錯", "EAFP 風格的優勢"],try:["故意拼錯 ZeroDivision 看會怎樣", "加 except Exception 兜底", "自訂 InvalidScore 例外"],code:{"task": "輸入字串列表 ['10','0','abc','5']，每行嘗試 100 // int(s)：除 0 印 '除以 0'、非數字印 '不是數字'、正常印商。", "stdin": "", "expect": "10\n除以 0\n不是數字\n20"}},
+31:{learn:["assert 隨手測試", "unittest 基本架構", "系統性 debug 的 4 步驟"],try:["把 is_prime 改錯一個地方，看 assert 哪個會掛", "寫 3 個 unittest 測試", "用 logging 取代 print"],code:{"task": "is_prime(n)：n<2 回 False。對 cases=[(2,True),(3,True),(4,False),(7,True),(9,False),(1,False),(0,False)] 全部 assert 通過時印 'all passed'。", "stdin": "", "expect": "all passed"}},
+32:{learn:["sys.argv 接命令列參數", "argparse 寫出有 --help 的工具", "拆出 main() 加 __main__ 入口"],try:["改成支援 --quiet 不印詳細", "加上負分檢查", "用 - 代表讀 stdin"],code:{"task": "模擬 args=['85','--strict']，若有 --strict 用 70 為門檻，否則 60。輸出 '及格' 或 '不及格'。", "stdin": "", "expect": "及格"}},
+33:{learn:["csv.reader / DictReader", "sorted + lambda 排名", "什麼時候改用 pandas"],try:["改成算中位數", "印各分級人數 (Counter)", "sorted 改成印前 5 名"],code:{"task": "csv: name,score 列為 Alice 92, Bob 75, Cathy 88, David 55, Eve 67。輸出平均（1 位小數）跟最高分兩行。", "stdin": "", "expect": "75.4\n92"}},
+34:{learn:["requests.get + r.json()", "HTTP 動詞 GET/POST/PUT/DELETE", "Timeout 與 raise_for_status"],try:["把 JSON 多加幾個欄位", "用 json.dumps 反向轉回字串", "練 try/except 接 Timeout"],code:{"task": "解析示範用 JSON（含 login=torvalds、name=Linus Torvalds、public_repos=7、followers=200000）。第一行印「login - name」，第二行印「repos=7」。", "stdin": "", "expect": "torvalds - Linus Torvalds\nrepos=7"}},
+35:{learn:["把多章節整合成完整小程式", "JSON 持久化資料", "終端機遊戲的核心：迴圈 + 狀態"],try:["把猜數字加上『3 次內猜中得高分』", "成績管理改成排序輸出", "2048 加上勝負判斷"],code:{"task": "target=42，依序猜 [50,25,37,43,40,42]，每次 < 印 '再大一點'、> 印 '再小一點'、相等印 '中了！' 後停止。每行格式 '數字 → 訊息'。", "stdin": "", "expect": "50 → 再小一點\n25 → 再大一點\n37 → 再大一點\n43 → 再小一點\n40 → 再大一點\n42 → 中了！"}}
 };
 
 // ── 常見錯誤訊息翻譯 ─────────────────────────────────────────────────────
@@ -4336,10 +5733,24 @@ java_stdin:`10\n0 11 22 33 55 66 77 99 88 44\n`
 }
 };
 
+function chapSection(id){
+  if(id <= 26) return {key:'apcs', label:'📘 APCS 考試準備', desc:'語法 → 演算法 → 競賽題型'};
+  if(id <= 31) return {key:'practical', label:'🛠 實用程式', desc:'檔案、模組、OOP、測試 — 寫工具的基本功'};
+  return {key:'project', label:'🚀 製作專案', desc:'CLI / CSV / API / 遊戲，整合練習'};
+}
 function renderChapList() {
   const list = document.getElementById('chap-list');
   list.innerHTML = '';
+  let lastSection = null;
   CHAPTERS.forEach(c => {
+    const sec = chapSection(c.id);
+    if(sec.key !== lastSection){
+      const header = document.createElement('div');
+      header.className = 'sec-header';
+      header.innerHTML = `<div class="sec-label">${sec.label}</div><div class="sec-desc">${sec.desc}</div>`;
+      list.appendChild(header);
+      lastSection = sec.key;
+    }
     const div = document.createElement('div');
     const done = completed.has(c.id);
     div.className = 'chap' + (done ? ' done' : '');
