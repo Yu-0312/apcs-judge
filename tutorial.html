@@ -125,6 +125,17 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .quiz-status{font-size:12px;margin-top:12px;padding:8px 12px;border-radius:4px;text-align:center;font-weight:600}
 .quiz-status.pass{background:rgba(63,185,80,.18);color:var(--py)}
 .quiz-status.fail{background:rgba(248,81,73,.12);color:var(--red)}
+.cq-task{font-size:13.5px;line-height:1.6;color:#e6edf3;margin-bottom:12px}
+.cq-task code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;font-size:12.5px}
+.cq-row{display:flex;gap:10px;margin-bottom:10px}
+.cq-col{flex:1;min-width:0}
+.cq-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.cq-io{background:rgba(0,0,0,.3);border:1px solid var(--border);padding:6px 10px;border-radius:4px;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#cdd9e5;margin:0;white-space:pre;overflow-x:auto}
+.cq-none{font-size:12px;color:var(--text-muted)}
+.cq-btn{background:var(--py);color:#0d1117;border:none;padding:8px 16px;border-radius:5px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;margin-top:4px}
+.cq-btn:hover:not(:disabled){filter:brightness(1.1)}
+.cq-btn:disabled{opacity:.6;cursor:wait}
+.quiz-status.fail pre.cq-io{margin-top:6px}
 .err-hint{margin-top:10px;padding:10px 12px;background:rgba(248,81,73,.08);border-left:3px solid var(--red);border-radius:0 4px 4px 0;font-size:12px;color:#ffb1ad;line-height:1.55}
 .err-hint b{color:#ffd1ce}
 .intro-card{background:linear-gradient(135deg,rgba(63,185,80,.08),rgba(121,192,255,.06));border:1px solid rgba(63,185,80,.3);padding:16px 18px;border-radius:8px;margin:14px 0}
@@ -1675,7 +1686,8 @@ const CHAPTER_META = {
     {q:"程式碼裡開頭是 # 的整行，電腦會怎麼處理？", opts:["當作指令執行","完全跳過（這叫註解）","印出來給使用者看","視為錯誤"], ans:1, why:"# 開頭的是註解，給人看的提示，電腦會略過。"},
     {q:"<code>print(\"Hello\")</code> 這行做什麼？", opts:["把 Hello 存進變數","把 Hello 顯示在輸出","把 Hello 寫進檔案","刪除 Hello"], ans:1, why:"print() 是把括號裡的東西顯示出來，是最常用的「輸出」指令。"},
     {q:"Python 一行程式碼的結尾需要分號 <code>;</code> 嗎？", opts:["一定要","不需要，換行就是結束","只有 print 要","看情況"], ans:1, why:"Python 用換行就代表一行結束，不像 C/C++/Java 一定要寫分號。"}
-  ]},
+  ],
+  code:{"task": "修改右邊程式，讓它輸出兩行：第一行 <code>Hello</code>，第二行 <code>APCS</code>。", "stdin": "", "expect": "Hello\nAPCS"}},
 1:{
   learn:["把資料『存進變數』裡","認識四種基本型別：int / float / str / bool","用 int() / str() 在型別之間轉換"],
   try:[
@@ -1687,7 +1699,8 @@ const CHAPTER_META = {
     {q:"哪一個是整數（int）？", opts:["3.14","\"42\"","42","True"], ans:2, why:"沒有引號、沒有小數點的數字 42 是 int。\"42\" 是字串。"},
     {q:"<code>type(\"123\")</code> 會回傳什麼？", opts:["int","str","float","bool"], ans:1, why:"有引號就是字串 str，即使內容看起來是數字。"},
     {q:"input() 讀進來預設是什麼型別？", opts:["int","float","str","看你輸入什麼"], ans:2, why:"input() 永遠回傳字串，要用 int() 才能拿來做數學運算。"}
-  ]},
+  ],
+  code:{"task": "宣告 <code>a = 10</code>、<code>b = 20</code>，依序印出 a、b、a+b 三行。", "stdin": "", "expect": "10\n20\n30"}},
 2:{
   learn:["用 input() 從鍵盤讀取資料","用 print() 印出結果","學會 split() + map() 一次讀多個數字"],
   try:[
@@ -1699,7 +1712,8 @@ const CHAPTER_META = {
     {q:"<code>a, b = map(int, input().split())</code> 的用途？", opts:["讀一個整數","讀一行、用空白切開、各自轉成整數","讀兩行字串","印出 a 和 b"], ans:1, why:"split() 用空白切開字串成 list，map(int, ...) 把每個元素轉成 int。"},
     {q:"<code>print(\"x\", \"y\")</code> 預設輸出是？", opts:["xy","x y","x,y","x\\ny"], ans:1, why:"print 多個值預設用空白分隔。"},
     {q:"想印完不換行，要怎麼寫？", opts:["print(\"x\", end=\"\")","print(\"x\", noln=True)","print(\"x\\\\n\")","write(\"x\")"], ans:0, why:"end=\"\" 把預設的換行符換成空字串。"}
-  ]},
+  ],
+  code:{"task": "從標準輸入讀兩個整數（同一行、空白分隔），輸出它們的和。", "stdin": "3 5\n", "expect": "8"}},
 3:{
   learn:["+ - * / 與整數除法 //、餘數 %","運算順序：先乘除後加減、括號優先","從一個三位數拆出百位、十位、個位"],
   try:[
@@ -1711,7 +1725,8 @@ const CHAPTER_META = {
     {q:"<code>17 // 5</code> 的結果？", opts:["3.4","3","4","2"], ans:1, why:"// 是整數除法，去掉小數部分。"},
     {q:"<code>17 % 5</code> 的結果？", opts:["3.4","3","4","2"], ans:3, why:"% 是餘數：17 = 5×3 + 2，所以餘 2。"},
     {q:"想取出 528 的「十位數」(2)，怎麼寫最快？", opts:["528 // 10","528 % 10","528 // 10 % 10","528 % 100"], ans:2, why:"先 // 10 把 528 變 52，再 % 10 取個位就是原本的十位 = 2。"}
-  ]},
+  ],
+  code:{"task": "讀一個三位數，分三行印出它的百位、十位、個位。", "stdin": "528\n", "expect": "5\n2\n8"}},
 4:{
   learn:["用 if / elif / else 做分支","比較運算子 == != < > <= >=","用 and / or / not 組合條件"],
   try:[
@@ -1723,7 +1738,8 @@ const CHAPTER_META = {
     {q:"<code>if x == 5:</code> 跟 <code>if x = 5:</code> 差別？", opts:["沒差","= 是賦值、== 才是比較，後者會出錯","等號的數量不影響","Python 兩種都可以"], ans:1, why:"一個等號是「把右邊存到左邊」（賦值），兩個才是「相等嗎」（比較）。"},
     {q:"想表達「年齡介於 13 到 18 之間」，Python 最自然的寫法是？", opts:["13 <= age <= 18","13 <= age and age <= 18 (錯)","age in [13,18]","age == 13..18"], ans:0, why:"Python 支援連鎖比較 13 <= age <= 18，比 and 寫法更直觀。"},
     {q:"<code>if a and b:</code> 只在何時為真？", opts:["a 或 b 任一為真","a 和 b 都為真","只有 a 為真","都不需要為真"], ans:1, why:"and 要求兩邊都為真才整體為真。"}
-  ]},
+  ],
+  code:{"task": "讀一個整數，若為偶數印 <code>even</code>，否則印 <code>odd</code>。", "stdin": "7\n", "expect": "odd"}},
 5:{
   learn:["for 迴圈搭配 range() 重複動作","巢狀迴圈做出二維輸出","while 迴圈直到條件不成立才停"],
   try:[
@@ -1735,7 +1751,8 @@ const CHAPTER_META = {
     {q:"<code>range(5)</code> 會產生哪些數字？", opts:["1 2 3 4 5","0 1 2 3 4","0 1 2 3 4 5","5"], ans:1, why:"range(n) 是 0 到 n-1，不含 n。"},
     {q:"<code>range(2, 10, 3)</code> 會產生？", opts:["2 5 8","2 3 4...9","2 5 8 10","3 6 9"], ans:0, why:"start=2, stop=10, step=3 → 2, 5, 8（下一個 11 已超過 stop）。"},
     {q:"想跳出最內層迴圈，用哪個關鍵字？", opts:["exit","return","break","continue"], ans:2, why:"break 馬上離開當前迴圈；continue 是跳到下一輪。"}
-  ]},
+  ],
+  code:{"task": "用迴圈計算 1 到 100 的總和並印出。", "stdin": "", "expect": "5050"}},
 6:{
   learn:["字串切片 s[a:b]、s[::-1]","常用方法：len/split/replace/upper/lower","用 \"\".join(list) 把 list 接成字串"],
   try:[
@@ -1747,7 +1764,8 @@ const CHAPTER_META = {
     {q:"<code>\"APCS\"[1]</code> 是？", opts:["A","P","C","S"], ans:1, why:"index 從 0 開始：0=A, 1=P, 2=C, 3=S。"},
     {q:"<code>\"hello\".upper()</code> 結果？", opts:["hello","Hello","HELLO","HELLo"], ans:2, why:"upper() 把整串轉大寫。"},
     {q:"<code>\"a,b,c\".split(\",\")</code> 結果？", opts:["\"abc\"","[\"a\",\"b\",\"c\"]","(\"a\",\"b\",\"c\")","[\"a,b,c\"]"], ans:1, why:"split 用逗號切開，回傳 list。"}
-  ]},
+  ],
+  code:{"task": "讀一個字串，第一行印它的長度，第二行印反轉後的字串。", "stdin": "hello\n", "expect": "5\nolleh"}},
 7:{
   learn:["List 是「一排放東西的盒子」，用 [ ] 包住","常用：append / pop / sort / len","用 for x in lst 走訪每個元素"],
   try:[
@@ -1759,7 +1777,8 @@ const CHAPTER_META = {
     {q:"<code>nums = [10,20,30]</code>，<code>nums[2]</code> 是？", opts:["10","20","30","錯誤"], ans:2, why:"index 從 0 開始：0=10, 1=20, 2=30。"},
     {q:"想在 list 尾巴加一個值，用？", opts:["append","add","push","insert(-1)"], ans:0, why:"Python list 標準做法是 nums.append(x)。"},
     {q:"<code>len([1,2,3,4])</code> 是？", opts:["3","4","5","0"], ans:1, why:"len 回傳元素數量，4 個。"}
-  ]},
+  ],
+  code:{"task": "第一行讀 n，第二行讀 n 個整數，輸出最大值。", "stdin": "5\n3 1 4 1 5\n", "expect": "5"}},
 8:{
   learn:["二維陣列就是「list 裡裝 list」","用 g[i][j] 存取第 i 列第 j 行","正確建立 n×m 二維陣列：<code>[[0]*m for _ in range(n)]</code>"],
   try:[
@@ -1771,7 +1790,8 @@ const CHAPTER_META = {
     {q:"想建立 3×4 的全 0 二維陣列，正確寫法？", opts:["[[0]*3]*4","[[0]*4 for _ in range(3)]","[0]*12","[[0,0,0,0]]*3"], ans:1, why:"用 for 才能保證每列是獨立 list。[[0]*4]*3 三列共用同一個 list！"},
     {q:"<code>g[2][3]</code> 表示？", opts:["第 2 行第 3 列","第 2 列第 3 行","第 3 列第 4 行","第 3 列第 2 行"], ans:1, why:"慣例 g[i][j] = 第 i 列第 j 行（從 0 開始）。"},
     {q:"想走訪二維陣列每個元素，最常見的寫法？", opts:["單一 for","兩層 for","while","遞迴"], ans:1, why:"外層走列、內層走行，兩層 for 標準寫法。"}
-  ]},
+  ],
+  code:{"task": "輸出 3×3 乘法表，第 i 列第 j 行為 (i+1)*(j+1)，每列三數空白分隔。", "stdin": "", "expect": "1 2 3\n2 4 6\n3 6 9"}},
 9:{
   learn:["用 def 定義函式，把重複邏輯封裝","用 return 把結果送回呼叫端","參數讓函式更通用"],
   try:[
@@ -1783,7 +1803,8 @@ const CHAPTER_META = {
     {q:"<code>def f(x): return x*2</code>，呼叫 <code>f(5)</code> 是？", opts:["5","10","x*2","錯誤"], ans:1, why:"傳入 x=5，回傳 5*2=10。"},
     {q:"函式沒寫 return 會回傳什麼？", opts:["0","\"\"","None","錯誤"], ans:2, why:"預設回傳 None。"},
     {q:"判斷質數，迴圈最佳到哪裡就夠？", opts:["i < n","i <= n/2","i*i <= n","i < 100"], ans:2, why:"只要試到 √n 就好——i*i <= n 是等價且不用 import math.sqrt。"}
-  ]},
+  ],
+  code:{"task": "寫一個函式 <code>add(a,b)</code> 回傳兩數和，呼叫 add(7, 8) 並印出結果。", "stdin": "", "expect": "15"}},
 10:{
   learn:["dict 是「鍵 → 值」的對應表，用 { } 建立","set 是不重複的集合","常用：d[k]、d.get(k, 預設)、k in d"],
   try:[
@@ -1795,7 +1816,8 @@ const CHAPTER_META = {
     {q:"<code>d = {\"a\":1, \"b\":2}</code>，<code>d[\"a\"]</code> 是？", opts:["1","2","\"a\"","錯誤"], ans:0, why:"用 key 取對應的 value。"},
     {q:"想安全地取一個可能不存在的 key，用哪個？", opts:["d[k]（不存在會錯）","d.get(k, 0)","d.find(k)","d.has(k)"], ans:1, why:"d.get(k, 預設值) 不存在就回傳預設值，不會出錯。"},
     {q:"set 跟 list 最大差別？", opts:["set 比較快","set 不能重複、沒順序","set 只能裝數字","沒差別"], ans:1, why:"set 自動去重複、不保證順序，適合「是否出現過」這類問題。"}
-  ]},
+  ],
+  code:{"task": "讀一個字串，輸出有幾種不同字元。", "stdin": "abcabc\n", "expect": "3"}},
 11:{
   learn:["線性搜尋 vs 二分搜尋的時間差","前綴和 O(1) 算區間和","埃氏篩 + 質數判斷"],
   try:[
@@ -1807,7 +1829,8 @@ const CHAPTER_META = {
     {q:"已排序陣列找元素，最快用？", opts:["線性搜尋","二分搜尋","暴力","遞迴"], ans:1, why:"已排序就能用二分，每次砍一半，O(log n)。"},
     {q:"前綴和 ps，<code>a[l..r]</code> 區間和 = ?", opts:["ps[r] - ps[l]","ps[r+1] - ps[l]","ps[r] + ps[l]","ps[r-1] - ps[l]"], ans:1, why:"ps[i] 表示「前 i 個」，所以 a[l..r] = ps[r+1] - ps[l]。"},
     {q:"判斷 n 是質數的迴圈條件最佳是？", opts:["i < n","i <= n","i*i <= n","i < n/2"], ans:2, why:"任何合數 n 必有 ≤ √n 的因數，所以試到 √n 就足夠。"}
-  ]},
+  ],
+  code:{"task": "第一行 n k，第二行 n 個整數，輸出陣列中等於 k 的個數。", "stdin": "5 3\n1 3 3 2 3\n", "expect": "3"}},
 12:{
   learn:["巢狀迴圈處理二維問題","用 break 提早離開最內層","認識「外迴圈固定 i、內迴圈跑 j」的模式"],
   try:[
@@ -1819,7 +1842,8 @@ const CHAPTER_META = {
     {q:"兩層 for 跑 1 到 n，總共執行幾次？", opts:["n","2n","n²","n log n"], ans:2, why:"外層 n 次、內層 n 次，總共 n × n = n²。"},
     {q:"巴斯卡三角形 g[i][j] = ?", opts:["g[i-1][j-1] + g[i-1][j]","g[i][j-1] + 1","g[i-1][j] * 2","i + j"], ans:0, why:"每格等於左上 + 正上。"},
     {q:"想在內層找到目標立刻離開，用？", opts:["return","continue","break","exit"], ans:2, why:"break 只跳出當前最內層迴圈。"}
-  ]},
+  ],
+  code:{"task": "讀一個整數 n，印出 n 列星號三角形（第 i 列 i 個 *）。", "stdin": "4\n", "expect": "*\n**\n***\n****"}},
 13:{
   learn:["List comprehension：<code>[f(x) for x in lst if cond]</code>","可以一行做篩選 + 轉換","嵌套：雙層 for 寫成一行"],
   try:[
@@ -1831,7 +1855,8 @@ const CHAPTER_META = {
     {q:"<code>[x*2 for x in [1,2,3]]</code> 結果？", opts:["[1,2,3]","[2,4,6]","[1,4,9]","[2,2,2]"], ans:1, why:"每個元素乘以 2。"},
     {q:"想篩出 list 中所有奇數，最簡潔？", opts:["[x for x in a if x%2==1]","filter(odd, a)","用 for + append","sum(a)"], ans:0, why:"list comprehension 是 Python 最自然的篩選寫法。"},
     {q:"<code>[i+j for i in range(2) for j in range(2)]</code>?", opts:["[0,1,1,2]","[0,1,2,3]","[[0,1],[1,2]]","錯誤"], ans:0, why:"i=0,j=0→0; i=0,j=1→1; i=1,j=0→1; i=1,j=1→2。"}
-  ]},
+  ],
+  code:{"task": "讀一個整數 n，輸出 1 到 n 之間所有偶數的平方和。", "stdin": "6\n", "expect": "56"}},
 14:{
   learn:["sorted() 不改原 list，sort() 直接改","用 key=lambda x: ... 自訂排序鍵","多重排序：key 回傳 tuple"],
   try:[
@@ -1843,7 +1868,8 @@ const CHAPTER_META = {
     {q:"<code>lambda x: x*2</code> 等同於？", opts:["def f(x): return x*2","def f(): return x*2","x = 2","print(x*2)"], ans:0, why:"lambda 是「匿名小函式」的語法糖。"},
     {q:"想分數降冪排序，<code>key</code> 怎麼寫？", opts:["lambda s: s[1]","lambda s: -s[1]","reverse=True","以上 B 或 C 都行"], ans:3, why:"key=lambda s: -s[1] 或 sorted(..., reverse=True) 都可達到降冪。"},
     {q:"sorted() 跟 sort() 差別？", opts:["sorted 改原 list","sort 回傳新 list","sorted 回傳新 list、sort 改原 list","完全相同"], ans:2, why:"sorted(a) 不動 a；a.sort() 直接排 a 但回傳 None。"}
-  ]},
+  ],
+  code:{"task": "第一行 n，第二行 n 個整數。由大到小排序後一行輸出，空白分隔。", "stdin": "5\n3 1 4 1 5\n", "expect": "5 4 3 1 1"}},
 15:{
   learn:["函式呼叫自己 = 遞迴","必須有「終止條件」，否則無限循環","經典例子：階乘、費氏、回溯（N 皇后）"],
   try:[
@@ -1855,7 +1881,8 @@ const CHAPTER_META = {
     {q:"遞迴一定要有的東西是？", opts:["全域變數","終止條件","迴圈","print"], ans:1, why:"沒終止條件會無限呼叫，最後 RecursionError。"},
     {q:"<code>def f(n): return 1 if n<=1 else n*f(n-1)</code>，<code>f(4)</code>?", opts:["4","10","24","120"], ans:2, why:"4! = 4×3×2×1 = 24。"},
     {q:"N 皇后用了哪個演算法策略？", opts:["DP","BFS","回溯（backtracking）","二分搜"], ans:2, why:"逐列嘗試、不行就退一步，是典型回溯。"}
-  ]},
+  ],
+  code:{"task": "用遞迴定義階乘函式，輸出 7! 的值。", "stdin": "", "expect": "5040"}},
 16:{
   learn:["枚舉題 = 「全部試一遍」的解法","位元遮罩可以枚舉所有子集合","適合 n ≤ 20 的小規模問題"],
   try:[
@@ -1867,7 +1894,8 @@ const CHAPTER_META = {
     {q:"n 個元素的所有子集合共幾個？", opts:["n","2n","n!","2^n"], ans:3, why:"每個元素「選或不選」兩種，共 2ⁿ 種組合。"},
     {q:"<code>mask & (1 << i)</code> 用來做什麼？", opts:["把 i 設為 1","檢查 mask 的第 i 個位元是 1 嗎","把 mask 變大","計算次方"], ans:1, why:"1 << i 是「只有第 i 位為 1」的數，用 & 來檢查 mask 第 i 位是否為 1。"},
     {q:"枚舉法在 n 多大時還能跑？", opts:["n ≤ 5","n ≤ 20","n ≤ 100","n ≤ 1000"], ans:1, why:"2²⁰ ≈ 100 萬還可接受；超過 25 就太慢。"}
-  ]},
+  ],
+  code:{"task": "讀 4 個整數（空白分隔），是否存在兩個和為 10？存在印 <code>Yes</code>，否則 <code>No</code>。", "stdin": "3 7 5 8\n", "expect": "Yes"}},
 17:{
   learn:["deque 兩端 O(1) 插入/刪除","heapq 永遠拿到最小值","Counter 算頻率、defaultdict 預設值省判斷"],
   try:[
@@ -1879,7 +1907,8 @@ const CHAPTER_META = {
     {q:"heapq 預設是哪種堆？", opts:["最大堆","最小堆","二元樹","平衡樹"], ans:1, why:"Python heapq 是最小堆，heap[0] 永遠是最小值。"},
     {q:"<code>Counter([1,1,2,3,3,3])</code> 結果？", opts:["{1,2,3}","Counter({1:2, 2:1, 3:3})","[1,1,2,3,3,3]","6"], ans:1, why:"Counter 自動算每個元素出現幾次。"},
     {q:"deque 比 list 強在哪？", opts:["佔記憶體少","左端插入是 O(1) 不像 list 是 O(n)","支援索引","可以排序"], ans:1, why:"list.insert(0, x) 是 O(n)，deque.appendleft(x) 是 O(1)。"}
-  ]},
+  ],
+  code:{"task": "讀一個字串，輸出出現次數最多的字元（保證唯一答案）。", "stdin": "abracadabra\n", "expect": "a"}},
 18:{
   learn:["常見錯誤：NameError / IndexError / TypeError 怎麼讀","常見邏輯 bug：off-by-one、淺拷貝陷阱","用 print 除錯：把中間結果印出來看"],
   try:[
@@ -1891,7 +1920,8 @@ const CHAPTER_META = {
     {q:"<code>NameError: name 'x' is not defined</code> 代表？", opts:["x 太多了","x 還沒指定值就被用","x 被多次賦值","語法錯誤"], ans:1, why:"用了一個從沒給值的變數。"},
     {q:"<code>a = [1,2,3]; a[3]</code> 會發生？", opts:["回傳 3","回傳 None","IndexError","補一個 0"], ans:2, why:"index 3 超出範圍（合法是 0~2），會 IndexError。"},
     {q:"想算 1+2+...+n，<code>for i in range(n)</code> 對嗎？", opts:["對","少 1（應是 range(n+1) 或 range(1,n+1)）","會無限迴圈","會 IndexError"], ans:1, why:"range(n) 是 0..n-1，少了 n 本身。"}
-  ]},
+  ],
+  code:{"task": "讀一個整數 n，輸出 1+2+...+n 的總和（小心 range 邊界要包含 n）。", "stdin": "10\n", "expect": "55"}},
 19:{
   learn:["把前面學的整合起來","Kadane 演算法：O(n) 求最大連續子陣列和","「擴展或重啟」是 Kadane 的核心思想"],
   try:[
@@ -1903,7 +1933,8 @@ const CHAPTER_META = {
     {q:"Kadane 的關鍵一行 <code>cur = max(a[i], cur + a[i])</code> 在做什麼？", opts:["排序","選擇「重啟」或「延續」","印出最大值","計算總和"], ans:1, why:"a[i] = 重啟（從這裡重新開始）；cur+a[i] = 延續前面的連續和。取較大者。"},
     {q:"Kadane 的時間複雜度？", opts:["O(1)","O(log n)","O(n)","O(n²)"], ans:2, why:"一個迴圈跑過全部元素，O(n)。"},
     {q:"全負陣列，Kadane 答案應該是？", opts:["0","最大的負數（最不負的）","最小的負數","空陣列總和 0"], ans:1, why:"題目要求「至少選一個」，所以答案是最大的負數而不是 0。"}
-  ]},
+  ],
+  code:{"task": "第一行 n，第二行 n 個整數，輸出最大連續子陣列和（Kadane）。", "stdin": "9\n-2 1 -3 4 -1 2 1 -5 4\n", "expect": "6"}},
 20:{
   learn:["APCS 拿分的關鍵：讀清楚 I/O 格式","練習用小例子手算驗證","常見陷阱：邊界、整數溢位、淺拷貝"],
   try:[
@@ -1915,7 +1946,8 @@ const CHAPTER_META = {
     {q:"成績指標題要先做什麼？", opts:["先排序","先找平均","先輸出","先計算總和"], ans:0, why:"先 sort 才能用一次掃描找到「最高不及格」和「最低及格」。"},
     {q:"<code>print(*scores)</code> 跟 <code>print(scores)</code> 差別？", opts:["沒差","* 會展開成空白分隔，沒 * 會印 [...]","* 會更快","* 會錯誤"], ans:1, why:"print(*lst) 把 list 展開成多個參數，預設用空白分隔；不加星號會印整個 list 含中括號。"},
     {q:"全班都及格時，「最高不及格」要輸出什麼？", opts:["0","-1","best case","空白"], ans:2, why:"題目特別規定：沒人不及格時印 best case；沒人及格時印 worst case。"}
-  ]}
+  ],
+  code:{"task": "第一行 n，第二行 n 個整數成績，輸出及格人數（≥ 60）。", "stdin": "5\n55 60 80 30 90\n", "expect": "3"}}
 };
 
 // ── 常見錯誤訊息翻譯 ─────────────────────────────────────────────────────
@@ -1978,7 +2010,8 @@ function updateProgress(){
 // beginner mode removed — all chapters & languages always available
 
 // ── 小測驗渲染與互動 ──────────────────────────────────────────────────────
-let quizState = {};   // {chapId: {qIdx: pickedIdx}}
+let quizState = {};   // legacy MC quiz state (unused after v5)
+let codeQuizState = {}; // {chapId: {status:'pass'|'fail', got:string}}
 function renderMeta(chap){
   const meta = CHAPTER_META[chap.id];
   if(!meta) return '';
@@ -1989,40 +2022,26 @@ function renderMeta(chap){
   if(meta.try?.length){
     html += `<div class="try-box"><div class="lh">✋ 動手試試（改右邊程式碼）</div><ol>${meta.try.map(x=>`<li>${x}</li>`).join('')}</ol></div>`;
   }
-  if(meta.quiz?.length){
-    const state = quizState[chap.id] || {};
-    html += `<div class="quiz-box"><div class="lh">📝 小測驗</div>`;
-    meta.quiz.forEach((q, qi) => {
-      html += `<div class="quiz-q">Q${qi+1}. ${q.q}</div>`;
-      q.opts.forEach((opt, oi) => {
-        const picked = state[qi];
-        let cls = 'quiz-opt';
-        if(picked !== undefined){
-          cls += ' locked';
-          if(oi === q.ans) cls += ' correct';
-          else if(oi === picked) cls += ' wrong';
-        }
-        html += `<button class="${cls}" onclick="pickQuiz(${chap.id},${qi},${oi})">${String.fromCharCode(65+oi)}. ${opt}</button>`;
-      });
-      if(state[qi] !== undefined){
-        html += `<div class="quiz-explain">💡 ${q.why}</div>`;
-      }
-    });
-    const answered = meta.quiz.every((q, qi) => state[qi] !== undefined);
-    if(answered){
-      const allRight = meta.quiz.every((q, qi) => state[qi] === q.ans);
-      if(allRight){
-        html += `<div class="quiz-status pass">🎉 全對！${chap.id < CHAPTERS.length-1 ? '繼續下一章吧' : '你已經完成全部教學！'}</div>`;
-        if(!completed.has(chap.id)) setTimeout(()=>markDone(chap.id), 100);
+  if(meta.code){
+    const st = codeQuizState[chap.id];
+    const stdinDisp = meta.code.stdin ? `<pre class="cq-io">${escapeHtml(meta.code.stdin)}</pre>` : '<i class="cq-none">（無輸入）</i>';
+    html += `<div class="quiz-box"><div class="lh">📝 程式練習（在右邊編輯器寫程式碼，按下方按鈕檢查）</div>`;
+    html += `<div class="cq-task">${meta.code.task}</div>`;
+    html += `<div class="cq-row"><div class="cq-col"><div class="cq-label">標準輸入</div>${stdinDisp}</div>`;
+    html += `<div class="cq-col"><div class="cq-label">預期輸出</div><pre class="cq-io">${escapeHtml(meta.code.expect)}</pre></div></div>`;
+    html += `<button class="cq-btn" id="check-btn-${chap.id}" onclick="checkAnswer(${chap.id})">▶ 執行並檢查答案</button>`;
+    if(st){
+      if(st.status === 'pass'){
+        html += `<div class="quiz-status pass">🎉 通過！${chap.id < CHAPTERS.length-1 ? '繼續下一章吧' : '你已經完成全部教學！'}</div>`;
       } else {
-        const wrongCount = meta.quiz.filter((q,qi)=>state[qi]!==q.ans).length;
-        html += `<div class="quiz-status fail">還有 ${wrongCount} 題不對。看完解釋後，重新整理頁面再試一次。</div>`;
+        html += `<div class="quiz-status fail">❌ 輸出不符。你的輸出：<pre class="cq-io">${escapeHtml(st.got)}</pre>修一修再按一次。</div>`;
       }
     }
     html += `</div>`;
   }
   return html;
 }
+function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function pickQuiz(chapId, qi, oi){
   if(!quizState[chapId]) quizState[chapId] = {};
   if(quizState[chapId][qi] !== undefined) return; // 已作答
@@ -4366,18 +4385,13 @@ function resetExample() {
   }
 }
 
-async function runCode() {
-  const code = cm.getValue();
-  const stdin = document.getElementById('stdin-input').value;
-  const out = document.getElementById('output-body');
-  out.textContent = '執行中...';
-
-  try {
-    if (currentLang === 'py') {
-      if (!pyodide) { out.textContent = 'Pyodide 尚未載入'; return; }
-      pyodide.globals.set('__user_stdin', stdin);
-      pyodide.globals.set('__user_code', code);
-      await pyodide.runPythonAsync(`
+async function executeCode(code, stdin, lang) {
+  // returns {raw: full output text, stderr: boolean}
+  if (lang === 'py') {
+    if (!pyodide) return {raw:'Pyodide 尚未載入', stderr:true};
+    pyodide.globals.set('__user_stdin', stdin);
+    pyodide.globals.set('__user_code', code);
+    await pyodide.runPythonAsync(`
 import sys, io, traceback
 __buf = io.StringIO()
 __old_in, __old_out, __old_err = sys.stdin, sys.stdout, sys.stderr
@@ -4394,40 +4408,76 @@ finally:
     sys.stdin, sys.stdout, sys.stderr = __old_in, __old_out, __old_err
 __result = __buf.getvalue()
 `);
-      const result = pyodide.globals.get('__result') || '(無輸出)';
-      const hint = translateError(result);
-      if(hint){
-        out.innerHTML = '';
-        const pre = document.createElement('div');
-        pre.textContent = result;
-        out.appendChild(pre);
-        const hintDiv = document.createElement('div');
-        hintDiv.innerHTML = hint;
-        out.appendChild(hintDiv);
-      } else {
-        out.textContent = result;
-      }
-    } else if (currentLang === 'cpp' || currentLang === 'c') {
-      let buf = '';
-      try {
-        JSCPP.run(code, stdin, { stdio: { write: s => { buf += s; } } });
-        out.textContent = buf || '(無輸出)';
-      } catch (e) {
-        out.textContent = (buf ? buf + '\n' : '') + 'JSCPP 錯誤：\n' + String(e.message || e).split('\n').slice(0, 6).join('\n');
-      }
-    } else { // java
-      const res = await fetch('https://emkc.org/api/v2/piston/execute', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ language: 'java', version: '15.0.2', files: [{ name: 'Main.java', content: code }], stdin, run_timeout: 8000 })
-      });
-      const data = await res.json();
-      const stdout = data.run?.stdout || '';
-      const stderr = data.run?.stderr || data.compile?.stderr || '';
-      out.textContent = (stdout + (stderr ? '\n[stderr]\n' + stderr : '')) || '(無輸出)';
+    const result = pyodide.globals.get('__result') || '';
+    return {raw: result, stderr: /Traceback|Error/.test(result)};
+  }
+  if (lang === 'cpp' || lang === 'c') {
+    let buf = '';
+    try {
+      JSCPP.run(code, stdin, { stdio: { write: s => { buf += s; } } });
+      return {raw: buf, stderr: false};
+    } catch (e) {
+      return {raw: (buf ? buf + '\n' : '') + 'JSCPP 錯誤：\n' + String(e.message || e).split('\n').slice(0, 6).join('\n'), stderr: true};
+    }
+  }
+  // java
+  const res = await fetch('https://emkc.org/api/v2/piston/execute', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ language: 'java', version: '15.0.2', files: [{ name: 'Main.java', content: code }], stdin, run_timeout: 8000 })
+  });
+  const data = await res.json();
+  const stdout = data.run?.stdout || '';
+  const stderr = data.run?.stderr || data.compile?.stderr || '';
+  return {raw: stdout + (stderr ? '\n[stderr]\n' + stderr : ''), stderr: !!stderr};
+}
+
+async function runCode() {
+  const code = cm.getValue();
+  const stdin = document.getElementById('stdin-input').value;
+  const out = document.getElementById('output-body');
+  out.textContent = '執行中...';
+  try {
+    const {raw} = await executeCode(code, stdin, currentLang);
+    const result = raw || '(無輸出)';
+    const hint = currentLang === 'py' ? translateError(result) : '';
+    if(hint){
+      out.innerHTML = '';
+      const pre = document.createElement('div');
+      pre.textContent = result;
+      out.appendChild(pre);
+      const hintDiv = document.createElement('div');
+      hintDiv.innerHTML = hint;
+      out.appendChild(hintDiv);
+    } else {
+      out.textContent = result;
     }
   } catch (e) {
     out.textContent = '錯誤：\n' + (e.message || e);
   }
+}
+
+// ── 程式練習：執行使用者程式碼，比對 stdout 是否符合預期 ───────────────
+function normalizeOutput(s){
+  return (s || '').replace(/\r\n/g,'\n').replace(/[ \t]+\n/g,'\n').replace(/\n+$/,'').trim();
+}
+async function checkAnswer(chapId){
+  const meta = CHAPTER_META[chapId];
+  if(!meta || !meta.code) return;
+  const btn = document.getElementById('check-btn-'+chapId);
+  if(btn){ btn.disabled = true; btn.textContent = '執行中...'; }
+  const code = cm.getValue();
+  let result;
+  try {
+    result = await executeCode(code, meta.code.stdin || '', currentLang);
+  } catch(e){
+    result = {raw: String(e.message||e), stderr: true};
+  }
+  const got = normalizeOutput(result.raw);
+  const want = normalizeOutput(meta.code.expect);
+  const passed = !result.stderr && got === want;
+  codeQuizState[chapId] = {status: passed ? 'pass' : 'fail', got: result.raw || '(無輸出)'};
+  if(passed && !completed.has(chapId)) markDone(chapId);
+  if(currentChap && currentChap.id === chapId) selectChap(chapId, {preserveEditor:true});
 }
 
 renderChapList();
