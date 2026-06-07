@@ -127,8 +127,6 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .quiz-status.fail{background:rgba(248,81,73,.12);color:var(--red)}
 .err-hint{margin-top:10px;padding:10px 12px;background:rgba(248,81,73,.08);border-left:3px solid var(--red);border-radius:0 4px 4px 0;font-size:12px;color:#ffb1ad;line-height:1.55}
 .err-hint b{color:#ffd1ce}
-.beginner .lang-tab:not(#ltab-py){display:none}
-.beginner .lang-tab#ltab-py{flex:0 0 auto}
 .intro-card{background:linear-gradient(135deg,rgba(63,185,80,.08),rgba(121,192,255,.06));border:1px solid rgba(63,185,80,.3);padding:16px 18px;border-radius:8px;margin:14px 0}
 .intro-card h3{margin-top:0;color:var(--py)}
 .intro-card p{font-size:13.5px;margin:6px 0}
@@ -136,9 +134,8 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 </head>
 <body>
 <header>
-  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub">21 章 · 從零開始 · Python / C++ / C / Java</div></div>
+  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub">21 章 · Python / C++ / C / Java · 自由切換</div></div>
   <div class="hright">
-    <div class="mode-toggle on" id="mode-toggle" onclick="toggleBeginnerMode()" title="新手模式：只顯示 Python、需依序解鎖、自動翻譯錯誤"><span class="dot"></span><span id="mode-label">新手模式</span></div>
     <a href="index.html">🎯 前往題庫</a>
     <span><span class="status-dot" id="status-dot"></span><span id="status-text">Pyodide 載入中...</span></span>
   </div>
@@ -1961,11 +1958,7 @@ function saveState(){
   localStorage.setItem('tut_beginner', beginnerMode ? '1' : '0');
   localStorage.setItem('tut_done', JSON.stringify([...completed]));
 }
-function isUnlocked(id){
-  if(!beginnerMode) return true;
-  if(id <= 0) return true;
-  return completed.has(id - 1);
-}
+function isUnlocked(id){ return true; }
 function markDone(id){
   if(!completed.has(id)){
     completed.add(id);
@@ -1982,17 +1975,7 @@ function updateProgress(){
   document.getElementById('prog-count').textContent = `${done} / ${total} 章`;
   document.getElementById('prog-pct').textContent = pct + '%';
 }
-function toggleBeginnerMode(){
-  beginnerMode = !beginnerMode;
-  saveState();
-  const t = document.getElementById('mode-toggle');
-  t.classList.toggle('on', beginnerMode);
-  document.getElementById('mode-label').textContent = beginnerMode ? '新手模式' : '完整模式';
-  document.body.classList.toggle('beginner', beginnerMode);
-  if(beginnerMode && currentLang !== 'py') switchLang('py');
-  renderChapList();
-  if(currentChap) selectChap(currentChap.id);
-}
+// beginner mode removed — all chapters & languages always available
 
 // ── 小測驗渲染與互動 ──────────────────────────────────────────────────────
 let quizState = {};   // {chapId: {qIdx: pickedIdx}}
@@ -2008,7 +1991,7 @@ function renderMeta(chap){
   }
   if(meta.quiz?.length){
     const state = quizState[chap.id] || {};
-    html += `<div class="quiz-box"><div class="lh">📝 小測驗${beginnerMode?'（答對全部解鎖下一章）':''}</div>`;
+    html += `<div class="quiz-box"><div class="lh">📝 小測驗</div>`;
     meta.quiz.forEach((q, qi) => {
       html += `<div class="quiz-q">Q${qi+1}. ${q.q}</div>`;
       q.opts.forEach((opt, oi) => {
@@ -2029,7 +2012,7 @@ function renderMeta(chap){
     if(answered){
       const allRight = meta.quiz.every((q, qi) => state[qi] === q.ans);
       if(allRight){
-        html += `<div class="quiz-status pass">🎉 全對！${chap.id < CHAPTERS.length-1 ? '已解鎖第 ' + (chap.id+1) + ' 章' : '你已經完成全部教學！'}</div>`;
+        html += `<div class="quiz-status pass">🎉 全對！${chap.id < CHAPTERS.length-1 ? '繼續下一章吧' : '你已經完成全部教學！'}</div>`;
         if(!completed.has(chap.id)) setTimeout(()=>markDone(chap.id), 100);
       } else {
         const wrongCount = meta.quiz.filter((q,qi)=>state[qi]!==q.ans).length;
@@ -4339,10 +4322,9 @@ function renderChapList() {
   list.innerHTML = '';
   CHAPTERS.forEach(c => {
     const div = document.createElement('div');
-    const locked = !isUnlocked(c.id);
     const done = completed.has(c.id);
-    div.className = 'chap' + (done ? ' done' : '') + (locked ? ' locked' : '');
-    div.onclick = () => { if(!locked) selectChap(c.id); };
+    div.className = 'chap' + (done ? ' done' : '');
+    div.onclick = () => selectChap(c.id);
     div.id = 'chap-' + c.id;
     div.innerHTML = `<div class="chap-num">第 ${c.id} 章 · ${c.tag}</div><div class="chap-title">${c.title}</div>`;
     list.appendChild(div);
@@ -4448,9 +4430,6 @@ __result = __buf.getvalue()
   }
 }
 
-if(beginnerMode) document.body.classList.add('beginner');
-document.getElementById('mode-toggle').classList.toggle('on', beginnerMode);
-document.getElementById('mode-label').textContent = beginnerMode ? '新手模式' : '完整模式';
 renderChapList();
 initEditor();
 switchLang('py');
