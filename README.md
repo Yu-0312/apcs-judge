@@ -1,7 +1,7 @@
 # APCS Multi-Language Online Judge / APCS 多語言線上評分系統
 
-> 一個專案、四種語言、83 道題目、12 章互動式基礎教學、即時瀏覽器評分、附解題思路
-> One project, four languages, 83 problems, 12 interactive tutorial chapters, in-browser instant grading, with solution hints
+> 一個專案、四種語言、83 道題目（332 份解答全齊備）、20 章互動式基礎教學、即時瀏覽器評分、附解題思路
+> One project, four languages, 83 problems (332 solutions across all langs), 20 interactive tutorial chapters, in-browser instant grading, with solution hints
 
 🔗 **教學頁面 / Tutorial**：[tutorial.html](https://yu-0312.github.io/apcs-judge/tutorial.html)
 
@@ -17,12 +17,14 @@
 
 這是一個為 **APCS（大學程式設計先修檢測）** 設計的線上練習平台，特色是：
 
-- **單一 HTML 檔案**：134 KB，無需後端，下載即可使用
-- **四語言切換**：Python / C++ / C / Java，同一題支援所有語言
+- **單一 HTML 檔案**：無需後端，瀏覽器打開即用
+- **四語言切換**：Python / C++ / C / Java，所有 83 題都有 4 語言解答
 - **瀏覽器內執行**：Python 用 Pyodide、C/C++ 用 JSCPP、Java 用 Piston API
 - **即時評分**：對照預期輸出，顯示 AC / WA 與詳細差異
 - **解題思路提示**：每題都附「💡 思路」，解釋題目中的關鍵字暗示了什麼演算法
-- **58 道題目**：涵蓋初級、中級、高級三個難度
+- **難度星等**：⭐ 初級 / ⭐⭐ 中級 / ⭐⭐⭐ 高級 一目了然
+- **83 道題目**：涵蓋初級、中級、高級三個難度
+- **20 章基礎教學**：tutorial.html 從變數一路教到 APCS 實戰技巧
 
 ### 🎯 題目分布
 
@@ -34,20 +36,35 @@
 
 ### 📚 基礎教學（tutorial.html）
 
-12 章互動式教學，每章左側 Markdown 教材、右側即時 Python 編輯器：
+**20 章** 互動式教學，每章左側 Markdown 教材、右側即時 Python 編輯器：
 
+**基礎篇**
 1. 變數與資料型別
 2. 輸入與輸出 (I/O)
 3. 運算子與表達式
 4. 條件判斷 if/elif/else
 5. 迴圈 for / while
+
+**資料結構篇**
 6. 字串處理
 7. List（一維陣列）
 8. 二維陣列
 9. 函式 def
 10. 字典 Dict 與集合 Set
+
+**進階篇**
 11. 演算法基礎（搜尋/排序/前綴和/質數篩/GCD）
-12. APCS 實戰技巧
+12. 巢狀迴圈
+13. List Comprehension 進階
+14. 排序進階：key 與 lambda
+15. 遞迴入門
+16. 枚舉題型
+17. 進階資料結構（deque / heap / Counter / defaultdict）
+18. 常見錯誤與除錯
+
+**實戰篇**
+19. 綜合練習：完整 APCS 題
+20. APCS 實戰技巧
 
 ### 🚀 使用方式
 
@@ -151,12 +168,14 @@ MIT License。題目敘述若引用自 APCS、ZeroJudge、啟思博等來源，�
 
 A web-based practice platform for Taiwan's **APCS (Advanced Placement Computer Science)** exam, featuring:
 
-- **Single HTML file**: 134 KB, no backend needed, runs entirely in the browser
-- **Four language modes**: Python / C++ / C / Java, all problems work in all languages
+- **Single HTML file**: No backend needed, runs entirely in the browser
+- **Four language modes**: Python / C++ / C / Java — all 83 problems have solutions in all 4 languages
 - **In-browser execution**: Pyodide (Python), JSCPP (C/C++), Piston API (Java)
 - **Instant grading**: Automatic comparison with expected output, AC/WA verdicts with diff view
 - **Solution hints**: Every problem includes a "💡 Hint" panel explaining which keywords in the problem statement suggest which algorithm
-- **58 problems**: Across easy, medium, and hard difficulty levels
+- **Difficulty stars**: ⭐ Easy / ⭐⭐ Medium / ⭐⭐⭐ Hard shown in sidebar
+- **83 problems** across easy, medium, and hard
+- **20-chapter tutorial** (tutorial.html) from variables to APCS combat tips
 
 ### 🎯 Problem Breakdown
 
@@ -168,7 +187,12 @@ A web-based practice platform for Taiwan's **APCS (Advanced Placement Computer S
 
 ### 📚 Tutorial (tutorial.html)
 
-12 interactive chapters, each with a Markdown lesson on the left and a live Pyodide editor on the right.
+**20 interactive chapters**, each with a Markdown lesson on the left and a live Pyodide editor on the right.
+
+**Basics**: variables, I/O, operators, conditionals, loops
+**Data structures**: strings, lists, 2D arrays, functions, dicts/sets
+**Advanced**: algorithm basics, nested loops, list comprehensions, sorting with `key`/`lambda`, recursion, enumeration patterns, deque/heap/Counter, common bugs & debugging
+**Combat**: full APCS problem walkthrough, exam tips
 
 ### 🚀 How to Use
 
