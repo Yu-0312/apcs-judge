@@ -151,7 +151,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 </head>
 <body>
 <header>
-  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub">60 章 · APCS 考試準備 + 實用程式 + 製作專案 + 專項教學</div></div>
+  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub">68 章 · APCS 考試準備 + 實用程式 + 製作專案 + 專項教學</div></div>
   <div class="hright">
     <a href="index.html">🎯 前往題庫</a>
     <span><span class="status-dot" id="status-dot"></span><span id="status-text">Pyodide 載入中...</span></span>
@@ -6604,6 +6604,1354 @@ def healthz():
     }
 
 print(f"\\n=== /healthz 回應 ===\\n{healthz()}")
+`},
+{id:60,title:"pygame 入門：game loop",tag:"專項",content:`
+# 第 60 章：pygame 入門 — game loop
+
+> 🎮 **專項教學 · pygame**：所有遊戲都是「畫面 → 收輸入 → 更新狀態 → 重畫」這個迴圈。
+
+## 60.1 什麼是 pygame
+
+\`pygame\` 是 Python 最常用的 2D 遊戲庫，免費、跨平台。適合：
+
+- 學遊戲開發入門
+- 程式設計教學
+- 小型獨立遊戲
+- 學校專題
+
+不適合：3D / AAA 大作 / 手遊。
+
+## 60.2 安裝
+
+\`\`\`bash
+pip install pygame
+\`\`\`
+
+確認安裝：
+\`\`\`bash
+python -m pygame.examples.aliens   # 跑官方範例
+\`\`\`
+
+## 60.3 最小程式：開一個視窗
+
+\`\`\`python
+import pygame
+
+pygame.init()                            # 初始化所有模組
+screen = pygame.display.set_mode((800, 600))   # 視窗大小 (寬, 高)
+pygame.display.set_caption("我的第一個遊戲")
+clock = pygame.time.Clock()
+
+running = True
+while running:
+    # 1) 收事件
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # 2) 更新狀態（這次沒東西要更新）
+
+    # 3) 畫面
+    screen.fill((20, 20, 30))    # 深藍灰背景
+
+    # 4) 把畫好的東西真的顯示出來
+    pygame.display.flip()
+
+    # 5) 控制速度：每秒 60 幀
+    clock.tick(60)
+
+pygame.quit()
+\`\`\`
+
+短短 20 行，視窗就跑起來了。
+
+## 60.4 Game Loop 的四步驟
+
+每張遊戲畫面都長這樣：
+
+\`\`\`
+while running:
+    handle_events()    # 收鍵盤滑鼠
+    update()           # 更新角色位置、判斷碰撞
+    draw()             # 重畫所有東西
+    clock.tick(60)     # 等到下一幀
+\`\`\`
+
+**這四步驟在任何遊戲引擎都一樣**（Unity / Godot / Unreal 內部都這結構）。
+
+## 60.5 座標系：左上角是 (0, 0)
+
+\`\`\`
+(0,0) ────────► x
+ │
+ │
+ ▼
+ y
+\`\`\`
+
+跟數學課的座標**Y 軸是反的**——往下是 y 增加。
+
+| 點 | 位置 |
+|----|------|
+| (0, 0) | 左上角 |
+| (800, 0) | 右上角 |
+| (0, 600) | 左下角 |
+| (400, 300) | 螢幕中心 |
+
+## 60.6 顏色：RGB
+
+\`\`\`python
+RED   = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE  = (0, 0, 255)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+\`\`\`
+
+每個值 0-255。也可以加第四個值當透明度：\`(255, 0, 0, 128)\`。
+
+## 60.7 為什麼要 clock.tick？
+
+如果不限制速度：
+
+- 高階電腦：每秒 10000 幀，遊戲超快
+- 低階電腦：每秒 30 幀，遊戲超慢
+
+\`clock.tick(60)\` 讓 **每台電腦都跑 60 fps**，遊戲體驗才一致。
+
+## 60.8 動手試試（模擬版）
+
+Pyodide 沒裝 pygame，範例用 ASCII 模擬一個「會動的點」game loop 概念。
+
+> **跨語言對應**：
+> - **JavaScript**：Phaser / PixiJS / 純 canvas
+> - **C++**：SFML / SDL
+> - **Java**：libGDX
+> - **Unity (C#)** / **Godot (GDScript)**：大型遊戲引擎
+> 都是相同的 game loop 結構，只是 API 不同。
+`,
+example:`# 模擬 game loop：印出每一幀的狀態
+import time
+
+# === 遊戲狀態 ===
+state = {"x": 0, "y": 5, "frame": 0}
+TARGET_FPS = 30
+FRAME_DURATION = 1.0 / TARGET_FPS
+
+# === 模擬的「事件佇列」===
+fake_events = {3: "move_right", 6: "move_right", 9: "move_right", 11: "quit"}
+
+# === Game Loop ===
+running = True
+while running:
+    frame_start = time.time()
+
+    # 1) handle events
+    ev = fake_events.get(state["frame"])
+    if ev == "quit":
+        running = False
+        continue
+    elif ev == "move_right":
+        state["x"] += 2
+
+    # 2) update
+    state["frame"] += 1
+
+    # 3) draw (用 ASCII 模擬螢幕)
+    width = 20
+    line = ['.'] * width
+    if 0 <= state["x"] < width:
+        line[state["x"]] = '●'
+    print(f"frame {state['frame']:2}: |{''.join(line)}|")
+
+    # 4) tick (在模擬中跳過，避免 sleep)
+    # 真實 pygame: clock.tick(60) 會等到下一幀
+
+print(f"\\n結束：跑了 {state['frame']} 幀")
+`},
+{id:61,title:"畫圖形與座標",tag:"專項",content:`
+# 第 61 章：畫圖形與座標
+
+> 🎮 **專項教學 · pygame**：方塊、圓、線、圖片——五種基本繪圖技巧搞定 90% 畫面。
+
+## 61.1 五種繪圖函式
+
+\`\`\`python
+import pygame
+
+# 長方形
+pygame.draw.rect(screen, color, (x, y, w, h), width=0)
+# width=0 是實心、width>0 是空心（畫框）
+
+# 圓形
+pygame.draw.circle(screen, color, (cx, cy), radius)
+
+# 線段
+pygame.draw.line(screen, color, (x1, y1), (x2, y2), width=1)
+
+# 多邊形
+pygame.draw.polygon(screen, color, [(x1,y1), (x2,y2), (x3,y3)])
+
+# 弧
+pygame.draw.arc(screen, color, (x,y,w,h), start_rad, end_rad)
+\`\`\`
+
+## 61.2 Rect 物件：管理矩形的好朋友
+
+\`\`\`python
+rect = pygame.Rect(100, 50, 200, 100)   # x, y, w, h
+rect.x, rect.y, rect.width, rect.height
+rect.centerx, rect.centery
+rect.left, rect.right, rect.top, rect.bottom
+rect.center, rect.topleft, rect.bottomright
+\`\`\`
+
+可以用屬性直接定位：
+
+\`\`\`python
+rect.center = (400, 300)    # 把矩形中心設到螢幕中央
+rect.bottomright = (800, 600)   # 右下角貼齊
+\`\`\`
+
+## 61.3 載入圖片
+
+\`\`\`python
+# 載入（通常在 game loop 外，只做一次）
+player_img = pygame.image.load("player.png").convert_alpha()
+# .convert_alpha() 處理 PNG 的透明
+# .convert() 沒透明的 jpg 用這個
+
+# 在 game loop 中畫
+screen.blit(player_img, (x, y))   # 把圖貼到 (x, y)
+
+# 取得圖片大小
+w, h = player_img.get_size()
+rect = player_img.get_rect(center=(400, 300))
+screen.blit(player_img, rect)
+\`\`\`
+
+## 61.4 縮放、旋轉
+
+\`\`\`python
+# 縮放
+small = pygame.transform.scale(img, (100, 100))
+flipped = pygame.transform.flip(img, True, False)   # 水平翻轉
+
+# 旋轉（每幀旋轉時要從原圖轉，避免畫質下降）
+angle = 30
+rotated = pygame.transform.rotate(img, angle)
+rect = rotated.get_rect(center=original_center)
+screen.blit(rotated, rect)
+\`\`\`
+
+## 61.5 繪圖順序很重要
+
+\`pygame\` 是「先畫的會被後畫的蓋住」：
+
+\`\`\`python
+screen.fill(SKY_BLUE)           # 1. 天空（最底）
+screen.blit(mountain_img, ...)  # 2. 山
+screen.blit(tree_img, ...)      # 3. 樹
+screen.blit(player_img, ...)    # 4. 主角（最上）
+draw_ui(screen)                 # 5. UI 永遠最上
+pygame.display.flip()           # 一次顯示
+\`\`\`
+
+## 61.6 完整範例：靜態場景
+
+\`\`\`python
+import pygame
+pygame.init()
+screen = pygame.display.set_mode((400, 300))
+
+running = True
+while running:
+    for e in pygame.event.get():
+        if e.type == pygame.QUIT: running = False
+
+    screen.fill((135, 206, 235))    # 天空藍
+    pygame.draw.rect(screen, (34, 139, 34), (0, 200, 400, 100))   # 草地
+    pygame.draw.circle(screen, (255, 230, 50), (320, 60), 30)      # 太陽
+    pygame.draw.polygon(screen, (139, 69, 19),                     # 山
+                        [(50, 200), (150, 80), (250, 200)])
+    pygame.display.flip()
+
+pygame.quit()
+\`\`\`
+
+## 61.7 動手試試（模擬版）
+
+範例用 ASCII grid 模擬「在畫布上畫矩形/線」的座標邏輯。
+`,
+example:`# 模擬：用 2D char array 當 screen，畫矩形與線
+W, H = 30, 12
+screen = [['.' for _ in range(W)] for _ in range(H)]
+
+def fill(ch):
+    for row in screen:
+        for i in range(len(row)):
+            row[i] = ch
+
+def draw_rect(x, y, w, h, ch):
+    # 空心矩形
+    for i in range(w):
+        if 0 <= x+i < W:
+            if 0 <= y < H: screen[y][x+i] = ch
+            if 0 <= y+h-1 < H: screen[y+h-1][x+i] = ch
+    for j in range(h):
+        if 0 <= y+j < H:
+            if 0 <= x < W: screen[y+j][x] = ch
+            if 0 <= x+w-1 < W: screen[y+j][x+w-1] = ch
+
+def draw_line_h(x1, x2, y, ch):
+    for x in range(min(x1, x2), max(x1, x2) + 1):
+        if 0 <= x < W and 0 <= y < H:
+            screen[y][x] = ch
+
+def draw_circle(cx, cy, r, ch):
+    # 用距離公式畫近似圓
+    for y in range(H):
+        for x in range(W):
+            dx, dy = x-cx, y-cy
+            if abs(dx*dx + dy*dy - r*r) <= r:
+                screen[y][x] = ch
+
+def show():
+    print('+' + '-'*W + '+')
+    for row in screen:
+        print('|' + ''.join(row) + '|')
+    print('+' + '-'*W + '+')
+
+# 畫一個場景
+fill(' ')
+draw_line_h(0, W-1, H-2, '_')     # 地面
+draw_rect(2, 5, 6, 5, '#')        # 房子
+draw_rect(4, 7, 2, 3, 'D')        # 門
+draw_circle(22, 3, 2, '*')        # 太陽
+draw_rect(15, 8, 4, 2, 'C')       # 雲
+
+show()
+print(f"\\nscreen size: {W} x {H}")
+`},
+{id:62,title:"輸入處理：鍵盤與滑鼠",tag:"專項",content:`
+# 第 62 章：輸入處理 — 鍵盤與滑鼠
+
+> 🎮 **專項教學 · pygame**：遊戲沒輸入就只是影片。學會兩種 pygame 收輸入的方式。
+
+## 62.1 兩種模式
+
+### 模式 A：事件驅動（適合「按一下」）
+
+\`\`\`python
+for event in pygame.event.get():
+    if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_SPACE:
+            player.jump()
+        elif event.key == pygame.K_ESCAPE:
+            running = False
+\`\`\`
+
+按一下觸發一次，適合：跳躍、開選單、暫停。
+
+### 模式 B：狀態查詢（適合「按住」）
+
+\`\`\`python
+keys = pygame.key.get_pressed()
+if keys[pygame.K_LEFT]:
+    player.x -= 5
+if keys[pygame.K_RIGHT]:
+    player.x += 5
+\`\`\`
+
+每幀檢查當下按鍵狀態，適合：移動、衝刺、按住瞄準。
+
+> 💡 大原則：**動作型（跳/射）用事件、移動類用狀態查詢**。
+
+## 62.2 鍵盤常數速查
+
+| 按鍵 | pygame 常數 |
+|------|-------------|
+| 方向鍵 | \`K_UP\`, \`K_DOWN\`, \`K_LEFT\`, \`K_RIGHT\` |
+| WASD | \`K_w\`, \`K_a\`, \`K_s\`, \`K_d\` |
+| 空白 | \`K_SPACE\` |
+| Esc | \`K_ESCAPE\` |
+| Enter | \`K_RETURN\` |
+| Shift | \`K_LSHIFT\`, \`K_RSHIFT\` |
+| 數字 | \`K_0\` ~ \`K_9\` |
+| 字母 | \`K_a\` ~ \`K_z\`（一律小寫） |
+
+## 62.3 滑鼠
+
+\`\`\`python
+# 事件式
+for event in pygame.event.get():
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.button == 1:   # 左鍵
+            print("左鍵:", event.pos)
+        elif event.button == 3: # 右鍵
+            print("右鍵:", event.pos)
+    elif event.type == pygame.MOUSEMOTION:
+        print("移動到", event.pos, "移動量", event.rel)
+
+# 狀態查詢
+mx, my = pygame.mouse.get_pos()
+buttons = pygame.mouse.get_pressed()    # (左, 中, 右) bool
+if buttons[0]:
+    print("按著左鍵")
+\`\`\`
+
+## 62.4 文字輸入（高分數輸入名字）
+
+\`\`\`python
+name = ""
+for event in pygame.event.get():
+    if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_RETURN:
+            print("提交:", name)
+        elif event.key == pygame.K_BACKSPACE:
+            name = name[:-1]
+        else:
+            name += event.unicode    # 自動處理大小寫
+\`\`\`
+
+## 62.5 事件種類速查
+
+| event.type | 何時觸發 |
+|------------|----------|
+| \`QUIT\` | 點視窗 x |
+| \`KEYDOWN\` / \`KEYUP\` | 按下/放開鍵 |
+| \`MOUSEBUTTONDOWN\` / \`MOUSEBUTTONUP\` | 滑鼠按鈕 |
+| \`MOUSEMOTION\` | 滑鼠移動 |
+| \`MOUSEWHEEL\` | 滾輪 |
+| \`VIDEORESIZE\` | 視窗大小改變 |
+
+## 62.6 暫停的最常見寫法
+
+\`\`\`python
+paused = False
+while running:
+    for e in pygame.event.get():
+        if e.type == pygame.QUIT: running = False
+        if e.type == pygame.KEYDOWN and e.key == pygame.K_p:
+            paused = not paused
+
+    if not paused:
+        update_game()        # 暫停時不更新狀態
+
+    draw_game()              # 但畫面持續畫（不然會卡住）
+    if paused:
+        draw_pause_overlay(screen)
+    pygame.display.flip()
+    clock.tick(60)
+\`\`\`
+
+## 62.7 動手試試（模擬版）
+
+範例做事件佇列模擬：處理一連串按鍵與滑鼠輸入。
+`,
+example:`# 模擬：處理一連串輸入事件
+# 玩家位置
+player = {"x": 10, "y": 5}
+
+# 模擬輸入事件（真實 pygame 從 pygame.event.get() 拿）
+events = [
+    ("KEYDOWN", "K_RIGHT"),
+    ("KEYDOWN", "K_RIGHT"),
+    ("KEYDOWN", "K_UP"),
+    ("MOUSEBUTTONDOWN", 1, (15, 8)),    # 左鍵點 (15,8)
+    ("KEYDOWN", "K_SPACE"),              # 跳
+    ("KEYDOWN", "K_RIGHT"),
+    ("MOUSEMOTION", (20, 10)),
+    ("KEYDOWN", "K_ESCAPE"),             # 結束
+]
+
+print(f"玩家初始位置: ({player['x']}, {player['y']})\\n")
+
+running = True
+for ev in events:
+    if not running: break
+
+    if ev[0] == "KEYDOWN":
+        key = ev[1]
+        if key == "K_RIGHT":
+            player["x"] += 1
+            print(f"→ 右: 移到 ({player['x']}, {player['y']})")
+        elif key == "K_LEFT":
+            player["x"] -= 1
+            print(f"← 左: 移到 ({player['x']}, {player['y']})")
+        elif key == "K_UP":
+            player["y"] -= 1
+            print(f"↑ 上: 移到 ({player['x']}, {player['y']})")
+        elif key == "K_DOWN":
+            player["y"] += 1
+            print(f"↓ 下: 移到 ({player['x']}, {player['y']})")
+        elif key == "K_SPACE":
+            print(f"🦘 跳！ 在 ({player['x']}, {player['y']})")
+        elif key == "K_ESCAPE":
+            print("結束遊戲")
+            running = False
+
+    elif ev[0] == "MOUSEBUTTONDOWN":
+        button, pos = ev[1], ev[2]
+        print(f"🖱 滑鼠 button={button} 點擊 {pos}")
+
+    elif ev[0] == "MOUSEMOTION":
+        pos = ev[1]
+        print(f"🖱 滑鼠移到 {pos}")
+
+print(f"\\n最終位置: ({player['x']}, {player['y']})")
+`},
+{id:63,title:"移動與動畫：速度向量",tag:"專項",content:`
+# 第 63 章：移動與動畫 — 速度向量與 FPS
+
+> 🎮 **專項教學 · pygame**：讓畫面真正「動」起來。掌握 velocity 與 delta time 是專業遊戲開發的分水嶺。
+
+## 63.1 最簡單的移動：每幀加位移
+
+\`\`\`python
+x, y = 100, 100
+
+while running:
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_RIGHT]: x += 5
+    if keys[pygame.K_LEFT]:  x -= 5
+
+    screen.fill((0,0,0))
+    pygame.draw.circle(screen, WHITE, (x, y), 20)
+    pygame.display.flip()
+    clock.tick(60)
+\`\`\`
+
+問題：60 fps 跑 5 px/幀 = **300 px/秒**，30 fps 的電腦只有 150 px/秒——遊戲速度跟硬體綁定。
+
+## 63.2 用速度向量（推薦）
+
+\`\`\`python
+import pygame
+from pygame.math import Vector2
+
+pos = Vector2(100, 100)
+vel = Vector2(0, 0)
+SPEED = 200    # px / 秒
+
+while running:
+    dt = clock.tick(60) / 1000    # ← delta time（這幀過了幾秒）
+
+    keys = pygame.key.get_pressed()
+    vel.x = (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * SPEED
+    vel.y = (keys[pygame.K_DOWN]  - keys[pygame.K_UP])   * SPEED
+
+    pos += vel * dt    # ← 用秒數算移動
+
+    screen.fill((0,0,0))
+    pygame.draw.circle(screen, WHITE, pos, 20)
+    pygame.display.flip()
+\`\`\`
+
+不管 fps 多少，每秒永遠移動 200 px——遊戲體驗一致。
+
+> 🎯 **delta time = 上一幀到這一幀的秒數**。\`clock.tick(60)\` 回傳的就是這個（毫秒）。
+
+## 63.3 對角線移動的小坑
+
+\`\`\`python
+vel.x = 100    # 按右
+vel.y = 100    # 按下
+# 對角線實際速度 = √(100² + 100²) ≈ 141 px/s  ← 比直線快！
+\`\`\`
+
+修：
+
+\`\`\`python
+if vel.length() > 0:
+    vel.scale_to_length(SPEED)
+\`\`\`
+
+## 63.4 加速度 / 慣性
+
+\`\`\`python
+ACCEL = 800      # px/s²
+FRICTION = 0.85
+
+while running:
+    dt = clock.tick(60) / 1000
+    keys = pygame.key.get_pressed()
+
+    if keys[pygame.K_RIGHT]: vel.x += ACCEL * dt
+    if keys[pygame.K_LEFT]:  vel.x -= ACCEL * dt
+
+    vel *= FRICTION    # 摩擦力（簡化版）
+    pos += vel * dt
+\`\`\`
+
+放開按鍵會慢慢停下，比較有「重量感」。
+
+## 63.5 跳躍（最常見的物理）
+
+\`\`\`python
+GRAVITY = 1500
+JUMP_VEL = -600
+on_ground = True
+
+while running:
+    dt = clock.tick(60) / 1000
+    for e in pygame.event.get():
+        if e.type == pygame.KEYDOWN and e.key == pygame.K_SPACE:
+            if on_ground:
+                vel.y = JUMP_VEL
+                on_ground = False
+
+    vel.y += GRAVITY * dt   # 重力一直在
+    pos += vel * dt
+
+    if pos.y >= GROUND_Y:
+        pos.y = GROUND_Y
+        vel.y = 0
+        on_ground = True
+\`\`\`
+
+## 63.6 動畫（換 sprite）
+
+\`\`\`python
+# 載入序列圖
+frames = [pygame.image.load(f"run_{i}.png").convert_alpha() for i in range(4)]
+
+frame_idx = 0
+anim_timer = 0
+ANIM_SPEED = 0.1   # 每 0.1 秒換一張
+
+while running:
+    dt = clock.tick(60) / 1000
+    anim_timer += dt
+    if anim_timer >= ANIM_SPEED:
+        anim_timer = 0
+        frame_idx = (frame_idx + 1) % len(frames)
+
+    screen.blit(frames[frame_idx], pos)
+\`\`\`
+
+## 63.7 動手試試（模擬版）
+
+範例做「彈跳球」物理模擬：重力 + 邊界反彈。
+`,
+example:`# 模擬：彈跳球（重力 + 反彈）
+# 場地寬 40，地板 y=15
+W, H = 40, 15
+FPS = 30
+GRAVITY = 30        # 加速度（單位/秒²）
+JUMP_VEL = -25      # 跳起來的初速
+
+ball = {"x": 5.0, "y": 10.0, "vx": 8.0, "vy": -20.0}
+
+print(f"{'frame':>5} {'x':>6} {'y':>6} {'vy':>7}")
+print('-' * 28)
+
+for frame in range(1, 20):
+    dt = 1 / FPS
+
+    # 重力
+    ball["vy"] += GRAVITY * dt
+
+    # 更新位置
+    ball["x"] += ball["vx"] * dt
+    ball["y"] += ball["vy"] * dt
+
+    # 邊界反彈
+    if ball["x"] < 0:
+        ball["x"] = 0; ball["vx"] = -ball["vx"]
+    if ball["x"] > W - 1:
+        ball["x"] = W - 1; ball["vx"] = -ball["vx"]
+    if ball["y"] > H - 1:    # 撞地
+        ball["y"] = H - 1
+        ball["vy"] = -abs(ball["vy"]) * 0.7   # 損失 30% 能量
+    if ball["y"] < 0:
+        ball["y"] = 0; ball["vy"] = abs(ball["vy"])
+
+    print(f"{frame:>5} {ball['x']:>6.1f} {ball['y']:>6.1f} {ball['vy']:>7.1f}")
+`},
+{id:64,title:"碰撞偵測：AABB 與 Rect",tag:"專項",content:`
+# 第 64 章：碰撞偵測 — AABB 與 Rect
+
+> 🎮 **專項教學 · pygame**：玩家踢到磚塊、子彈打中怪物、撿到道具——都是同一個問題。
+
+## 64.1 矩形對矩形：AABB
+
+最簡單最快：**Axis-Aligned Bounding Box**（兩個沒旋轉的矩形）。
+
+\`pygame\` 一行：
+
+\`\`\`python
+if player.rect.colliderect(enemy.rect):
+    player.hp -= 10
+\`\`\`
+
+自己寫的話：
+
+\`\`\`python
+def aabb_collide(r1, r2):
+    return (r1.x < r2.x + r2.w and
+            r1.x + r1.w > r2.x and
+            r1.y < r2.y + r2.h and
+            r1.y + r1.h > r2.y)
+\`\`\`
+
+## 64.2 點對矩形（滑鼠點 UI）
+
+\`\`\`python
+if button_rect.collidepoint(mouse_x, mouse_y):
+    on_click()
+\`\`\`
+
+## 64.3 一對多
+
+\`\`\`python
+hit_index = player.rect.collidelist([e.rect for e in enemies])
+if hit_index != -1:
+    print(f"撞到 enemy[{hit_index}]")
+
+# 全部撞到的索引
+hit_all = player.rect.collidelistall([e.rect for e in enemies])
+\`\`\`
+
+## 64.4 群組碰撞（推薦：用 Sprite）
+
+\`\`\`python
+class Player(pygame.sprite.Sprite): ...
+class Coin(pygame.sprite.Sprite): ...
+
+player = Player(...)
+coins = pygame.sprite.Group(Coin(...), Coin(...), Coin(...))
+
+# 撞到哪些金幣（並自動移除）
+hit = pygame.sprite.spritecollide(player, coins, dokill=True)
+score += len(hit)
+\`\`\`
+
+## 64.5 圓對圓
+
+\`\`\`python
+def circle_collide(c1, r1, c2, r2):
+    dx = c1[0] - c2[0]
+    dy = c1[1] - c2[1]
+    return dx*dx + dy*dy < (r1 + r2)**2     # ← 避免 sqrt 比較快
+\`\`\`
+
+## 64.6 像素級碰撞 (mask)
+
+矩形碰撞會誤判（例如圓形/不規則形狀）。要精準到像素：
+
+\`\`\`python
+mask1 = pygame.mask.from_surface(img1)
+mask2 = pygame.mask.from_surface(img2)
+offset = (rect2.x - rect1.x, rect2.y - rect1.y)
+if mask1.overlap(mask2, offset):
+    print("真的撞到了")
+\`\`\`
+
+慢一些，**只在矩形已碰撞時才檢查**。
+
+## 64.7 解決卡牆問題：x/y 分開檢查
+
+\`\`\`python
+# 錯：同時更新 x 與 y，撞牆時可能整個卡住
+pos += vel * dt
+if collide_with_walls(): ...
+
+# 對：x 與 y 分開
+pos.x += vel.x * dt
+if collide_x_with_walls(): pos.x -= vel.x * dt   # 回退
+
+pos.y += vel.y * dt
+if collide_y_with_walls(): pos.y -= vel.y * dt
+\`\`\`
+
+這樣撞到牆還能沿著牆滑動，不會整個僵住。
+
+## 64.8 完整子彈打怪物例子
+
+\`\`\`python
+bullets  = []       # list of (rect, vx)
+enemies  = [...]
+score = 0
+
+while running:
+    dt = clock.tick(60) / 1000
+
+    # 子彈飛
+    for b in bullets:
+        b[0].x += b[1] * dt
+
+    # 出畫面就移除
+    bullets = [b for b in bullets if 0 <= b[0].x <= 800]
+
+    # 碰撞
+    for b in bullets[:]:
+        for e in enemies[:]:
+            if b[0].colliderect(e.rect):
+                enemies.remove(e)
+                bullets.remove(b)
+                score += 10
+                break
+\`\`\`
+
+## 64.9 動手試試（模擬版）
+
+範例做「子彈 vs 怪物」AABB 碰撞偵測。
+`,
+example:`# 模擬：AABB 碰撞偵測 + 子彈打怪物
+def aabb(r1, r2):
+    return (r1["x"] < r2["x"] + r2["w"] and
+            r1["x"] + r1["w"] > r2["x"] and
+            r1["y"] < r2["y"] + r2["h"] and
+            r1["y"] + r1["h"] > r2["y"])
+
+# 場景
+bullets = [
+    {"x": 10, "y": 5, "w": 2, "h": 2},
+    {"x": 20, "y": 8, "w": 2, "h": 2},
+    {"x": 5,  "y": 5, "w": 2, "h": 2},
+]
+enemies = [
+    {"id": "A", "x": 10, "y": 4, "w": 4, "h": 4},
+    {"id": "B", "x": 25, "y": 7, "w": 4, "h": 4},
+    {"id": "C", "x": 1,  "y": 1, "w": 4, "h": 4},
+]
+
+print("=== 碰撞檢測結果 ===")
+score = 0
+for i, b in enumerate(bullets):
+    hit = None
+    for e in enemies:
+        if aabb(b, e):
+            hit = e["id"]
+            score += 10
+            break
+    print(f"子彈[{i}]@({b['x']},{b['y']}) → " + (f"撞到怪物 {hit}!" if hit else "沒撞到"))
+
+print(f"\\n總分: {score}")
+
+# 點對矩形
+button = {"x": 100, "y": 50, "w": 80, "h": 30}
+def in_button(px, py):
+    return (button["x"] <= px <= button["x"] + button["w"] and
+            button["y"] <= py <= button["y"] + button["h"])
+
+mouse_tests = [(120, 60), (200, 100), (101, 51)]
+print("\\n=== 滑鼠點擊按鈕 ===")
+for mp in mouse_tests:
+    print(f"  點 {mp}: {'命中' if in_button(*mp) else '沒中'}")
+`},
+{id:65,title:"文字與字型：HUD 與分數",tag:"專項",content:`
+# 第 65 章：文字與字型 — 顯示分數與 UI
+
+> 🎮 **專項教學 · pygame**：分數、HP、提示、結算畫面——遊戲不能沒文字。
+
+## 65.1 三步驟畫文字
+
+\`\`\`python
+# 1) 建字型（通常在 loop 外，只做一次）
+font = pygame.font.SysFont("Arial", 36)
+
+# 2) render 成 Surface
+text_surface = font.render("Hello", True, (255, 255, 255))
+# True = 抗鋸齒 (anti-aliasing)，幾乎都要 True
+
+# 3) blit 到螢幕
+screen.blit(text_surface, (10, 10))
+\`\`\`
+
+## 65.2 用自帶字型 vs 自己準備字型
+
+\`\`\`python
+# 用系統字型
+font = pygame.font.SysFont("Arial", 24)
+
+# 列出所有系統可用字型
+print(pygame.font.get_fonts())
+
+# 用自己準備的字型檔（推薦——跨平台一致）
+font = pygame.font.Font("assets/Roboto.ttf", 24)
+\`\`\`
+
+## 65.3 中文字型（最常踩雷）
+
+預設字型沒有中文。要用內建支援中文的字型或自己準備：
+
+\`\`\`python
+# Mac: Apple Color Emoji, PingFang TC
+# Win: Microsoft JhengHei
+# 通用：思源黑體 (Noto Sans CJK)
+font = pygame.font.SysFont("Microsoft JhengHei", 24)
+# 或
+font = pygame.font.Font("assets/NotoSansCJKtc-Regular.otf", 24)
+
+text = font.render("你好世界", True, (255, 255, 255))
+\`\`\`
+
+> 💡 用自帶字型檔最穩，部署到別人電腦不會缺字。
+
+## 65.4 置中文字
+
+\`\`\`python
+text_surface = font.render("GAME OVER", True, (255, 0, 0))
+text_rect = text_surface.get_rect(center=(400, 300))
+screen.blit(text_surface, text_rect)
+\`\`\`
+
+## 65.5 多行文字
+
+\`render\` 不支援換行，要自己拆：
+
+\`\`\`python
+def draw_multiline(screen, font, text, color, x, y, line_height=30):
+    for i, line in enumerate(text.split("\\n")):
+        surface = font.render(line, True, color)
+        screen.blit(surface, (x, y + i * line_height))
+
+draw_multiline(screen, font, "第一行\\n第二行\\n第三行", (255,255,255), 10, 10)
+\`\`\`
+
+## 65.6 自動換行（按寬度）
+
+\`\`\`python
+def wrap_text(text, font, max_width):
+    words = text.split(" ")
+    lines = []
+    cur = ""
+    for w in words:
+        test = cur + " " + w if cur else w
+        if font.size(test)[0] <= max_width:
+            cur = test
+        else:
+            lines.append(cur)
+            cur = w
+    if cur: lines.append(cur)
+    return lines
+\`\`\`
+
+## 65.7 HUD（玩家頭上資訊）
+
+\`\`\`python
+# 永遠在最上層
+def draw_hud(screen, score, hp, font):
+    # 分數
+    text = font.render(f"Score: {score}", True, (255, 255, 255))
+    screen.blit(text, (10, 10))
+
+    # HP 血條
+    pygame.draw.rect(screen, (100, 0, 0), (10, 50, 200, 20))     # 底
+    pygame.draw.rect(screen, (200, 0, 0), (10, 50, hp * 2, 20))  # 血
+    hp_text = font.render(f"{hp}/100", True, (255, 255, 255))
+    screen.blit(hp_text, (220, 50))
+\`\`\`
+
+## 65.8 動手試試（模擬版）
+
+範例做 ASCII 版的「分數顯示」+「自動換行」邏輯。
+`,
+example:`# 模擬：分數顯示 + 自動換行
+def render(text, max_width):
+    # 把字串依 max_width 拆成多行（簡化版：按空白切）
+    words = text.split()
+    lines = []
+    cur = ""
+    for w in words:
+        test = cur + " " + w if cur else w
+        if len(test) <= max_width:
+            cur = test
+        else:
+            lines.append(cur)
+            cur = w
+    if cur: lines.append(cur)
+    return lines
+
+# 模擬 HUD
+score = 1240
+hp = 75
+max_hp = 100
+
+print("=" * 40)
+print(f"  Score: {score:6}     HP: {hp}/{max_hp}")
+
+# 血條
+filled = int(hp / max_hp * 30)
+bar = '█' * filled + '░' * (30 - filled)
+print(f"  [{bar}]")
+print("=" * 40)
+
+# 自動換行測試
+msg = "Welcome to the game! Defeat all monsters to win the championship trophy."
+print(f"\\n訊息（單行）:\\n  {msg}\\n")
+print(f"自動換行（寬度 30）:")
+for i, line in enumerate(render(msg, 30)):
+    print(f"  L{i}: {line}")
+
+# 模擬置中
+def center_text(text, width):
+    pad = (width - len(text)) // 2
+    return ' ' * pad + text
+
+print(f"\\n置中（寬度 40）:")
+print(center_text("GAME OVER", 40))
+print(center_text("Press R to restart", 40))
+`},
+{id:66,title:"音效與音樂",tag:"專項",content:`
+# 第 66 章：音效與音樂
+
+> 🎮 **專項教學 · pygame**：靜音遊戲沒靈魂。學會兩種音檔播放方式。
+
+## 66.1 兩種音檔：SFX vs Music
+
+| 類別 | API | 用途 | 特性 |
+|------|-----|------|------|
+| **音效 (SFX)** | \`pygame.mixer.Sound\` | 短：跳、撞擊、撿幣 | 預載到 RAM、可同時播多個 |
+| **音樂 (BGM)** | \`pygame.mixer.music\` | 長：背景音樂 | 串流，一次只能播一首 |
+
+## 66.2 音效 SFX
+
+\`\`\`python
+import pygame
+pygame.mixer.init()   # 通常 pygame.init() 已包含
+
+# 載入（loop 外）
+jump_sfx = pygame.mixer.Sound("assets/jump.wav")
+hit_sfx  = pygame.mixer.Sound("assets/hit.wav")
+coin_sfx = pygame.mixer.Sound("assets/coin.wav")
+
+# 設音量 0.0 ~ 1.0
+jump_sfx.set_volume(0.7)
+
+# 播
+jump_sfx.play()
+hit_sfx.play(loops=2)         # 重播 2 次
+coin_sfx.play(fade_ms=200)    # 漸入
+\`\`\`
+
+支援格式：\`.wav\`（最穩）/ \`.ogg\`。\`.mp3\` 部分平台不支援。
+
+## 66.3 同時播多個音效
+
+\`mixer\` 預設給 8 個 channel，會自動分配：
+
+\`\`\`python
+pygame.mixer.set_num_channels(16)    # 同時最多 16 個音
+
+# 自己指定 channel
+ch = pygame.mixer.Channel(0)
+ch.play(jump_sfx)
+ch.set_volume(0.5)
+\`\`\`
+
+## 66.4 背景音樂 Music
+
+\`\`\`python
+pygame.mixer.music.load("assets/bgm.mp3")
+pygame.mixer.music.set_volume(0.5)
+pygame.mixer.music.play(loops=-1)    # -1 = 無限循環
+pygame.mixer.music.play(loops=2, start=10.0)   # 從 10 秒開始播 2 次
+
+# 控制
+pygame.mixer.music.pause()
+pygame.mixer.music.unpause()
+pygame.mixer.music.stop()
+pygame.mixer.music.fadeout(2000)   # 2 秒淡出
+
+# 查詢
+if pygame.mixer.music.get_busy():
+    print("正在播音樂")
+\`\`\`
+
+## 66.5 按事件播音效
+
+\`\`\`python
+@event_handler(pygame.KEYDOWN)
+def on_key(e):
+    if e.key == pygame.K_SPACE:
+        jump_sfx.play()
+
+@event_handler("on_coin")
+def on_coin(coin):
+    coin_sfx.play()
+    score += coin.value
+\`\`\`
+
+## 66.6 場景換音樂
+
+\`\`\`python
+def go_to_boss_room():
+    pygame.mixer.music.fadeout(1000)
+    pygame.mixer.music.queue("boss_bgm.ogg")   # 接著播
+\`\`\`
+
+## 66.7 音檔何處找
+
+| 來源 | 特性 |
+|------|------|
+| freesound.org | 海量免費，CC 授權 |
+| opengameart.org | 遊戲導向 |
+| bfxr.net | 線上自己合成 8-bit 音效 |
+| zapsplat.com | 註冊免費 |
+| 自己錄 | 麥克風 + Audacity |
+
+⚠️ 用音檔請看授權，CC0 / 商用免費才能用在自己作品。
+
+## 66.8 動手試試（模擬版）
+
+範例做「音效事件分派器」：根據遊戲事件決定播什麼音效。
+`,
+example:`# 模擬：音效事件分派器
+class SoundMixer:
+    def __init__(self):
+        self.channels = []   # 同時播的音效
+        self.music = None
+        self.music_volume = 1.0
+
+    def play_sfx(self, name, volume=1.0):
+        # 真實 pygame: Sound(name).play()
+        self.channels.append((name, volume))
+        print(f"  🔊 SFX [{name}] vol={volume}")
+
+    def play_music(self, name, loops=-1):
+        if self.music:
+            print(f"  🎵 停止 [{self.music}]")
+        self.music = name
+        print(f"  🎵 播放 BGM [{name}] loops={loops}")
+
+    def fadeout_music(self, ms):
+        if self.music:
+            print(f"  🎵 [{self.music}] {ms}ms 淡出")
+            self.music = None
+
+mixer = SoundMixer()
+
+# 模擬遊戲事件
+events = [
+    ("scene", "menu"),
+    ("click", "start"),
+    ("scene", "game"),
+    ("player", "jump"),
+    ("player", "jump"),
+    ("collect", "coin"),
+    ("collect", "coin"),
+    ("collect", "coin"),
+    ("hit", "enemy"),
+    ("scene", "boss"),
+    ("player", "die"),
+    ("scene", "gameover"),
+]
+
+# 事件 → 音效對應
+sfx_map = {
+    ("click", "start"): "click.wav",
+    ("player", "jump"): ("jump.wav", 0.7),
+    ("player", "die"):  ("die.wav", 1.0),
+    ("collect", "coin"): ("coin.wav", 0.5),
+    ("hit", "enemy"):    ("hit.wav", 0.8),
+}
+bgm_map = {
+    "menu":     "menu_bgm.ogg",
+    "game":     "game_bgm.ogg",
+    "boss":     "boss_bgm.ogg",
+    "gameover": None,
+}
+
+for ev_type, ev_name in events:
+    print(f"\\n[event] {ev_type}/{ev_name}")
+    key = (ev_type, ev_name)
+    if key in sfx_map:
+        v = sfx_map[key]
+        if isinstance(v, tuple):
+            mixer.play_sfx(v[0], v[1])
+        else:
+            mixer.play_sfx(v)
+    elif ev_type == "scene":
+        bgm = bgm_map.get(ev_name)
+        if bgm:
+            mixer.play_music(bgm)
+        else:
+            mixer.fadeout_music(1500)
+
+print(f"\\n總共播了 {len(mixer.channels)} 個音效")
+`},
+{id:67,title:"完整小遊戲：Pong",tag:"專項",content:`
+# 第 67 章：完整小遊戲 — Pong（彈球）
+
+> 🎮 **專項教學 · pygame**：把前 7 章全部整合。100 行內做出能玩的小遊戲。
+
+## 67.1 設計
+
+**Pong**（最早的電玩之一）：
+
+- 左右各一塊板子，鍵盤上下控制
+- 中間一顆球，撞牆反彈、撞板反彈
+- 球出左右邊界 → 對方得分
+- 先到 5 分獲勝
+
+## 67.2 全部 code
+
+\`\`\`python
+import pygame
+from pygame.math import Vector2
+import random
+
+pygame.init()
+W, H = 800, 500
+screen = pygame.display.set_mode((W, H))
+pygame.display.set_caption("Pong")
+clock = pygame.time.Clock()
+
+WHITE = (255, 255, 255)
+BG    = (10, 10, 30)
+font  = pygame.font.SysFont("Arial", 48)
+
+# === 物件 ===
+PADDLE_W, PADDLE_H, BALL_R = 12, 80, 8
+PADDLE_SPEED = 400
+
+p1 = pygame.Rect(30, H//2 - PADDLE_H//2, PADDLE_W, PADDLE_H)
+p2 = pygame.Rect(W - 30 - PADDLE_W, H//2 - PADDLE_H//2, PADDLE_W, PADDLE_H)
+
+def reset_ball():
+    ball.center = (W//2, H//2)
+    vel.update(random.choice([-300, 300]), random.choice([-200, 200]))
+
+ball = pygame.Rect(0, 0, BALL_R*2, BALL_R*2)
+vel = Vector2(0, 0)
+reset_ball()
+
+score1, score2 = 0, 0
+WIN_SCORE = 5
+
+# === Loop ===
+running = True
+while running:
+    dt = clock.tick(60) / 1000
+
+    # 1) events
+    for e in pygame.event.get():
+        if e.type == pygame.QUIT: running = False
+
+    # 2) input
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_w] and p1.top > 0: p1.y -= PADDLE_SPEED * dt
+    if keys[pygame.K_s] and p1.bottom < H: p1.y += PADDLE_SPEED * dt
+    if keys[pygame.K_UP]   and p2.top > 0: p2.y -= PADDLE_SPEED * dt
+    if keys[pygame.K_DOWN] and p2.bottom < H: p2.y += PADDLE_SPEED * dt
+
+    # 3) update
+    ball.x += vel.x * dt
+    ball.y += vel.y * dt
+
+    # 上下牆反彈
+    if ball.top <= 0 or ball.bottom >= H:
+        vel.y *= -1
+
+    # 撞板
+    if ball.colliderect(p1) or ball.colliderect(p2):
+        vel.x *= -1.05    # 反彈並加速
+        vel.y += random.uniform(-50, 50)
+
+    # 出界
+    if ball.left <= 0:
+        score2 += 1
+        reset_ball()
+    elif ball.right >= W:
+        score1 += 1
+        reset_ball()
+
+    # 結束條件
+    if max(score1, score2) >= WIN_SCORE:
+        running = False
+
+    # 4) draw
+    screen.fill(BG)
+    pygame.draw.rect(screen, WHITE, p1)
+    pygame.draw.rect(screen, WHITE, p2)
+    pygame.draw.ellipse(screen, WHITE, ball)
+    pygame.draw.aaline(screen, (80, 80, 100), (W//2, 0), (W//2, H))   # 中線
+
+    # 分數
+    t1 = font.render(str(score1), True, WHITE)
+    t2 = font.render(str(score2), True, WHITE)
+    screen.blit(t1, (W//4 - t1.get_width()//2, 30))
+    screen.blit(t2, (3*W//4 - t2.get_width()//2, 30))
+
+    pygame.display.flip()
+
+# === 結算 ===
+winner = "P1" if score1 > score2 else "P2"
+print(f"{winner} WIN! {score1} - {score2}")
+pygame.quit()
+\`\`\`
+
+## 67.3 從這裡能延伸什麼
+
+| 想加 | 怎麼做 |
+|------|--------|
+| 音效 | 撞板/得分時 \`pygame.mixer.Sound.play()\` |
+| 粒子特效 | 撞擊位置生成小點，淡出消失 |
+| AI 對手 | p2 自動追球：\`if ball.y > p2.centery: p2.y += SPEED * dt\` |
+| 主選單 | 用「狀態機」：state = "menu" / "playing" / "gameover" |
+| 多人連線 | 用 \`socket\` 或 WebSocket 同步 |
+
+## 67.4 遊戲開發完整路徑
+
+\`\`\`
+你現在在這裡 ↓
+├── Pong / 貪食蛇 (← 本章 100 行)
+├── 平台跳躍 (Mario like)         ← 600 行
+├── Top-down 射擊                ← 1500 行
+├── RPG with 對話 / 道具          ← 5000+ 行
+└── 用 Godot / Unity 做完整遊戲   ← 引擎輔助
+\`\`\`
+
+> 🎉 **恭喜完成全 68 章教學！** 從第一個 \`print("Hello")\` 到完整小遊戲，你已經走過 Python 開發的完整 spectrum。
+>
+> 接下來最重要的一件事：**做一個自己想做的東西**。
+> 不管是寫個工具、爬資料、做 Bot、做小遊戲，**完成 1 個小作品**比讀完 10 章新教材更能讓你進步。
+
+## 67.5 動手試試（模擬版）
+
+範例做純文字版的 Pong：球在 1D 軌道彈來彈去，玩家加分到 3 分結束。
+`,
+example:`# 模擬：簡化版 Pong（文字版）
+# 球在 0~width 之間左右移動，撞牆會被反彈
+# 球出左邊 → P2 得分；出右邊 → P1 得分
+# 先到 3 分獲勝
+
+WIDTH = 20
+ball_x = 10.0
+ball_vx = 1.0
+score = [0, 0]
+WIN = 3
+
+frame = 0
+while max(score) < WIN:
+    frame += 1
+    ball_x += ball_vx
+
+    # 出界判定
+    if ball_x < 0:
+        score[1] += 1
+        print(f"frame {frame:3} | ❗ P2 得分！ {score[0]}-{score[1]}")
+        ball_x = WIDTH / 2
+        ball_vx = 1.0
+    elif ball_x > WIDTH:
+        score[0] += 1
+        print(f"frame {frame:3} | ❗ P1 得分！ {score[0]}-{score[1]}")
+        ball_x = WIDTH / 2
+        ball_vx = -1.0
+    else:
+        # 畫面
+        pos = int(ball_x)
+        line = ['·'] * (WIDTH + 1)
+        if 0 <= pos <= WIDTH:
+            line[pos] = '●'
+        print(f"frame {frame:3} | P1|{''.join(line)}|P2  score={score}")
+
+winner = "P1" if score[0] > score[1] else "P2"
+print(f"\\n🏆 {winner} 獲勝！最終比數 {score[0]}-{score[1]}")
+print(f"總共跑了 {frame} 幀")
 `}
 ];
 
@@ -6971,7 +8319,15 @@ const CHAPTER_META = {
 56:{learn:["Text/Sticker/Image 三大基礎訊息", "ButtonsTemplate / CarouselTemplate 做選單", "FlexMessage + Flex Simulator 完全客製"],try:["加「快速回覆 (QuickReply)」的概念", "在 menu 加更多選項", "寫一個 \"weather 台北\" 指令回 Flex 卡片"],code:{"task": "寫訊息分類器：輸入文字若以「hi」開頭回「Text greet」，以「menu」開頭回「Buttons menu」，以「buy 」開頭回「Confirm buy」，否則回「Text fallback」。從 stdin 讀多行訊息逐行處理輸出。", "stdin": "hi there\nmenu\nbuy apple\nrandom\n", "expect": "Text greet\nButtons menu\nConfirm buy\nText fallback"}},
 57:{learn:["記憶體 dict 最簡單，重啟就沒了", "JSON / SQLite 持久化方式", "多步驟對話用 FSM（每個 user 一個 step）"],try:["加 /cancel 指令立刻清掉 session", "記錄訂單到 list 模擬資料庫", "加超時：閒置 10 分鐘自動清掉 session"],code:{"task": "簽到累計器：用 dict 記每個 user 的簽到次數。從 stdin 讀多行 user 名字，每行印「user N」（N=該 user 累計簽到次數）。", "stdin": "alice\nbob\nalice\nalice\nbob\ncara\n", "expect": "alice 1\nbob 1\nalice 2\nalice 3\nbob 2\ncara 1"}},
 58:{learn:["discord.ext.tasks.loop 內建排程", "schedule / APScheduler 套件做 cron", "永遠用 asyncio.sleep 不要 time.sleep"],try:["改成每 30 分鐘觸發 heartbeat", "加 \"每週一 10:00\" 的排程", "寫一個閒置 timeout：使用者 30 分沒回就清 session"],code:{"task": "寫 seconds_until(now_h, now_m, target_h, target_m)，回傳秒數（若 target 已過則算到明天同時刻）。從 stdin 讀多行「now_h now_m target_h target_m」逐行輸出秒數。", "stdin": "7 30 9 0\n9 0 9 0\n14 0 9 0\n14 0 21 0\n", "expect": "5400\n86400\n68400\n25200"}},
-59:{learn:["Render/Railway 是免費部署選擇", "requirements.txt + Procfile + .gitignore 三件套", "健康檢查 + UptimeRobot 監控"],try:["加更多 REQUIRED 環境變數", "把 missing 改成 raise SystemExit 強制中止", "加「啟動超過 1 小時要重啟」的健康規則"],code:{"task": "從 stdin 讀環境變數定義（每行 KEY=VALUE），檢查 REQUIRED=[\"TOKEN\",\"DB_URL\"] 是否都存在。輸出：對每個 REQUIRED 印「KEY ok」或「KEY missing」（按 REQUIRED 順序）。", "stdin": "TOKEN=abc123\nLOG_LEVEL=INFO\nPORT=5000\n", "expect": "TOKEN ok\nDB_URL missing"}}
+59:{learn:["Render/Railway 是免費部署選擇", "requirements.txt + Procfile + .gitignore 三件套", "健康檢查 + UptimeRobot 監控"],try:["加更多 REQUIRED 環境變數", "把 missing 改成 raise SystemExit 強制中止", "加「啟動超過 1 小時要重啟」的健康規則"],code:{"task": "從 stdin 讀環境變數定義（每行 KEY=VALUE），檢查 REQUIRED=[\"TOKEN\",\"DB_URL\"] 是否都存在。輸出：對每個 REQUIRED 印「KEY ok」或「KEY missing」（按 REQUIRED 順序）。", "stdin": "TOKEN=abc123\nLOG_LEVEL=INFO\nPORT=5000\n", "expect": "TOKEN ok\nDB_URL missing"}},
+60:{learn:["Game loop 四步驟：events / update / draw / tick", "pygame 座標左上 (0,0)、y 往下增加", "clock.tick(60) 控制 FPS 讓不同電腦體驗一致"],try:["加 move_left 事件，看 x 減少", "改 width=30 看畫面變寬", "加 fake_events 在第 5 幀 quit，看提早結束"],code:{"task": "模擬 game loop：起始 x=0。從 stdin 讀多行指令 (right/left/quit)。處理到 quit 為止。每幀後印「frame N x=X」(N 從 1 開始)，quit 那幀不要印。", "stdin": "right\nright\nleft\nright\nquit\n", "expect": "frame 1 x=1\nframe 2 x=2\nframe 3 x=1\nframe 4 x=2"}},
+61:{learn:["draw.rect/circle/line/polygon 五大繪圖函式", "Rect 物件有 center/topleft 等屬性方便定位", "繪圖順序：先畫的會被後畫的蓋掉"],try:["加 draw_line_v 垂直線函式", "把房子大小改成 10x8", "畫第二個太陽 (15, 2, 1)"],code:{"task": "用 30x10 的字元 grid 當畫布。從 stdin 讀「x y」（單一行），在那個位置印 *。輸出整張 grid (用 . 填空白)，每行印一列。", "stdin": "15 5\n", "expect": "..............................\n..............................\n..............................\n..............................\n..............................\n...............*..............\n..............................\n..............................\n..............................\n.............................."}},
+62:{learn:["事件驅動 (KEYDOWN) vs 狀態查詢 (get_pressed)", "MOUSEBUTTONDOWN/MOTION 處理滑鼠", "文字輸入用 event.unicode"],try:["加 K_a/K_d 對應左右移動", "加滑鼠右鍵：印「marker」訊息", "加滑鼠拖曳偵測 (left button + MOUSEMOTION)"],code:{"task": "玩家初始 x=0, y=0。從 stdin 讀多行輸入指令：「W/A/S/D」分別上/左/下/右各移動 1 格。讀完後輸出「x y」最終位置。", "stdin": "D\nD\nS\nD\nW\nW\nA\n", "expect": "2 -1"}},
+63:{learn:["用 vel * dt 讓速度跟 fps 無關", "pos += vel * dt 是黃金移動公式", "重力就是 vy += GRAVITY * dt"],try:["改 GRAVITY=50，看球落更快", "改反彈損失 0.9（更彈）", "加左右牆每次反彈損失 10% 速度"],code:{"task": "物理模擬：初始 y=0, vy=0。每幀 dt=0.1, GRAVITY=10。從 stdin 讀整數 N (1 行)，跑 N 幀後輸出最終 y（四捨五入 1 位小數）。公式：vy += GRAVITY*dt; y += vy*dt（每幀按此順序）。", "stdin": "5\n", "expect": "1.5"}},
+64:{learn:["AABB 是最常用的碰撞算法", "pygame Rect.colliderect / collidepoint 內建", "x/y 分開檢查避免卡牆"],try:["加更多子彈/怪物，看結果", "改成圓形碰撞 (距離公式)", "加 dokill 邏輯：撞到的怪物從 enemies 移除"],code:{"task": "AABB 碰撞：從 stdin 讀 2 行，每行「x y w h」表示一個矩形。輸出「YES」或「NO」表示是否相撞。", "stdin": "0 0 5 5\n3 3 5 5\n", "expect": "YES"}},
+65:{learn:["font.render(text, True, color) → Surface", "中文要指定中文字型或用 .ttf 檔", "get_rect(center=...) 置中對齊"],try:["改 HP 為 30，看血條變紅短", "寫一個 right_align 函式", "加邊框：「[ GAME OVER ]」"],code:{"task": "自動換行：從 stdin 讀第一行 max_width (整數)，第二行一個英文句子。按空白切詞、貪心放進每行（每行字數 ≤ max_width）。輸出每行一行。", "stdin": "15\nThe quick brown fox jumps over the lazy dog\n", "expect": "The quick brown\nfox jumps over\nthe lazy dog"}},
+66:{learn:["Sound (短) vs music (長) 兩種 API", "play(loops=-1) 無限循環、fadeout 淡出", ".wav/.ogg 最穩；多平台音樂用 .ogg"],try:["加 walk 音效隔 0.3 秒才能再播一次", "改 boss BGM 從 30 秒處 start", "加全域 master_volume = 0.5 乘上每個音效"],code:{"task": "寫音效播放紀錄器：從 stdin 讀多行「event」。對照表 {\"jump\":\"jump.wav\", \"coin\":\"coin.wav\", \"hit\":\"hit.wav\"}，找得到就印「play X」，找不到印「skip X」(X 是輸入字串)。", "stdin": "jump\ncoin\ndie\nhit\nfoo\n", "expect": "play jump.wav\nplay coin.wav\nskip die\nplay hit.wav\nskip foo"}},
+67:{learn:["完整 game loop = events + input + update + collision + draw", "狀態機 (state machine) 管理 menu/playing/gameover", "從小遊戲開始：先 Pong → 貪食蛇 → 平台跳躍"],try:["加 AI 對手自動追球", "加加速：每次撞板 vel.x *= 1.05", "改 WIN_SCORE = 11 看比賽更長"],code:{"task": "計分遊戲：從 stdin 讀多行「P1」或「P2」表示誰得分。先到 3 分獲勝。輸出「WINNER FINAL_A_B」（FINAL 是「P1 wins」或「P2 wins」, A_B 是最終比數）。獲勝後忽略後續輸入。", "stdin": "P1\nP2\nP1\nP2\nP1\nP2\n", "expect": "P1 wins 3-2"}}
 };
 
 // ── 常見錯誤訊息翻譯 ─────────────────────────────────────────────────────
