@@ -151,7 +151,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 </head>
 <body>
 <header>
-  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub">36 章 · APCS 考試準備 + 實用程式 + 製作專案</div></div>
+  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub">44 章 · APCS 考試準備 + 實用程式 + 製作專案 + 專項教學</div></div>
   <div class="hright">
     <a href="index.html">🎯 前往題庫</a>
     <span><span class="status-dot" id="status-dot"></span><span id="status-text">Pyodide 載入中...</span></span>
@@ -3002,6 +3002,1103 @@ for g in guesses:
     else:
         print(f"{g} → 中了！")
         break
+`},
+{id:36,title:"HTTP 入門：網頁怎麼來的",tag:"專項",content:`
+# 第 36 章：HTTP 入門 — 網頁是怎麼來的
+
+> 🕷 **專項教學 · 爬蟲**：在抓網頁之前，先搞懂瀏覽器跟伺服器到底在聊什麼。
+
+## 36.1 用一句話講清楚
+
+當你打開 [https://example.com](https://example.com)：
+
+1. 瀏覽器 → 伺服器：**「請給我這個網址的內容」**（這叫 *request*）
+2. 伺服器 → 瀏覽器：**「拿去，這是 HTML」**（這叫 *response*）
+3. 瀏覽器把 HTML 畫成你看到的網頁
+
+爬蟲就是**「跳過瀏覽器、自己用程式發 request、自己解析 response」**。
+
+## 36.2 一個 HTTP request 長什麼樣
+
+\`\`\`http
+GET /search?q=apcs HTTP/1.1
+Host: www.google.com
+User-Agent: Mozilla/5.0 ...
+Accept: text/html
+\`\`\`
+
+關鍵欄位：
+
+| 欄位 | 意思 |
+|------|------|
+| **方法（method）** | GET / POST / PUT / DELETE |
+| **路徑（path）** | \`/search?q=apcs\` — 含查詢字串 |
+| **Host** | 目標網域 |
+| **User-Agent** | 「我是哪種瀏覽器」(爬蟲常要假裝) |
+
+## 36.3 response 長什麼樣
+
+\`\`\`http
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Content-Length: 1234
+
+<html>
+  <body>...</body>
+</html>
+\`\`\`
+
+最重要的就是**第一行的狀態碼**：
+
+| 狀態碼 | 意思 |
+|--------|------|
+| **200** | 成功 ✅ |
+| **301 / 302** | 重新導向 |
+| **403** | 禁止（常見：被擋爬蟲） |
+| **404** | 找不到 |
+| **429** | 太多請求（被限流） |
+| **500** | 伺服器壞了 |
+
+> 看到 200 才能繼續解析；其他狀態碼要做對應處理。
+
+## 36.4 GET vs POST
+
+| | GET | POST |
+|---|---|---|
+| 用途 | 讀取資料 | 送出資料（登入、留言） |
+| 參數位置 | URL 後面 \`?a=1&b=2\` | request body |
+| 可被瀏覽器書籤？ | 可以 | 不行 |
+| 適合爬蟲 | 通常都 GET | 表單模擬時才用 |
+
+## 36.5 動手試試
+
+右邊的範例會**自己組一個 HTTP response 字串**，再把狀態碼跟 body 拆出來。看完你就知道一個「請求-回應」週期到底發生什麼。
+
+> **跨語言對應**：
+> - **C++**：可用 \`libcurl\` 或 \`cpp-httplib\`，較少用於爬蟲
+> - **Java**：標準庫 \`java.net.http.HttpClient\`（Java 11+）或 \`Jsoup\`
+> - **JavaScript**：\`fetch()\` API
+> 但這個主題以 Python 為主——\`requests\` + \`BeautifulSoup\` 是業界最流行的爬蟲組合。
+`,
+example:`# 模擬一個 HTTP response（真實情境是從 socket 讀到的字串）
+response = (
+    "HTTP/1.1 200 OK\\r\\n"
+    "Content-Type: text/html; charset=utf-8\\r\\n"
+    "Content-Length: 38\\r\\n"
+    "\\r\\n"
+    "<html><body>Hello APCS</body></html>"
+)
+
+# 拆 header 與 body（用 \\r\\n\\r\\n 分隔）
+header_part, body = response.split("\\r\\n\\r\\n", 1)
+lines = header_part.split("\\r\\n")
+
+# 第一行：HTTP/1.1 200 OK
+status_line = lines[0]
+parts = status_line.split(" ", 2)
+version, code, reason = parts[0], int(parts[1]), parts[2]
+print(f"狀態碼: {code} ({reason})")
+
+# 其他行：Key: Value
+headers = {}
+for line in lines[1:]:
+    k, v = line.split(": ", 1)
+    headers[k] = v
+print(f"Content-Type: {headers['Content-Type']}")
+
+# body
+print(f"body: {body}")
+`},
+{id:37,title:"requests 入門",tag:"專項",content:`
+# 第 37 章：requests 入門
+
+> 🕷 **專項教學 · 爬蟲**：Python 抓網頁的標準工具。一行就能下載整個網頁。
+
+## 37.1 為什麼用 requests
+
+Python 內建 \`urllib.request\` 也能抓網頁，但語法又長又繞。\`requests\` 就是「給人用」的版本：
+
+\`\`\`python
+import requests
+r = requests.get("https://example.com")
+print(r.status_code)   # 200
+print(r.text[:200])    # 前 200 字的 HTML
+\`\`\`
+
+安裝：
+\`\`\`bash
+pip install requests
+\`\`\`
+
+## 37.2 GET：抓一個網頁
+
+\`\`\`python
+import requests
+
+r = requests.get("https://api.github.com/users/torvalds")
+print(r.status_code)        # 200
+print(r.headers["Content-Type"])
+print(r.text[:100])         # 字串：HTML 或 JSON
+print(r.json())             # 自動解析成 dict
+\`\`\`
+
+| 屬性 | 意思 |
+|------|------|
+| \`r.status_code\` | 狀態碼（200/404/...） |
+| \`r.text\` | 回應內容字串 |
+| \`r.content\` | 回應內容 bytes（圖片、檔案要用這個） |
+| \`r.headers\` | 回應 header dict |
+| \`r.json()\` | 把 body 當 JSON 解析 |
+| \`r.url\` | 最後實際打的 URL（重新導向後） |
+
+## 37.3 帶查詢字串
+
+不要自己拼字串，用 \`params=\`：
+
+\`\`\`python
+r = requests.get(
+    "https://www.google.com/search",
+    params={"q": "apcs python", "lr": "lang_zh-TW"}
+)
+print(r.url)
+# → https://www.google.com/search?q=apcs+python&lr=lang_zh-TW
+\`\`\`
+
+## 37.4 假裝瀏覽器（User-Agent）
+
+很多網站會擋 Python 預設的 UA。**最常見的反爬技巧 = 改 header**：
+
+\`\`\`python
+r = requests.get(
+    "https://example.com",
+    headers={
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120"
+    }
+)
+\`\`\`
+
+## 37.5 timeout 一定要設
+
+不設 timeout，網路掛了會卡到天荒地老：
+
+\`\`\`python
+try:
+    r = requests.get("https://example.com", timeout=5)  # 5 秒
+    r.raise_for_status()        # 4xx/5xx 自動丟例外
+except requests.Timeout:
+    print("逾時")
+except requests.HTTPError as e:
+    print(f"HTTP 錯誤 {e.response.status_code}")
+except requests.RequestException as e:
+    print(f"網路錯：{e}")
+\`\`\`
+
+> 🛡 **黃金三件套**：\`timeout\` + \`raise_for_status\` + \`try/except\`。爬蟲穩定性 80% 來自這三行。
+
+## 37.6 POST：送出表單或 JSON
+
+\`\`\`python
+# 表單（application/x-www-form-urlencoded）
+requests.post(url, data={"user": "alice", "pw": "x"})
+
+# JSON（application/json）
+requests.post(url, json={"user": "alice", "pw": "x"})
+\`\`\`
+
+## 37.7 Session：保留 cookie
+
+如果要登入後一直保持身份，用 \`Session\`：
+
+\`\`\`python
+s = requests.Session()
+s.post("https://site/login", data={"u":"a","p":"b"})
+r = s.get("https://site/profile")    # 自動帶上 cookie
+\`\`\`
+
+## 37.8 動手試試（模擬版）
+
+範例會**自己組 query string + parse URL**，模擬 \`requests\` 的內部邏輯。Pyodide 內無法真的連網，但這段練習能讓你看清「URL + params 怎麼變成最終網址」。
+`,
+example:`# 模擬 requests.get(url, params=...) 內部怎麼組 URL
+from urllib.parse import urlencode, urlparse, parse_qs
+
+base = "https://www.google.com/search"
+params = {"q": "apcs python", "lr": "lang_zh-TW", "page": 2}
+
+# 1) requests 內部把 params 變成查詢字串
+qs = urlencode(params)
+final_url = f"{base}?{qs}"
+print("最終 URL:", final_url)
+
+# 2) 反過來：拿到一個 URL，把參數拆出來
+parsed = urlparse(final_url)
+print("網域:", parsed.netloc)
+print("路徑:", parsed.path)
+print("參數:", parse_qs(parsed.query))
+
+# 3) 模擬一個成功 response
+fake_response = {
+    "status_code": 200,
+    "headers": {"Content-Type": "text/html; charset=utf-8"},
+    "text": "<html>...搜尋結果...</html>"
+}
+print(f"\\n狀態: {fake_response['status_code']}")
+print(f"前 30 字 body: {fake_response['text'][:30]}")
+`},
+{id:38,title:"HTML 結構與 DOM",tag:"專項",content:`
+# 第 38 章：HTML 結構與 DOM
+
+> 🕷 **專項教學 · 爬蟲**：抓到 HTML 之後要會「定位」想要的資料。
+
+## 38.1 HTML 是一棵樹
+
+\`\`\`html
+<html>
+  <head>
+    <title>新聞首頁</title>
+  </head>
+  <body>
+    <h1>今日頭條</h1>
+    <ul class="news">
+      <li><a href="/a">新聞 A</a></li>
+      <li><a href="/b">新聞 B</a></li>
+    </ul>
+  </body>
+</html>
+\`\`\`
+
+畫成樹：
+
+\`\`\`
+html
+├── head
+│   └── title ("新聞首頁")
+└── body
+    ├── h1 ("今日頭條")
+    └── ul.news
+        ├── li → a[href=/a] ("新聞 A")
+        └── li → a[href=/b] ("新聞 B")
+\`\`\`
+
+每個節點都有：
+
+| 屬性 | 例子 |
+|------|------|
+| **tag**（標籤） | \`a\`, \`li\`, \`div\` |
+| **attributes**（屬性） | \`href="/a"\`, \`class="news"\` |
+| **text**（文字） | \`"新聞 A"\` |
+| **children**（子節點） | 巢狀的元素 |
+
+## 38.2 常見 tag 速查
+
+| Tag | 意思 |
+|-----|------|
+| \`<h1>\`–\`<h6>\` | 標題（h1 最大） |
+| \`<p>\` | 段落 |
+| \`<a href="...">\` | 超連結 |
+| \`<img src="...">\` | 圖片 |
+| \`<ul>\` / \`<ol>\` / \`<li>\` | 清單 |
+| \`<table>\` / \`<tr>\` / \`<td>\` | 表格 |
+| \`<div>\` / \`<span>\` | 通用容器（最常用！） |
+| \`<form>\` / \`<input>\` | 表單 |
+
+## 38.3 class 與 id
+
+\`\`\`html
+<div id="main-article" class="post featured">...</div>
+\`\`\`
+
+- \`id\` **唯一**，全網頁只能有一個 \`id="main-article"\`
+- \`class\` **可重複、可多個**（用空白分隔）
+
+爬蟲最常依賴這兩個來定位元素。
+
+## 38.4 在瀏覽器找元素：DevTools
+
+在 Chrome / Edge 按 **F12** 開 DevTools，點左上角的滑鼠圖示，再點頁面上任何元素 → 你會看到對應的 HTML。
+
+> 🎯 抓資料前的標準流程：
+> 1. F12 看 HTML 結構
+> 2. 找最穩定的「定位特徵」（class 或 id）
+> 3. 對 BeautifulSoup 寫對應的 selector
+
+## 38.5 標籤可以「巢狀」很深
+
+\`\`\`html
+<div class="article">
+  <header>
+    <h2>標題</h2>
+    <span class="date">2026-06-08</span>
+  </header>
+  <div class="content">
+    <p>第一段</p>
+    <p>第二段</p>
+  </div>
+</div>
+\`\`\`
+
+要拿「日期」要走 \`div.article\` → \`header\` → \`span.date\`。
+要拿「所有段落」要走 \`div.article\` → \`div.content\` → 所有 \`p\`。
+
+## 38.6 動手試試
+
+範例用 Python 內建的 \`html.parser\` 走遍 HTML 樹，把每個 tag 印出來。看完你會理解「解析器到底在做什麼事」。
+`,
+example:`# 用 stdlib 的 html.parser 走訪 HTML 樹
+from html.parser import HTMLParser
+
+html_doc = (
+    '<html>\\n'
+    '  <head><title>新聞首頁</title></head>\\n'
+    '  <body>\\n'
+    '    <h1>今日頭條</h1>\\n'
+    '    <ul class="news">\\n'
+    '      <li><a href="/a">新聞 A</a></li>\\n'
+    '      <li><a href="/b">新聞 B</a></li>\\n'
+    '    </ul>\\n'
+    '  </body>\\n'
+    '</html>'
+)
+
+class TreePrinter(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.depth = 0
+        self.tags = []  # 記錄所有 tag
+    def handle_starttag(self, tag, attrs):
+        self.tags.append(tag)
+        attr_str = ' '.join(f'{k}="{v}"' for k, v in attrs) if attrs else ''
+        marker = f'<{tag} {attr_str}>'.strip() + '>'
+        print('  ' * self.depth + f'<{tag}>' + (f'  ({attr_str})' if attrs else ''))
+        self.depth += 1
+    def handle_endtag(self, tag):
+        self.depth = max(0, self.depth - 1)
+    def handle_data(self, data):
+        text = data.strip()
+        if text:
+            print('  ' * self.depth + f'"{text}"')
+
+p = TreePrinter()
+p.feed(html_doc)
+
+print(f"\\n共 {len(p.tags)} 個開始標籤")
+print(f"出現的 tag: {sorted(set(p.tags))}")
+`},
+{id:39,title:"BeautifulSoup 解析",tag:"專項",content:`
+# 第 39 章：BeautifulSoup 解析
+
+> 🕷 **專項教學 · 爬蟲**：把 HTML 字串變成可以「.find / .select」的物件。
+
+## 39.1 安裝與第一次
+
+\`\`\`bash
+pip install beautifulsoup4
+# 推薦再裝 lxml（更快的解析器）
+pip install lxml
+\`\`\`
+
+\`\`\`python
+from bs4 import BeautifulSoup
+
+html = "<html><body><h1>Hi</h1></body></html>"
+soup = BeautifulSoup(html, "html.parser")
+print(soup.h1.text)   # Hi
+\`\`\`
+
+## 39.2 find vs find_all
+
+\`\`\`python
+soup.find("h1")            # 第一個 h1，回傳 Tag
+soup.find_all("li")        # 全部 li，回傳 list
+soup.find("div", class_="content")
+soup.find_all("a", href=True)        # 只要有 href 的 a
+soup.find("img", {"alt": "logo"})    # 用 dict 比對任何屬性
+\`\`\`
+
+> ⚠️ Python 中 \`class\` 是關鍵字，所以參數寫 \`class_\`（多一條底線）。
+
+## 39.3 select：CSS selector（強力推薦）
+
+如果你會 CSS，這招最直覺：
+
+\`\`\`python
+soup.select("div.news h2")          # div.news 底下所有 h2
+soup.select("ul.menu > li")         # ul.menu 的直接子節點 li
+soup.select("a[href^=https]")       # href 開頭是 https 的 a
+soup.select("#main .title")         # id=main 下所有 class=title
+\`\`\`
+
+CSS selector 速查：
+
+| 語法 | 意思 |
+|------|------|
+| \`tag\` | 標籤名 |
+| \`.class\` | class |
+| \`#id\` | id |
+| \`parent child\` | 後代 |
+| \`parent > child\` | 直接子節點 |
+| \`[attr]\` | 有這個屬性 |
+| \`[attr=value]\` | 屬性等於 |
+| \`[attr^=value]\` | 屬性開頭 |
+| \`[attr$=value]\` | 屬性結尾 |
+| \`[attr*=value]\` | 屬性包含 |
+
+## 39.4 拿到資料
+
+\`\`\`python
+a = soup.find("a")
+a.text          # 連結文字
+a.get_text()    # 同上
+a["href"]       # 屬性
+a.attrs         # 全部屬性 dict
+a.parent        # 父節點
+a.find_parent("div", class_="post")  # 往上找特定父
+\`\`\`
+
+## 39.5 整段示範
+
+\`\`\`python
+from bs4 import BeautifulSoup
+import requests
+
+html = requests.get("https://example.com", timeout=5).text
+soup = BeautifulSoup(html, "html.parser")
+
+for a in soup.select("a[href]"):
+    print(a.text.strip(), "→", a["href"])
+\`\`\`
+
+短短 4 行就抓完所有連結。
+
+## 39.6 動手試試（模擬版）
+
+Pyodide 預設沒裝 bs4，所以我們用 stdlib \`html.parser\` 寫個迷你版「找 a 標籤」。在本機請改用上面的 BeautifulSoup 寫法。
+`,
+example:`# 模擬版：用 stdlib html.parser 抓所有 <a href="..."> 的文字與連結
+# 本機真實情境請改用：
+#   from bs4 import BeautifulSoup
+#   soup = BeautifulSoup(html, "html.parser")
+#   for a in soup.select("a[href]"): print(a.text, a["href"])
+
+from html.parser import HTMLParser
+
+html = (
+    '\\n<html><body>\\n'
+    '  <h1>連結蒐集</h1>\\n'
+    '  <ul>\\n'
+    '    <li><a href="/news/1">新聞一</a></li>\\n'
+    '    <li><a href="/news/2">新聞二</a></li>\\n'
+    '    <li><a href="https://example.com">外部連結</a></li>\\n'
+    '    <li>沒連結的</li>\\n'
+    '  </ul>\\n'
+    '</body></html>'
+)
+
+class LinkGrabber(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.in_a = False
+        self.cur_href = None
+        self.cur_text = ''
+        self.links = []  # [(text, href), ...]
+    def handle_starttag(self, tag, attrs):
+        if tag == 'a':
+            self.in_a = True
+            self.cur_href = dict(attrs).get('href')
+            self.cur_text = ''
+    def handle_endtag(self, tag):
+        if tag == 'a' and self.in_a:
+            self.links.append((self.cur_text.strip(), self.cur_href))
+            self.in_a = False
+    def handle_data(self, data):
+        if self.in_a:
+            self.cur_text += data
+
+g = LinkGrabber()
+g.feed(html)
+print(f"找到 {len(g.links)} 個連結：")
+for text, href in g.links:
+    print(f"  {text} → {href}")
+`},
+{id:40,title:"實戰：抓表格與清單",tag:"專項",content:`
+# 第 40 章：實戰 — 抓表格與清單
+
+> 🕷 **專項教學 · 爬蟲**：把零散的標籤組成「一筆一筆」的結構化資料。
+
+## 40.1 目標：把網頁變 dict 清單
+
+爬蟲最終都是要拿到這種東西：
+
+\`\`\`python
+[
+  {"title": "新聞 A", "url": "/a", "date": "2026-06-08"},
+  {"title": "新聞 B", "url": "/b", "date": "2026-06-07"},
+  ...
+]
+\`\`\`
+
+然後就能丟進 CSV / 資料庫 / pandas。
+
+## 40.2 「列表頁」的標準寫法
+
+\`\`\`python
+from bs4 import BeautifulSoup
+import requests
+
+html = requests.get("https://news.example.com", timeout=5).text
+soup = BeautifulSoup(html, "html.parser")
+
+items = []
+for card in soup.select("div.news-card"):
+    items.append({
+        "title": card.select_one("h3.title").get_text(strip=True),
+        "url":   card.select_one("a")["href"],
+        "date":  card.select_one("span.date").get_text(strip=True),
+    })
+
+for it in items:
+    print(it)
+\`\`\`
+
+**三步驟記憶法**：
+
+1. **外圈**：每筆資料的「容器」selector（這裡是 \`div.news-card\`）
+2. **內圈**：在容器內挖各個欄位
+3. **打包**：組成 dict，append 進 list
+
+## 40.3 處理「找不到」的欄位
+
+不是每張卡片都有日期，亂寫會崩：
+
+\`\`\`python
+date_el = card.select_one("span.date")
+date = date_el.get_text(strip=True) if date_el else "未知"
+\`\`\`
+
+> 💡 用「海象運算子」更短：\`date = (e.get_text(strip=True) if (e := card.select_one("span.date")) else "未知")\`
+
+## 40.4 抓表格 \`<table>\`
+
+\`\`\`python
+table = soup.select_one("table.scores")
+rows = []
+for tr in table.select("tbody tr"):
+    cells = [td.get_text(strip=True) for td in tr.select("td")]
+    rows.append(cells)
+
+# 或：用 pandas 一行解決
+import pandas as pd
+df = pd.read_html(html)[0]    # 自動找第一個 <table>
+\`\`\`
+
+> \`pd.read_html\` 對「乾淨的 table」幾乎萬能；複雜版面才要自己手刻。
+
+## 40.5 文字清理三招
+
+| 招式 | 用途 |
+|------|------|
+| \`.get_text(strip=True)\` | 去前後空白與換行 |
+| \`re.sub(r'\\s+', ' ', s)\` | 把多個空白合成一個 |
+| \`s.replace('\\xa0', ' ')\` | 替換不可見的 nbsp |
+
+## 40.6 動手試試（模擬版）
+
+範例直接內嵌一段「新聞列表」HTML，用 stdlib 解析後組成 dict 清單。
+`,
+example:`# 模擬：把新聞列表頁面解析成 [{title, url}, ...] 清單
+from html.parser import HTMLParser
+
+html = (
+    '\\n<div class="news-list">\\n'
+    '  <div class="news-card">\\n'
+    '    <h3 class="title">APCS 6 月場登場</h3>\\n'
+    '    <a href="/news/1">看更多</a>\\n'
+    '  </div>\\n'
+    '  <div class="news-card">\\n'
+    '    <h3 class="title">大學程式設計新趨勢</h3>\\n'
+    '    <a href="/news/2">看更多</a>\\n'
+    '  </div>\\n'
+    '  <div class="news-card">\\n'
+    '    <h3 class="title">教育部公布新課綱</h3>\\n'
+    '    <a href="/news/3">看更多</a>\\n'
+    '  </div>\\n'
+    '</div>'
+)
+
+class NewsParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.items = []
+        self.cur = None
+        self.in_title = False
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        if tag == 'div' and a.get('class') == 'news-card':
+            self.cur = {}
+        elif tag == 'h3' and self.cur is not None:
+            self.in_title = True
+        elif tag == 'a' and self.cur is not None:
+            self.cur['url'] = a.get('href', '')
+    def handle_endtag(self, tag):
+        if tag == 'h3':
+            self.in_title = False
+        elif tag == 'div' and self.cur is not None and 'title' in self.cur:
+            self.items.append(self.cur)
+            self.cur = None
+    def handle_data(self, data):
+        if self.in_title and self.cur is not None:
+            self.cur['title'] = data.strip()
+
+p = NewsParser()
+p.feed(html)
+print(f"共抓到 {len(p.items)} 則新聞：")
+for item in p.items:
+    print(f"  [{item['url']}] {item['title']}")
+`},
+{id:41,title:"分頁與爬取流程",tag:"專項",content:`
+# 第 41 章：分頁與爬取流程
+
+> 🕷 **專項教學 · 爬蟲**：實際的網站不會把一萬筆塞在一頁。學會「翻頁」是第二個關卡。
+
+## 41.1 三種常見分頁
+
+### 路徑分頁
+\`\`\`
+https://site/list/1
+https://site/list/2
+https://site/list/3
+\`\`\`
+
+\`\`\`python
+for page in range(1, 11):
+    url = f"https://site/list/{page}"
+    r = requests.get(url, timeout=5)
+    parse(r.text)
+\`\`\`
+
+### 查詢字串分頁
+\`\`\`
+https://site/list?page=1
+https://site/list?page=2
+\`\`\`
+
+\`\`\`python
+for page in range(1, 11):
+    r = requests.get("https://site/list", params={"page": page}, timeout=5)
+    parse(r.text)
+\`\`\`
+
+### 「下一頁」連結（沒有總頁數）
+\`\`\`python
+url = "https://site/list"
+while url:
+    r = requests.get(url, timeout=5)
+    soup = BeautifulSoup(r.text, "html.parser")
+    parse(soup)
+    next_a = soup.select_one("a.next")
+    url = next_a["href"] if next_a else None
+\`\`\`
+
+## 41.2 何時停？三種終止條件
+
+| 條件 | 怎麼判斷 |
+|------|----------|
+| 達到頁數上限 | \`if page > MAX: break\` |
+| 沒有資料 | \`if not items: break\` |
+| 抓到重複內容 | 用 \`set\` 記錄已看過的 id |
+
+## 41.3 去重：用 set 是基本功
+
+\`\`\`python
+seen = set()
+results = []
+for page in range(1, 100):
+    items = fetch_page(page)
+    new = [it for it in items if it["id"] not in seen]
+    if not new:
+        print(f"page {page} 全是重複，停止")
+        break
+    for it in new:
+        seen.add(it["id"])
+        results.append(it)
+\`\`\`
+
+## 41.4 禮貌延遲：別把人家伺服器打爆
+
+\`\`\`python
+import time, random
+
+for page in range(1, 11):
+    fetch_page(page)
+    time.sleep(random.uniform(1, 3))   # 1~3 秒隨機
+\`\`\`
+
+> 🛡 **底線**：每秒打超過 1 次就有可能被當 DDoS 攻擊。新手請用 \`time.sleep(2)\`。
+
+## 41.5 完整流程模板
+
+\`\`\`python
+import requests, time
+from bs4 import BeautifulSoup
+
+BASE = "https://site/list"
+HEADERS = {"User-Agent": "Mozilla/5.0 (research bot)"}
+MAX_PAGE = 50
+
+seen_ids = set()
+all_items = []
+
+for page in range(1, MAX_PAGE + 1):
+    try:
+        r = requests.get(BASE, params={"page": page},
+                         headers=HEADERS, timeout=10)
+        r.raise_for_status()
+    except requests.RequestException as e:
+        print(f"page {page} 失敗：{e}")
+        continue
+
+    soup = BeautifulSoup(r.text, "html.parser")
+    items = [parse_card(c) for c in soup.select("div.card")]
+    new = [it for it in items if it["id"] not in seen_ids]
+
+    if not new:
+        print(f"page {page} 沒有新資料，結束")
+        break
+
+    for it in new:
+        seen_ids.add(it["id"])
+        all_items.append(it)
+
+    print(f"page {page}: +{len(new)} 筆（累計 {len(all_items)}）")
+    time.sleep(1.5)
+
+print(f"總共抓到 {len(all_items)} 筆")
+\`\`\`
+
+## 41.6 動手試試
+
+範例模擬 5 頁、每頁 3 筆，含 1 筆重複跨頁。看看去重的結果。
+`,
+example:`# 模擬：5 頁抓資料 + 去重
+def fetch_page(page):
+    # 假裝這是 requests.get 回來解析後的結果
+    fake = {
+        1: [{"id":1,"t":"A"},{"id":2,"t":"B"},{"id":3,"t":"C"}],
+        2: [{"id":3,"t":"C"},{"id":4,"t":"D"},{"id":5,"t":"E"}],  # id=3 重複
+        3: [{"id":6,"t":"F"},{"id":7,"t":"G"},{"id":8,"t":"H"}],
+        4: [{"id":9,"t":"I"},{"id":10,"t":"J"}],
+        5: [],   # 沒資料了
+    }
+    return fake.get(page, [])
+
+seen = set()
+results = []
+
+for page in range(1, 100):
+    items = fetch_page(page)
+    new = [it for it in items if it["id"] not in seen]
+    if not items:
+        print(f"page {page}: 空頁，停止"); break
+    if not new:
+        print(f"page {page}: 全部重複，停止"); break
+    for it in new:
+        seen.add(it["id"]); results.append(it)
+    print(f"page {page}: +{len(new)} 筆 (累計 {len(results)})")
+
+print(f"\\n最終抓到 {len(results)} 筆，去重後 id: {sorted(seen)}")
+`},
+{id:42,title:"儲存爬蟲結果：CSV / JSON",tag:"專項",content:`
+# 第 42 章：儲存爬蟲結果：CSV / JSON
+
+> 🕷 **專項教學 · 爬蟲**：抓回來不存就白抓了。學會兩種最常見的格式。
+
+## 42.1 CSV：Excel 開得開
+
+\`\`\`python
+import csv
+
+rows = [
+    {"title": "新聞 A", "url": "/a", "views": 100},
+    {"title": "新聞 B", "url": "/b", "views": 250},
+]
+
+with open("news.csv", "w", newline="", encoding="utf-8-sig") as f:
+    w = csv.DictWriter(f, fieldnames=["title", "url", "views"])
+    w.writeheader()
+    w.writerows(rows)
+\`\`\`
+
+關鍵設定：
+
+| 設定 | 為什麼 |
+|------|--------|
+| \`newline=""\` | 防止 Windows 上多空白行 |
+| \`encoding="utf-8-sig"\` | Excel 開中文不亂碼（加 BOM） |
+| \`DictWriter\` | 直接寫 dict、自動對應欄位 |
+
+## 42.2 讀回來
+
+\`\`\`python
+with open("news.csv", encoding="utf-8-sig") as f:
+    r = csv.DictReader(f)
+    for row in r:
+        print(row["title"], int(row["views"]))
+\`\`\`
+
+> 💡 csv 讀出來**全部是字串**，數字記得轉型。
+
+## 42.3 JSON：保留結構
+
+當你的資料有巢狀（list 裡有 dict、dict 裡有 list），用 JSON：
+
+\`\`\`python
+import json
+
+data = [
+    {"title": "新聞 A", "tags": ["教育", "考試"], "meta": {"author": "編輯"}},
+    {"title": "新聞 B", "tags": ["科技"], "meta": {"author": "記者"}},
+]
+
+with open("news.json", "w", encoding="utf-8") as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+\`\`\`
+
+\`ensure_ascii=False\` → 中文不會被轉成 \`\\uXXXX\`。
+\`indent=2\` → 排版好讀。
+
+## 42.4 讀回來
+
+\`\`\`python
+with open("news.json", encoding="utf-8") as f:
+    data = json.load(f)
+print(data[0]["title"])
+\`\`\`
+
+## 42.5 「邊抓邊寫」防斷線
+
+如果要抓 1 萬筆，不要全部抓完才寫——萬一中間掛掉全沒了。**每抓 100 筆就 append 一次**：
+
+\`\`\`python
+import csv
+
+with open("news.csv", "a", newline="", encoding="utf-8-sig") as f:
+    w = csv.writer(f)
+    for batch in batches_of(100):
+        for it in batch:
+            w.writerow([it["title"], it["url"], it["views"]])
+        f.flush()                  # 立刻寫到硬碟
+\`\`\`
+
+## 42.6 何時用哪個？
+
+| 資料形狀 | 推薦 |
+|----------|------|
+| 二維表（欄位固定） | CSV |
+| 有巢狀結構 | JSON |
+| 要給 Excel 開 | CSV (\`utf-8-sig\`) |
+| 要餵給程式繼續處理 | JSON |
+| 一行一筆獨立資料 | JSONL（\`.jsonl\`，每行一個 JSON） |
+
+## 42.7 動手試試
+
+範例用 \`io.StringIO\` 在記憶體中產生 CSV 和 JSON（不寫到硬碟），讓你看清格式。
+`,
+example:`# 不寫硬碟，用 StringIO 示範 CSV / JSON 序列化
+import csv, json, io
+
+rows = [
+    {"title": "新聞 A", "url": "/a", "views": 100},
+    {"title": "新聞 B", "url": "/b", "views": 250},
+    {"title": "新聞 C", "url": "/c", "views": 80},
+]
+
+# ── CSV ──
+buf = io.StringIO()
+w = csv.DictWriter(buf, fieldnames=["title", "url", "views"])
+w.writeheader()
+w.writerows(rows)
+print("===== CSV =====")
+print(buf.getvalue())
+
+# 讀回來
+buf.seek(0)
+r = csv.DictReader(buf)
+total_views = sum(int(row["views"]) for row in r)
+print(f"總點閱: {total_views}")
+
+# ── JSON ──
+js = json.dumps(rows, ensure_ascii=False, indent=2)
+print("\\n===== JSON =====")
+print(js)
+
+# 讀回來
+back = json.loads(js)
+print(f"\\n第一筆 title: {back[0]['title']}")
+`},
+{id:43,title:"爬蟲的防呆、限速與道德",tag:"專項",content:`
+# 第 43 章：爬蟲的防呆、限速與道德
+
+> 🕷 **專項教學 · 爬蟲**：最後一章，講的是「怎麼當一個不討人厭的爬蟲」。
+
+## 43.1 robots.txt：先看人家允不允許
+
+每個正規網站都有：
+\`\`\`
+https://example.com/robots.txt
+\`\`\`
+
+裡面長這樣：
+\`\`\`
+User-agent: *
+Disallow: /admin/
+Disallow: /private/
+Allow: /
+Crawl-delay: 2
+\`\`\`
+
+意思：所有爬蟲不能進 \`/admin/\`、\`/private/\`，每次請求間隔 2 秒。
+
+Python 內建解析器：
+
+\`\`\`python
+import urllib.robotparser
+
+rp = urllib.robotparser.RobotFileParser()
+rp.set_url("https://example.com/robots.txt")
+rp.read()
+print(rp.can_fetch("*", "https://example.com/admin/"))   # False
+\`\`\`
+
+## 43.2 三件「絕對不要做」
+
+| ❌ 不要做 | 為什麼 |
+|----------|--------|
+| **每秒打超過幾百次** | 等於 DDoS 攻擊，會被法律追究 |
+| **無視 robots.txt** | 違反業界默契、可能違法 |
+| **爬個人資料拿去賣** | 法律問題 + 道德問題 |
+
+## 43.3 防呆 1：retry + 指數退避
+
+被限流（429）就等久一點再試：
+
+\`\`\`python
+import time, requests
+
+def fetch_with_retry(url, max_retry=3):
+    for attempt in range(max_retry):
+        try:
+            r = requests.get(url, timeout=10)
+            if r.status_code == 429:
+                wait = 2 ** attempt          # 1, 2, 4 秒
+                print(f"被限流，等 {wait} 秒")
+                time.sleep(wait)
+                continue
+            r.raise_for_status()
+            return r
+        except requests.RequestException as e:
+            print(f"第 {attempt+1} 次失敗：{e}")
+            time.sleep(2 ** attempt)
+    return None
+\`\`\`
+
+## 43.4 防呆 2：把錯誤集中記錄
+
+\`\`\`python
+fails = []
+
+for url in urls:
+    try:
+        r = fetch_with_retry(url)
+        if r is None:
+            fails.append((url, "重試失敗"))
+            continue
+        parse(r.text)
+    except Exception as e:
+        fails.append((url, str(e)))
+
+print(f"成功 {len(urls)-len(fails)}, 失敗 {len(fails)}")
+for url, err in fails:
+    print(f"  {url}: {err}")
+\`\`\`
+
+## 43.5 防呆 3：斷點續傳
+
+抓 10000 筆時跑到第 7234 筆當機，不要從頭來。把進度寫到檔案：
+
+\`\`\`python
+import json, pathlib
+
+PROGRESS = pathlib.Path("progress.json")
+done = set(json.loads(PROGRESS.read_text())) if PROGRESS.exists() else set()
+
+for url in urls:
+    if url in done:
+        continue
+    fetch_and_save(url)
+    done.add(url)
+    PROGRESS.write_text(json.dumps(list(done)))
+\`\`\`
+
+## 43.6 防呆 4：User-Agent 要誠實
+
+不要假冒「我是 Googlebot」——這在法律上算詐騙：
+
+\`\`\`python
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (compatible; MyResearchBot/1.0; "
+                  "+https://yoursite.com/about)"
+}
+\`\`\`
+
+如果是個人專案，最好留個聯絡方式（GitHub 連結也行）。
+
+## 43.7 速度建議
+
+| 規模 | 建議速率 |
+|------|----------|
+| 小網站（個人 blog） | ≤ 1 req / 2 秒 |
+| 中型網站 | 1 req / 秒 |
+| 大型網站（有公開 API） | 看 API rate limit 文件 |
+| 不確定？ | **先慢慢來，再加速** |
+
+## 43.8 終極建議
+
+> 🎓 **學長姐悄悄話**：能用 API 就用 API（看人家有沒有公開），不行才爬 HTML。
+> API 給你結構化 JSON，爬蟲還要解析 HTML，**麻煩 10 倍以上**。
+
+## 43.9 動手試試
+
+範例做「retry + 指數退避」的模擬：50% 機率失敗，看重試幾次能成功。
+`,
+example:`# 模擬：retry + 指數退避
+import random
+
+random.seed(42)   # 固定 seed，輸出穩定可預測
+
+def fake_fetch(url):
+    # 50% 機率回傳 200，50% 回 429
+    return 200 if random.random() > 0.5 else 429
+
+def fetch_with_retry(url, max_retry=4):
+    for attempt in range(max_retry):
+        code = fake_fetch(url)
+        if code == 200:
+            return attempt + 1, "成功"
+        wait = 2 ** attempt
+        print(f"  [{url}] 第 {attempt+1} 次：{code}，退避 {wait}s")
+    return max_retry, "失敗"
+
+urls = ["/a", "/b", "/c", "/d", "/e"]
+succ = 0
+for u in urls:
+    print(f"抓取 {u}")
+    tries, status = fetch_with_retry(u)
+    if status == "成功":
+        succ += 1
+    print(f"  → {status}（共 {tries} 次嘗試）")
+
+print(f"\\n總結：{succ}/{len(urls)} 成功")
 `}
 ];
 
@@ -3345,7 +4442,15 @@ const CHAPTER_META = {
 32:{learn:["sys.argv 接命令列參數", "argparse 寫出有 --help 的工具", "拆出 main() 加 __main__ 入口"],try:["改成支援 --quiet 不印詳細", "加上負分檢查", "用 - 代表讀 stdin"],code:{"task": "模擬 args=['85','--strict']，若有 --strict 用 70 為門檻，否則 60。輸出 '及格' 或 '不及格'。", "stdin": "", "expect": "及格"}},
 33:{learn:["csv.reader / DictReader", "sorted + lambda 排名", "什麼時候改用 pandas"],try:["改成算中位數", "印各分級人數 (Counter)", "sorted 改成印前 5 名"],code:{"task": "csv: name,score 列為 Alice 92, Bob 75, Cathy 88, David 55, Eve 67。輸出平均（1 位小數）跟最高分兩行。", "stdin": "", "expect": "75.4\n92"}},
 34:{learn:["requests.get + r.json()", "HTTP 動詞 GET/POST/PUT/DELETE", "Timeout 與 raise_for_status"],try:["把 JSON 多加幾個欄位", "用 json.dumps 反向轉回字串", "練 try/except 接 Timeout"],code:{"task": "解析示範用 JSON（含 login=torvalds、name=Linus Torvalds、public_repos=7、followers=200000）。第一行印「login - name」，第二行印「repos=7」。", "stdin": "", "expect": "torvalds - Linus Torvalds\nrepos=7"}},
-35:{learn:["把多章節整合成完整小程式", "JSON 持久化資料", "終端機遊戲的核心：迴圈 + 狀態"],try:["把猜數字加上『3 次內猜中得高分』", "成績管理改成排序輸出", "2048 加上勝負判斷"],code:{"task": "target=42，依序猜 [50,25,37,43,40,42]：猜的數字小於 target 印「再大一點」、大於印「再小一點」、相等印「中了！」後停止。每行格式：「數字 → 訊息」。", "stdin": "", "expect": "50 → 再小一點\n25 → 再大一點\n37 → 再大一點\n43 → 再小一點\n40 → 再大一點\n42 → 中了！"}}
+35:{learn:["把多章節整合成完整小程式", "JSON 持久化資料", "終端機遊戲的核心：迴圈 + 狀態"],try:["把猜數字加上『3 次內猜中得高分』", "成績管理改成排序輸出", "2048 加上勝負判斷"],code:{"task": "target=42，依序猜 [50,25,37,43,40,42]：猜的數字小於 target 印「再大一點」、大於印「再小一點」、相等印「中了！」後停止。每行格式：「數字 → 訊息」。", "stdin": "", "expect": "50 → 再小一點\n25 → 再大一點\n37 → 再大一點\n43 → 再小一點\n40 → 再大一點\n42 → 中了！"}},
+36:{learn:["HTTP 是「請求-回應」模型", "狀態碼 200/404/403/429 的意思", "GET / POST 的差別"],try:["把 response 字串裡的 200 改成 404，看程式還跑得對嗎", "加一個 header「Server: nginx」並印出來", "試著解析 body 是 JSON 的版本：body 改成 <code>{\"name\":\"Alice\"}</code>，用 json.loads 解析"],code:{"task": "解析下方 stdin 給的 HTTP response 字串（headers 與 body 已用 |||| 分隔），輸出兩行：第一行「狀態碼 數字」，第二行「body 長度 數字」。", "stdin": "HTTP/1.1 200 OK\nContent-Type: text/plain\n||||Hello\n", "expect": "狀態碼 200\nbody 長度 5"}},
+37:{learn:["用 requests.get 抓網頁", "用 params= 帶查詢字串", "永遠設 timeout + 接住 RequestException"],try:["把 params 加一個 <code>\"safe\":\"off\"</code>，重新組 URL", "改 base 成 <code>http://example.com/api</code>，看 urlparse 怎麼拆", "故意把 status_code 改成 404，加 if 判斷印錯誤訊息"],code:{"task": "用 urllib.parse 把 base=\"https://api.example.com/v1\" 跟 params={\"page\":3,\"q\":\"apcs\"} 組成完整 URL，輸出該 URL。", "stdin": "", "expect": "https://api.example.com/v1?page=3&q=apcs"}},
+38:{learn:["HTML 是有 tag/attr/text/children 的樹", "class 可多個、id 唯一", "用 DevTools 找定位特徵"],try:["把 html_doc 多加一個 <code>&lt;li&gt;新聞 C&lt;/li&gt;</code>，看 tag 數變化", "在 TreePrinter 加上「只印 a 標籤的 href」", "改成印「每個 li 裡的文字」"],code:{"task": "用 html.parser 計算下方 HTML 字串中 &lt;li&gt; 標籤的數量並輸出。HTML 字串：<code>\"&lt;ul&gt;&lt;li&gt;A&lt;/li&gt;&lt;li&gt;B&lt;/li&gt;&lt;li&gt;C&lt;/li&gt;&lt;/ul&gt;\"</code>", "stdin": "", "expect": "3"}},
+39:{learn:["find / find_all 的差別", "CSS selector 怎麼寫", "從 Tag 物件取 .text 和 [attr]"],try:["在 html 字串多加一個 <code>&lt;a href=\"/news/3\"&gt;新聞三&lt;/a&gt;</code>", "改 LinkGrabber 只記錄「外部連結」(href 開頭 http)", "加上記錄 li 標籤裡的文字（看怎麼跨標籤累積）"],code:{"task": "用 html.parser 抓出下方 HTML 字串中第一個 &lt;title&gt; 標籤的文字並輸出。HTML：<code>\"&lt;html&gt;&lt;head&gt;&lt;title&gt;APCS 教學&lt;/title&gt;&lt;/head&gt;&lt;body&gt;hi&lt;/body&gt;&lt;/html&gt;\"</code>", "stdin": "", "expect": "APCS 教學"}},
+40:{learn:["「外圈容器 → 內圈欄位 → 打包 dict」三步驟", "欄位可能缺失，用 if 防呆", "pd.read_html 一行解決乾淨表格"],try:["多加一筆新聞看 len 變化", "在 dict 加一個 \"source\": \"example.com\" 欄位", "改成只收集 title 字數大於 5 的新聞"],code:{"task": "從 stdin 讀一段 HTML（一行一筆，每筆格式：「TITLE|URL」），組成 dict 清單。輸出每筆「URL TITLE」，共幾行就有幾行。", "stdin": "新聞一|/a\n新聞二|/b\n新聞三|/c\n", "expect": "/a 新聞一\n/b 新聞二\n/c 新聞三"}},
+41:{learn:["三種分頁模式：路徑、query、next 連結", "用 set 去重", "time.sleep 做禮貌延遲"],try:["把 fake page 3 全部改成重複 id，看結束條件對不對", "加 max_page=3 的上限提早終止", "在每次 fetch 後加 time.sleep(0.1)"],code:{"task": "輸入多行 id（每行一個整數）。讀完後用 set 去重，依升冪輸出（一行一個）。", "stdin": "3\n1\n4\n1\n5\n3\n2\n", "expect": "1\n2\n3\n4\n5"}},
+42:{learn:["CSV 用 DictWriter / DictReader 寫讀", "Excel 中文：encoding=\"utf-8-sig\"", "JSON 用 indent + ensure_ascii=False"],try:["把 rows 加一筆「新聞 D / /d / 500」", "改 fieldnames 順序，看 CSV 表頭變化", "把 indent 改成 4，比較長相"],code:{"task": "把以下三筆資料 [{\"name\":\"Alice\",\"age\":17},{\"name\":\"Bob\",\"age\":18},{\"name\":\"Cara\",\"age\":16}] 用 json.dumps 序列化（ensure_ascii=False, indent 不設）並輸出。", "stdin": "", "expect": "[{\"name\": \"Alice\", \"age\": 17}, {\"name\": \"Bob\", \"age\": 18}, {\"name\": \"Cara\", \"age\": 16}]"}},
+43:{learn:["看 robots.txt 再爬", "retry + 指數退避處理 429", "寫進度檔做斷點續傳"],try:["把 max_retry 改成 6，成功率會變多少？", "改 random seed，重新跑看結果不一樣", "加上「總嘗試次數超過 20 就停止」的保險"],code:{"task": "模擬指數退避：給定起始等待秒數 base=1，最多 retry 5 次，每次等待時間是 base * 2^i (i 從 0 算起)。輸出每次等待秒數，一行一個（共 5 行）。", "stdin": "", "expect": "1\n2\n4\n8\n16"}}
 };
 
 // ── 常見錯誤訊息翻譯 ─────────────────────────────────────────────────────
@@ -5741,7 +6846,8 @@ java_stdin:`10\n0 11 22 33 55 66 77 99 88 44\n`
 function chapSection(id){
   if(id <= 26) return {key:'apcs', label:'📘 APCS 考試準備', desc:'語法 → 演算法 → 競賽題型'};
   if(id <= 31) return {key:'practical', label:'🛠 實用程式', desc:'檔案、模組、OOP、測試 — 寫工具的基本功'};
-  return {key:'project', label:'🚀 製作專案', desc:'CLI / CSV / API / 遊戲，整合練習'};
+  if(id <= 35) return {key:'project', label:'🚀 製作專案', desc:'CLI / CSV / API / 遊戲，整合練習'};
+  return {key:'topic', label:'🕷 專項教學', desc:'爬蟲、資料分析、Bot、遊戲開發（陸續推出）'};
 }
 function renderChapList() {
   const list = document.getElementById('chap-list');
