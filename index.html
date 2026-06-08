@@ -135,7 +135,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 <div class="layout">
   <aside class="sidebar">
     <div class="sidebar-header">
-      <span>題目列表（95 題）</span>
+      <span>題目列表（125 題）</span>
       <span id="solved-count" style="color:var(--green);font-size:11px;">0 / 83</span>
     </div>
     <div class="problem-list" id="problem-list"></div>
@@ -818,7 +818,97 @@ samples:[
 {input:"2 2 1\n1 2\n3 4\n0 0 1 1\n",output:"10\n"},
 {input:"3 3 2\n1 2 3\n4 5 6\n7 8 9\n0 0 0 2\n1 1 2 2\n",output:"6\n28\n"}
 ],
-hint:"**關鍵字**：「多次查詢區間和」→ **二維前綴和**。\n**公式**：`sum = ps[r2+1][c2+1] - ps[r1][c2+1] - ps[r2+1][c1] + ps[r1][c1]`。"}
+hint:"**關鍵字**：「多次查詢區間和」→ **二維前綴和**。\n**公式**：`sum = ps[r2+1][c2+1] - ps[r1][c2+1] - ps[r2+1][c1] + ps[r1][c1]`。"},
+{id:"p101",title:"森林查詢",topic:"二維前綴和",date:"延伸題",source:"CSES",diff:"medium",
+desc:"N×N 森林網格，'*' 是樹、'.' 是空地。Q 筆查詢，每筆 (r1,c1,r2,c2) 詢問子矩形樹的數量。",input_desc:"第一行 N Q（1≤N≤1000，1≤Q≤2×10⁵）；接下來 N 行每行 N 個字元；接下來 Q 行各 r1 c1 r2 c2（1-indexed）。",output_desc:"每行一個整數，為對應子矩形內樹的數量。",
+samples:[{input:"4 3\n.*..\n*.**\n**..\n****\n2 2 3 4\n3 1 3 1\n1 1 2 2\n",output:"3\n1\n2\n"},{input:"2 1\n**\n**\n1 1 2 2\n",output:"4\n"}],hint:"**關鍵字**：「子矩形樹的數量」「多次查詢」→ **二維前綴和**。\n**公式**：`sum = ps[r2][c2] - ps[r1-1][c2] - ps[r2][c1-1] + ps[r1-1][c1-1]`。\n**時間**：建表 O(N²)，每次查詢 O(1)。"},
+{id:"p102",title:"可整除的子陣列",topic:"前綴和、計數",date:"延伸題",source:"CSES",diff:"medium",
+desc:"給長度 N 的整數陣列，求有多少個非空連續子陣列其總和可被 N 整除。",input_desc:"第一行 N（1≤N≤2×10⁵）；第二行 N 個整數（-10⁹≤aᵢ≤10⁹）。",output_desc:"一個整數：答案。",
+samples:[{input:"5\n3 1 2 7 4\n",output:"1\n"},{input:"3\n2 -2 2\n",output:"2\n"}],hint:"**關鍵字**：「子陣列和 % N == 0」→ 前綴和對 N 取模。\n**作法**：若 `pref[r] ≡ pref[l-1] (mod N)`，子陣列和可被 N 整除。\n**統計**：用 dict 記錄各模值出現次數，每次 `ans += c[s]; c[s]++`。注意 C 要 `((x%N)+N)%N`。"},
+{id:"p103",title:"子陣列和為 X",topic:"前綴和、雜湊",date:"延伸題",source:"CSES",diff:"medium",
+desc:"給長度 N 的正整數陣列與目標 X，求和等於 X 的連續子陣列數量。",input_desc:"第一行 N X（1≤N≤2×10⁵，1≤X≤10⁹）；第二行 N 個正整數。",output_desc:"一個整數：答案。",
+samples:[{input:"5 7\n2 4 1 2 7\n",output:"3\n"},{input:"3 3\n1 2 3\n",output:"2\n"}],hint:"**關鍵字**：「連續子陣列和 = X」→ 前綴和 + 雜湊。\n**作法**：累加 `s`，查 `c[s-X]` 累計到答案，再 `c[s]++`。\n**初始**：`c[0]=1` 處理從頭開始的子陣列。"},
+{id:"p104",title:"區間加值",topic:"差分陣列",date:"延伸題",source:"Codeforces",diff:"medium",
+desc:"長度 N 的陣列初值全為 0。給 M 筆操作 (l, r, v)，將 a[l..r] 全部加上 v。輸出最終陣列。",input_desc:"第一行 N M（1≤N,M≤2×10⁵）；接下來 M 行各 l r v（1≤l≤r≤N，1≤v≤10⁹）。",output_desc:"一行 N 個整數，以空格分隔。",
+samples:[{input:"5 3\n1 3 2\n2 5 1\n3 4 4\n",output:"2 3 7 5 1\n"},{input:"3 2\n1 1 10\n2 3 5\n",output:"10 5 5\n"}],hint:"**關鍵字**：「N 次區間加 + 最後輸出」→ **差分陣列**。\n**作法**：`diff[l]+=v; diff[r+1]-=v`，最後做前綴和還原。\n**複雜度**：O(N+M)。"},
+{id:"p105",title:"咖啡溫度",topic:"差分陣列",date:"延伸題",source:"Codeforces",diff:"medium",
+desc:"N 份食譜，每份建議的沖泡溫度區間 [l,r]。一個溫度 t 為「合適」當至少 K 份食譜涵蓋它。Q 筆查詢 (a,b)，問 [a,b] 內合適的溫度數量。溫度範圍 1..200000。",input_desc:"第一行 N K Q（1≤N,K,Q≤2×10⁵）；接下來 N 行各 l r（1≤l≤r≤200000）；接下來 Q 行各 a b。",output_desc:"每行一個整數。",
+samples:[{input:"3 2 4\n91 94\n92 97\n97 99\n92 94\n93 97\n95 96\n90 100\n",output:"3\n3\n0\n4\n"}],hint:"**關鍵字**：「至少 K 份涵蓋的點」→ 差分 + 前綴和 + 計數前綴和。\n**步驟**：1) 用 diff 累計每個溫度的食譜數 → 2) 標記合適（≥K）→ 3) 對「合適」做前綴和回答區間查詢。"},
+{id:"p106",title:"乾草堆計數",topic:"二分搜尋",date:"延伸題",source:"USACO Silver",diff:"medium",
+desc:"一維數線上有 N 個乾草堆。Q 次查詢，每次 (a,b) 問位於區間 [a,b] 的乾草堆數量。",input_desc:"第一行 N Q（1≤N,Q≤10⁵）；第二行 N 個整數（位置，可重複）；接下來 Q 行各 a b。",output_desc:"每行一個整數。",
+samples:[{input:"6 3\n3 2 7 5 1 8\n2 4\n3 7\n8 12\n",output:"2\n3\n1\n"}],hint:"**關鍵字**：「區間內點的數量」→ 先排序，再對每個查詢用 **bisect** 找上下界。\n**公式**：`bisect_right(b) - bisect_left(a)`。\n**複雜度**：O((N+Q) log N)。"},
+{id:"p107",title:"中位數最大化",topic:"二分搜答案、貪心",date:"延伸題",source:"Codeforces",diff:"medium",
+desc:"長度 N（奇數）的陣列 a，可進行 K 次「+1」操作（每次只挑一個元素加 1）。求操作後最大可能的中位數（排序後第 (N+1)/2 個）。",input_desc:"第一行 N K（1≤N≤2×10⁵，N 為奇數，0≤K≤10⁹）；第二行 N 個整數（0≤aᵢ≤10⁹）。",output_desc:"一個整數：最大中位數。",
+samples:[{input:"3 2\n1 3 5\n",output:"5\n"},{input:"5 5\n1 2 1 1 1\n",output:"3\n"}],hint:"**關鍵字**：「最大化中位數」「+1 操作」→ 二分搜答案 m。\n**check(m)**：排序後從中位數位置往右計算 `sum(max(0, m-a[i]))` ≤ K。"},
+{id:"p108",title:"最長無重複片段",topic:"滑動視窗",date:"延伸題",source:"CSES",diff:"medium",
+desc:"給長度 N 的歌曲序列，求最長連續區間使得區間內無重複歌曲，輸出此長度。",input_desc:"第一行 N（1≤N≤2×10⁵）；第二行 N 個整數（1≤aᵢ≤10⁹）。",output_desc:"一個整數：最大長度。",
+samples:[{input:"8\n1 2 1 3 2 7 4 2\n",output:"5\n"},{input:"4\n1 1 1 1\n",output:"1\n"}],hint:"**關鍵字**：「最長」「無重複」→ **滑動視窗**。\n**作法**：右指針掃過，遇到重複時左指針跳到撞見的位置之後。用 dict 記錄每個值最近出現位置。"},
+{id:"p109",title:"兩數和為 X",topic:"雜湊",date:"延伸題",source:"CSES",diff:"medium",
+desc:"給長度 N 的陣列與目標 X，找兩個不同位置 i≠j 使 a[i]+a[j]=X，輸出位置 (1-indexed，較小者在前)。若無解輸出 IMPOSSIBLE。",input_desc:"第一行 N X（1≤N≤2×10⁵，1≤X≤2×10⁹）；第二行 N 個整數（1≤aᵢ≤10⁹）。",output_desc:"兩個位置（空白分隔）或 IMPOSSIBLE。",
+samples:[{input:"4 8\n2 7 5 1\n",output:"2 4\n"},{input:"3 100\n1 2 3\n",output:"IMPOSSIBLE\n"}],hint:"**關鍵字**：「兩數和」「輸出原位置」→ 雜湊 O(N)。\n**作法**：邊掃邊查 `X-a[i]` 是否在 dict 中；若在，直接輸出位置。"},
+{id:"p110",title:"棍子等長",topic:"貪心、中位數",date:"延伸題",source:"CSES",diff:"medium",
+desc:"給 N 根棍子長度，每根可以加長或縮短任意單位（每變動 1 單位花費 1）。求把全部變成等長的最小總花費。",input_desc:"第一行 N（1≤N≤2×10⁵）；第二行 N 個整數（1≤pᵢ≤10⁹）。",output_desc:"一個整數：最小花費。",
+samples:[{input:"5\n2 7 3 4 6\n",output:"8\n"},{input:"3\n1 1 1\n",output:"0\n"}],hint:"**關鍵字**：「絕對差總和最小」→ 目標長度取**中位數**。\n**證明**：在中位數左右兩側元素數量平衡，左右移動會增加花費。\n**作法**：排序後取 `a[N//2]`，累加每個 `|a[i]-mid|`。"},
+{id:"p111",title:"電影節",topic:"貪心、區間排程",date:"延伸題",source:"CSES",diff:"medium",
+desc:"N 部電影各有開始與結束時間，你只能一次看一部（前一部結束時間 ≤ 下一部開始時間）。求最多能看幾部。",input_desc:"第一行 N（1≤N≤2×10⁵）；接下來 N 行各兩個整數 a b（0≤a<b≤10⁹）。",output_desc:"一個整數：最多場次。",
+samples:[{input:"3\n3 5\n4 9\n5 8\n",output:"2\n"},{input:"4\n1 3\n2 5\n4 6\n5 9\n",output:"2\n"}],hint:"**關鍵字**：「最多不重疊區間」→ 經典**結束時間排序**貪心。\n**作法**：依結束時間遞增排序，逐個取，當前者結束 ≤ 新的開始就選。"},
+{id:"p112",title:"餐廳同時客數",topic:"事件掃描",date:"延伸題",source:"CSES",diff:"medium",
+desc:"N 位客人到達/離開時間。求餐廳同時間最多有幾位客人。",input_desc:"第一行 N（1≤N≤2×10⁵）；接下來 N 行各 a b（1≤a<b≤10⁹），到達 a 離開 b。",output_desc:"一個整數：最大同時客數。",
+samples:[{input:"3\n5 8\n2 4\n3 9\n",output:"2\n"},{input:"2\n1 5\n5 10\n",output:"1\n"}],hint:"**關鍵字**：「最大重疊區間」→ 事件法。\n**作法**：每位客人拆成 (a,+1) 與 (b,-1) 兩事件，排序後累加 cur，全程取最大。\n**併點**：a=b'（前人離開 = 後人到達）視為先離開再進入，所以同座標 -1 排前。"},
+{id:"p113",title:"演唱會售票",topic:"二分搜、多重集",date:"延伸題",source:"CSES",diff:"medium",
+desc:"售票員有 N 張票（各有價格）。M 位顧客依序進場，每位有最高願付價 m。對每位顧客，售出價格 ≤ m 的「最高價票」並從庫存移除；若無則輸出 -1。",input_desc:"第一行 N M（1≤N,M≤2×10⁵）；第二行 N 張票價；第三行 M 位顧客上限。",output_desc:"M 行，每位顧客實際買到的價格或 -1。",
+samples:[{input:"5 3\n5 3 7 8 5\n4 8 3\n",output:"3\n8\n-1\n"}],hint:"**關鍵字**：「找 ≤ m 的最大值」「需刪除」→ 用多重集合。\n**Python**：`sortedcontainers.SortedList` + `bisect_right` 取上界前一個。\n**C++**：`multiset::upper_bound`。\n**Java**：`TreeMap<Integer,Integer>` 記次數，`floorKey(m)` 取得。"},
+{id:"p114",title:"公寓配對",topic:"貪心、雙指針",date:"延伸題",source:"CSES",diff:"medium",
+desc:"N 位申請人各有期望坪數 aᵢ，M 間公寓各有實際坪數 bⱼ。第 i 位申請人可接受坪數在 [aᵢ-K, aᵢ+K] 的公寓，且每間公寓只能配給一人。求最大配對數。",input_desc:"第一行 N M K（1≤N,M≤2×10⁵，0≤K≤10⁹）；第二行 N 個整數；第三行 M 個整數。",output_desc:"一個整數：最大配對數。",
+samples:[{input:"4 3 5\n60 45 80 60\n30 60 75\n",output:"2\n"},{input:"2 2 0\n5 10\n5 10\n",output:"2\n"}],hint:"**關鍵字**：「雙方範圍配對」→ 雙方排序後雙指針。\n**作法**：i,j 從 0 走。若 |aᵢ-bⱼ|≤K 配對成功，雙指針都前進；否則小的那邊前進。"},
+{id:"p115",title:"相異數字數量",topic:"集合",date:"延伸題",source:"CSES",diff:"medium",
+desc:"給 N 個整數，求其中**相異**數字的數量。",input_desc:"第一行 N（1≤N≤2×10⁵）；第二行 N 個整數（1≤aᵢ≤10⁹）。",output_desc:"一個整數：相異數字數量。",
+samples:[{input:"5\n2 3 2 2 3\n",output:"2\n"},{input:"4\n1 2 3 4\n",output:"4\n"}],hint:"**關鍵字**：「相異」→ 直接用 set 大小，或排序後相鄰比較。\n**Python**：`len(set(a))`。\n**C/C++**：`qsort/sort` 後自己掃描相鄰。"},
+{id:"p116",title:"房間計數",topic:"BFS/DFS、連通元件",date:"延伸題",source:"CSES",diff:"medium",
+desc:"N×M 地圖，'.' 是地板、'#' 是牆。求由相鄰（上下左右）地板組成的房間數。",input_desc:"第一行 N M（1≤N,M≤1000）；接下來 N 行各 M 字元（'.' 或 '#'）。",output_desc:"一個整數：房間數。",
+samples:[{input:"5 8\n########\n#..#...#\n####.#.#\n#..#...#\n########\n",output:"3\n"}],hint:"**關鍵字**：「連通分量」→ BFS 或 DFS。\n**作法**：對每個未訪問的 '.' 起點做 BFS 標記整片，計數 +1。Python 用 deque，遞迴 DFS 對 1000×1000 會堆疊溢位。"},
+{id:"p117",title:"連通城鎮",topic:"DSU、最少邊",date:"延伸題",source:"CSES",diff:"medium",
+desc:"N 個城鎮，M 條已有道路。要使全部城鎮連通，至少還需新增幾條道路，並輸出任一組可行方案（連通分量之間任挑一城鎮對相連）。",input_desc:"第一行 N M（1≤N≤10⁵，0≤M≤2×10⁵）；接下來 M 行各 u v（無自環，可能有重邊）。",output_desc:"第一行新增道路數 k；接下來 k 行各兩個城鎮 u v。",
+samples:[{input:"4 2\n1 2\n3 4\n",output:"1\n2 4\n"},{input:"3 0\n",output:"2\n1 2\n1 3\n"}],hint:"**關鍵字**：「連通」「最少邊」→ **DSU** 找連通分量代表。\n**作法**：每個分量任取代表，把它們和第一個分量代表相連即可。"},
+{id:"p118",title:"迷宮最短距離",topic:"BFS",date:"延伸題",source:"CSES",diff:"medium",
+desc:"N×M 迷宮：'.' 路、'#' 牆、'A' 起點、'B' 終點。求 A 到 B 的最短步數，無法到達輸出 -1。每步可走上下左右。",input_desc:"第一行 N M（1≤N,M≤1000）；接下來 N 行 M 字元。",output_desc:"最短步數或 -1。",
+samples:[{input:"5 8\n########\n#.A#...#\n#.##.#B#\n#......#\n########\n",output:"9\n"},{input:"3 3\n###\n#A#\n###\n",output:"-1\n"}],hint:"**關鍵字**：「最短路徑」「等權」→ **BFS**。\n**作法**：dist[A]=0，四方向 BFS，第一次抵達 B 即為答案。"},
+{id:"p119",title:"部屬人數",topic:"樹、DFS",date:"延伸題",source:"CSES",diff:"medium",
+desc:"N 人公司，1 號是 CEO；2..N 各有一位直屬上司（編號小於自己）。對每人輸出其下屬（直接或間接）人數。",input_desc:"第一行 N（1≤N≤2×10⁵）；第二行 N-1 個整數，第 i 個是 (i+1) 號的上司。",output_desc:"一行 N 個整數，第 i 個是 i 號的下屬數。",
+samples:[{input:"5\n1 1 2 3\n",output:"4 1 1 0 0\n"},{input:"3\n1 2\n",output:"2 1 0\n"}],hint:"**關鍵字**：「樹上每點的子樹大小減 1」。\n**作法**：因為上司編號 < 自己，按 i=N..2 累加 `cnt[boss[i]] += cnt[i] + 1` 一次走完，O(N)。"},
+{id:"p120",title:"硬幣湊金額（順序敏感）",topic:"DP",date:"延伸題",source:"CSES",diff:"medium",
+desc:"N 種硬幣面額（可重複使用），求湊出金額 X 的「方案數」，**不同順序視為不同方案**。答案模 10⁹+7。",input_desc:"第一行 N X（1≤N≤100，1≤X≤10⁶）；第二行 N 個面額（1≤cᵢ≤10⁶）。",output_desc:"一個整數：方案數 mod 10⁹+7。",
+samples:[{input:"3 9\n2 3 5\n",output:"8\n"},{input:"2 4\n1 2\n",output:"5\n"}],hint:"**關鍵字**：「順序敏感」「方案數」→ `dp[x] = Σ dp[x-cᵢ]`。\n**順序敏感**：外層金額、內層硬幣（與 0/1 完全背包外內顛倒）。\n**模數**：每次相加後取 mod。"},
+{id:"p121",title:"硬幣湊金額（不分順序）",topic:"DP",date:"延伸題",source:"CSES",diff:"medium",
+desc:"N 種硬幣面額（可重複使用），求湊出金額 X 的「組合數」，**不同順序視為同一方案**。答案模 10⁹+7。",input_desc:"第一行 N X（1≤N≤100，1≤X≤10⁶）；第二行 N 個面額。",output_desc:"一個整數 mod 10⁹+7。",
+samples:[{input:"3 9\n2 3 5\n",output:"3\n"},{input:"2 5\n1 2\n",output:"3\n"}],hint:"**關鍵字**：「不分順序」→ 經典完全背包：**外層硬幣、內層金額**。\n**對比**：順序敏感是外層金額、內層硬幣；這題交換順序即可。"},
+{id:"p122",title:"硬幣湊金額（最少硬幣）",topic:"DP",date:"延伸題",source:"CSES",diff:"medium",
+desc:"N 種硬幣面額（可重複用），求湊出金額 X 的最少硬幣數；無法湊出輸出 -1。",input_desc:"第一行 N X（1≤N≤100，1≤X≤10⁶）；第二行 N 個面額。",output_desc:"一個整數：最少硬幣數或 -1。",
+samples:[{input:"3 11\n1 5 7\n",output:"3\n"},{input:"2 5\n2 3\n",output:"2\n"},{input:"1 5\n2\n",output:"-1\n"}],hint:"**關鍵字**：「最少硬幣」「無限取」→ 完全背包最小化版本。\n**遞推**：`dp[x] = min(dp[x-cᵢ] + 1)`，dp[0]=0，初始為 INF。"},
+{id:"p123",title:"削減位數",topic:"DP",date:"延伸題",source:"CSES",diff:"medium",
+desc:"從整數 N 開始，每步可選 N 任一非零位數字 d 並令 N -= d。求變成 0 的最少步數。",input_desc:"一個整數 N（1≤N≤10⁶）。",output_desc:"一個整數：最少步數。",
+samples:[{input:"27\n",output:"5\n"},{input:"10\n",output:"2\n"},{input:"1\n",output:"1\n"}],hint:"**關鍵字**：「最少操作」→ DP。\n**遞推**：`dp[x] = 1 + min(dp[x-d])` 其中 d 是 x 的非零位數字之一。\n**作法**：從 0 升序計算到 N。"},
+{id:"p124",title:"網格路徑數",topic:"DP、計數",date:"延伸題",source:"CSES",diff:"medium",
+desc:"N×N 網格，從 (1,1) 到 (N,N)，每步只能向下或向右。'.' 可走、'*' 不能走。求路徑數模 10⁹+7。",input_desc:"第一行 N（1≤N≤1000）；接下來 N 行各 N 字元。",output_desc:"一個整數 mod 10⁹+7。",
+samples:[{input:"4\n....\n.*..\n...*\n*...\n",output:"3\n"},{input:"1\n.\n",output:"1\n"},{input:"2\n.*\n..\n",output:"1\n"}],hint:"**關鍵字**：「向下或向右」「路徑數」→ 二維 DP。\n**遞推**：`dp[i][j] = dp[i-1][j] + dp[i][j-1]`，若 (i,j) 是 '*' 則 dp=0。"},
+{id:"p125",title:"兩集合等和",topic:"構造",date:"延伸題",source:"CSES",diff:"medium",
+desc:"把 1..N 分成兩個集合使兩集合元素和相等。輸出可行方案；若不可能輸出 NO。\n本題接受任一合法分組（與下方範例不必一致），但本機判題會用範例對拍，請按本範例策略：從 N 由大到小放入第一組，若加入後不超過 sum/2 就放入第一組，否則放第二組。",input_desc:"一個整數 N（1≤N≤10⁶）。",output_desc:"若不可能輸出單行 NO；否則第一行 YES，第二行第一集合大小 k₁ 與其元素（與範例策略一致）；第三行第二集合大小 k₂ 與其元素。",
+samples:[{input:"7\n",output:"YES\n3 7 6 1\n4 5 4 3 2\n"},{input:"6\n",output:"NO\n"},{input:"3\n",output:"YES\n1 3\n2 2 1\n"}],hint:"**關鍵字**：「1..N 等分」→ 條件：總和 N(N+1)/2 必須為偶數，即 N%4 ∈ {0,3}。\n**範例策略（與判題一致）**：從 v=N 遞減到 1，若加入第一集合後 got≤sum/2 就放第一集合，否則放第二集合。"},
+{id:"p126",title:"位元字串計數",topic:"快速冪、模運算",date:"延伸題",source:"CSES",diff:"medium",
+desc:"計算長度 N 的 0/1 字串總數，模 10⁹+7。",input_desc:"一個整數 N（1≤N≤10⁶）。",output_desc:"一個整數 2^N mod 10⁹+7。",
+samples:[{input:"3\n",output:"8\n"},{input:"1\n",output:"2\n"},{input:"10\n",output:"1024\n"}],hint:"**關鍵字**：「2 的 N 次方」「模」→ **快速冪**。\n**作法**：迴圈 N 次直接乘 2 也可（N≤10⁶ 夠快），或用 O(log N) 快速冪。"},
+{id:"p127",title:"階乘尾零數量",topic:"數論",date:"延伸題",source:"CSES",diff:"medium",
+desc:"計算 N! 末尾有多少個 0。",input_desc:"一個整數 N（1≤N≤10⁹）。",output_desc:"一個整數：尾零數。",
+samples:[{input:"20\n",output:"4\n"},{input:"100\n",output:"24\n"},{input:"5\n",output:"1\n"}],hint:"**關鍵字**：「階乘末尾 0」→ 計算 2 與 5 的對數，其中 5 較少。\n**Legendre**：`N/5 + N/25 + N/125 + ...` 直到 0。"},
+{id:"p128",title:"非遞減化陣列",topic:"貪心",date:"延伸題",source:"CSES",diff:"medium",
+desc:"給陣列 a。每次操作可把任一元素加 1。求把陣列變成非遞減（aᵢ₊₁≥aᵢ）的最少操作數。",input_desc:"第一行 N（1≤N≤2×10⁵）；第二行 N 個整數（1≤aᵢ≤10⁹）。",output_desc:"一個整數：操作數。",
+samples:[{input:"5\n3 2 5 1 7\n",output:"5\n"},{input:"3\n1 2 3\n",output:"0\n"}],hint:"**關鍵字**：「非遞減」「加 1」→ 一次線掃。\n**作法**：維護目前最大值 m，遇到比 m 小的元素累加差距 `m-a[i]`，否則更新 m。"},
+{id:"p129",title:"美麗排列",topic:"構造",date:"延伸題",source:"CSES",diff:"medium",
+desc:"構造 1..N 的排列，使相鄰兩數差**不為 1**。若不可能輸出 NO SOLUTION。\n本題接受任一合法解；本機判題會用範例對拍，請依範例輸出：偶數遞增在前，奇數遞增在後。",input_desc:"一個整數 N（1≤N≤10⁶）。",output_desc:"若無解輸出 NO SOLUTION；否則輸出一行 N 個整數（按範例策略）。",
+samples:[{input:"5\n",output:"2 4 1 3 5\n"},{input:"3\n",output:"NO SOLUTION\n"},{input:"4\n",output:"2 4 1 3\n"},{input:"1\n",output:"1\n"}],hint:"**關鍵字**：「相鄰差不為 1」→ 把偶數放前面、奇數放後面。\n**例外**：N=1 → \"1\"；N∈{2,3} → NO SOLUTION。\n**注意**：偶偶/奇奇相鄰差均為 2；偶末與奇首相鄰差 ≥ 3（N≥4 時）。"},
+{id:"p130",title:"數字螺旋",topic:"數學、模擬",date:"延伸題",source:"CSES",diff:"medium",
+desc:"無窮網格按螺旋規律填入正整數：第 k 個對角方格構成 k×k 子方陣的右下角。給座標 (y,x)，求格子的值。每筆查詢獨立。",input_desc:"第一行 T（1≤T≤10⁵）；接下來 T 行各 y x（1≤y,x≤10⁹）。",output_desc:"每行輸出對應格子的值。",
+samples:[{input:"3\n2 3\n1 1\n4 2\n",output:"8\n1\n15\n"}],hint:"**關鍵字**：「無窮螺旋」「O(1) 查詢」→ 觀察 k=max(y,x) 那層的值範圍是 (k-1)²+1 .. k²。\n**奇偶分流**：k 偶時 x==k 那一行值從上往下遞增；k 奇時 y==k 那一列從左往右遞增。"}
 ];
 
 // ── Solutions per language ────────────────────────────────────────────────────
@@ -1019,6 +1109,301 @@ out = []
 for _ in range(q):
     r1, c1, r2, c2 = map(int, input().split())
     out.append(str(ps[r2+1][c2+1] - ps[r1][c2+1] - ps[r2+1][c1] + ps[r1][c1]))
+print('\\n'.join(out))`,
+p101:`import sys
+input=sys.stdin.readline
+N,Q=map(int,input().split())
+ps=[[0]*(N+1) for _ in range(N+1)]
+for i in range(1,N+1):
+    row=input().strip()
+    for j in range(1,N+1):
+        ps[i][j]=ps[i-1][j]+ps[i][j-1]-ps[i-1][j-1]+(1 if row[j-1]=='*' else 0)
+out=[]
+for _ in range(Q):
+    r1,c1,r2,c2=map(int,input().split())
+    out.append(str(ps[r2][c2]-ps[r1-1][c2]-ps[r2][c1-1]+ps[r1-1][c1-1]))
+print('\\n'.join(out))`,
+p102:`from collections import Counter
+N=int(input());a=list(map(int,input().split()))
+c=Counter([0]);s=0;ans=0
+for x in a:
+    s=(s+x)%N
+    ans+=c[s];c[s]+=1
+print(ans)`,
+p103:`from collections import Counter
+N,X=map(int,input().split());a=list(map(int,input().split()))
+c=Counter([0]);s=0;ans=0
+for x in a:
+    s+=x
+    ans+=c[s-X];c[s]+=1
+print(ans)`,
+p104:`import sys
+input=sys.stdin.readline
+N,M=map(int,input().split())
+d=[0]*(N+2)
+for _ in range(M):
+    l,r,v=map(int,input().split())
+    d[l]+=v;d[r+1]-=v
+out=[];cur=0
+for i in range(1,N+1):cur+=d[i];out.append(str(cur))
+print(' '.join(out))`,
+p105:`import sys
+input=sys.stdin.readline
+MAX=200001
+N,K,Q=map(int,input().split())
+d=[0]*(MAX+2)
+for _ in range(N):
+    l,r=map(int,input().split())
+    d[l]+=1;d[r+1]-=1
+ps=[0]*(MAX+2);cur=0
+for i in range(1,MAX+1):
+    cur+=d[i]
+    ps[i]=ps[i-1]+(1 if cur>=K else 0)
+out=[]
+for _ in range(Q):
+    a,b=map(int,input().split())
+    out.append(str(ps[b]-ps[a-1]))
+print('\\n'.join(out))`,
+p106:`import sys
+from bisect import bisect_left,bisect_right
+input=sys.stdin.readline
+N,Q=map(int,input().split())
+a=sorted(map(int,input().split()))
+out=[]
+for _ in range(Q):
+    l,r=map(int,input().split())
+    out.append(str(bisect_right(a,r)-bisect_left(a,l)))
+print('\\n'.join(out))`,
+p107:`N,K=map(int,input().split())
+a=sorted(map(int,input().split()))
+mid=N//2
+lo,hi=a[mid],a[mid]+K
+while lo<hi:
+    m=(lo+hi+1)//2
+    c=sum(max(0,m-a[i]) for i in range(mid,N))
+    if c<=K:lo=m
+    else:hi=m-1
+print(lo)`,
+p108:`N=int(input());a=list(map(int,input().split()))
+last={};l=0;ans=0
+for r,x in enumerate(a):
+    if x in last and last[x]>=l:l=last[x]+1
+    last[x]=r
+    if r-l+1>ans:ans=r-l+1
+print(ans)`,
+p109:`N,X=map(int,input().split());a=list(map(int,input().split()))
+seen={}
+for i,x in enumerate(a):
+    if X-x in seen:
+        print(seen[X-x]+1,i+1);break
+    seen[x]=i
+else:print('IMPOSSIBLE')`,
+p110:`N=int(input());a=sorted(map(int,input().split()))
+m=a[N//2];print(sum(abs(x-m) for x in a))`,
+p111:`import sys
+input=sys.stdin.readline
+N=int(input())
+v=[tuple(map(int,input().split())) for _ in range(N)]
+v.sort(key=lambda x:x[1])
+end=-1;ans=0
+for a,b in v:
+    if a>=end:ans+=1;end=b
+print(ans)`,
+p112:`import sys
+input=sys.stdin.readline
+N=int(input())
+ev=[]
+for _ in range(N):
+    a,b=map(int,input().split())
+    ev.append((a,1));ev.append((b,-1))
+ev.sort(key=lambda x:(x[0],x[1]))
+cur=ans=0
+for _,d in ev:
+    cur+=d
+    if cur>ans:ans=cur
+print(ans)`,
+p113:`import sys
+from sortedcontainers import SortedList
+input=sys.stdin.readline
+N,M=map(int,input().split())
+sl=SortedList(map(int,input().split()))
+cust=list(map(int,input().split()))
+out=[]
+for m in cust:
+    i=sl.bisect_right(m)
+    if i==0:out.append('-1')
+    else:
+        v=sl[i-1];out.append(str(v));sl.remove(v)
+print('\\n'.join(out))`,
+p114:`N,M,K=map(int,input().split())
+a=sorted(map(int,input().split()))
+b=sorted(map(int,input().split()))
+i=j=ans=0
+while i<N and j<M:
+    if abs(a[i]-b[j])<=K:ans+=1;i+=1;j+=1
+    elif a[i]<b[j]:i+=1
+    else:j+=1
+print(ans)`,
+p115:`N=int(input());print(len(set(input().split())))`,
+p116:`import sys
+from collections import deque
+input=sys.stdin.readline
+N,M=map(int,input().split())
+g=[list(input().rstrip()) for _ in range(N)]
+ans=0
+for i in range(N):
+    for j in range(M):
+        if g[i][j]=='.':
+            ans+=1;g[i][j]='#'
+            q=deque([(i,j)])
+            while q:
+                r,c=q.popleft()
+                for dr,dc in[(-1,0),(1,0),(0,-1),(0,1)]:
+                    nr,nc=r+dr,c+dc
+                    if 0<=nr<N and 0<=nc<M and g[nr][nc]=='.':
+                        g[nr][nc]='#';q.append((nr,nc))
+print(ans)`,
+p117:`import sys
+input=sys.stdin.readline
+N,M=map(int,input().split())
+p=list(range(N+1))
+def find(x):
+    while p[x]!=x:p[x]=p[p[x]];x=p[x]
+    return x
+for _ in range(M):
+    u,v=map(int,input().split())
+    ru,rv=find(u),find(v)
+    if ru!=rv:p[ru]=rv
+reps=[i for i in range(1,N+1) if find(i)==i]
+print(len(reps)-1)
+print('\\n'.join(f'{reps[0]} {reps[i]}' for i in range(1,len(reps))))`,
+p118:`import sys
+from collections import deque
+input=sys.stdin.readline
+N,M=map(int,input().split())
+g=[list(input().rstrip()) for _ in range(N)]
+sr=sc=tr=tc=0
+for i in range(N):
+    for j in range(M):
+        if g[i][j]=='A':sr,sc=i,j
+        elif g[i][j]=='B':tr,tc=i,j
+q=deque([(sr,sc,0)]);g[sr][sc]='#';ans=-1
+while q:
+    r,c,d=q.popleft()
+    if r==tr and c==tc:ans=d;break
+    for dr,dc in[(-1,0),(1,0),(0,-1),(0,1)]:
+        nr,nc=r+dr,c+dc
+        if 0<=nr<N and 0<=nc<M and g[nr][nc]!='#':
+            g[nr][nc]='#';q.append((nr,nc,d+1))
+print(ans)`,
+p119:`import sys
+input=sys.stdin.readline
+N=int(input())
+if N==1:print(0)
+else:
+    b=list(map(int,input().split()))
+    cnt=[0]*(N+1)
+    for i in range(N,1,-1):
+        cnt[b[i-2]]+=cnt[i]+1
+    print(*cnt[1:N+1])`,
+p120:`import sys
+input=sys.stdin.readline
+MOD=10**9+7
+N,X=map(int,input().split())
+c=list(map(int,input().split()))
+dp=[0]*(X+1);dp[0]=1
+for x in range(1,X+1):
+    s=0
+    for v in c:
+        if v<=x:s+=dp[x-v]
+    dp[x]=s%MOD
+print(dp[X])`,
+p121:`import sys
+input=sys.stdin.readline
+MOD=10**9+7
+N,X=map(int,input().split())
+c=list(map(int,input().split()))
+dp=[0]*(X+1);dp[0]=1
+for v in c:
+    for x in range(v,X+1):
+        dp[x]=(dp[x]+dp[x-v])%MOD
+print(dp[X])`,
+p122:`import sys
+input=sys.stdin.readline
+INF=10**9
+N,X=map(int,input().split())
+c=list(map(int,input().split()))
+dp=[INF]*(X+1);dp[0]=0
+for x in range(1,X+1):
+    for v in c:
+        if v<=x and dp[x-v]+1<dp[x]:dp[x]=dp[x-v]+1
+print(dp[X] if dp[X]<INF else -1)`,
+p123:`N=int(input())
+dp=[0]*(N+1)
+for x in range(1,N+1):
+    best=10**9
+    for d in set(str(x)):
+        v=int(d)
+        if v>0 and dp[x-v]+1<best:best=dp[x-v]+1
+    dp[x]=best
+print(dp[N])`,
+p124:`import sys
+input=sys.stdin.readline
+MOD=10**9+7
+N=int(input())
+g=[input().strip() for _ in range(N)]
+dp=[[0]*N for _ in range(N)]
+if g[0][0]=='.':dp[0][0]=1
+for i in range(N):
+    for j in range(N):
+        if g[i][j]=='*':dp[i][j]=0;continue
+        if i==0 and j==0:continue
+        v=0
+        if i>0:v+=dp[i-1][j]
+        if j>0:v+=dp[i][j-1]
+        dp[i][j]=v%MOD
+print(dp[N-1][N-1])`,
+p125:`N=int(input())
+S=N*(N+1)//2
+if S%2!=0:print('NO')
+else:
+    half=S//2
+    A=[];B=[];got=0
+    for v in range(N,0,-1):
+        if got+v<=half:A.append(v);got+=v
+        else:B.append(v)
+    print('YES');print(len(A),*A);print(len(B),*B)`,
+p126:`N=int(input());print(pow(2,N,10**9+7))`,
+p127:`N=int(input());ans=0
+while N:N//=5;ans+=N
+print(ans)`,
+p128:`N=int(input());a=list(map(int,input().split()))
+m=a[0];ans=0
+for x in a[1:]:
+    if x<m:ans+=m-x
+    else:m=x
+print(ans)`,
+p129:`N=int(input())
+if N==1:print(1)
+elif N<4:print('NO SOLUTION')
+else:
+    ev=list(range(2,N+1,2));od=list(range(1,N+1,2))
+    print(*(ev+od))`,
+p130:`import sys
+input=sys.stdin.readline
+T=int(input())
+out=[]
+for _ in range(T):
+    y,x=map(int,input().split())
+    k=max(y,x)
+    base=(k-1)*(k-1)
+    if k%2==0:
+        if x==k:val=base+y
+        else:val=k*k-(x-1)
+    else:
+        if y==k:val=base+x
+        else:val=k*k-(y-1)
+    out.append(str(val))
 print('\\n'.join(out))`
 },
 cpp: {
@@ -1516,7 +1901,229 @@ int main(){
         int r1, c1, r2, c2; cin >> r1 >> c1 >> r2 >> c2;
         cout << ps[r2+1][c2+1] - ps[r1][c2+1] - ps[r2+1][c1] + ps[r1][c1] << "\\n";
     }
-}`
+}`,
+p101:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N,Q;scanf("%d %d",&N,&Q);
+vector<vector<int>> ps(N+1,vector<int>(N+1,0));
+for(int i=1;i<=N;i++){char r[1005];scanf("%s",r);
+ for(int j=1;j<=N;j++)ps[i][j]=ps[i-1][j]+ps[i][j-1]-ps[i-1][j-1]+(r[j-1]=='*');}
+while(Q--){int r1,c1,r2,c2;scanf("%d %d %d %d",&r1,&c1,&r2,&c2);
+ printf("%d\\n",ps[r2][c2]-ps[r1-1][c2]-ps[r2][c1-1]+ps[r1-1][c1-1]);}
+return 0;}`,
+p102:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N;scanf("%d",&N);map<long long,long long> c;c[0]=1;
+long long s=0,ans=0;
+for(int i=0;i<N;i++){long long x;scanf("%lld",&x);s=((s+x)%N+N)%N;ans+=c[s];c[s]++;}
+printf("%lld\\n",ans);return 0;}`,
+p103:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N;long long X;scanf("%d %lld",&N,&X);unordered_map<long long,long long> c;c[0]=1;
+long long s=0,ans=0;
+for(int i=0;i<N;i++){long long x;scanf("%lld",&x);s+=x;ans+=c[s-X];c[s]++;}
+printf("%lld\\n",ans);return 0;}`,
+p104:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N,M;scanf("%d %d",&N,&M);vector<long long> d(N+2,0);
+while(M--){int l,r;long long v;scanf("%d %d %lld",&l,&r,&v);d[l]+=v;d[r+1]-=v;}
+long long c=0;for(int i=1;i<=N;i++){c+=d[i];printf("%lld%c",c,i==N?'\\n':' ');}
+return 0;}`,
+p105:`#include<bits/stdc++.h>
+using namespace std;
+int d[200005],ps[200005];
+int main(){int N,K,Q;scanf("%d %d %d",&N,&K,&Q);
+while(N--){int l,r;scanf("%d %d",&l,&r);d[l]++;d[r+1]--;}
+int c=0;for(int i=1;i<=200000;i++){c+=d[i];ps[i]=ps[i-1]+(c>=K);}
+while(Q--){int a,b;scanf("%d %d",&a,&b);printf("%d\\n",ps[b]-ps[a-1]);}
+return 0;}`,
+p106:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N,Q;scanf("%d %d",&N,&Q);vector<int> a(N);
+for(auto&x:a)scanf("%d",&x);sort(a.begin(),a.end());
+while(Q--){int l,r;scanf("%d %d",&l,&r);
+ printf("%ld\\n",upper_bound(a.begin(),a.end(),r)-lower_bound(a.begin(),a.end(),l));}
+return 0;}`,
+p107:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N;long long K;scanf("%d %lld",&N,&K);vector<long long> a(N);
+for(auto&x:a)scanf("%lld",&x);sort(a.begin(),a.end());int mid=N/2;
+long long lo=a[mid],hi=a[mid]+K;
+while(lo<hi){long long m=(lo+hi+1)/2,c=0;
+ for(int i=mid;i<N;i++){if(a[i]<m)c+=m-a[i];if(c>K)break;}
+ if(c<=K)lo=m;else hi=m-1;}
+printf("%lld\\n",lo);return 0;}`,
+p108:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N;scanf("%d",&N);vector<int> a(N);
+for(auto&x:a)scanf("%d",&x);
+unordered_map<int,int> last;int l=0,ans=0;
+for(int r=0;r<N;r++){auto it=last.find(a[r]);if(it!=last.end()&&it->second>=l)l=it->second+1;
+ last[a[r]]=r;if(r-l+1>ans)ans=r-l+1;}
+printf("%d\\n",ans);return 0;}`,
+p109:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N;long long X;scanf("%d %lld",&N,&X);
+unordered_map<long long,int> seen;
+for(int i=0;i<N;i++){long long x;scanf("%lld",&x);
+ auto it=seen.find(X-x);if(it!=seen.end()){printf("%d %d\\n",it->second+1,i+1);return 0;}
+ seen[x]=i;}
+printf("IMPOSSIBLE\\n");return 0;}`,
+p110:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N;scanf("%d",&N);vector<long long> a(N);
+for(auto&x:a)scanf("%lld",&x);sort(a.begin(),a.end());
+long long m=a[N/2],ans=0;for(auto x:a)ans+=abs(x-m);
+printf("%lld\\n",ans);return 0;}`,
+p111:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N;scanf("%d",&N);vector<pair<int,int>> v(N);
+for(auto&p:v)scanf("%d %d",&p.second,&p.first);
+sort(v.begin(),v.end());
+long long end=-1,ans=0;for(auto&p:v)if(p.second>=end){ans++;end=p.first;}
+printf("%lld\\n",ans);return 0;}`,
+p112:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N;scanf("%d",&N);vector<pair<int,int>> ev;
+for(int i=0;i<N;i++){int a,b;scanf("%d %d",&a,&b);ev.push_back({a,1});ev.push_back({b,-1});}
+sort(ev.begin(),ev.end());int cur=0,ans=0;
+for(auto&p:ev){cur+=p.second;if(cur>ans)ans=cur;}
+printf("%d\\n",ans);return 0;}`,
+p113:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N,M;scanf("%d %d",&N,&M);multiset<int> ms;
+for(int i=0;i<N;i++){int x;scanf("%d",&x);ms.insert(x);}
+while(M--){int m;scanf("%d",&m);auto it=ms.upper_bound(m);
+ if(it==ms.begin())printf("-1\\n");else{--it;printf("%d\\n",*it);ms.erase(it);}}
+return 0;}`,
+p114:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N,M,K;scanf("%d %d %d",&N,&M,&K);vector<int> a(N),b(M);
+for(auto&x:a)scanf("%d",&x);for(auto&x:b)scanf("%d",&x);
+sort(a.begin(),a.end());sort(b.begin(),b.end());
+int i=0,j=0,ans=0;while(i<N&&j<M){
+ if(abs(a[i]-b[j])<=K){ans++;i++;j++;}else if(a[i]<b[j])i++;else j++;}
+printf("%d\\n",ans);return 0;}`,
+p115:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N;scanf("%d",&N);vector<int> a(N);
+for(auto&x:a)scanf("%d",&x);sort(a.begin(),a.end());
+printf("%ld\\n",unique(a.begin(),a.end())-a.begin());return 0;}`,
+p116:`#include<bits/stdc++.h>
+using namespace std;
+int N,M;vector<string> g;
+void bfs(int sr,int sc){queue<pair<int,int>> q;q.push({sr,sc});g[sr][sc]='#';
+ int dr[]={-1,1,0,0},dc[]={0,0,-1,1};
+ while(!q.empty()){pair<int,int> pp=q.front();q.pop();int r=pp.first,c=pp.second;
+  for(int k=0;k<4;k++){int nr=r+dr[k],nc=c+dc[k];
+   if(nr>=0&&nr<N&&nc>=0&&nc<M&&g[nr][nc]=='.'){g[nr][nc]='#';q.push({nr,nc});}}}}
+int main(){scanf("%d %d",&N,&M);g.resize(N);
+for(int i=0;i<N;i++){char buf[1005];scanf("%s",buf);g[i]=buf;}
+int ans=0;for(int i=0;i<N;i++)for(int j=0;j<M;j++)if(g[i][j]=='.'){ans++;bfs(i,j);}
+printf("%d\\n",ans);return 0;}`,
+p117:`#include<bits/stdc++.h>
+using namespace std;
+vector<int> p;
+int find(int x){while(p[x]!=x){p[x]=p[p[x]];x=p[x];}return x;}
+int main(){int N,M;scanf("%d %d",&N,&M);p.resize(N+1);iota(p.begin(),p.end(),0);
+while(M--){int u,v;scanf("%d %d",&u,&v);int ru=find(u),rv=find(v);if(ru!=rv)p[ru]=rv;}
+vector<int> r;for(int i=1;i<=N;i++)if(find(i)==i)r.push_back(i);
+printf("%ld\\n",r.size()-1);for(size_t i=1;i<r.size();i++)printf("%d %d\\n",r[0],r[i]);
+return 0;}`,
+p118:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N,M;scanf("%d %d",&N,&M);vector<string> g(N);
+for(int i=0;i<N;i++){char b[1005];scanf("%s",b);g[i]=b;}
+int sr=0,sc=0,tr=0,tc=0;
+for(int i=0;i<N;i++)for(int j=0;j<M;j++){if(g[i][j]=='A'){sr=i;sc=j;}if(g[i][j]=='B'){tr=i;tc=j;}}
+queue<tuple<int,int,int>> q;q.push({sr,sc,0});g[sr][sc]='#';int ans=-1;
+int dr[]={-1,1,0,0},dc[]={0,0,-1,1};
+while(!q.empty()){tuple<int,int,int> tt=q.front();q.pop();int r=get<0>(tt),c=get<1>(tt),d=get<2>(tt);
+ if(r==tr&&c==tc){ans=d;break;}
+ for(int k=0;k<4;k++){int nr=r+dr[k],nc=c+dc[k];
+  if(nr>=0&&nr<N&&nc>=0&&nc<M&&g[nr][nc]!='#'){g[nr][nc]='#';q.push({nr,nc,d+1});}}}
+printf("%d\\n",ans);return 0;}`,
+p119:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N;scanf("%d",&N);vector<int> b(N+1,0),cnt(N+1,0);
+for(int i=2;i<=N;i++)scanf("%d",&b[i]);
+for(int i=N;i>=2;i--)cnt[b[i]]+=cnt[i]+1;
+for(int i=1;i<=N;i++)printf("%d%c",cnt[i],i==N?'\\n':' ');
+return 0;}`,
+p120:`#include<bits/stdc++.h>
+using namespace std;
+const int MOD=1e9+7;
+int main(){int N,X;scanf("%d %d",&N,&X);vector<int> c(N);
+for(auto&v:c)scanf("%d",&v);vector<long long> dp(X+1,0);dp[0]=1;
+for(int x=1;x<=X;x++){long long s=0;for(int v:c)if(v<=x)s+=dp[x-v];dp[x]=s%MOD;}
+printf("%lld\\n",dp[X]);return 0;}`,
+p121:`#include<bits/stdc++.h>
+using namespace std;
+const int MOD=1e9+7;
+int main(){int N,X;scanf("%d %d",&N,&X);vector<int> c(N);
+for(auto&v:c)scanf("%d",&v);vector<long long> dp(X+1,0);dp[0]=1;
+for(int v:c)for(int x=v;x<=X;x++)dp[x]=(dp[x]+dp[x-v])%MOD;
+printf("%lld\\n",dp[X]);return 0;}`,
+p122:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N,X;scanf("%d %d",&N,&X);vector<int> c(N);
+for(auto&v:c)scanf("%d",&v);const int INF=1e9;vector<int> dp(X+1,INF);dp[0]=0;
+for(int x=1;x<=X;x++)for(int v:c)if(v<=x&&dp[x-v]+1<dp[x])dp[x]=dp[x-v]+1;
+printf("%d\\n",dp[X]>=INF?-1:dp[X]);return 0;}`,
+p123:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N;scanf("%d",&N);vector<int> dp(N+1,0);
+for(int x=1;x<=N;x++){int best=1e9;int y=x;while(y){int d=y%10;if(d&&dp[x-d]+1<best)best=dp[x-d]+1;y/=10;}dp[x]=best;}
+printf("%d\\n",dp[N]);return 0;}`,
+p124:`#include<bits/stdc++.h>
+using namespace std;
+const int MOD=1e9+7;
+int main(){int N;scanf("%d",&N);vector<string> g(N);
+for(int i=0;i<N;i++){char b[1005];scanf("%s",b);g[i]=b;}
+vector<vector<long long>> dp(N,vector<long long>(N,0));
+if(g[0][0]=='.')dp[0][0]=1;
+for(int i=0;i<N;i++)for(int j=0;j<N;j++){
+ if(g[i][j]=='*'){dp[i][j]=0;continue;}if(i==0&&j==0)continue;
+ long long v=0;if(i)v+=dp[i-1][j];if(j)v+=dp[i][j-1];dp[i][j]=v%MOD;}
+printf("%lld\\n",dp[N-1][N-1]);return 0;}`,
+p125:`#include<bits/stdc++.h>
+using namespace std;
+int main(){long long N;scanf("%lld",&N);long long S=N*(N+1)/2;
+if(S%2){printf("NO\\n");return 0;}
+long long half=S/2,got=0;vector<long long> A,B;
+for(long long v=N;v>=1;v--){if(got+v<=half){A.push_back(v);got+=v;}else B.push_back(v);}
+printf("YES\\n%ld",A.size());for(auto x:A)printf(" %lld",x);printf("\\n%ld",B.size());for(auto x:B)printf(" %lld",x);printf("\\n");
+return 0;}`,
+p126:`#include<bits/stdc++.h>
+using namespace std;
+int main(){long long N;scanf("%lld",&N);long long MOD=1e9+7,r=1,a=2;
+while(N){if(N&1)r=r*a%MOD;a=a*a%MOD;N>>=1;}
+printf("%lld\\n",r);return 0;}`,
+p127:`#include<bits/stdc++.h>
+using namespace std;
+int main(){long long N;scanf("%lld",&N);long long ans=0;
+while(N){N/=5;ans+=N;}printf("%lld\\n",ans);return 0;}`,
+p128:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N;scanf("%d",&N);long long m,ans=0,x;scanf("%lld",&m);
+for(int i=1;i<N;i++){scanf("%lld",&x);if(x<m)ans+=m-x;else m=x;}
+printf("%lld\\n",ans);return 0;}`,
+p129:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int N;scanf("%d",&N);
+if(N==1){printf("1\\n");return 0;}
+if(N<4){printf("NO SOLUTION\\n");return 0;}
+bool first=true;
+for(int i=2;i<=N;i+=2){if(!first)printf(" ");printf("%d",i);first=false;}
+for(int i=1;i<=N;i+=2){printf(" %d",i);}printf("\\n");return 0;}`,
+p130:`#include<bits/stdc++.h>
+using namespace std;
+int main(){int T;scanf("%d",&T);
+while(T--){long long y,x;scanf("%lld %lld",&y,&x);long long k=max(y,x),base=(k-1)*(k-1),val;
+ if(k%2==0){if(x==k)val=base+y;else val=k*k-(x-1);}
+ else{if(y==k)val=base+x;else val=k*k-(y-1);}
+ printf("%lld\\n",val);}
+return 0;}`
 },
 c: {
 b964:`#include <stdio.h>\n#include <stdlib.h>\nint cmp(const void*a,const void*b){return *(int*)a-*(int*)b;}\nint main(){\n    int n;scanf("%d",&n);\n    int s[20];for(int i=0;i<n;i++)scanf("%d",&s[i]);\n    qsort(s,n,sizeof(int),cmp);\n    for(int i=0;i<n;i++){if(i)printf(" ");printf("%d",s[i]);}printf("\\n");\n    int hf=-1,lp=-1;\n    for(int i=0;i<n;i++){if(s[i]<60)hf=s[i];else if(lp==-1)lp=s[i];}\n    if(hf==-1)printf("best case\\n");else printf("%d\\n",hf);\n    if(lp==-1)printf("worst case\\n");else printf("%d\\n",lp);\n    return 0;\n}`,
@@ -2005,7 +2612,246 @@ int main(){
         printf("%lld\\n", ps[r2+1][c2+1] - ps[r1][c2+1] - ps[r2+1][c1] + ps[r1][c1]);
     }
     return 0;
-}`
+}`,
+p101:`#include<stdio.h>
+int ps[1005][1005];
+int main(){int N,Q;scanf("%d %d",&N,&Q);
+for(int i=1;i<=N;i++){char r[1005];scanf("%s",r);
+ for(int j=1;j<=N;j++)ps[i][j]=ps[i-1][j]+ps[i][j-1]-ps[i-1][j-1]+(r[j-1]=='*');}
+while(Q--){int r1,c1,r2,c2;scanf("%d %d %d %d",&r1,&c1,&r2,&c2);
+ printf("%d\\n",ps[r2][c2]-ps[r1-1][c2]-ps[r2][c1-1]+ps[r1-1][c1-1]);}
+return 0;}`,
+p102:`#include<stdio.h>
+#include<stdlib.h>
+long long s,ans;
+int main(){int N;scanf("%d",&N);long long *c=calloc(N,sizeof(long long));c[0]=1;
+for(int i=0;i<N;i++){long long x;scanf("%lld",&x);s=((s+x)%N+N)%N;ans+=c[s];c[s]++;}
+printf("%lld\\n",ans);free(c);return 0;}`,
+p103:`#include<stdio.h>
+#include<stdlib.h>
+typedef struct{long long k,v;} E;
+#define M 524287
+E h[M];
+long long get(long long k){long long i=(unsigned long long)k%M;while(h[i].v&&h[i].k!=k)i=(i+1)%M;return h[i].v;}
+void inc(long long k){long long i=(unsigned long long)k%M;while(h[i].v&&h[i].k!=k)i=(i+1)%M;h[i].k=k;h[i].v++;}
+int main(){int N;long long X;scanf("%d %lld",&N,&X);inc(0);
+long long s=0,ans=0;
+for(int i=0;i<N;i++){long long x;scanf("%lld",&x);s+=x;ans+=get(s-X);inc(s);}
+printf("%lld\\n",ans);return 0;}`,
+p104:`#include<stdio.h>
+#include<stdlib.h>
+int main(){int N,M;scanf("%d %d",&N,&M);long long*d=calloc(N+2,sizeof(long long));
+while(M--){int l,r;long long v;scanf("%d %d %lld",&l,&r,&v);d[l]+=v;d[r+1]-=v;}
+long long c=0;for(int i=1;i<=N;i++){c+=d[i];printf("%lld%c",c,i==N?'\\n':' ');}
+free(d);return 0;}`,
+p105:`#include<stdio.h>
+int d[200005],ps[200005];
+int main(){int N,K,Q;scanf("%d %d %d",&N,&K,&Q);
+while(N--){int l,r;scanf("%d %d",&l,&r);d[l]++;d[r+1]--;}
+int c=0;for(int i=1;i<=200000;i++){c+=d[i];ps[i]=ps[i-1]+(c>=K?1:0);}
+while(Q--){int a,b;scanf("%d %d",&a,&b);printf("%d\\n",ps[b]-ps[a-1]);}
+return 0;}`,
+p106:`#include<stdio.h>
+#include<stdlib.h>
+int cmp(const void*x,const void*y){return *(int*)x-*(int*)y;}
+int lb(int*a,int n,int v){int l=0,r=n;while(l<r){int m=(l+r)/2;if(a[m]<v)l=m+1;else r=m;}return l;}
+int ub(int*a,int n,int v){int l=0,r=n;while(l<r){int m=(l+r)/2;if(a[m]<=v)l=m+1;else r=m;}return l;}
+int main(){int N,Q;scanf("%d %d",&N,&Q);int*a=malloc(N*sizeof(int));
+for(int i=0;i<N;i++)scanf("%d",&a[i]);qsort(a,N,sizeof(int),cmp);
+while(Q--){int l,r;scanf("%d %d",&l,&r);printf("%d\\n",ub(a,N,r)-lb(a,N,l));}
+free(a);return 0;}`,
+p107:`#include<stdio.h>
+#include<stdlib.h>
+int cmp(const void*x,const void*y){long long a=*(long long*)x,b=*(long long*)y;return a<b?-1:a>b;}
+int main(){int N;long long K;scanf("%d %lld",&N,&K);long long*a=malloc(N*sizeof(long long));
+for(int i=0;i<N;i++)scanf("%lld",&a[i]);qsort(a,N,sizeof(long long),cmp);int mid=N/2;
+long long lo=a[mid],hi=a[mid]+K;
+while(lo<hi){long long m=(lo+hi+1)/2,c=0;
+ for(int i=mid;i<N;i++){if(a[i]<m)c+=m-a[i];if(c>K)break;}
+ if(c<=K)lo=m;else hi=m-1;}
+printf("%lld\\n",lo);free(a);return 0;}`,
+p108:`#include<stdio.h>
+#include<stdlib.h>
+typedef struct{int k,v;} E;
+#define M 524287
+E h[M];
+int g(int k){int i=(unsigned)k%M;while(h[i].v&&h[i].k!=k)i=(i+1)%M;return h[i].v?h[i].v-1:-1;}
+void p(int k,int v){int i=(unsigned)k%M;while(h[i].v&&h[i].k!=k)i=(i+1)%M;h[i].k=k;h[i].v=v+1;}
+int main(){int N;scanf("%d",&N);int l=0,ans=0;
+for(int r=0;r<N;r++){int x;scanf("%d",&x);int lp=g(x);if(lp>=l)l=lp+1;p(x,r);if(r-l+1>ans)ans=r-l+1;}
+printf("%d\\n",ans);return 0;}`,
+p109:`#include<stdio.h>
+#include<stdlib.h>
+typedef struct{long long k;int v;} E;
+#define M 524287
+E h[M];
+int g(long long k){int i=(unsigned long long)k%M;while(h[i].v&&h[i].k!=k)i=(i+1)%M;return h[i].v?h[i].v:0;}
+void p(long long k,int v){int i=(unsigned long long)k%M;while(h[i].v&&h[i].k!=k)i=(i+1)%M;h[i].k=k;h[i].v=v;}
+int main(){int N;long long X;scanf("%d %lld",&N,&X);
+for(int i=1;i<=N;i++){long long x;scanf("%lld",&x);int j=g(X-x);
+ if(j){printf("%d %d\\n",j,i);return 0;}p(x,i);}
+printf("IMPOSSIBLE\\n");return 0;}`,
+p110:`#include<stdio.h>
+#include<stdlib.h>
+int cmp(const void*x,const void*y){long long a=*(long long*)x,b=*(long long*)y;return a<b?-1:a>b;}
+int main(){int N;scanf("%d",&N);long long*a=malloc(N*sizeof(long long));
+for(int i=0;i<N;i++)scanf("%lld",&a[i]);qsort(a,N,sizeof(long long),cmp);
+long long m=a[N/2],ans=0;for(int i=0;i<N;i++)ans+=llabs(a[i]-m);
+printf("%lld\\n",ans);free(a);return 0;}`,
+p111:`#include<stdio.h>
+#include<stdlib.h>
+typedef struct{int a,b;} P;
+int cmp(const void*x,const void*y){return ((P*)x)->b-((P*)y)->b;}
+int main(){int N;scanf("%d",&N);P*v=malloc(N*sizeof(P));
+for(int i=0;i<N;i++)scanf("%d %d",&v[i].a,&v[i].b);qsort(v,N,sizeof(P),cmp);
+int end=-1,ans=0;for(int i=0;i<N;i++)if(v[i].a>=end){ans++;end=v[i].b;}
+printf("%d\\n",ans);free(v);return 0;}`,
+p112:`#include<stdio.h>
+#include<stdlib.h>
+typedef struct{int t,d;} E;
+int cmp(const void*x,const void*y){E*a=(E*)x,*b=(E*)y;if(a->t!=b->t)return a->t-b->t;return a->d-b->d;}
+int main(){int N;scanf("%d",&N);E*ev=malloc(2*N*sizeof(E));
+for(int i=0;i<N;i++){int a,b;scanf("%d %d",&a,&b);ev[2*i]=(E){a,1};ev[2*i+1]=(E){b,-1};}
+qsort(ev,2*N,sizeof(E),cmp);int cur=0,ans=0;
+for(int i=0;i<2*N;i++){cur+=ev[i].d;if(cur>ans)ans=cur;}
+printf("%d\\n",ans);free(ev);return 0;}`,
+p113:`#include<stdio.h>
+#include<stdlib.h>
+int cmp(const void*x,const void*y){return *(int*)x-*(int*)y;}
+int main(){int N,M;scanf("%d %d",&N,&M);int*a=malloc(N*sizeof(int));char*used=calloc(N,1);
+for(int i=0;i<N;i++)scanf("%d",&a[i]);qsort(a,N,sizeof(int),cmp);
+while(M--){int m;scanf("%d",&m);
+ int lo=0,hi=N;while(lo<hi){int md=(lo+hi)/2;if(a[md]<=m)lo=md+1;else hi=md;}
+ int p=lo-1;while(p>=0&&used[p])p--;
+ if(p<0)printf("-1\\n");else{printf("%d\\n",a[p]);used[p]=1;}}
+free(a);free(used);return 0;}`,
+p114:`#include<stdio.h>
+#include<stdlib.h>
+int cmp(const void*x,const void*y){return *(int*)x-*(int*)y;}
+int main(){int N,M,K;scanf("%d %d %d",&N,&M,&K);int*a=malloc(N*sizeof(int));int*b=malloc(M*sizeof(int));
+for(int i=0;i<N;i++)scanf("%d",&a[i]);for(int i=0;i<M;i++)scanf("%d",&b[i]);
+qsort(a,N,sizeof(int),cmp);qsort(b,M,sizeof(int),cmp);
+int i=0,j=0,ans=0;while(i<N&&j<M){
+ int d=a[i]-b[j];if(d<0)d=-d;
+ if(d<=K){ans++;i++;j++;}else if(a[i]<b[j])i++;else j++;}
+printf("%d\\n",ans);free(a);free(b);return 0;}`,
+p115:`#include<stdio.h>
+#include<stdlib.h>
+int cmp(const void*x,const void*y){return *(int*)x-*(int*)y;}
+int main(){int N;scanf("%d",&N);int*a=malloc(N*sizeof(int));
+for(int i=0;i<N;i++)scanf("%d",&a[i]);qsort(a,N,sizeof(int),cmp);
+int c=N>0?1:0;for(int i=1;i<N;i++)if(a[i]!=a[i-1])c++;
+printf("%d\\n",c);free(a);return 0;}`,
+p116:`#include<stdio.h>
+char g[1005][1005];int N,M;
+int qr[1000005],qc[1000005];
+void bfs(int sr,int sc){int h=0,t=0;qr[t]=sr;qc[t++]=sc;g[sr][sc]='#';
+ int dr[]={-1,1,0,0},dc[]={0,0,-1,1};
+ while(h<t){int r=qr[h],c=qc[h];h++;
+  for(int k=0;k<4;k++){int nr=r+dr[k],nc=c+dc[k];
+   if(nr>=0&&nr<N&&nc>=0&&nc<M&&g[nr][nc]=='.'){g[nr][nc]='#';qr[t]=nr;qc[t++]=nc;}}}}
+int main(){scanf("%d %d",&N,&M);for(int i=0;i<N;i++)scanf("%s",g[i]);
+int ans=0;for(int i=0;i<N;i++)for(int j=0;j<M;j++)if(g[i][j]=='.'){ans++;bfs(i,j);}
+printf("%d\\n",ans);return 0;}`,
+p117:`#include<stdio.h>
+#include<stdlib.h>
+int p[100005];
+int find(int x){while(p[x]!=x){p[x]=p[p[x]];x=p[x];}return x;}
+int main(){int N,M;scanf("%d %d",&N,&M);for(int i=0;i<=N;i++)p[i]=i;
+while(M--){int u,v;scanf("%d %d",&u,&v);int ru=find(u),rv=find(v);if(ru!=rv)p[ru]=rv;}
+int*r=malloc(N*sizeof(int));int k=0;for(int i=1;i<=N;i++)if(find(i)==i)r[k++]=i;
+printf("%d\\n",k-1);for(int i=1;i<k;i++)printf("%d %d\\n",r[0],r[i]);
+free(r);return 0;}`,
+p118:`#include<stdio.h>
+char g[1005][1005];
+int qr[1000005],qc[1000005],qd[1000005];
+int main(){int N,M;scanf("%d %d",&N,&M);for(int i=0;i<N;i++)scanf("%s",g[i]);
+int sr=0,sc=0,tr=0,tc=0;
+for(int i=0;i<N;i++)for(int j=0;j<M;j++){if(g[i][j]=='A'){sr=i;sc=j;}if(g[i][j]=='B'){tr=i;tc=j;}}
+int h=0,t=0;qr[t]=sr;qc[t]=sc;qd[t++]=0;g[sr][sc]='#';int ans=-1;
+int dr[]={-1,1,0,0},dc[]={0,0,-1,1};
+while(h<t){int r=qr[h],c=qc[h],d=qd[h];h++;
+ if(r==tr&&c==tc){ans=d;break;}
+ for(int k=0;k<4;k++){int nr=r+dr[k],nc=c+dc[k];
+  if(nr>=0&&nr<N&&nc>=0&&nc<M&&g[nr][nc]!='#'){g[nr][nc]='#';qr[t]=nr;qc[t]=nc;qd[t++]=d+1;}}}
+printf("%d\\n",ans);return 0;}`,
+p119:`#include<stdio.h>
+int b[200005],cnt[200005];
+int main(){int N;scanf("%d",&N);
+for(int i=2;i<=N;i++)scanf("%d",&b[i]);
+for(int i=N;i>=2;i--)cnt[b[i]]+=cnt[i]+1;
+for(int i=1;i<=N;i++)printf("%d%c",cnt[i],i==N?'\\n':' ');
+return 0;}`,
+p120:`#include<stdio.h>
+#include<stdlib.h>
+#define MOD 1000000007
+int main(){int N,X;scanf("%d %d",&N,&X);int*c=malloc(N*sizeof(int));
+for(int i=0;i<N;i++)scanf("%d",&c[i]);long long*dp=calloc(X+1,sizeof(long long));dp[0]=1;
+for(int x=1;x<=X;x++){long long s=0;for(int i=0;i<N;i++)if(c[i]<=x)s+=dp[x-c[i]];dp[x]=s%MOD;}
+printf("%lld\\n",dp[X]);free(c);free(dp);return 0;}`,
+p121:`#include<stdio.h>
+#include<stdlib.h>
+#define MOD 1000000007
+int main(){int N,X;scanf("%d %d",&N,&X);int*c=malloc(N*sizeof(int));
+for(int i=0;i<N;i++)scanf("%d",&c[i]);long long*dp=calloc(X+1,sizeof(long long));dp[0]=1;
+for(int i=0;i<N;i++)for(int x=c[i];x<=X;x++)dp[x]=(dp[x]+dp[x-c[i]])%MOD;
+printf("%lld\\n",dp[X]);free(c);free(dp);return 0;}`,
+p122:`#include<stdio.h>
+#include<stdlib.h>
+int main(){int N,X;scanf("%d %d",&N,&X);int*c=malloc(N*sizeof(int));
+for(int i=0;i<N;i++)scanf("%d",&c[i]);int INF=1<<29;int*dp=malloc((X+1)*sizeof(int));
+dp[0]=0;for(int i=1;i<=X;i++)dp[i]=INF;
+for(int x=1;x<=X;x++)for(int i=0;i<N;i++)if(c[i]<=x&&dp[x-c[i]]+1<dp[x])dp[x]=dp[x-c[i]]+1;
+printf("%d\\n",dp[X]>=INF?-1:dp[X]);free(c);free(dp);return 0;}`,
+p123:`#include<stdio.h>
+#include<stdlib.h>
+int main(){int N;scanf("%d",&N);int*dp=calloc(N+1,sizeof(int));
+for(int x=1;x<=N;x++){int best=1<<29,y=x;while(y){int d=y%10;if(d&&dp[x-d]+1<best)best=dp[x-d]+1;y/=10;}dp[x]=best;}
+printf("%d\\n",dp[N]);free(dp);return 0;}`,
+p124:`#include<stdio.h>
+#define MOD 1000000007
+char g[1005][1005];long long dp[1005][1005];
+int main(){int N;scanf("%d",&N);for(int i=0;i<N;i++)scanf("%s",g[i]);
+if(g[0][0]=='.')dp[0][0]=1;
+for(int i=0;i<N;i++)for(int j=0;j<N;j++){
+ if(g[i][j]=='*'){dp[i][j]=0;continue;}if(i==0&&j==0)continue;
+ long long v=0;if(i)v+=dp[i-1][j];if(j)v+=dp[i][j-1];dp[i][j]=v%MOD;}
+printf("%lld\\n",dp[N-1][N-1]);return 0;}`,
+p125:`#include<stdio.h>
+#include<stdlib.h>
+int main(){long long N;scanf("%lld",&N);long long S=N*(N+1)/2;
+if(S%2){printf("NO\\n");return 0;}
+long long half=S/2,got=0;long long*A=malloc(N*sizeof(long long));long long*B=malloc(N*sizeof(long long));
+int ai=0,bi=0;
+for(long long v=N;v>=1;v--){if(got+v<=half){A[ai++]=v;got+=v;}else B[bi++]=v;}
+printf("YES\\n%d",ai);for(int i=0;i<ai;i++)printf(" %lld",A[i]);
+printf("\\n%d",bi);for(int i=0;i<bi;i++)printf(" %lld",B[i]);printf("\\n");
+free(A);free(B);return 0;}`,
+p126:`#include<stdio.h>
+int main(){long long N;scanf("%lld",&N);long long MOD=1000000007,r=1,a=2;
+while(N){if(N&1)r=r*a%MOD;a=a*a%MOD;N>>=1;}
+printf("%lld\\n",r);return 0;}`,
+p127:`#include<stdio.h>
+int main(){long long N;scanf("%lld",&N);long long ans=0;
+while(N){N/=5;ans+=N;}printf("%lld\\n",ans);return 0;}`,
+p128:`#include<stdio.h>
+int main(){int N;scanf("%d",&N);long long m,ans=0,x;scanf("%lld",&m);
+for(int i=1;i<N;i++){scanf("%lld",&x);if(x<m)ans+=m-x;else m=x;}
+printf("%lld\\n",ans);return 0;}`,
+p129:`#include<stdio.h>
+int main(){int N;scanf("%d",&N);
+if(N==1){printf("1\\n");return 0;}
+if(N<4){printf("NO SOLUTION\\n");return 0;}
+int first=1;
+for(int i=2;i<=N;i+=2){if(!first)printf(" ");printf("%d",i);first=0;}
+for(int i=1;i<=N;i+=2)printf(" %d",i);printf("\\n");return 0;}`,
+p130:`#include<stdio.h>
+int main(){int T;scanf("%d",&T);
+while(T--){long long y,x;scanf("%lld %lld",&y,&x);long long k=y>x?y:x,base=(k-1)*(k-1),val;
+ if(k%2==0){if(x==k)val=base+y;else val=k*k-(x-1);}
+ else{if(y==k)val=base+x;else val=k*k-(y-1);}
+ printf("%lld\\n",val);}
+return 0;}`
 },
 java: {
 b964:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc=new Scanner(System.in);\n        int n=sc.nextInt();\n        int[] s=new int[n];for(int i=0;i<n;i++)s[i]=sc.nextInt();\n        Arrays.sort(s);\n        StringBuilder sb=new StringBuilder();\n        for(int i=0;i<n;i++){if(i>0)sb.append(" ");sb.append(s[i]);}\n        System.out.println(sb);\n        int hf=-1,lp=-1;\n        for(int x:s){if(x<60)hf=x;else if(lp==-1)lp=x;}\n        System.out.println(hf==-1?"best case":hf);\n        System.out.println(lp==-1?"worst case":lp);\n    }\n}`,
@@ -2549,7 +3395,67 @@ public class Main {
         }
         System.out.print(sb);
     }
-}`
+}`,
+p101:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),Q=s.nextInt();int[][] p=new int[N+1][N+1];for(int i=1;i<=N;i++){String r=s.next();for(int j=1;j<=N;j++)p[i][j]=p[i-1][j]+p[i][j-1]-p[i-1][j-1]+(r.charAt(j-1)=='*'?1:0);}StringBuilder b=new StringBuilder();while(Q-->0){int r1=s.nextInt(),c1=s.nextInt(),r2=s.nextInt(),c2=s.nextInt();b.append(p[r2][c2]-p[r1-1][c2]-p[r2][c1-1]+p[r1-1][c1-1]).append('\\n');}System.out.print(b);}}`,
+p102:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt();long[] c=new long[N];c[0]=1;long sum=0,ans=0;for(int i=0;i<N;i++){long x=s.nextLong();sum=((sum+x)%N+N)%N;ans+=c[(int)sum];c[(int)sum]++;}System.out.println(ans);}}`,
+p103:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt();long X=s.nextLong();HashMap<Long,Long> c=new HashMap<>();c.put(0L,1L);long sum=0,ans=0;for(int i=0;i<N;i++){sum+=s.nextLong();ans+=c.getOrDefault(sum-X,0L);c.merge(sum,1L,Long::sum);}System.out.println(ans);}}`,
+p104:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),M=s.nextInt();long[] d=new long[N+2];while(M-->0){int l=s.nextInt(),r=s.nextInt();long v=s.nextLong();d[l]+=v;d[r+1]-=v;}long c=0;StringBuilder b=new StringBuilder();for(int i=1;i<=N;i++){c+=d[i];b.append(c);b.append(i==N?'\\n':' ');}System.out.print(b);}}`,
+p105:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int MAX=200001;int N=s.nextInt(),K=s.nextInt(),Q=s.nextInt();int[] d=new int[MAX+2];int[] ps=new int[MAX+2];while(N-->0){int l=s.nextInt(),r=s.nextInt();d[l]++;d[r+1]--;}int c=0;for(int i=1;i<=MAX-1;i++){c+=d[i];ps[i]=ps[i-1]+(c>=K?1:0);}StringBuilder b=new StringBuilder();while(Q-->0){int a=s.nextInt(),x=s.nextInt();b.append(ps[x]-ps[a-1]).append('\\n');}System.out.print(b);}}`,
+p106:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),Q=s.nextInt();int[] a=new int[N];for(int i=0;i<N;i++)a[i]=s.nextInt();Arrays.sort(a);StringBuilder b=new StringBuilder();while(Q-->0){int l=s.nextInt(),r=s.nextInt();int lo=0,hi=N;while(lo<hi){int m=(lo+hi)>>>1;if(a[m]<l)lo=m+1;else hi=m;}int L=lo;lo=0;hi=N;while(lo<hi){int m=(lo+hi)>>>1;if(a[m]<=r)lo=m+1;else hi=m;}b.append(lo-L).append('\\n');}System.out.print(b);}}`,
+p107:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt();long K=s.nextLong();long[] a=new long[N];for(int i=0;i<N;i++)a[i]=s.nextLong();Arrays.sort(a);int mid=N/2;long lo=a[mid],hi=a[mid]+K;while(lo<hi){long m=(lo+hi+1)/2,c=0;for(int i=mid;i<N;i++){if(a[i]<m)c+=m-a[i];if(c>K)break;}if(c<=K)lo=m;else hi=m-1;}System.out.println(lo);}}`,
+p108:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt();HashMap<Integer,Integer> last=new HashMap<>();int l=0,ans=0;for(int r=0;r<N;r++){int x=s.nextInt();Integer lp=last.get(x);if(lp!=null&&lp>=l)l=lp+1;last.put(x,r);if(r-l+1>ans)ans=r-l+1;}System.out.println(ans);}}`,
+p109:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt();long X=s.nextLong();HashMap<Long,Integer> seen=new HashMap<>();for(int i=0;i<N;i++){long x=s.nextLong();Integer j=seen.get(X-x);if(j!=null){System.out.println((j+1)+" "+(i+1));return;}seen.put(x,i);}System.out.println("IMPOSSIBLE");}}`,
+p110:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt();long[] a=new long[N];for(int i=0;i<N;i++)a[i]=s.nextLong();Arrays.sort(a);long m=a[N/2],ans=0;for(long x:a)ans+=Math.abs(x-m);System.out.println(ans);}}`,
+p111:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt();int[][] v=new int[N][2];for(int i=0;i<N;i++){v[i][0]=s.nextInt();v[i][1]=s.nextInt();}Arrays.sort(v,(x,y)->x[1]-y[1]);int end=-1,ans=0;for(int[] p:v)if(p[0]>=end){ans++;end=p[1];}System.out.println(ans);}}`,
+p112:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt();int[][] ev=new int[2*N][2];for(int i=0;i<N;i++){int a=s.nextInt(),b=s.nextInt();ev[2*i]=new int[]{a,1};ev[2*i+1]=new int[]{b,-1};}Arrays.sort(ev,(x,y)->x[0]!=y[0]?x[0]-y[0]:x[1]-y[1]);int cur=0,ans=0;for(int[] p:ev){cur+=p[1];if(cur>ans)ans=cur;}System.out.println(ans);}}`,
+p113:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),M=s.nextInt();TreeMap<Integer,Integer> tm=new TreeMap<>();for(int i=0;i<N;i++){int x=s.nextInt();tm.merge(x,1,Integer::sum);}StringBuilder b=new StringBuilder();while(M-->0){int m=s.nextInt();Integer k=tm.floorKey(m);if(k==null)b.append(-1);else{b.append(k);int c=tm.get(k);if(c==1)tm.remove(k);else tm.put(k,c-1);}b.append('\\n');}System.out.print(b);}}`,
+p114:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),M=s.nextInt(),K=s.nextInt();int[] a=new int[N];int[] b=new int[M];for(int i=0;i<N;i++)a[i]=s.nextInt();for(int i=0;i<M;i++)b[i]=s.nextInt();Arrays.sort(a);Arrays.sort(b);int i=0,j=0,ans=0;while(i<N&&j<M){if(Math.abs(a[i]-b[j])<=K){ans++;i++;j++;}else if(a[i]<b[j])i++;else j++;}System.out.println(ans);}}`,
+p115:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt();HashSet<Integer> set=new HashSet<>();for(int i=0;i<N;i++)set.add(s.nextInt());System.out.println(set.size());}}`,
+p116:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),M=s.nextInt();char[][] g=new char[N][];for(int i=0;i<N;i++)g[i]=s.next().toCharArray();int ans=0;int[] dr={-1,1,0,0},dc={0,0,-1,1};ArrayDeque<int[]> q=new ArrayDeque<>();for(int i=0;i<N;i++)for(int j=0;j<M;j++)if(g[i][j]=='.'){ans++;g[i][j]='#';q.add(new int[]{i,j});while(!q.isEmpty()){int[] p=q.poll();for(int k=0;k<4;k++){int nr=p[0]+dr[k],nc=p[1]+dc[k];if(nr>=0&&nr<N&&nc>=0&&nc<M&&g[nr][nc]=='.'){g[nr][nc]='#';q.add(new int[]{nr,nc});}}}}System.out.println(ans);}}`,
+p117:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),M=s.nextInt();int[] p=new int[N+1];for(int i=0;i<=N;i++)p[i]=i;while(M-->0){int u=s.nextInt(),v=s.nextInt();int ru=u;while(p[ru]!=ru){p[ru]=p[p[ru]];ru=p[ru];}int rv=v;while(p[rv]!=rv){p[rv]=p[p[rv]];rv=p[rv];}if(ru!=rv)p[ru]=rv;}ArrayList<Integer> r=new ArrayList<>();for(int i=1;i<=N;i++){int x=i;while(p[x]!=x)x=p[x];if(x==i)r.add(i);}StringBuilder b=new StringBuilder();b.append(r.size()-1).append('\\n');for(int i=1;i<r.size();i++)b.append(r.get(0)).append(' ').append(r.get(i)).append('\\n');System.out.print(b);}}`,
+p118:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),M=s.nextInt();char[][] g=new char[N][];for(int i=0;i<N;i++)g[i]=s.next().toCharArray();int sr=0,sc=0,tr=0,tc=0;for(int i=0;i<N;i++)for(int j=0;j<M;j++){if(g[i][j]=='A'){sr=i;sc=j;}if(g[i][j]=='B'){tr=i;tc=j;}}ArrayDeque<int[]> q=new ArrayDeque<>();q.add(new int[]{sr,sc,0});g[sr][sc]='#';int ans=-1;int[] dr={-1,1,0,0},dc={0,0,-1,1};while(!q.isEmpty()){int[] p=q.poll();if(p[0]==tr&&p[1]==tc){ans=p[2];break;}for(int k=0;k<4;k++){int nr=p[0]+dr[k],nc=p[1]+dc[k];if(nr>=0&&nr<N&&nc>=0&&nc<M&&g[nr][nc]!='#'){g[nr][nc]='#';q.add(new int[]{nr,nc,p[2]+1});}}}System.out.println(ans);}}`,
+p119:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt();int[] b=new int[N+1];int[] cnt=new int[N+1];for(int i=2;i<=N;i++)b[i]=s.nextInt();for(int i=N;i>=2;i--)cnt[b[i]]+=cnt[i]+1;StringBuilder bb=new StringBuilder();for(int i=1;i<=N;i++){bb.append(cnt[i]);bb.append(i==N?'\\n':' ');}System.out.print(bb);}}`,
+p120:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);final int MOD=1000000007;int N=s.nextInt(),X=s.nextInt();int[] c=new int[N];for(int i=0;i<N;i++)c[i]=s.nextInt();long[] dp=new long[X+1];dp[0]=1;for(int x=1;x<=X;x++){long sum=0;for(int v:c)if(v<=x)sum+=dp[x-v];dp[x]=sum%MOD;}System.out.println(dp[X]);}}`,
+p121:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);final int MOD=1000000007;int N=s.nextInt(),X=s.nextInt();int[] c=new int[N];for(int i=0;i<N;i++)c[i]=s.nextInt();long[] dp=new long[X+1];dp[0]=1;for(int v:c)for(int x=v;x<=X;x++)dp[x]=(dp[x]+dp[x-v])%MOD;System.out.println(dp[X]);}}`,
+p122:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),X=s.nextInt();int[] c=new int[N];for(int i=0;i<N;i++)c[i]=s.nextInt();int INF=1<<29;int[] dp=new int[X+1];Arrays.fill(dp,INF);dp[0]=0;for(int x=1;x<=X;x++)for(int v:c)if(v<=x&&dp[x-v]+1<dp[x])dp[x]=dp[x-v]+1;System.out.println(dp[X]>=INF?-1:dp[X]);}}`,
+p123:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt();int[] dp=new int[N+1];for(int x=1;x<=N;x++){int best=1<<29,y=x;while(y>0){int d=y%10;if(d>0&&dp[x-d]+1<best)best=dp[x-d]+1;y/=10;}dp[x]=best;}System.out.println(dp[N]);}}`,
+p124:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);final int MOD=1000000007;int N=s.nextInt();char[][] g=new char[N][];for(int i=0;i<N;i++)g[i]=s.next().toCharArray();long[][] dp=new long[N][N];if(g[0][0]=='.')dp[0][0]=1;for(int i=0;i<N;i++)for(int j=0;j<N;j++){if(g[i][j]=='*'){dp[i][j]=0;continue;}if(i==0&&j==0)continue;long v=0;if(i>0)v+=dp[i-1][j];if(j>0)v+=dp[i][j-1];dp[i][j]=v%MOD;}System.out.println(dp[N-1][N-1]);}}`,
+p125:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);long N=s.nextLong();long S=N*(N+1)/2;if(S%2!=0){System.out.println("NO");return;}long half=S/2,got=0;ArrayList<Long> A=new ArrayList<>(),B=new ArrayList<>();for(long v=N;v>=1;v--){if(got+v<=half){A.add(v);got+=v;}else B.add(v);}StringBuilder b=new StringBuilder();b.append("YES\\n").append(A.size());for(long x:A)b.append(' ').append(x);b.append('\\n').append(B.size());for(long x:B)b.append(' ').append(x);b.append('\\n');System.out.print(b);}}`,
+p126:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);long N=s.nextLong();long MOD=1000000007L,r=1,a=2;while(N>0){if((N&1)!=0)r=r*a%MOD;a=a*a%MOD;N>>=1;}System.out.println(r);}}`,
+p127:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);long N=s.nextLong();long ans=0;while(N>0){N/=5;ans+=N;}System.out.println(ans);}}`,
+p128:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt();long m=s.nextLong(),ans=0;for(int i=1;i<N;i++){long x=s.nextLong();if(x<m)ans+=m-x;else m=x;}System.out.println(ans);}}`,
+p129:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt();if(N==1){System.out.println(1);return;}if(N<4){System.out.println("NO SOLUTION");return;}StringBuilder b=new StringBuilder();boolean f=true;for(int i=2;i<=N;i+=2){if(!f)b.append(' ');b.append(i);f=false;}for(int i=1;i<=N;i+=2)b.append(' ').append(i);b.append('\\n');System.out.print(b);}}`,
+p130:`import java.util.*;
+public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int T=s.nextInt();StringBuilder b=new StringBuilder();while(T-->0){long y=s.nextLong(),x=s.nextLong();long k=Math.max(y,x),base=(k-1)*(k-1),val;if(k%2==0){if(x==k)val=base+y;else val=k*k-(x-1);}else{if(y==k)val=base+x;else val=k*k-(y-1);}b.append(val).append('\\n');}System.out.print(b);}}`
 }
 };
 
@@ -2704,7 +3610,7 @@ function selectProblem(idx) {
 function renderProblemContent() {
   const p = currentProblem;
   const cfg = LANGS[currentLang];
-  document.getElementById('prob-badge').textContent = `ZeroJudge: ${p.id}`;
+  document.getElementById('prob-badge').textContent = p.source ? `🌏 ${p.source}` : `ZeroJudge: ${p.id}`;
   const samples = p.samples.map((s, i) => `
     <div class="sample-block">
       <div class="sample-block-hdr">範例 ${i+1}</div>
@@ -2717,7 +3623,7 @@ function renderProblemContent() {
     <div class="problem-title-h">${p.title}</div>
     <div class="problem-meta">
       <span class="badge">${p.date}</span>
-      <span class="badge">${p.id}</span>
+      ${p.source ? `<span class="badge" style="color:#79c0ff;background:rgba(121,192,255,.12);border-color:rgba(121,192,255,.35);">🌏 ${p.source}</span>` : `<span class="badge">${p.id}</span>`}
       <span class="badge lang">${cfg.icon} ${cfg.name}</span>
       ${p.topic ? `<span class="badge topic">${p.topic}</span>` : ''}
       ${p.diff==='medium'?'<span class="badge" style="color:#d29922;background:rgba(210,153,34,.15);border-color:rgba(210,153,34,.3);">⭐⭐ 中級</span>':p.diff==='hard'?'<span class="badge" style="color:#f85149;background:rgba(248,81,73,.15);border-color:rgba(248,81,73,.3);">⭐⭐⭐ 高級</span>':'<span class="badge" style="color:#3fb950;background:rgba(63,185,80,.15);border-color:rgba(63,185,80,.3);">⭐ 初級</span>'}
