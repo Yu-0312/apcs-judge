@@ -3461,9 +3461,9 @@ public class Main{public static void main(String[] a){Scanner s=new Scanner(Syst
 // ── Language config ───────────────────────────────────────────────────────────
 const LANGS = {
   py:   { name:'Python', icon:'🐍', color:'#3fb950', mode:'python',        note:'Pyodide 瀏覽器執行',          label:'Python' },
-  cpp:  { name:'C++',    icon:'⚡', color:'#79c0ff', mode:'text/x-c++src', note:'線上 g++ (Piston)',           label:'C++' },
-  c:    { name:'C',      icon:'🔧', color:'#ffa657', mode:'text/x-csrc',   note:'線上 gcc (Piston)',           label:'C' },
-  java: { name:'Java',   icon:'☕', color:'#d2a8ff', mode:'text/x-java',   note:'Piston API（需網路，約3秒）', label:'Java' }
+  cpp:  { name:'C++',    icon:'⚡', color:'#79c0ff', mode:'text/x-c++src', note:'線上 g++ (Judge0)',           label:'C++' },
+  c:    { name:'C',      icon:'🔧', color:'#ffa657', mode:'text/x-csrc',   note:'線上 gcc (Judge0)',           label:'C' },
+  java: { name:'Java',   icon:'☕', color:'#d2a8ff', mode:'text/x-java',   note:'Judge0 CE（需網路，約3秒）',  label:'Java' }
 };
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -3683,30 +3683,20 @@ except Exception as e:
 finally:
     sys.stdout = _old
 _out`);
-    } else if (currentLang === 'cpp' || currentLang === 'c') {
-      const isCpp = currentLang === 'cpp';
-      const res = await fetch('https://emkc.org/api/v2/piston/execute', {
+    } else {
+      // C / C++ / Java 走 Judge0 CE（Piston 公開 API 自 2026/02/15 起白名單）
+      const JUDGE0_LANG = { cpp: 54, c: 50, java: 62 };
+      const res = await fetch('https://ce.judge0.com/submissions?base64_encoded=false&wait=true', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          language: isCpp ? 'c++' : 'c',
-          version: '10.2.0',
-          files: [{ name: isCpp ? 'main.cpp' : 'main.c', content: code }],
-          stdin, run_timeout: 8000
+          language_id: JUDGE0_LANG[currentLang],
+          source_code: code,
+          stdin: stdin || ''
         })
       });
       const data = await res.json();
-      const stdout = data.run?.stdout || '';
-      const stderr = data.run?.stderr || data.compile?.stderr || '';
-      if (stderr && !stdout) return { pass: false, got: '', expected, error: stderr.split('\n').slice(0, 4).join('\n') };
-      output = stdout;
-    } else { // java
-      const res = await fetch('https://emkc.org/api/v2/piston/execute', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ language: 'java', version: '15.0.2', files: [{ name: 'Main.java', content: code }], stdin, run_timeout: 8000 })
-      });
-      const data = await res.json();
-      const stdout = data.run?.stdout || '';
-      const stderr = data.run?.stderr || data.compile?.stderr || '';
+      const stdout = data.stdout || '';
+      const stderr = data.stderr || data.compile_output || '';
       if (stderr && !stdout) return { pass: false, got: '', expected, error: stderr.split('\n').slice(0, 4).join('\n') };
       output = stdout;
     }

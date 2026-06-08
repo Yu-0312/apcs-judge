@@ -7961,9 +7961,9 @@ let currentLang = 'py';
 
 const LANG_CFG = {
   py:   { name:'Python', mode:'python',          color:'#3fb950', note:'Pyodide 本地執行' },
-  cpp:  { name:'C++',    mode:'text/x-c++src',   color:'#79c0ff', note:'線上 g++ (Piston)' },
-  c:    { name:'C',      mode:'text/x-csrc',     color:'#ffa657', note:'線上 gcc (Piston)' },
-  java: { name:'Java',   mode:'text/x-java',     color:'#d2a8ff', note:'Piston 雲端執行（需網路）' }
+  cpp:  { name:'C++',    mode:'text/x-c++src',   color:'#79c0ff', note:'線上 g++ (Judge0)' },
+  c:    { name:'C',      mode:'text/x-csrc',     color:'#ffa657', note:'線上 gcc (Judge0)' },
+  java: { name:'Java',   mode:'text/x-java',     color:'#d2a8ff', note:'Judge0 雲端執行（需網路）' }
 };
 
 async function loadPyodide_() {
@@ -8466,7 +8466,7 @@ int main(){
 
 右邊已經準備好 Hello 程式碼，按 **▶ 執行**，看輸出框出現什麼。
 
-> **小提示**：C++ 要編譯後執行。這個教學透過 Piston API 呼叫線上的真實 g++（gcc 10.2 / C++17）幫你編譯與執行，不用安裝編譯器，需要網路。
+> **小提示**：C++ 要編譯後執行。這個教學透過 Judge0 CE 呼叫線上的真實 g++ 幫你編譯與執行，不用安裝編譯器，需要網路。
 `,
 c:`
 # 第 0 章：寫程式是什麼一回事？(C 版)
@@ -8526,7 +8526,7 @@ public class Main {
 
 ## ▶️ 按一次「執行」
 
-按右上的 **▶ 執行**，由 Piston 雲端 Java 編譯器跑（需要網路，約 1-2 秒）。
+按右上的 **▶ 執行**，由 Judge0 CE 雲端 Java 編譯器跑（需要網路，約 1-2 秒）。
 
 > **小提示**：Java 檔名要叫 \`Main.java\`，class 名也要叫 \`Main\`，必須一致。
 `
@@ -10812,35 +10812,25 @@ __result = __buf.getvalue()
     const result = pyodide.globals.get('__result') || '';
     return {raw: result, stderr: /Traceback|Error/.test(result)};
   }
-  if (lang === 'cpp' || lang === 'c') {
-    const isCpp = lang === 'cpp';
-    try {
-      const res = await fetch('https://emkc.org/api/v2/piston/execute', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          language: isCpp ? 'c++' : 'c',
-          version: '10.2.0',
-          files: [{ name: isCpp ? 'main.cpp' : 'main.c', content: code }],
-          stdin, run_timeout: 8000
-        })
-      });
-      const data = await res.json();
-      const stdout = data.run?.stdout || '';
-      const stderr = data.run?.stderr || data.compile?.stderr || '';
-      return {raw: stdout + (stderr ? '\n[stderr]\n' + stderr : ''), stderr: !!stderr};
-    } catch (e) {
-      return {raw: '網路錯誤（C/C++ 改用線上 g++/gcc 編譯執行，需要網路）：\n' + String(e.message || e), stderr: true};
-    }
+  // C / C++ / Java 走 Judge0 CE（Piston 公開 API 自 2026/02/15 起改白名單）
+  const JUDGE0_LANG = { cpp: 54, c: 50, java: 62 };
+  const filename = lang === 'java' ? 'Main.java' : (lang === 'cpp' ? 'main.cpp' : 'main.c');
+  try {
+    const res = await fetch('https://ce.judge0.com/submissions?base64_encoded=false&wait=true', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        language_id: JUDGE0_LANG[lang],
+        source_code: code,
+        stdin: stdin || ''
+      })
+    });
+    const data = await res.json();
+    const stdout = data.stdout || '';
+    const stderr = data.stderr || data.compile_output || '';
+    return {raw: stdout + (stderr ? '\n[stderr]\n' + stderr : ''), stderr: !!stderr};
+  } catch (e) {
+    return {raw: '網路錯誤（C/C++/Java 透過 Judge0 CE 編譯執行，需要網路）：\n' + String(e.message || e), stderr: true};
   }
-  // java
-  const res = await fetch('https://emkc.org/api/v2/piston/execute', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ language: 'java', version: '15.0.2', files: [{ name: 'Main.java', content: code }], stdin, run_timeout: 8000 })
-  });
-  const data = await res.json();
-  const stdout = data.run?.stdout || '';
-  const stderr = data.run?.stderr || data.compile?.stderr || '';
-  return {raw: stdout + (stderr ? '\n[stderr]\n' + stderr : ''), stderr: !!stderr};
 }
 
 async function runCode() {
