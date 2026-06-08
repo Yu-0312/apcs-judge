@@ -150,7 +150,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 </head>
 <body>
 <header>
-  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub">69 章 · APCS 考試準備 + 新制分級 + 程式識讀 + 專項教學</div></div>
+  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub"><span id="chapter-total">69</span> 章 · APCS 考試準備 + 新制分級 + 程式識讀 + 專項教學</div></div>
   <div class="hright">
     <a href="index.html">🎯 前往題庫</a>
     <span><span class="status-dot" id="status-dot"></span><span id="status-text">Pyodide 載入中...</span></span>
@@ -170,7 +170,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
     <div class="sidebar-hdr">學習進度</div>
     <div class="progress-wrap">
       <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
-      <div class="progress-text"><span id="prog-count">0 / 69 章</span><span id="prog-pct">0%</span></div>
+      <div class="progress-text"><span id="prog-count">0 / 0 章</span><span id="prog-pct">0%</span></div>
     </div>
     <div class="chap-list" id="chap-list"></div>
   </aside>
@@ -8798,6 +8798,9 @@ function updateProgress(){
   document.getElementById('prog-count').textContent = `${done} / ${total} 章`;
   document.getElementById('prog-pct').textContent = pct + '%';
 }
+function updateStaticCounts(){
+  document.getElementById('chapter-total').textContent = CHAPTERS.length;
+}
 // beginner mode removed — all chapters & languages always available
 
 // ── 小測驗渲染與互動 ──────────────────────────────────────────────────────
@@ -11011,6 +11014,575 @@ System.out.println(lp == -1 ? "worst case" : lp);
 > ✅ Arrays.sort / HashMap / ArrayDeque 熟練
 > ✅ 用 \`long\` 防溢位
 `
+},
+21:{
+cpp:`
+# 第 21 章：樹的走訪 (C++)
+
+樹是沒有環的連通圖。APCS 常見考法是「父子關係、走訪順序、子樹大小」。
+
+## 21.1 存樹
+\`\`\`cpp
+vector<vector<int>> child(n);  // child[u] 存 u 的所有孩子
+child[0] = {1, 2};
+child[1] = {3, 4};
+\`\`\`
+
+若題目給的是無向邊，就用鄰接表再帶 parent 避免走回去。
+
+## 21.2 DFS 算子樹大小
+\`\`\`cpp
+vector<int> sz(n, 1);
+int dfs(int u) {
+    for (int v : child[u])
+        sz[u] += dfs(v);
+    return sz[u];
+}
+\`\`\`
+
+## 21.3 前序 / 後序
+- 前序：先處理自己，再處理孩子。
+- 後序：先處理孩子，再回來整理自己。
+
+子樹大小、樹 DP 多半是後序，因為你要先知道孩子的答案。
+`,
+c:`
+# 第 21 章：樹的走訪 (C)
+
+C 沒有 vector，APCS 小樹可以用固定陣列存孩子。
+
+## 21.1 固定陣列版 children
+\`\`\`c
+int child[100][100], cnt[100] = {0};
+child[0][cnt[0]++] = 1;
+child[0][cnt[0]++] = 2;
+child[1][cnt[1]++] = 3;
+child[1][cnt[1]++] = 4;
+\`\`\`
+
+## 21.2 DFS 算子樹大小
+\`\`\`c
+int sz[100];
+int dfs(int u) {
+    sz[u] = 1;
+    for (int i = 0; i < cnt[u]; i++) {
+        int v = child[u][i];
+        sz[u] += dfs(v);
+    }
+    return sz[u];
+}
+\`\`\`
+
+## 21.3 C 的重點
+- 陣列大小要開夠。
+- 遞迴深度太深可能 stack overflow。
+- 如果是無向樹，DFS 參數要加 parent。
+`,
+java:`
+# 第 21 章：樹的走訪 (Java)
+
+Java 用 \`ArrayList<Integer>[]\` 存樹，走訪邏輯和 C++ 幾乎一樣。
+
+## 21.1 建 children
+\`\`\`java
+ArrayList<Integer>[] child = new ArrayList[n];
+for (int i = 0; i < n; i++) child[i] = new ArrayList<>();
+child[0].add(1);
+child[0].add(2);
+child[1].add(3);
+child[1].add(4);
+\`\`\`
+
+## 21.2 DFS 算子樹大小
+\`\`\`java
+static ArrayList<Integer>[] child;
+static int[] sz;
+
+static int dfs(int u) {
+    sz[u] = 1;
+    for (int v : child[u]) sz[u] += dfs(v);
+    return sz[u];
+}
+\`\`\`
+
+## 21.3 實戰提醒
+節點很多時，Java 遞迴可能爆 stack；若深度可能到 10^5，就改成迭代 stack 或調 JVM stack。
+`
+},
+22:{
+cpp:`
+# 第 22 章：圖論 BFS / DFS (C++)
+
+圖用鄰接表存，BFS 求等權最短距離，DFS 找連通分量。
+
+## 22.1 鄰接表
+\`\`\`cpp
+vector<vector<int>> g(n);
+g[u].push_back(v);
+g[v].push_back(u);  // 無向圖要加兩邊
+\`\`\`
+
+## 22.2 BFS 最短步數
+\`\`\`cpp
+vector<int> dist(n, -1);
+queue<int> q;
+dist[s] = 0;
+q.push(s);
+while (!q.empty()) {
+    int u = q.front(); q.pop();
+    for (int v : g[u]) if (dist[v] == -1) {
+        dist[v] = dist[u] + 1;
+        q.push(v);
+    }
+}
+\`\`\`
+
+## 22.3 DFS 連通分量
+\`\`\`cpp
+void dfs(int u) {
+    vis[u] = true;
+    for (int v : g[u]) if (!vis[v]) dfs(v);
+}
+\`\`\`
+`,
+c:`
+# 第 22 章：圖論 BFS / DFS (C)
+
+C 可以用「邊表 + head」存鄰接表，也可以在小圖用二維陣列。這裡先用固定陣列版。
+
+## 22.1 固定陣列鄰接表
+\`\`\`c
+int g[100][100], deg[100] = {0};
+g[u][deg[u]++] = v;
+g[v][deg[v]++] = u;
+\`\`\`
+
+## 22.2 BFS
+\`\`\`c
+int q[100], head = 0, tail = 0;
+int dist[100];
+for (int i = 0; i < n; i++) dist[i] = -1;
+dist[s] = 0;
+q[tail++] = s;
+while (head < tail) {
+    int u = q[head++];
+    for (int i = 0; i < deg[u]; i++) {
+        int v = g[u][i];
+        if (dist[v] == -1) {
+            dist[v] = dist[u] + 1;
+            q[tail++] = v;
+        }
+    }
+}
+\`\`\`
+
+## 22.3 DFS
+DFS 用遞迴或 stack 都可；大圖建議改迭代避免 stack overflow。
+`,
+java:`
+# 第 22 章：圖論 BFS / DFS (Java)
+
+Java 用 \`ArrayList<Integer>[]\` 存圖，用 \`ArrayDeque<Integer>\` 當 BFS queue。
+
+## 22.1 鄰接表
+\`\`\`java
+ArrayList<Integer>[] g = new ArrayList[n];
+for (int i = 0; i < n; i++) g[i] = new ArrayList<>();
+g[u].add(v);
+g[v].add(u);
+\`\`\`
+
+## 22.2 BFS
+\`\`\`java
+int[] dist = new int[n];
+Arrays.fill(dist, -1);
+ArrayDeque<Integer> q = new ArrayDeque<>();
+dist[s] = 0;
+q.offer(s);
+while (!q.isEmpty()) {
+    int u = q.poll();
+    for (int v : g[u]) if (dist[v] == -1) {
+        dist[v] = dist[u] + 1;
+        q.offer(v);
+    }
+}
+\`\`\`
+
+## 22.3 DFS
+\`\`\`java
+static void dfs(int u) {
+    vis[u] = true;
+    for (int v : g[u]) if (!vis[v]) dfs(v);
+}
+\`\`\`
+`
+},
+23:{
+cpp:`
+# 第 23 章：最短路徑與拓樸 (C++)
+
+有權非負圖用 Dijkstra，DAG 順序問題用拓樸排序。
+
+## 23.1 Dijkstra
+\`\`\`cpp
+vector<vector<pair<int,int>>> g(n);  // (to, weight)
+priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> pq;
+vector<int> dist(n, INF);
+dist[s] = 0;
+pq.push({0, s});
+while (!pq.empty()) {
+    auto [d, u] = pq.top(); pq.pop();
+    if (d != dist[u]) continue;
+    for (auto [v, w] : g[u]) {
+        if (d + w < dist[v]) {
+            dist[v] = d + w;
+            pq.push({dist[v], v});
+        }
+    }
+}
+\`\`\`
+
+## 23.2 拓樸排序
+\`\`\`cpp
+queue<int> q;
+for (int i = 0; i < n; i++) if (indeg[i] == 0) q.push(i);
+while (!q.empty()) {
+    int u = q.front(); q.pop();
+    order.push_back(u);
+    for (int v : g[u]) if (--indeg[v] == 0) q.push(v);
+}
+\`\`\`
+`,
+c:`
+# 第 23 章：最短路徑與拓樸 (C)
+
+C 沒有內建 heap；若圖不大，可以先用 O(n²) Dijkstra。APCS 初學階段先掌握概念最重要。
+
+## 23.1 O(n²) Dijkstra
+\`\`\`c
+for (int i = 0; i < n; i++) dist[i] = INF;
+dist[s] = 0;
+for (int step = 0; step < n; step++) {
+    int u = -1;
+    for (int i = 0; i < n; i++)
+        if (!used[i] && (u == -1 || dist[i] < dist[u])) u = i;
+    used[u] = 1;
+    for (int v = 0; v < n; v++)
+        if (w[u][v] < INF && dist[u] + w[u][v] < dist[v])
+            dist[v] = dist[u] + w[u][v];
+}
+\`\`\`
+
+## 23.2 拓樸排序
+\`\`\`c
+int q[100], head = 0, tail = 0;
+for (int i = 0; i < n; i++) if (indeg[i] == 0) q[tail++] = i;
+while (head < tail) {
+    int u = q[head++];
+    for (int i = 0; i < deg[u]; i++) {
+        int v = g[u][i];
+        if (--indeg[v] == 0) q[tail++] = v;
+    }
+}
+\`\`\`
+`,
+java:`
+# 第 23 章：最短路徑與拓樸 (Java)
+
+Java 的 \`PriorityQueue\` 很適合寫 Dijkstra。
+
+## 23.1 Dijkstra
+\`\`\`java
+PriorityQueue<int[]> pq = new PriorityQueue<>((a,b) -> a[0] - b[0]);
+int[] dist = new int[n];
+Arrays.fill(dist, INF);
+dist[s] = 0;
+pq.offer(new int[]{0, s});
+while (!pq.isEmpty()) {
+    int[] cur = pq.poll();
+    int d = cur[0], u = cur[1];
+    if (d != dist[u]) continue;
+    for (int[] e : g[u]) {
+        int v = e[0], w = e[1];
+        if (d + w < dist[v]) {
+            dist[v] = d + w;
+            pq.offer(new int[]{dist[v], v});
+        }
+    }
+}
+\`\`\`
+
+## 23.2 拓樸排序
+\`\`\`java
+ArrayDeque<Integer> q = new ArrayDeque<>();
+for (int i = 0; i < n; i++) if (indeg[i] == 0) q.offer(i);
+while (!q.isEmpty()) {
+    int u = q.poll();
+    order.add(u);
+    for (int v : dag[u]) if (--indeg[v] == 0) q.offer(v);
+}
+\`\`\`
+`
+},
+24:{
+cpp:`
+# 第 24 章：進階 DP (C++)
+
+DP 的重點是狀態、轉移、計算順序。
+
+## 24.1 LIS O(n²)
+\`\`\`cpp
+vector<int> dp(n, 1);
+for (int i = 0; i < n; i++)
+    for (int j = 0; j < i; j++)
+        if (a[j] < a[i]) dp[i] = max(dp[i], dp[j] + 1);
+\`\`\`
+
+## 24.2 0/1 背包
+\`\`\`cpp
+vector<int> dp(W+1, 0);
+for (int i = 0; i < n; i++)
+    for (int j = W; j >= w[i]; j--)
+        dp[j] = max(dp[j], dp[j-w[i]] + val[i]);
+\`\`\`
+
+內層倒序代表每個物品只能用一次。
+
+## 24.3 LCS
+\`\`\`cpp
+vector<vector<int>> dp(m+1, vector<int>(n+1));
+for (int i = 1; i <= m; i++)
+    for (int j = 1; j <= n; j++)
+        if (a[i-1] == b[j-1]) dp[i][j] = dp[i-1][j-1] + 1;
+        else dp[i][j] = max(dp[i-1][j], dp[i][j-1]);
+\`\`\`
+`,
+c:`
+# 第 24 章：進階 DP (C)
+
+C 用固定陣列寫 DP，題目限制要先看清楚再開大小。
+
+## 24.1 LIS O(n²)
+\`\`\`c
+for (int i = 0; i < n; i++) dp[i] = 1;
+for (int i = 0; i < n; i++)
+    for (int j = 0; j < i; j++)
+        if (a[j] < a[i] && dp[j] + 1 > dp[i])
+            dp[i] = dp[j] + 1;
+\`\`\`
+
+## 24.2 0/1 背包
+\`\`\`c
+int dp[1005] = {0};
+for (int i = 0; i < n; i++)
+    for (int j = W; j >= w[i]; j--)
+        if (dp[j-w[i]] + val[i] > dp[j])
+            dp[j] = dp[j-w[i]] + val[i];
+\`\`\`
+
+## 24.3 LCS
+\`\`\`c
+int dp[1001][1001] = {0};
+for (int i = 1; i <= m; i++)
+    for (int j = 1; j <= n; j++)
+        if (a[i-1] == b[j-1]) dp[i][j] = dp[i-1][j-1] + 1;
+        else dp[i][j] = dp[i-1][j] > dp[i][j-1] ? dp[i-1][j] : dp[i][j-1];
+\`\`\`
+`,
+java:`
+# 第 24 章：進階 DP (Java)
+
+Java 陣列預設為 0，寫 DP 時很方便；但二維陣列大時要注意記憶體。
+
+## 24.1 LIS O(n²)
+\`\`\`java
+int[] dp = new int[n];
+Arrays.fill(dp, 1);
+for (int i = 0; i < n; i++)
+    for (int j = 0; j < i; j++)
+        if (a[j] < a[i]) dp[i] = Math.max(dp[i], dp[j] + 1);
+\`\`\`
+
+## 24.2 0/1 背包
+\`\`\`java
+int[] dp = new int[W+1];
+for (int i = 0; i < n; i++)
+    for (int j = W; j >= w[i]; j--)
+        dp[j] = Math.max(dp[j], dp[j-w[i]] + val[i]);
+\`\`\`
+
+## 24.3 LCS
+\`\`\`java
+int[][] dp = new int[m+1][n+1];
+for (int i = 1; i <= m; i++)
+    for (int j = 1; j <= n; j++)
+        if (a.charAt(i-1) == b.charAt(j-1)) dp[i][j] = dp[i-1][j-1] + 1;
+        else dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);
+\`\`\`
+`
+},
+25:{
+cpp:`
+# 第 25 章：Union-Find 並查集 (C++)
+
+並查集維護「誰和誰在同一群」，核心是 \`find\` 與 \`unite\`。
+
+## 25.1 路徑壓縮
+\`\`\`cpp
+vector<int> parent(n);
+iota(parent.begin(), parent.end(), 0);
+
+int find(int x) {
+    if (parent[x] == x) return x;
+    return parent[x] = find(parent[x]);
+}
+\`\`\`
+
+## 25.2 合併
+\`\`\`cpp
+bool unite(int a, int b) {
+    int ra = find(a), rb = find(b);
+    if (ra == rb) return false;
+    parent[ra] = rb;
+    return true;
+}
+\`\`\`
+
+算連通分量時，把所有邊 unite 後統計不同 root。
+`,
+c:`
+# 第 25 章：Union-Find 並查集 (C)
+
+C 版直接用陣列存 parent。
+
+## 25.1 find
+\`\`\`c
+int parent[1000];
+int find(int x) {
+    if (parent[x] == x) return x;
+    return parent[x] = find(parent[x]);
+}
+\`\`\`
+
+## 25.2 union
+\`\`\`c
+int unite(int a, int b) {
+    int ra = find(a), rb = find(b);
+    if (ra == rb) return 0;
+    parent[ra] = rb;
+    return 1;
+}
+\`\`\`
+
+## 25.3 初始化
+\`\`\`c
+for (int i = 0; i < n; i++) parent[i] = i;
+\`\`\`
+`,
+java:`
+# 第 25 章：Union-Find 並查集 (Java)
+
+Java 通常包成一個 DSU class，之後題目直接複製模板。
+
+## 25.1 DSU class
+\`\`\`java
+static class DSU {
+    int[] parent;
+    DSU(int n) {
+        parent = new int[n];
+        for (int i = 0; i < n; i++) parent[i] = i;
+    }
+    int find(int x) {
+        if (parent[x] == x) return x;
+        return parent[x] = find(parent[x]);
+    }
+    boolean unite(int a, int b) {
+        int ra = find(a), rb = find(b);
+        if (ra == rb) return false;
+        parent[ra] = rb;
+        return true;
+    }
+}
+\`\`\`
+`
+},
+26:{
+cpp:`
+# 第 26 章：字串 hash 與 Trie (C++)
+
+字串題常見三種工具：hash 快速比對、KMP 找模式、Trie 做前綴查詢。
+
+## 26.1 Rolling hash
+\`\`\`cpp
+const long long MOD = 1000000007, BASE = 911382323;
+vector<long long> h(n+1), p(n+1, 1);
+for (int i = 0; i < n; i++) {
+    h[i+1] = (h[i] * BASE + s[i]) % MOD;
+    p[i+1] = p[i] * BASE % MOD;
+}
+auto get = [&](int l, int r) {
+    return (h[r] - h[l] * p[r-l] % MOD + MOD) % MOD;
+};
+\`\`\`
+
+## 26.2 Trie
+\`\`\`cpp
+struct Node { int nxt[26]; bool end = false; Node(){ memset(nxt, -1, sizeof(nxt)); } };
+vector<Node> trie(1);
+\`\`\`
+
+Trie 適合「大量字串前綴」問題，例如字典、電話號碼、starts_with。
+`,
+c:`
+# 第 26 章：字串 hash 與 Trie (C)
+
+C 寫字串演算法要自己管理陣列大小與結尾字元。
+
+## 26.1 Rolling hash
+\`\`\`c
+long long h[100005], p[100005];
+p[0] = 1;
+for (int i = 0; s[i]; i++) {
+    h[i+1] = (h[i] * BASE + s[i]) % MOD;
+    p[i+1] = p[i] * BASE % MOD;
+}
+\`\`\`
+
+## 26.2 Trie 節點
+\`\`\`c
+int nxt[1000][26], end[1000], nodes = 1;
+memset(nxt, -1, sizeof(nxt));
+\`\`\`
+
+插入字串時，一個字元一個字元往下走；沒有邊就新增節點。
+`,
+java:`
+# 第 26 章：字串 hash 與 Trie (Java)
+
+Java 字串用 \`charAt(i)\` 取字元，Trie 可用陣列節點。
+
+## 26.1 Rolling hash
+\`\`\`java
+long[] h = new long[n+1], p = new long[n+1];
+p[0] = 1;
+for (int i = 0; i < n; i++) {
+    h[i+1] = (h[i] * BASE + s.charAt(i)) % MOD;
+    p[i+1] = p[i] * BASE % MOD;
+}
+\`\`\`
+
+## 26.2 Trie
+\`\`\`java
+static class Node {
+    int[] next = new int[26];
+    boolean end;
+    Node() { Arrays.fill(next, -1); }
+}
+static ArrayList<Node> trie = new ArrayList<>();
+\`\`\`
+
+Trie 的查詢成本是 O(字串長度)，不受字典總字數直接影響。
+`
 }
 };
 
@@ -11023,6 +11595,11 @@ function getContent(chap){
 
 // ── Per-chapter examples for C++ / C / Java ──────────────────────────────────
 const MULTI_EXAMPLES = {
+0:{
+cpp:`#include <iostream>\nusing namespace std;\nint main(){\n    cout << "Hello" << "\\n";\n    cout << "APCS" << "\\n";\n    return 0;\n}`,
+c:`#include <stdio.h>\nint main(){\n    printf("Hello\\n");\n    printf("APCS\\n");\n    return 0;\n}`,
+java:`public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello");\n        System.out.println("APCS");\n    }\n}`
+},
 1:{
 cpp:`#include <iostream>\n#include <string>\nusing namespace std;\nint main(){\n    int age = 17;\n    string name = "Xiao Ming";\n    cout << name << " is " << age << " years old\\n";\n    cout << name << " will be " << (age+1) << " next year\\n";\n    return 0;\n}`,
 c:`#include <stdio.h>\nint main(){\n    int age = 17;\n    char name[] = "Xiao Ming";\n    printf("%s is %d years old\\n", name, age);\n    printf("%s will be %d next year\\n", name, age+1);\n    return 0;\n}`,
@@ -11128,6 +11705,36 @@ c:`#include <stdio.h>\n#include <stdlib.h>\nint cmp(const void* a, const void* b
 c_stdin:`10\n0 11 22 33 55 66 77 99 88 44\n`,
 java:`import java.util.*;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int n = sc.nextInt();\n        int[] s = new int[n];\n        for (int i = 0; i < n; i++) s[i] = sc.nextInt();\n        Arrays.sort(s);\n        StringBuilder sb = new StringBuilder();\n        for (int i = 0; i < n; i++) {\n            if (i > 0) sb.append(' ');\n            sb.append(s[i]);\n        }\n        System.out.println(sb);\n        int hf = -1, lp = -1;\n        for (int x : s) {\n            if (x < 60) hf = x;\n            else if (lp == -1) lp = x;\n        }\n        System.out.println(hf == -1 ? "best case" : hf);\n        System.out.println(lp == -1 ? "worst case" : lp);\n    }\n}`,
 java_stdin:`10\n0 11 22 33 55 66 77 99 88 44\n`
+},
+21:{
+cpp:`#include <iostream>\n#include <vector>\nusing namespace std;\nvector<vector<int>> child;\nvector<int> sz;\nint dfs(int u){\n    sz[u] = 1;\n    for(int v : child[u]) sz[u] += dfs(v);\n    return sz[u];\n}\nint main(){\n    int n = 5;\n    child.assign(n, {});\n    sz.assign(n, 0);\n    child[0] = {1, 2};\n    child[1] = {3, 4};\n    dfs(0);\n    for(int i=0;i<n;i++) cout << sz[i] << (i+1==n?'\\n':' ');\n    return 0;\n}`,
+c:`#include <stdio.h>\nint child[5][5], cnt[5], sz[5];\nint dfs(int u){\n    sz[u] = 1;\n    for(int i=0;i<cnt[u];i++) sz[u] += dfs(child[u][i]);\n    return sz[u];\n}\nint main(){\n    child[0][cnt[0]++] = 1;\n    child[0][cnt[0]++] = 2;\n    child[1][cnt[1]++] = 3;\n    child[1][cnt[1]++] = 4;\n    dfs(0);\n    for(int i=0;i<5;i++) printf(\"%d%c\", sz[i], i==4?'\\n':' ');\n    return 0;\n}`,
+java:`import java.util.*;\npublic class Main {\n    static ArrayList<Integer>[] child;\n    static int[] sz;\n    static int dfs(int u){\n        sz[u] = 1;\n        for(int v : child[u]) sz[u] += dfs(v);\n        return sz[u];\n    }\n    public static void main(String[] args){\n        int n = 5;\n        child = new ArrayList[n];\n        for(int i=0;i<n;i++) child[i] = new ArrayList<>();\n        sz = new int[n];\n        child[0].add(1); child[0].add(2);\n        child[1].add(3); child[1].add(4);\n        dfs(0);\n        for(int i=0;i<n;i++) System.out.print(sz[i] + (i+1==n?\"\\n\":\" \"));\n    }\n}`
+},
+22:{
+cpp:`#include <iostream>\n#include <vector>\nusing namespace std;\nvector<vector<int>> g;\nvector<int> vis;\nvoid dfs(int u){\n    vis[u] = 1;\n    for(int v : g[u]) if(!vis[v]) dfs(v);\n}\nint main(){\n    int n = 6;\n    g.assign(n, {});\n    auto add=[&](int a,int b){ g[a].push_back(b); g[b].push_back(a); };\n    add(0,1); add(1,2); add(3,4);\n    vis.assign(n, 0);\n    int comps = 0;\n    for(int i=0;i<n;i++) if(!vis[i]) { comps++; dfs(i); }\n    cout << comps << "\\n";\n    return 0;\n}`,
+c:`#include <stdio.h>\nint g[6][6], deg[6], vis[6];\nvoid add(int a,int b){ g[a][deg[a]++] = b; g[b][deg[b]++] = a; }\nvoid dfs(int u){\n    vis[u] = 1;\n    for(int i=0;i<deg[u];i++) if(!vis[g[u][i]]) dfs(g[u][i]);\n}\nint main(){\n    add(0,1); add(1,2); add(3,4);\n    int comps = 0;\n    for(int i=0;i<6;i++) if(!vis[i]) { comps++; dfs(i); }\n    printf(\"%d\\n\", comps);\n    return 0;\n}`,
+java:`import java.util.*;\npublic class Main {\n    static ArrayList<Integer>[] g;\n    static boolean[] vis;\n    static void add(int a,int b){ g[a].add(b); g[b].add(a); }\n    static void dfs(int u){\n        vis[u] = true;\n        for(int v : g[u]) if(!vis[v]) dfs(v);\n    }\n    public static void main(String[] args){\n        int n = 6;\n        g = new ArrayList[n];\n        for(int i=0;i<n;i++) g[i] = new ArrayList<>();\n        add(0,1); add(1,2); add(3,4);\n        vis = new boolean[n];\n        int comps = 0;\n        for(int i=0;i<n;i++) if(!vis[i]) { comps++; dfs(i); }\n        System.out.println(comps);\n    }\n}`
+},
+23:{
+cpp:`#include <iostream>\n#include <vector>\n#include <queue>\n#include <utility>\nusing namespace std;\nint main(){\n    int n = 4;\n    vector<vector<pair<int,int>>> g(n);\n    auto add=[&](int a,int b,int w){ g[a].push_back({b,w}); g[b].push_back({a,w}); };\n    add(0,1,1); add(0,2,4); add(1,3,1); add(2,3,1);\n    const int INF = 1e9;\n    vector<int> dist(n, INF);\n    priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> pq;\n    dist[0] = 0; pq.push({0,0});\n    while(!pq.empty()){\n        auto cur = pq.top(); pq.pop();\n        int d = cur.first, u = cur.second;\n        if(d != dist[u]) continue;\n        for(auto e : g[u]) if(d + e.second < dist[e.first]){\n            dist[e.first] = d + e.second;\n            pq.push({dist[e.first], e.first});\n        }\n    }\n    for(int i=0;i<n;i++) cout << dist[i] << (i+1==n?'\\n':' ');\n    return 0;\n}`,
+c:`#include <stdio.h>\n#define INF 1000000000\nint w[4][4], dist[4], used[4];\nvoid add(int a,int b,int c){ w[a][b] = w[b][a] = c; }\nint main(){\n    for(int i=0;i<4;i++) for(int j=0;j<4;j++) w[i][j] = INF;\n    add(0,1,1); add(0,2,4); add(1,3,1); add(2,3,1);\n    for(int i=0;i<4;i++) dist[i] = INF;\n    dist[0] = 0;\n    for(int step=0; step<4; step++){\n        int u = -1;\n        for(int i=0;i<4;i++) if(!used[i] && (u==-1 || dist[i] < dist[u])) u = i;\n        used[u] = 1;\n        for(int v=0; v<4; v++) if(w[u][v] < INF && dist[u] + w[u][v] < dist[v])\n            dist[v] = dist[u] + w[u][v];\n    }\n    for(int i=0;i<4;i++) printf(\"%d%c\", dist[i], i==3?'\\n':' ');\n    return 0;\n}`,
+java:`import java.util.*;\npublic class Main {\n    public static void main(String[] args){\n        int n = 4;\n        ArrayList<int[]>[] g = new ArrayList[n];\n        for(int i=0;i<n;i++) g[i] = new ArrayList<>();\n        int[][] edges = {{0,1,1},{0,2,4},{1,3,1},{2,3,1}};\n        for(int[] e: edges){ g[e[0]].add(new int[]{e[1],e[2]}); g[e[1]].add(new int[]{e[0],e[2]}); }\n        int[] dist = new int[n];\n        Arrays.fill(dist, 1_000_000_000);\n        PriorityQueue<int[]> pq = new PriorityQueue<>((a,b)->a[0]-b[0]);\n        dist[0] = 0; pq.offer(new int[]{0,0});\n        while(!pq.isEmpty()){\n            int[] cur = pq.poll();\n            int d = cur[0], u = cur[1];\n            if(d != dist[u]) continue;\n            for(int[] e : g[u]) if(d + e[1] < dist[e[0]]){\n                dist[e[0]] = d + e[1];\n                pq.offer(new int[]{dist[e[0]], e[0]});\n            }\n        }\n        for(int i=0;i<n;i++) System.out.print(dist[i] + (i+1==n?\"\\n\":\" \"));\n    }\n}`
+},
+24:{
+cpp:`#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nint main(){\n    vector<int> w = {2,3,4,5};\n    vector<int> val = {3,4,5,6};\n    int W = 5;\n    vector<int> dp(W+1, 0);\n    for(int i=0;i<(int)w.size();i++)\n        for(int j=W;j>=w[i];j--)\n            dp[j] = max(dp[j], dp[j-w[i]] + val[i]);\n    cout << dp[W] << "\\n";\n    return 0;\n}`,
+c:`#include <stdio.h>\nint main(){\n    int w[] = {2,3,4,5};\n    int val[] = {3,4,5,6};\n    int W = 5, dp[6] = {0};\n    for(int i=0;i<4;i++)\n        for(int j=W;j>=w[i];j--)\n            if(dp[j-w[i]] + val[i] > dp[j]) dp[j] = dp[j-w[i]] + val[i];\n    printf(\"%d\\n\", dp[W]);\n    return 0;\n}`,
+java:`public class Main {\n    public static void main(String[] args){\n        int[] w = {2,3,4,5};\n        int[] val = {3,4,5,6};\n        int W = 5;\n        int[] dp = new int[W+1];\n        for(int i=0;i<w.length;i++)\n            for(int j=W;j>=w[i];j--)\n                dp[j] = Math.max(dp[j], dp[j-w[i]] + val[i]);\n        System.out.println(dp[W]);\n    }\n}`
+},
+25:{
+cpp:`#include <iostream>\n#include <vector>\n#include <numeric>\n#include <set>\nusing namespace std;\nvector<int> parent;\nint find(int x){ return parent[x] == x ? x : parent[x] = find(parent[x]); }\nvoid unite(int a,int b){ parent[find(a)] = find(b); }\nint main(){\n    int n = 6;\n    parent.resize(n);\n    iota(parent.begin(), parent.end(), 0);\n    unite(0,1); unite(1,2); unite(3,4);\n    set<int> roots;\n    for(int i=0;i<n;i++) roots.insert(find(i));\n    cout << roots.size() << "\\n";\n    return 0;\n}`,
+c:`#include <stdio.h>\nint parent[6], rootSeen[6];\nint find(int x){ return parent[x] == x ? x : (parent[x] = find(parent[x])); }\nvoid unite(int a,int b){ parent[find(a)] = find(b); }\nint main(){\n    for(int i=0;i<6;i++) parent[i] = i;\n    unite(0,1); unite(1,2); unite(3,4);\n    int cnt = 0;\n    for(int i=0;i<6;i++){\n        int r = find(i);\n        if(!rootSeen[r]) { rootSeen[r] = 1; cnt++; }\n    }\n    printf(\"%d\\n\", cnt);\n    return 0;\n}`,
+java:`import java.util.*;\npublic class Main {\n    static int[] parent;\n    static int find(int x){ return parent[x] == x ? x : (parent[x] = find(parent[x])); }\n    static void unite(int a,int b){ parent[find(a)] = find(b); }\n    public static void main(String[] args){\n        int n = 6;\n        parent = new int[n];\n        for(int i=0;i<n;i++) parent[i] = i;\n        unite(0,1); unite(1,2); unite(3,4);\n        Set<Integer> roots = new HashSet<>();\n        for(int i=0;i<n;i++) roots.add(find(i));\n        System.out.println(roots.size());\n    }\n}`
+},
+26:{
+cpp:`#include <iostream>\n#include <vector>\n#include <array>\n#include <string>\nusing namespace std;\nstruct Node{ array<int,26> next; bool end=false; Node(){ next.fill(-1); } };\nvector<Node> trie(1);\nvoid insertWord(const string& s){\n    int u = 0;\n    for(char ch : s){\n        int c = ch - 'a';\n        if(trie[u].next[c] == -1){ trie[u].next[c] = trie.size(); trie.push_back(Node()); }\n        u = trie[u].next[c];\n    }\n    trie[u].end = true;\n}\nbool startsWith(const string& s){\n    int u = 0;\n    for(char ch : s){\n        int c = ch - 'a';\n        if(trie[u].next[c] == -1) return false;\n        u = trie[u].next[c];\n    }\n    return true;\n}\nint main(){\n    for(string s : {\"app\",\"apple\",\"ape\",\"bat\"}) insertWord(s);\n    cout << (startsWith(\"ap\") ? \"True\" : \"False\") << "\\n";\n    cout << (startsWith(\"ba\") ? \"True\" : \"False\") << "\\n";\n    cout << (startsWith(\"cat\") ? \"True\" : \"False\") << "\\n";\n    return 0;\n}`,
+c:`#include <stdio.h>\n#include <string.h>\nint nxt[100][26], nodes = 1;\nvoid init(){ for(int i=0;i<100;i++) for(int j=0;j<26;j++) nxt[i][j] = -1; }\nvoid insertWord(const char* s){\n    int u = 0;\n    for(int i=0;s[i];i++){\n        int c = s[i] - 'a';\n        if(nxt[u][c] == -1) nxt[u][c] = nodes++;\n        u = nxt[u][c];\n    }\n}\nint startsWith(const char* s){\n    int u = 0;\n    for(int i=0;s[i];i++){\n        int c = s[i] - 'a';\n        if(nxt[u][c] == -1) return 0;\n        u = nxt[u][c];\n    }\n    return 1;\n}\nint main(){\n    init();\n    insertWord(\"app\"); insertWord(\"apple\"); insertWord(\"ape\"); insertWord(\"bat\");\n    printf(\"%s\\n\", startsWith(\"ap\") ? \"True\" : \"False\");\n    printf(\"%s\\n\", startsWith(\"ba\") ? \"True\" : \"False\");\n    printf(\"%s\\n\", startsWith(\"cat\") ? \"True\" : \"False\");\n    return 0;\n}`,
+java:`import java.util.*;\npublic class Main {\n    static class Node { int[] next = new int[26]; Node(){ Arrays.fill(next, -1); } }\n    static ArrayList<Node> trie = new ArrayList<>();\n    static void insert(String s){\n        int u = 0;\n        for(char ch : s.toCharArray()){\n            int c = ch - 'a';\n            if(trie.get(u).next[c] == -1){ trie.get(u).next[c] = trie.size(); trie.add(new Node()); }\n            u = trie.get(u).next[c];\n        }\n    }\n    static boolean startsWith(String s){\n        int u = 0;\n        for(char ch : s.toCharArray()){\n            int c = ch - 'a';\n            if(trie.get(u).next[c] == -1) return false;\n            u = trie.get(u).next[c];\n        }\n        return true;\n    }\n    public static void main(String[] args){\n        trie.add(new Node());\n        for(String s : new String[]{\"app\",\"apple\",\"ape\",\"bat\"}) insert(s);\n        System.out.println(startsWith(\"ap\") ? \"True\" : \"False\");\n        System.out.println(startsWith(\"ba\") ? \"True\" : \"False\");\n        System.out.println(startsWith(\"cat\") ? \"True\" : \"False\");\n    }\n}`
 }
 };
 
@@ -11295,6 +11902,7 @@ async function checkAnswer(chapId){
   if(currentChap && currentChap.id === chapId) selectChap(chapId, {preserveEditor:true});
 }
 
+updateStaticCounts();
 renderChapList();
 initEditor();
 switchLang('py');
