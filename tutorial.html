@@ -151,7 +151,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 </head>
 <body>
 <header>
-  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub">44 章 · APCS 考試準備 + 實用程式 + 製作專案 + 專項教學</div></div>
+  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub">52 章 · APCS 考試準備 + 實用程式 + 製作專案 + 專項教學</div></div>
   <div class="hright">
     <a href="index.html">🎯 前往題庫</a>
     <span><span class="status-dot" id="status-dot"></span><span id="status-text">Pyodide 載入中...</span></span>
@@ -4099,6 +4099,1069 @@ for u in urls:
     print(f"  → {status}（共 {tries} 次嘗試）")
 
 print(f"\\n總結：{succ}/{len(urls)} 成功")
+`},
+{id:44,title:"為什麼要學 pandas",tag:"專項",content:`
+# 第 44 章：為什麼要學 pandas
+
+> 📊 **專項教學 · 資料分析**：把 Excel 那些手動拖拉自動化，並能處理 100 萬列以上。
+
+## 44.1 用 Excel 會痛的時刻
+
+| 情境 | Excel | pandas |
+|------|-------|--------|
+| 10 萬列以上 | 卡到爆 | 一秒處理 |
+| 重複「篩選 → 樞紐 → 排序」 | 每天手動點 | 寫成腳本，1 次 1 秒 |
+| 多份檔案合併 | VLOOKUP 苦海 | \`merge\` 一行 |
+| 自動產生圖表 | 不可能 | matplotlib 一行 |
+| 跟資料庫 / API 串接 | 不可能 | 內建支援 |
+
+## 44.2 DataFrame 是什麼
+
+把它想成「Python 版的 Excel 工作表」：
+
+\`\`\`python
+import pandas as pd
+
+df = pd.DataFrame({
+    "name":  ["Alice", "Bob", "Cara", "Dan"],
+    "score": [92, 75, 88, 60],
+    "city":  ["台北", "台中", "台北", "高雄"],
+})
+print(df)
+\`\`\`
+
+輸出：
+\`\`\`
+    name  score city
+0  Alice     92   台北
+1    Bob     75   台中
+2   Cara     88   台北
+3    Dan     60   高雄
+\`\`\`
+
+每欄叫 **Series**（一維），合起來叫 **DataFrame**（二維）。
+
+## 44.3 三個核心觀念
+
+| 概念 | 對應 Excel | 範例 |
+|------|-----------|------|
+| **DataFrame** | 整張工作表 | \`df\` |
+| **Series** | 一整欄 | \`df["score"]\` |
+| **Index** | 列號（A1 的 1） | \`df.index\` |
+
+## 44.4 安裝
+
+\`\`\`bash
+pip install pandas matplotlib openpyxl
+\`\`\`
+
+- \`pandas\`：核心
+- \`matplotlib\`：畫圖
+- \`openpyxl\`：讀寫 .xlsx
+
+## 44.5 五分鐘上手範例
+
+\`\`\`python
+import pandas as pd
+
+# 1) 建資料
+df = pd.DataFrame({"name": ["A","B","C","D"], "score": [85, 60, 92, 73]})
+
+# 2) 基本統計
+print(df["score"].mean())   # 平均
+print(df["score"].max())    # 最高
+
+# 3) 篩選
+passed = df[df["score"] >= 70]
+print(passed)
+
+# 4) 排序
+print(df.sort_values("score", ascending=False))
+
+# 5) 存檔
+df.to_csv("scores.csv", index=False, encoding="utf-8-sig")
+\`\`\`
+
+五個操作就涵蓋 80% 日常需求。
+
+## 44.6 動手試試（模擬版）
+
+Pyodide 沒預載 pandas，下方範例用 stdlib \`statistics\` 模擬。本機請用 \`pip install pandas\` 跑真實版本。
+
+> **跨語言對應**：
+> - **R**：data.frame / dplyr / tidyverse — pandas 的靈感來源
+> - **SQL**：很多 pandas 操作 (groupby, merge) 就是 SQL 概念
+> - **C++/Java**：沒有對應的「即用即丟」資料分析語法，要動手寫
+`,
+example:`# 模擬：用 stdlib 做最基本的「DataFrame」操作
+import statistics
+from collections import Counter
+
+# 用 list of dict 模擬 DataFrame
+df = [
+    {"name": "Alice", "score": 92, "city": "台北"},
+    {"name": "Bob",   "score": 75, "city": "台中"},
+    {"name": "Cara",  "score": 88, "city": "台北"},
+    {"name": "Dan",   "score": 60, "city": "高雄"},
+]
+
+# 印出表格
+print(f"{'name':6}{'score':>5}  {'city':6}")
+print('-' * 22)
+for r in df:
+    print(f"{r['name']:6}{r['score']:>5}  {r['city']:6}")
+
+# 一欄 = Series
+scores = [r["score"] for r in df]
+print(f"\\n平均: {statistics.mean(scores):.1f}")
+print(f"最高: {max(scores)}")
+print(f"最低: {min(scores)}")
+
+# 篩選 (boolean mask)
+passed = [r for r in df if r["score"] >= 80]
+print(f"\\n>=80 的人 ({len(passed)} 個):")
+for r in passed:
+    print(f"  {r['name']}: {r['score']}")
+
+# 城市分布
+city_count = Counter(r["city"] for r in df)
+print(f"\\n城市分布: {dict(city_count)}")
+`},
+{id:45,title:"讀進資料：CSV / Excel / JSON",tag:"專項",content:`
+# 第 45 章：讀進資料
+
+> 📊 **專項教學 · 資料分析**：pandas 真正神奇之處：一行 read_csv 解決一切。
+
+## 45.1 從 CSV 讀
+
+\`\`\`python
+import pandas as pd
+df = pd.read_csv("scores.csv")
+\`\`\`
+
+常用參數：
+
+| 參數 | 用途 |
+|------|------|
+| \`encoding="utf-8-sig"\` | 中文不亂碼（Excel 存的 CSV） |
+| \`sep=","\` | 分隔符（tsv 用 \`\\t\`） |
+| \`header=0\` | 第幾列是表頭（None 表示沒有） |
+| \`names=["a","b"]\` | 自己給欄位名 |
+| \`dtype={"id": str}\` | 強制某欄型別 |
+| \`na_values=["-", "N/A"]\` | 自訂哪些字串算缺值 |
+| \`nrows=100\` | 只讀前 100 列（除錯用） |
+| \`usecols=["a","b"]\` | 只讀指定欄 |
+
+## 45.2 從 Excel 讀
+
+\`\`\`python
+df = pd.read_excel("scores.xlsx", sheet_name="一年級")
+# 想讀全部 sheet
+all_sheets = pd.read_excel("scores.xlsx", sheet_name=None)  # dict
+\`\`\`
+
+需要 \`pip install openpyxl\`。
+
+## 45.3 從 JSON 讀
+
+\`\`\`python
+df = pd.read_json("data.json")           # 適合 list of dict
+df = pd.read_json("data.jsonl", lines=True)   # 每行一個 JSON
+\`\`\`
+
+## 45.4 從 dict / list 建
+
+\`\`\`python
+# dict of list
+df = pd.DataFrame({
+    "name":  ["A", "B", "C"],
+    "score": [90, 80, 70],
+})
+
+# list of dict
+df = pd.DataFrame([
+    {"name": "A", "score": 90},
+    {"name": "B", "score": 80},
+])
+\`\`\`
+
+## 45.5 從網站直接讀
+
+\`\`\`python
+# 公開 CSV
+df = pd.read_csv("https://example.com/data.csv")
+
+# HTML 表格（全部 <table>）
+tables = pd.read_html("https://en.wikipedia.org/wiki/...")
+df = tables[0]   # 第一個 table
+
+# SQL 資料庫
+import sqlite3
+conn = sqlite3.connect("my.db")
+df = pd.read_sql("SELECT * FROM users", conn)
+\`\`\`
+
+## 45.6 看資料第一件事
+
+\`\`\`python
+df.head()       # 前 5 列
+df.tail(10)     # 後 10 列
+df.shape        # (列數, 欄數)
+df.columns      # 欄位名
+df.dtypes       # 每欄型別
+df.info()       # 摘要：型別 + 非空數量
+df.describe()   # 數值欄統計摘要
+\`\`\`
+
+> 🎯 **黃金 SOP**：拿到新資料 → \`df.head()\` → \`df.info()\` → \`df.describe()\`，3 行內就知道資料長什麼樣。
+
+## 45.7 動手試試（模擬版）
+
+範例用 \`io.StringIO\` + \`csv\` 模擬 read_csv 的核心邏輯。
+`,
+example:`# 模擬：用 stdlib csv 從字串讀資料（模擬 pd.read_csv）
+import csv, io
+from statistics import mean
+
+csv_text = '''name,score,city
+Alice,92,台北
+Bob,75,台中
+Cara,88,台北
+Dan,60,高雄
+Eve,,新北
+'''
+
+# 1) 讀進來
+reader = csv.DictReader(io.StringIO(csv_text))
+rows = list(reader)
+
+print(f"shape: ({len(rows)}, {len(rows[0])})")
+print(f"columns: {list(rows[0].keys())}")
+
+# 2) head: 前 3 列
+print("\\nhead(3):")
+for r in rows[:3]:
+    print(f"  {r}")
+
+# 3) info: 每欄型別與非空數
+print("\\ninfo:")
+for col in rows[0].keys():
+    vals = [r[col] for r in rows if r[col] != '']
+    print(f"  {col:6} non-null={len(vals)}/{len(rows)}")
+
+# 4) describe (只對數值欄)
+scores = [int(r["score"]) for r in rows if r["score"]]
+print(f"\\nscore describe:")
+print(f"  count={len(scores)}, mean={mean(scores):.1f}, min={min(scores)}, max={max(scores)}")
+`},
+{id:46,title:"選欄選列：pandas 核心",tag:"專項",content:`
+# 第 46 章：選欄選列 — pandas 的核心操作
+
+> 📊 **專項教學 · 資料分析**：學會 4 種選法，你就能做 90% 的資料切片。
+
+## 46.1 選一欄、選多欄
+
+\`\`\`python
+df["score"]                # 一欄 → Series
+df[["name", "score"]]      # 多欄（注意要兩層中括號）→ DataFrame
+\`\`\`
+
+## 46.2 選列：boolean mask（最常用！）
+
+\`\`\`python
+df[df["score"] >= 80]                              # 分數 >=80
+df[(df["score"] >= 80) & (df["city"] == "台北")]   # 兩個條件 (用 & 不是 and)
+df[df["city"].isin(["台北", "台中"])]              # in 一個 list
+df[df["name"].str.startswith("A")]                 # 字串方法
+\`\`\`
+
+> ⚠️ pandas 的 boolean 用 \`&\` \`|\` \`~\`，不是 \`and\` \`or\` \`not\`，且每個條件要加括號。
+
+## 46.3 用 query：可讀性更好
+
+\`\`\`python
+df.query("score >= 80")
+df.query("score >= 80 and city == '台北'")
+df.query("city in ['台北', '台中']")
+\`\`\`
+
+## 46.4 .loc 和 .iloc：精準定位
+
+| 寫法 | 意思 |
+|------|------|
+| \`df.loc[3]\` | 第 3 列（用 index 標籤） |
+| \`df.loc[3, "name"]\` | 第 3 列的 name 欄 |
+| \`df.loc[df["score"]>80, "name"]\` | 條件 + 指定欄 |
+| \`df.iloc[0]\` | 第 0 列（位置） |
+| \`df.iloc[0:5]\` | 前 5 列 |
+| \`df.iloc[:, 0]\` | 第 0 欄 |
+| \`df.iloc[0:5, 0:2]\` | 切片 |
+
+## 46.5 修改值
+
+\`\`\`python
+df.loc[df["score"] < 60, "passed"] = False    # 新增/修改一欄
+df.loc[3, "name"] = "Bobby"                   # 改特定 cell
+\`\`\`
+
+> ❌ **不要寫 \`df[mask]["col"] = ...\`** — 這是 "SettingWithCopyWarning"，可能改不到原 df。永遠用 \`.loc[mask, "col"] = ...\`。
+
+## 46.6 新增欄位
+
+\`\`\`python
+df["pass"] = df["score"] >= 60              # 條件 → bool
+df["double"] = df["score"] * 2              # 算式
+df["grade"] = df["score"].apply(            # 自訂函式
+    lambda s: "A" if s >= 90 else ("B" if s >= 70 else "C")
+)
+\`\`\`
+
+## 46.7 刪欄刪列
+
+\`\`\`python
+df = df.drop(columns=["city"])              # 刪欄
+df = df.drop(index=[0, 1])                  # 刪列
+df = df.drop_duplicates()                   # 去重
+\`\`\`
+
+> 💡 預設不就地修改，要原地改用 \`inplace=True\`，但業界更常見的是 \`df = df.drop(...)\`。
+
+## 46.8 動手試試（模擬版）
+
+範例示範「選欄 + 條件選列 + 新增計算欄」三件套。
+`,
+example:`# 模擬：list of dict 上做 pandas 風格的選欄選列
+df = [
+    {"name": "Alice", "score": 92, "city": "台北"},
+    {"name": "Bob",   "score": 75, "city": "台中"},
+    {"name": "Cara",  "score": 88, "city": "台北"},
+    {"name": "Dan",   "score": 60, "city": "高雄"},
+    {"name": "Eve",   "score": 95, "city": "台北"},
+]
+
+# 1) 選欄: df[["name","score"]]
+print("選欄 [name, score]:")
+for r in df:
+    print(f"  {r['name']}: {r['score']}")
+
+# 2) 條件選列: df[(df.score >= 80) & (df.city == "台北")]
+print("\\n台北且 >=80:")
+filt = [r for r in df if r["score"] >= 80 and r["city"] == "台北"]
+for r in filt:
+    print(f"  {r}")
+
+# 3) 新增欄: df["grade"] = ...
+def grade(s):
+    if s >= 90: return "A"
+    if s >= 70: return "B"
+    return "C"
+
+for r in df:
+    r["grade"] = grade(r["score"])
+
+print("\\n加 grade 欄:")
+for r in df:
+    print(f"  {r['name']}: {r['score']} → {r['grade']}")
+
+# 4) 統計各等級人數
+from collections import Counter
+print(f"\\n各等級分布: {dict(Counter(r['grade'] for r in df))}")
+`},
+{id:47,title:"清理髒資料",tag:"專項",content:`
+# 第 47 章：清理髒資料
+
+> 📊 **專項教學 · 資料分析**：真實世界的資料 80% 都是髒的。清理才是分析師的日常。
+
+## 47.1 缺失值 NaN
+
+pandas 用 \`NaN\` (Not a Number) 表示缺值。
+
+\`\`\`python
+df.isna()              # bool DataFrame，True=缺值
+df.isna().sum()        # 每欄缺幾個
+df.dropna()            # 刪掉任何有缺值的列
+df.dropna(subset=["score"])    # 只看 score 欄
+df.fillna(0)           # 補 0
+df.fillna({"score": df["score"].mean(),  # 用平均補
+           "city":  "未知"})
+df["score"].fillna(method="ffill")   # 用前一筆補（時序資料常用）
+\`\`\`
+
+## 47.2 型別轉換
+
+\`\`\`python
+df["score"] = df["score"].astype(int)
+df["date"] = pd.to_datetime(df["date"])
+df["price"] = pd.to_numeric(df["price"], errors="coerce")  # 失敗→NaN
+\`\`\`
+
+## 47.3 字串清理 .str
+
+\`\`\`python
+df["name"] = df["name"].str.strip()           # 去前後空白
+df["name"] = df["name"].str.lower()           # 小寫
+df["phone"] = df["phone"].str.replace("-", "")
+df["email"] = df["email"].str.contains("@")   # bool
+df[["first","last"]] = df["full"].str.split(" ", expand=True)
+\`\`\`
+
+## 47.4 重複資料
+
+\`\`\`python
+df.duplicated()              # 每列是否重複（bool）
+df.duplicated(subset=["id"]) # 只看 id 欄
+df.drop_duplicates()         # 去重
+df.drop_duplicates(subset=["id"], keep="last")  # 保留最後一筆
+\`\`\`
+
+## 47.5 異常值（outlier）
+
+\`\`\`python
+# 用 IQR 找
+Q1, Q3 = df["price"].quantile([0.25, 0.75])
+IQR = Q3 - Q1
+mask = (df["price"] < Q1 - 1.5*IQR) | (df["price"] > Q3 + 1.5*IQR)
+outliers = df[mask]
+clean = df[~mask]
+\`\`\`
+
+## 47.6 改欄名
+
+\`\`\`python
+df = df.rename(columns={"old_name": "new_name", "x": "y"})
+df.columns = ["a", "b", "c"]   # 全部換掉
+df.columns = df.columns.str.lower().str.replace(" ", "_")  # 批次
+\`\`\`
+
+## 47.7 清理 SOP
+
+實務上拿到新檔案就跑這串：
+
+\`\`\`python
+df = pd.read_csv("raw.csv", encoding="utf-8-sig")
+print(df.isna().sum())              # 1) 看缺值
+print(df.dtypes)                     # 2) 看型別
+print(df.duplicated().sum())         # 3) 看重複
+df.columns = df.columns.str.strip().str.lower()
+df = df.drop_duplicates()
+df = df.dropna(subset=["id"])
+df["score"] = pd.to_numeric(df["score"], errors="coerce")
+df["score"] = df["score"].fillna(df["score"].mean())
+\`\`\`
+
+## 47.8 動手試試（模擬版）
+
+範例展示常見髒資料：空字串、字串型數字、重複列，並完成清理。
+`,
+example:`# 模擬：用 stdlib 做髒資料清理
+from statistics import mean
+
+# 模擬一份有問題的資料
+raw = [
+    {"name": "Alice", "score": "92"},
+    {"name": " Bob ", "score": "75"},     # 有空白
+    {"name": "Cara",  "score": ""},        # 缺值
+    {"name": "Dan",   "score": "abc"},     # 不是數字
+    {"name": "Alice", "score": "92"},      # 重複
+    {"name": "Eve",   "score": "88"},
+]
+
+print(f"原始 {len(raw)} 列")
+
+# 1) trim 空白
+for r in raw:
+    r["name"] = r["name"].strip()
+
+# 2) 轉型 + 處理錯誤 (pd.to_numeric errors="coerce")
+def to_num(s):
+    try:
+        return int(s)
+    except (ValueError, TypeError):
+        return None  # 等同 NaN
+
+for r in raw:
+    r["score_num"] = to_num(r["score"])
+
+print(f"轉型後缺值數: {sum(1 for r in raw if r['score_num'] is None)}")
+
+# 3) 用平均補缺值
+valid = [r["score_num"] for r in raw if r["score_num"] is not None]
+avg = mean(valid)
+print(f"score 平均: {avg:.1f}")
+for r in raw:
+    if r["score_num"] is None:
+        r["score_num"] = round(avg)
+
+# 4) 去重
+seen = set()
+unique = []
+for r in raw:
+    key = (r["name"], r["score_num"])
+    if key not in seen:
+        seen.add(key)
+        unique.append(r)
+
+print(f"\\n清理後 {len(unique)} 列:")
+for r in unique:
+    print(f"  {r['name']:6} {r['score_num']}")
+`},
+{id:48,title:"統計與彙總",tag:"專項",content:`
+# 第 48 章：統計與彙總
+
+> 📊 **專項教學 · 資料分析**：把幾千筆資料壓縮成一個數字、一張排行榜。
+
+## 48.1 單欄統計
+
+\`\`\`python
+df["score"].sum()         # 總和
+df["score"].mean()        # 平均
+df["score"].median()      # 中位數
+df["score"].std()         # 標準差
+df["score"].var()         # 變異數
+df["score"].min(), df["score"].max()
+df["score"].quantile(0.75)   # 第 75 百分位
+df["score"].count()       # 非空筆數
+df["score"].nunique()     # 不重複數量
+\`\`\`
+
+## 48.2 一鍵摘要
+
+\`\`\`python
+df.describe()
+\`\`\`
+
+輸出：
+\`\`\`
+            score
+count   100.0000
+mean     78.5000
+std      12.3456
+min      40.0000
+25%      70.0000
+50%      80.0000
+75%      88.0000
+max     100.0000
+\`\`\`
+
+對非數值欄：
+\`\`\`python
+df.describe(include="object")   # 看字串欄的 count/unique/top/freq
+df.describe(include="all")
+\`\`\`
+
+## 48.3 value_counts：類別欄必殺技
+
+\`\`\`python
+df["city"].value_counts()
+# 台北    45
+# 台中    23
+# 高雄    18
+# 新北    14
+
+df["city"].value_counts(normalize=True)   # 比例
+df["city"].value_counts(dropna=False)     # 包含 NaN
+\`\`\`
+
+## 48.4 排序
+
+\`\`\`python
+df.sort_values("score", ascending=False)
+df.sort_values(["city", "score"], ascending=[True, False])
+df.nlargest(5, "score")     # Top 5（比 sort 快）
+df.nsmallest(5, "score")
+\`\`\`
+
+## 48.5 排名 rank
+
+\`\`\`python
+df["rank"] = df["score"].rank(ascending=False, method="min")
+# method: 'min'  → 並列都拿小排名（最常見）
+#         'dense' → 並列下一名 +1
+#         'first' → 看出現順序
+\`\`\`
+
+## 48.6 累計 cumsum / cummax
+
+\`\`\`python
+df["cum_score"] = df["score"].cumsum()    # 累加
+df["max_so_far"] = df["score"].cummax()   # 累計最大
+\`\`\`
+
+時序資料分析非常常用。
+
+## 48.7 多欄一起做：agg
+
+\`\`\`python
+df.agg({
+    "score": ["mean", "max", "min"],
+    "age":   ["mean", "std"],
+})
+\`\`\`
+
+## 48.8 動手試試
+
+範例做 5 個經典統計操作：mean / value_counts / sort / rank / cumsum。
+`,
+example:`# 模擬：5 個 pandas 統計操作
+from statistics import mean, median, stdev
+from collections import Counter
+
+df = [
+    {"name": "Alice", "score": 92, "city": "台北"},
+    {"name": "Bob",   "score": 75, "city": "台中"},
+    {"name": "Cara",  "score": 88, "city": "台北"},
+    {"name": "Dan",   "score": 60, "city": "高雄"},
+    {"name": "Eve",   "score": 95, "city": "台北"},
+    {"name": "Frank", "score": 82, "city": "台中"},
+    {"name": "Gina",  "score": 75, "city": "新北"},
+]
+
+scores = [r["score"] for r in df]
+
+# 1) describe
+print("=== describe ===")
+print(f"count={len(scores)}, mean={mean(scores):.1f}, median={median(scores)}")
+print(f"std={stdev(scores):.2f}, min={min(scores)}, max={max(scores)}")
+
+# 2) value_counts
+print("\\n=== city value_counts ===")
+for city, cnt in Counter(r["city"] for r in df).most_common():
+    print(f"  {city}: {cnt}")
+
+# 3) sort_values
+print("\\n=== sort by score desc (top 3) ===")
+for r in sorted(df, key=lambda x: -x["score"])[:3]:
+    print(f"  {r['name']}: {r['score']}")
+
+# 4) rank (min method)
+sorted_scores = sorted(set(scores), reverse=True)
+rank_map = {s: i+1 for i, s in enumerate(sorted_scores)}
+print("\\n=== rank ===")
+for r in df:
+    print(f"  {r['name']:6} score={r['score']} rank={rank_map[r['score']]}")
+
+# 5) cumsum
+print("\\n=== cumsum (依原順序) ===")
+cum = 0
+for r in df:
+    cum += r["score"]
+    print(f"  {r['name']:6} cum={cum}")
+`},
+{id:49,title:"groupby — 樞紐分析核心",tag:"專項",content:`
+# 第 49 章：groupby — 樞紐分析的核心
+
+> 📊 **專項教學 · 資料分析**：把資料「按某欄分組，每組算統計」。資料分析最重要的單一操作。
+
+## 49.1 三步驟：split-apply-combine
+
+| 步驟 | 動作 |
+|------|------|
+| **split** | 按 city 分成 {台北:[...], 台中:[...]} |
+| **apply** | 每組各算 mean(score) |
+| **combine** | 合回一個 DataFrame |
+
+\`\`\`python
+df.groupby("city")["score"].mean()
+# city
+# 台北    91.7
+# 台中    78.5
+# 高雄    60.0
+\`\`\`
+
+## 49.2 多種彙總
+
+\`\`\`python
+df.groupby("city").agg({
+    "score": ["mean", "max", "count"],
+    "age":   "mean",
+})
+\`\`\`
+
+或更簡潔：
+
+\`\`\`python
+df.groupby("city").agg(
+    avg_score = ("score", "mean"),
+    max_score = ("score", "max"),
+    students  = ("name", "count"),
+)
+\`\`\`
+
+## 49.3 多欄分組
+
+\`\`\`python
+df.groupby(["city", "grade"])["score"].mean()
+\`\`\`
+
+## 49.4 自訂彙總
+
+\`\`\`python
+df.groupby("city")["score"].agg(lambda s: s.max() - s.min())
+# 每個城市的「分數全距」
+\`\`\`
+
+## 49.5 transform：算完塞回原表
+
+\`agg\` 會把資料壓縮，\`transform\` 會把結果**廣播回每一列**：
+
+\`\`\`python
+df["city_avg"] = df.groupby("city")["score"].transform("mean")
+df["above_city_avg"] = df["score"] > df["city_avg"]
+\`\`\`
+
+> 🎯 這招超實用：標出「在自己城市裡比平均高的人」。
+
+## 49.6 filter：過濾整組
+
+\`\`\`python
+# 只保留「人數 >= 5」的城市
+big_cities = df.groupby("city").filter(lambda g: len(g) >= 5)
+\`\`\`
+
+## 49.7 apply：最自由
+
+\`\`\`python
+def top2_avg(g):
+    return g.nlargest(2, "score")["score"].mean()
+
+df.groupby("city").apply(top2_avg)
+\`\`\`
+
+## 49.8 pivot_table：樞紐表
+
+\`\`\`python
+df.pivot_table(
+    index="city",
+    columns="grade",
+    values="score",
+    aggfunc="mean",
+    fill_value=0,
+)
+\`\`\`
+
+效果就是 Excel 的樞紐分析表。
+
+## 49.9 動手試試
+
+範例做最常見的「按 city 分組算平均、最大、人數」。
+`,
+example:`# 模擬：groupby 三步驟
+from collections import defaultdict
+from statistics import mean
+
+df = [
+    {"name": "Alice", "score": 92, "city": "台北"},
+    {"name": "Bob",   "score": 75, "city": "台中"},
+    {"name": "Cara",  "score": 88, "city": "台北"},
+    {"name": "Dan",   "score": 60, "city": "高雄"},
+    {"name": "Eve",   "score": 95, "city": "台北"},
+    {"name": "Frank", "score": 82, "city": "台中"},
+    {"name": "Gina",  "score": 75, "city": "新北"},
+]
+
+# Step 1: split
+groups = defaultdict(list)
+for r in df:
+    groups[r["city"]].append(r["score"])
+
+# Step 2 + 3: apply + combine
+print(f"{'city':6}{'avg':>6}{'max':>6}{'count':>7}")
+print('-' * 25)
+for city in sorted(groups):
+    scores = groups[city]
+    print(f"{city:6}{mean(scores):>6.1f}{max(scores):>6}{len(scores):>7}")
+
+# transform 風格：把組平均塞回每一列
+print("\\n=== transform: 每列加上自己城市的平均、超過則 ★ ===")
+city_avg = {c: mean(s) for c, s in groups.items()}
+for r in df:
+    avg = city_avg[r["city"]]
+    star = ' ★' if r["score"] > avg else ''
+    print(f"  {r['name']:6} {r['city']} score={r['score']} city_avg={avg:.1f}{star}")
+`},
+{id:50,title:"合併資料：merge / concat",tag:"專項",content:`
+# 第 50 章：合併多份資料 — merge / concat
+
+> 📊 **專項教學 · 資料分析**：學會 SQL 的 JOIN，用 pandas 一行就能搞定。
+
+## 50.1 concat：縱向 / 橫向拼接
+
+\`\`\`python
+# 縱向（疊起來）
+pd.concat([df1, df2], ignore_index=True)
+
+# 橫向（並排）
+pd.concat([df1, df2], axis=1)
+\`\`\`
+
+何時用：合併「多個檔案/月份」的同結構資料。
+
+\`\`\`python
+import glob
+dfs = [pd.read_csv(f) for f in glob.glob("data/2026-*.csv")]
+all_data = pd.concat(dfs, ignore_index=True)
+\`\`\`
+
+## 50.2 merge：SQL JOIN
+
+\`\`\`python
+students = pd.DataFrame({
+    "id": [1, 2, 3, 4],
+    "name": ["Alice", "Bob", "Cara", "Dan"],
+})
+scores = pd.DataFrame({
+    "id": [1, 2, 3, 5],
+    "score": [92, 75, 88, 70],
+})
+
+merged = students.merge(scores, on="id", how="inner")
+\`\`\`
+
+\`how\` 有 4 種：
+
+| how | 意思 |
+|-----|------|
+| **inner** | 兩邊都有才保留（預設） |
+| **left** | 以左為主，右側補 NaN |
+| **right** | 以右為主 |
+| **outer** | 全保留，缺的補 NaN |
+
+## 50.3 不同欄名怎麼接
+
+\`\`\`python
+df1.merge(df2, left_on="user_id", right_on="uid", how="left")
+\`\`\`
+
+## 50.4 多欄 key
+
+\`\`\`python
+df1.merge(df2, on=["year", "month"])
+\`\`\`
+
+## 50.5 join：用 index 接
+
+\`\`\`python
+df1.join(df2, on="id", how="left")
+\`\`\`
+
+\`join\` 是 \`merge\` 的方便包裝，預設用 index。
+
+## 50.6 melt：寬轉長
+
+\`\`\`python
+# 寬表（每月一欄）
+#   name  Jan  Feb  Mar
+#   Alice  90   85   92
+
+long = df.melt(id_vars="name", var_name="month", value_name="score")
+# name   month  score
+# Alice  Jan    90
+# Alice  Feb    85
+\`\`\`
+
+很多分析工具偏好「長表」格式。
+
+## 50.7 pivot：長轉寬
+
+\`\`\`python
+wide = long.pivot(index="name", columns="month", values="score")
+\`\`\`
+
+## 50.8 動手試試
+
+範例做 inner / left / outer 三種 join，看差別。
+`,
+example:`# 模擬：merge 三種 how
+students = [
+    {"id": 1, "name": "Alice"},
+    {"id": 2, "name": "Bob"},
+    {"id": 3, "name": "Cara"},
+    {"id": 4, "name": "Dan"},
+]
+scores = [
+    {"id": 1, "score": 92},
+    {"id": 2, "score": 75},
+    {"id": 3, "score": 88},
+    {"id": 5, "score": 70},  # 學號 5 不在 students
+]
+
+# 建索引方便查
+sc_map = {r["id"]: r["score"] for r in scores}
+st_map = {r["id"]: r["name"] for r in students}
+
+def show(rows, title):
+    print(f"=== {title} ({len(rows)} rows) ===")
+    for r in rows:
+        print(f"  {r}")
+    print()
+
+# 1) inner: 兩邊都有
+inner = []
+for s in students:
+    if s["id"] in sc_map:
+        inner.append({"id": s["id"], "name": s["name"], "score": sc_map[s["id"]]})
+show(inner, "INNER JOIN")
+
+# 2) left: 以 students 為主
+left = []
+for s in students:
+    left.append({"id": s["id"], "name": s["name"],
+                 "score": sc_map.get(s["id"])})  # 缺 → None (NaN)
+show(left, "LEFT JOIN")
+
+# 3) outer: 全部 id 都保留
+all_ids = sorted(set(st_map) | set(sc_map))
+outer = []
+for i in all_ids:
+    outer.append({"id": i, "name": st_map.get(i), "score": sc_map.get(i)})
+show(outer, "OUTER JOIN")
+`},
+{id:51,title:"視覺化：matplotlib 入門",tag:"專項",content:`
+# 第 51 章：視覺化 — matplotlib 入門
+
+> 📊 **專項教學 · 資料分析**：把數字變成圖，老闆才看得懂。
+
+## 51.1 三大圖型
+
+### 折線圖（時序 / 趨勢）
+
+\`\`\`python
+import matplotlib.pyplot as plt
+import pandas as pd
+
+df = pd.read_csv("daily_sales.csv")
+plt.plot(df["date"], df["sales"])
+plt.title("每日銷售")
+plt.xlabel("日期"); plt.ylabel("銷售額")
+plt.show()
+\`\`\`
+
+### 長條圖（分類比較）
+
+\`\`\`python
+city_sales = df.groupby("city")["sales"].sum()
+city_sales.plot(kind="bar")
+plt.title("各城市銷售總額")
+plt.show()
+\`\`\`
+
+### 直方圖（看分布）
+
+\`\`\`python
+df["score"].hist(bins=20)
+plt.title("分數分布")
+plt.show()
+\`\`\`
+
+## 51.2 pandas 內建畫圖
+
+DataFrame / Series 自帶 \`.plot()\`：
+
+\`\`\`python
+df.plot(x="date", y="sales")
+df.plot.bar(x="city", y="sales")
+df.plot.scatter(x="age", y="income")
+df.plot.box()              # 盒鬚圖（看四分位）
+df.plot.hist(bins=20)
+\`\`\`
+
+\`kind\` 速查：\`line\`, \`bar\`, \`barh\`, \`hist\`, \`box\`, \`kde\`, \`scatter\`, \`pie\`。
+
+## 51.3 多張圖（subplots）
+
+\`\`\`python
+fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+df["a"].plot(ax=axes[0, 0], title="A")
+df["b"].plot(ax=axes[0, 1], title="B")
+df["c"].plot(ax=axes[1, 0], title="C")
+df["d"].plot(ax=axes[1, 1], title="D")
+plt.tight_layout()
+plt.show()
+\`\`\`
+
+## 51.4 中文字型（Mac/Windows 都會踩到）
+
+\`\`\`python
+import matplotlib.pyplot as plt
+plt.rcParams["font.sans-serif"] = ["Arial Unicode MS",  # Mac
+                                    "Microsoft JhengHei", # Win
+                                    "Noto Sans CJK TC"]   # Linux
+plt.rcParams["axes.unicode_minus"] = False
+\`\`\`
+
+## 51.5 美化
+
+\`\`\`python
+plt.style.use("seaborn-v0_8")        # 套用主題
+plt.figure(figsize=(10, 6))           # 設大小
+plt.xticks(rotation=45)               # x 軸標籤轉 45 度
+plt.grid(True, alpha=0.3)
+plt.legend(loc="upper right")
+plt.tight_layout()                    # 自動排版
+plt.savefig("chart.png", dpi=150, bbox_inches="tight")
+\`\`\`
+
+## 51.6 seaborn：matplotlib 的高階包裝
+
+\`\`\`python
+import seaborn as sns
+sns.boxplot(data=df, x="city", y="score")
+sns.heatmap(df.corr(), annot=True, cmap="coolwarm")
+sns.pairplot(df, hue="grade")
+\`\`\`
+
+> 🎨 一張漂亮統計圖 = matplotlib 控細節 + seaborn 套樣式。
+
+## 51.7 動手試試（模擬版）
+
+Pyodide 沒裝 matplotlib，這裡用 ASCII 印「長條圖」展示概念。
+`,
+example:`# 模擬: 用 ASCII 畫長條圖（就是 matplotlib 概念簡化版）
+from collections import Counter
+
+df = [
+    {"city": "台北", "score": 92},
+    {"city": "台中", "score": 75},
+    {"city": "台北", "score": 88},
+    {"city": "高雄", "score": 60},
+    {"city": "台北", "score": 95},
+    {"city": "台中", "score": 82},
+    {"city": "新北", "score": 75},
+    {"city": "新北", "score": 80},
+    {"city": "新北", "score": 90},
+]
+
+# 1) bar chart: 每城市的人數
+print("=== 各城市人數 ===")
+counts = Counter(r["city"] for r in df)
+maxw = 30
+mx = max(counts.values())
+for city in sorted(counts):
+    n = counts[city]
+    bar = '█' * int(n / mx * maxw)
+    print(f"  {city:4} | {bar} {n}")
+
+# 2) histogram: 分數分布
+print("\\n=== 分數分布 (10 分一桶) ===")
+buckets = [0] * 11   # 0-9, 10-19, ..., 100
+for r in df:
+    buckets[r["score"] // 10] += 1
+for i, n in enumerate(buckets):
+    if n == 0: continue
+    bar = '█' * n
+    print(f"  {i*10:3}-{i*10+9:3} | {bar} {n}")
+
+# 3) 平均分線 (折線概念)
+print("\\n=== 各城市平均分 (line chart 概念) ===")
+from statistics import mean
+city_scores = {}
+for r in df:
+    city_scores.setdefault(r["city"], []).append(r["score"])
+for city in sorted(city_scores):
+    avg = mean(city_scores[city])
+    marker_pos = int(avg / 100 * 40)
+    line = '·' * marker_pos + '●'
+    print(f"  {city:4} {line} {avg:.1f}")
 `}
 ];
 
@@ -4450,7 +5513,15 @@ const CHAPTER_META = {
 40:{learn:["「外圈容器 → 內圈欄位 → 打包 dict」三步驟", "欄位可能缺失，用 if 防呆", "pd.read_html 一行解決乾淨表格"],try:["多加一筆新聞看 len 變化", "在 dict 加一個 \"source\": \"example.com\" 欄位", "改成只收集 title 字數大於 5 的新聞"],code:{"task": "從 stdin 讀一段 HTML（一行一筆，每筆格式：「TITLE|URL」），組成 dict 清單。輸出每筆「URL TITLE」，共幾行就有幾行。", "stdin": "新聞一|/a\n新聞二|/b\n新聞三|/c\n", "expect": "/a 新聞一\n/b 新聞二\n/c 新聞三"}},
 41:{learn:["三種分頁模式：路徑、query、next 連結", "用 set 去重", "time.sleep 做禮貌延遲"],try:["把 fake page 3 全部改成重複 id，看結束條件對不對", "加 max_page=3 的上限提早終止", "在每次 fetch 後加 time.sleep(0.1)"],code:{"task": "輸入多行 id（每行一個整數）。讀完後用 set 去重，依升冪輸出（一行一個）。", "stdin": "3\n1\n4\n1\n5\n3\n2\n", "expect": "1\n2\n3\n4\n5"}},
 42:{learn:["CSV 用 DictWriter / DictReader 寫讀", "Excel 中文：encoding=\"utf-8-sig\"", "JSON 用 indent + ensure_ascii=False"],try:["把 rows 加一筆「新聞 D / /d / 500」", "改 fieldnames 順序，看 CSV 表頭變化", "把 indent 改成 4，比較長相"],code:{"task": "把以下三筆資料 [{\"name\":\"Alice\",\"age\":17},{\"name\":\"Bob\",\"age\":18},{\"name\":\"Cara\",\"age\":16}] 用 json.dumps 序列化（ensure_ascii=False, indent 不設）並輸出。", "stdin": "", "expect": "[{\"name\": \"Alice\", \"age\": 17}, {\"name\": \"Bob\", \"age\": 18}, {\"name\": \"Cara\", \"age\": 16}]"}},
-43:{learn:["看 robots.txt 再爬", "retry + 指數退避處理 429", "寫進度檔做斷點續傳"],try:["把 max_retry 改成 6，成功率會變多少？", "改 random seed，重新跑看結果不一樣", "加上「總嘗試次數超過 20 就停止」的保險"],code:{"task": "模擬指數退避：給定起始等待秒數 base=1，最多 retry 5 次，每次等待時間是 base * 2^i (i 從 0 算起)。輸出每次等待秒數，一行一個（共 5 行）。", "stdin": "", "expect": "1\n2\n4\n8\n16"}}
+43:{learn:["看 robots.txt 再爬", "retry + 指數退避處理 429", "寫進度檔做斷點續傳"],try:["把 max_retry 改成 6，成功率會變多少？", "改 random seed，重新跑看結果不一樣", "加上「總嘗試次數超過 20 就停止」的保險"],code:{"task": "模擬指數退避：給定起始等待秒數 base=1，最多 retry 5 次，每次等待時間是 base * 2^i (i 從 0 算起)。輸出每次等待秒數，一行一個（共 5 行）。", "stdin": "", "expect": "1\n2\n4\n8\n16"}},
+44:{learn:["DataFrame 是 Python 版的 Excel", "Series=一欄, DataFrame=多欄, Index=列號", "pandas 適合 10 萬列以上、需要重複處理的場景"],try:["加一筆「Eve, 78, 新北」看統計結果", "改成印「>=85 的人」", "加印每個城市的平均分數（用 Counter 不夠，要用 dict）"],code:{"task": "給定 stdin 多行，每行格式「name score」（空白分隔）。讀完後輸出兩行：第一行「avg X.X」（一位小數），第二行「max NUM」。", "stdin": "Alice 92\nBob 75\nCara 88\nDan 60\n", "expect": "avg 78.8\nmax 92"}},
+45:{learn:["read_csv / read_excel / read_json 三巨頭", "encoding=\"utf-8-sig\" 處理中文", "head / info / describe 三件套快速看資料"],try:["把 csv_text 多加一行 Frank,82,台南", "改 csv 分隔符為 |，看怎麼修", "把 score 改成 float，重算 describe"],code:{"task": "從 stdin 讀 CSV (第一行是表頭 name,score)，輸出三行：「rows N」「avg X.X」「max NUM」（X.X 一位小數）。", "stdin": "name,score\nAlice,92\nBob,75\nCara,88\nDan,60\n", "expect": "rows 4\navg 78.8\nmax 92"}},
+46:{learn:["boolean mask 選列：& | ~ 配合括號", "query 寫法更可讀", ".loc / .iloc 精準定位"],try:["加一個條件「city 是台中或高雄」", "寫一個 grade2 函式：A+(95+)、A(90~95)、B(70~90)、C", "練 .loc 寫法：所有分數 <70 加一欄 status=\"補考\""],code:{"task": "從 stdin 讀多行「name score」（空白分隔）。輸出分數 >=80 的人，一行一個，格式「name score」，按分數降冪排序。", "stdin": "Alice 92\nBob 75\nCara 88\nDan 60\nEve 95\n", "expect": "Eve 95\nAlice 92\nCara 88"}},
+47:{learn:["isna / fillna / dropna 處理缺值", "astype / pd.to_numeric(errors=\"coerce\") 處理型別", "drop_duplicates 去重"],try:["把 raw 加更多髒資料：name=\"Bob\"、score=\"not_a_number\"", "改成「缺值補 0」而不是平均", "改 keep=\"last\" 邏輯：重複時保留最後一筆"],code:{"task": "從 stdin 讀多行 score 字串。把不是純數字的當作缺值，剩下的轉成整數。輸出兩行：第一行「valid N」（有效數量）、第二行「avg X.X」（一位小數）。", "stdin": "92\n75\nabc\n88\n\n60\n", "expect": "valid 4\navg 78.8"}},
+48:{learn:["mean/median/std/quantile 描述分佈", "value_counts 看類別欄", "rank / cumsum / cummax 進階統計"],try:["加一筆「Henry, 75, 台北」，看 value_counts 變化", "改成印「分數最低的 3 個」(nsmallest)", "改 rank 用 dense 方法（並列下一名 +1）"],code:{"task": "從 stdin 讀多行整數分數。輸出三行：「median NUM」、「std X.XX」（兩位小數）、「top3 a b c」（最大 3 個從大到小空白分隔）。", "stdin": "92\n75\n88\n60\n95\n82\n75\n", "expect": "median 82\nstd 12.11\ntop3 95 92 88"}},
+49:{learn:["split-apply-combine 三步驟", "agg 多種彙總同時做", "transform 廣播回原表"],try:["多加幾筆台北的資料，看 city_avg 怎麼變", "改成按「city + grade」雙欄分組", "加 filter：只保留人數 >=2 的城市"],code:{"task": "從 stdin 讀多行「city score」，按 city groupby 算平均分。輸出每組「city avg」（avg 一位小數），按 city 字典序排序。", "stdin": "台北 92\n台中 75\n台北 88\n高雄 60\n台北 95\n台中 82\n", "expect": "台中 78.5\n台北 91.7\n高雄 60.0"}},
+50:{learn:["concat 拼接同結構資料", "merge 4 種 how: inner/left/right/outer", "melt / pivot 寬長互轉"],try:["把 students 加一筆 id=6 Eve，重做 outer", "改成 right join: 以 scores 為主", "用兩個欄位 (id, year) 當 key 試試"],code:{"task": "stdin 兩個區塊用空行分隔：第一塊每行「id name」、第二塊每行「id score」。輸出 INNER JOIN 結果，每行「name score」，按 id 升冪排序。", "stdin": "1 Alice\n2 Bob\n3 Cara\n4 Dan\n\n1 92\n2 75\n3 88\n5 70\n", "expect": "Alice 92\nBob 75\nCara 88"}},
+51:{learn:["plot/bar/hist 三大圖型", "pandas 內建 .plot() 比 matplotlib 直觀", "中文要設 font.sans-serif"],try:["加多幾筆資料，看 histogram bucket 怎麼變", "改成印「分數中位數」而不是平均", "把 bar chart 改成橫式 (barh)"],code:{"task": "從 stdin 讀多行整數分數，用 ASCII 印每個分數桶 (0-9, 10-19, ..., 90-99, 100) 的人數，每行格式「Start-End: ★★★」（n 個 ★），跳過空桶。", "stdin": "92\n75\n88\n95\n82\n75\n80\n90\n", "expect": "70-79: ★★\n80-89: ★★★\n90-99: ★★★"}}
 };
 
 // ── 常見錯誤訊息翻譯 ─────────────────────────────────────────────────────
