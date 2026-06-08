@@ -288,6 +288,3 @@ PRs welcome for:
 
 MIT License. Problem statements adapted from APCS, ZeroJudge, and 啟思博 sources retain their original copyrights.
 
----
-
-🤖 *Built with [Claude Code](https://claude.com/claude-code)*
