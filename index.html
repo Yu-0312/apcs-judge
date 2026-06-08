@@ -4837,8 +4837,8 @@ function renderProblemList() {
     const items = indexedProblems.filter(({ p }) => (p.diff || 'easy') === section.diff);
     return `<div class="problem-group">
       <div class="level-header" style="--level-color:${d.color};--level-bg:${d.bg};--level-border:${d.border};">
-        <div class="level-title-row"><span>${section.icon}</span><span>${d.label}練習</span><span class="count">${items.length} 題</span></div>
-        <div class="level-desc">${section.desc}</div>
+        <div class="level-title-row"><span>${escH(section.icon)}</span><span>${escH(d.label)}練習</span><span class="count">${items.length} 題</span></div>
+        <div class="level-desc">${escH(section.desc)}</div>
       </div>
       ${items.map(({ p, i }) => renderProblemItem(p, i, d)).join('')}
     </div>`;
@@ -4868,9 +4868,9 @@ function renderProblemItem(p, i, d) {
     }
     const active = currentProblem?.id === p.id ? ' active' : '';
     return `<div class="problem-item${active}" style="--level-color:${d.color};" onclick="selectProblem(${i})">
-      <div class="pmeta">第 ${String(i+1).padStart(2,'0')} 題 · ${p.topic || p.date}</div>
+      <div class="pmeta">第 ${String(i+1).padStart(2,'0')} 題 · ${escH(p.topic || p.date)}</div>
       <div class="problem-row">
-        <span class="ptitle">${p.title}</span>
+        <span class="ptitle">${escH(p.title)}</span>
         <span class="pmarks">${difficultyStars(p.diff)}${sh}</span>
       </div>
     </div>`;
@@ -4891,6 +4891,7 @@ function renderProblemContent() {
   const p = currentProblem;
   const cfg = LANGS[currentLang];
   document.getElementById('prob-badge').textContent = p.source ? `🌏 ${p.source}` : `ZeroJudge: ${p.id}`;
+  const originalUrl = safeUrl(p.url);
   const samples = p.samples.map((s, i) => `
     <div class="sample-block">
       <div class="sample-block-hdr">範例 ${i+1}</div>
@@ -4900,18 +4901,18 @@ function renderProblemContent() {
       </div>
     </div>`).join('');
   document.getElementById('problem-content').innerHTML = `
-    <div class="problem-title-h">${p.title}</div>
+    <div class="problem-title-h">${escH(p.title)}</div>
     <div class="problem-meta">
-      <span class="badge">${p.date}</span>
-      ${p.source ? `<span class="badge" style="color:#79c0ff;background:rgba(121,192,255,.12);border-color:rgba(121,192,255,.35);">🌏 ${p.source}</span>` : `<span class="badge">${p.id}</span>`}
-      ${p.url ? `<a class="badge" href="${p.url}" target="_blank" rel="noopener" style="color:#3fb950;background:rgba(63,185,80,.10);border-color:rgba(63,185,80,.35);text-decoration:none;">🔗 原題</a>` : ''}
-      <span class="badge lang">${cfg.icon} ${cfg.name}</span>
-      ${p.topic ? `<span class="badge topic">${p.topic}</span>` : ''}
+      <span class="badge">${escH(p.date)}</span>
+      ${p.source ? `<span class="badge" style="color:#79c0ff;background:rgba(121,192,255,.12);border-color:rgba(121,192,255,.35);">🌏 ${escH(p.source)}</span>` : `<span class="badge">${escH(p.id)}</span>`}
+      ${originalUrl ? `<a class="badge" href="${escAttr(originalUrl)}" target="_blank" rel="noopener" style="color:#3fb950;background:rgba(63,185,80,.10);border-color:rgba(63,185,80,.35);text-decoration:none;">🔗 原題</a>` : ''}
+      <span class="badge lang">${escH(cfg.icon)} ${escH(cfg.name)}</span>
+      ${p.topic ? `<span class="badge topic">${escH(p.topic)}</span>` : ''}
       ${difficultyBadge(p.diff)}
     </div>
-    <div class="section-label">題目說明</div><div class="desc-text">${marked.parse(p.desc)}</div>
-    <div class="section-label">輸入說明</div><div class="desc-text">${marked.parse(p.input_desc)}</div>
-    <div class="section-label">輸出說明</div><div class="desc-text">${marked.parse(p.output_desc)}</div>
+    <div class="section-label">題目說明</div><div class="desc-text">${safeMarkdown(p.desc)}</div>
+    <div class="section-label">輸入說明</div><div class="desc-text">${safeMarkdown(p.input_desc)}</div>
+    <div class="section-label">輸出說明</div><div class="desc-text">${safeMarkdown(p.output_desc)}</div>
     <div class="section-label">範例測資</div>${samples}`;
 }
 
@@ -5040,7 +5041,7 @@ function loadSample() {
 
 function showHint() {
   if (!currentProblem || !currentProblem.hint) return;
-  const html = marked.parse(currentProblem.hint);
+  const html = safeMarkdown(currentProblem.hint);
   document.getElementById('hint-content').innerHTML = html;
   document.getElementById('hint-overlay').style.display = 'flex';
 }
@@ -5051,6 +5052,25 @@ function hideHint() {
 
 function escH(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function escAttr(s) {
+  return escH(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function safeUrl(url) {
+  if (!url) return '';
+  try {
+    const u = new URL(String(url), window.location.href);
+    return ['http:', 'https:'].includes(u.protocol) ? u.href : '';
+  } catch (_) {
+    return '';
+  }
+}
+
+function safeMarkdown(text) {
+  const escaped = escH(text).replace(/~/g, '&#126;');
+  return marked.parse(escaped).replace(/&amp;(lt|gt|amp|#126);/g, '&$1;');
 }
 </script>
 
