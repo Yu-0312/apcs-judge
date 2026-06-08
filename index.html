@@ -10,7 +10,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/JSCPP@2.0.6/dist/JSCPP.es5.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -3462,8 +3461,8 @@ public class Main{public static void main(String[] a){Scanner s=new Scanner(Syst
 // ── Language config ───────────────────────────────────────────────────────────
 const LANGS = {
   py:   { name:'Python', icon:'🐍', color:'#3fb950', mode:'python',        note:'Pyodide 瀏覽器執行',          label:'Python' },
-  cpp:  { name:'C++',    icon:'⚡', color:'#79c0ff', mode:'text/x-c++src', note:'JSCPP 瀏覽器執行',            label:'C++' },
-  c:    { name:'C',      icon:'🔧', color:'#ffa657', mode:'text/x-csrc',   note:'JSCPP 瀏覽器執行',            label:'C' },
+  cpp:  { name:'C++',    icon:'⚡', color:'#79c0ff', mode:'text/x-c++src', note:'線上 g++ (Piston)',           label:'C++' },
+  c:    { name:'C',      icon:'🔧', color:'#ffa657', mode:'text/x-csrc',   note:'線上 gcc (Piston)',           label:'C' },
   java: { name:'Java',   icon:'☕', color:'#d2a8ff', mode:'text/x-java',   note:'Piston API（需網路，約3秒）', label:'Java' }
 };
 
@@ -3685,9 +3684,21 @@ finally:
     sys.stdout = _old
 _out`);
     } else if (currentLang === 'cpp' || currentLang === 'c') {
-      let out2 = '';
-      JSCPP.run(code, stdin, { stdio: { write: s => { out2 += s; } } });
-      output = out2;
+      const isCpp = currentLang === 'cpp';
+      const res = await fetch('https://emkc.org/api/v2/piston/execute', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          language: isCpp ? 'c++' : 'c',
+          version: '10.2.0',
+          files: [{ name: isCpp ? 'main.cpp' : 'main.c', content: code }],
+          stdin, run_timeout: 8000
+        })
+      });
+      const data = await res.json();
+      const stdout = data.run?.stdout || '';
+      const stderr = data.run?.stderr || data.compile?.stderr || '';
+      if (stderr && !stdout) return { pass: false, got: '', expected, error: stderr.split('\n').slice(0, 4).join('\n') };
+      output = stdout;
     } else { // java
       const res = await fetch('https://emkc.org/api/v2/piston/execute', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },

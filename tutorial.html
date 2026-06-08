@@ -10,7 +10,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/JSCPP@2.0.6/dist/JSCPP.es5.min.js"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -7962,8 +7961,8 @@ let currentLang = 'py';
 
 const LANG_CFG = {
   py:   { name:'Python', mode:'python',          color:'#3fb950', note:'Pyodide 本地執行' },
-  cpp:  { name:'C++',    mode:'text/x-c++src',   color:'#79c0ff', note:'JSCPP 瀏覽器執行' },
-  c:    { name:'C',      mode:'text/x-csrc',     color:'#ffa657', note:'JSCPP 瀏覽器執行' },
+  cpp:  { name:'C++',    mode:'text/x-c++src',   color:'#79c0ff', note:'線上 g++ (Piston)' },
+  c:    { name:'C',      mode:'text/x-csrc',     color:'#ffa657', note:'線上 gcc (Piston)' },
   java: { name:'Java',   mode:'text/x-java',     color:'#d2a8ff', note:'Piston 雲端執行（需網路）' }
 };
 
@@ -8467,7 +8466,7 @@ int main(){
 
 右邊已經準備好 Hello 程式碼，按 **▶ 執行**，看輸出框出現什麼。
 
-> **小提示**：C++ 要編譯後執行。這個教學用 JSCPP 在瀏覽器裡直接執行，不用安裝編譯器。
+> **小提示**：C++ 要編譯後執行。這個教學透過 Piston API 呼叫線上的真實 g++（gcc 10.2 / C++17）幫你編譯與執行，不用安裝編譯器，需要網路。
 `,
 c:`
 # 第 0 章：寫程式是什麼一回事？(C 版)
@@ -10814,12 +10813,23 @@ __result = __buf.getvalue()
     return {raw: result, stderr: /Traceback|Error/.test(result)};
   }
   if (lang === 'cpp' || lang === 'c') {
-    let buf = '';
+    const isCpp = lang === 'cpp';
     try {
-      JSCPP.run(code, stdin, { stdio: { write: s => { buf += s; } } });
-      return {raw: buf, stderr: false};
+      const res = await fetch('https://emkc.org/api/v2/piston/execute', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          language: isCpp ? 'c++' : 'c',
+          version: '10.2.0',
+          files: [{ name: isCpp ? 'main.cpp' : 'main.c', content: code }],
+          stdin, run_timeout: 8000
+        })
+      });
+      const data = await res.json();
+      const stdout = data.run?.stdout || '';
+      const stderr = data.run?.stderr || data.compile?.stderr || '';
+      return {raw: stdout + (stderr ? '\n[stderr]\n' + stderr : ''), stderr: !!stderr};
     } catch (e) {
-      return {raw: (buf ? buf + '\n' : '') + 'JSCPP 錯誤：\n' + String(e.message || e).split('\n').slice(0, 6).join('\n'), stderr: true};
+      return {raw: '網路錯誤（C/C++ 改用線上 g++/gcc 編譯執行，需要網路）：\n' + String(e.message || e), stderr: true};
     }
   }
   // java
