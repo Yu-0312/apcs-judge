@@ -116,7 +116,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 </head>
 <body>
 <header>
-  <div><div class="logo" id="logo">APCS 多語言評分系統</div><div class="sub">95 題 · 初/中/高級 · Python / C++ / C / Java</div></div>
+  <div><div class="logo" id="logo">APCS 多語言評分系統</div><div class="sub">125 題 · 初/中/高級 · Python / C++ / C / Java</div></div>
   <div class="hright">
     <a href="tutorial.html" style="color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;">📚 基礎教學</a>
     <span><span class="status-dot" id="status-dot"></span><span id="status-text">載入中...</span></span>
@@ -370,7 +370,7 @@ hint:"**關鍵字**：「畫布」「塗色」「總數」→ 用 2D 陣列記�
 desc:"電子畫布是 n×n 的網格，初始全為 0。執行 k 次操作：每次選一個矩形區域 (r1,c1)~(r2,c2) 與顏色 v（1≤v≤9），將該區域所有格子覆蓋成 v。\n\n輸出**最終畫布中不為 0 的格子總數**，以及**所有非 0 格子的數值和**。",
 input_desc:"第一行 n k（1≤n≤100，1≤k≤100）；接下來 k 行，每行 r1 c1 r2 c2 v（0≤r1≤r2<n，0≤c1≤c2<n，1≤v≤9）。",
 output_desc:"輸出兩個整數：非 0 格子數、非 0 格子數值和（空白分隔）。",
-samples:[{input:"3 2\n0 0 1 1 5\n1 1 2 2 3\n",output:"7 26\n"},{input:"2 1\n0 0 1 1 7\n",output:"4 28\n"}],
+samples:[{input:"3 2\n0 0 1 1 5\n1 1 2 2 3\n",output:"7 27\n"},{input:"2 1\n0 0 1 1 7\n",output:"4 28\n"}],
 hint:"**關鍵字**：「矩形區域覆蓋」→ 對每次操作直接迴圈寫入。\n**作法**：雙重迴圈 `for i in r1..r2: for j in c1..c2: g[i][j] = v`，最後掃描計算總數與總和。\n**進階**：若 n 很大可用差分陣列優化，但 n≤100 直接模擬即可。"},
 
 {id:"p2_str_b",title:"字串解碼（簡化版）",topic:"字串",date:"初級改編",diff:"easy",
@@ -398,7 +398,7 @@ hint:"**關鍵字**：「最大差」「絕對值」→ `max(t) - min(t)`。\n**
 desc:"n 隻蜜蜂在時間 t[1..n] 經過花圃（t 已排序）。給一個觀察視窗長度 w，問：在所有長度為 w 的連續時間區間中，**最多能觀察到幾隻蜜蜂**？\n\n（一隻蜜蜂被觀察到，當且僅當其時間落在 [start, start+w] 內）",
 input_desc:"第一行 n w（2≤n≤1000，1≤w≤10000）；第二行 n 個遞增整數 t[i]（1≤t[i]≤10000）。",
 output_desc:"輸出最大觀察數。",
-samples:[{input:"5 3\n1 2 4 5 9\n",output:"3\n"},{input:"5 10\n1 5 9 12 20\n",output:"4\n"}],
+samples:[{input:"5 3\n1 2 4 5 9\n",output:"3\n"},{input:"5 10\n1 5 9 12 20\n",output:"3\n"}],
 hint:"**關鍵字**：「連續區間」「最多」+「已排序」→ **雙指標（滑動視窗）**。\n**作法**：左右指標 l, r；當 `t[r] - t[l] > w` 時 `l++`，過程中更新 `max(r - l + 1)`。\n**O(n)**：每個指標只往右動，總共 2n 次。"},
 
 {id:"p2_card_b",title:"卡牌遊戲（簡化版）",topic:"排序",date:"初級改編",diff:"easy",
@@ -515,7 +515,7 @@ hint:"**關鍵字**：「第 k 小」→ 排序後取 a[k-1]。\n**簡單作法*
 desc:"給 n 個整數與目標值 K，找一組 (i, j) 使得 a[i]+a[j]=K（i<j），輸出索引（1-based）。保證唯一解。",
 input_desc:"第一行 n K；第二行 n 個整數。",
 output_desc:"輸出 i 與 j，以空白分隔。",
-samples:[{input:"4 9\n2 7 11 15\n",output:"1 2\n"},{input:"5 6\n3 2 4 1 5\n",output:"2 5\n"}],
+samples:[{input:"4 9\n2 7 11 15\n",output:"1 2\n"},{input:"5 9\n3 2 4 1 5\n",output:"3 5\n"}],
 hint:"**關鍵字**：「兩數之和」「唯一解」→ **雜湊表 O(n)**。\n**作法**：邊掃邊查 `K-a[i]` 是否在已見的字典中。\n**陷阱**：別讓同一個元素加自己（先查再加）。"},
 
 {id:"m_uniq_cnt",title:"相異整數計數",topic:"集合",date:"自製 中級",diff:"medium",
@@ -949,7 +949,7 @@ m008:`words=input().split()\nprint(' '.join(reversed(words)))`,
 h001:`n,W=map(int,input().split())\ndp=[0]*(W+1)\nfor _ in range(n):\n    w,v=map(int,input().split())\n    for j in range(W,w-1,-1): dp[j]=max(dp[j],dp[j-w]+v)\nprint(dp[W])`,
 h002:`A=input().strip(); B=input().strip()\nm,n=len(A),len(B)\ndp=[[0]*(n+1) for _ in range(m+1)]\nfor i in range(1,m+1):\n    for j in range(1,n+1):\n        if A[i-1]==B[j-1]: dp[i][j]=dp[i-1][j-1]+1\n        else: dp[i][j]=max(dp[i-1][j],dp[i][j-1])\nprint(dp[m][n])`,
 h003:`from collections import deque\nn,m=map(int,input().split())\ngrid=[list(map(int,input().split()))for _ in range(n)]\nif grid[0][0]==1 or grid[n-1][m-1]==1: print(-1)\nelse:\n    dist=[[-1]*m for _ in range(n)]; dist[0][0]=0\n    q=deque([(0,0)])\n    while q:\n        r,c=q.popleft()\n        if r==n-1 and c==m-1: print(dist[r][c]); exit()\n        for dr,dc in[(-1,0),(1,0),(0,-1),(0,1)]:\n            nr,nc=r+dr,c+dc\n            if 0<=nr<n and 0<=nc<m and grid[nr][nc]==0 and dist[nr][nc]==-1:\n                dist[nr][nc]=dist[r][c]+1; q.append((nr,nc))\n    print(-1)`,
-h004:`n,m=map(int,input().split())\ng=[list(map(int,input().split()))for _ in range(n)]\nt,b,l,r=0,n-1,0,m-1; res=[]\nwhile t<=b and l<=r:\n    for c in range(l,r+1): res.append(g[t][c]); t+=1\n    for row in range(t,b+1): res.append(g[row][r]); r-=1\n    if t<=b:\n        for c in range(r,l-1,-1): res.append(g[b][c]); b-=1\n    if l<=r:\n        for row in range(b,t-1,-1): res.append(g[row][l]); l+=1\nprint(' '.join(map(str,res)))`,
+h004:`n,m=map(int,input().split())\ng=[list(map(int,input().split()))for _ in range(n)]\nt,b,l,r=0,n-1,0,m-1; res=[]\nwhile t<=b and l<=r:\n    for c in range(l,r+1): res.append(g[t][c])\n    t+=1\n    for row in range(t,b+1): res.append(g[row][r])\n    r-=1\n    if t<=b:\n        for c in range(r,l-1,-1): res.append(g[b][c])\n        b-=1\n    if l<=r:\n        for row in range(b,t-1,-1): res.append(g[row][l])\n        l+=1\nprint(' '.join(map(str,res)))`,
 h005:`a,n,m=map(int,input().split())\ndef pw(a,n,m):\n    if m==1: return 0\n    r=1; a%=m\n    while n>0:\n        if n&1: r=r*a%m\n        a=a*a%m; n>>=1\n    return r\nprint(pw(a,n,m))`
 
 ,
@@ -1455,7 +1455,7 @@ int main(){
     for(int i=0;i<k;i++){int r,c;cin>>r>>c;g[r][c]=1;}
     int cnt=0;
     for(auto&row:g)for(int x:row)if(x)cnt++;
-    cout<<cnt<<"\n";
+    cout<<cnt<<"\\n";
 }`,
 p2_color_m:`#include <iostream>
 #include <vector>
@@ -1469,7 +1469,7 @@ int main(){
     }
     int cnt=0,s=0;
     for(auto&row:g)for(int x:row)if(x){cnt++;s+=x;}
-    cout<<cnt<<" "<<s<<"\n";
+    cout<<cnt<<" "<<s<<"\\n";
 }`,
 p2_str_b:`#include <iostream>
 #include <string>
@@ -1479,7 +1479,7 @@ int main(){
     string s;getline(cin,s);
     int cnt=0;
     for(char c:s)if(isalpha((unsigned char)c))cnt++;
-    cout<<cnt<<"\n";
+    cout<<cnt<<"\\n";
 }`,
 p2_str_m:`#include <iostream>
 #include <string>
@@ -1498,7 +1498,7 @@ int main(){
             cur=prev+rep;
         }else cur+=c;
     }
-    cout<<cur<<"\n";
+    cout<<cur<<"\\n";
 }`,
 p2_bee_b:`#include <iostream>
 #include <vector>
@@ -1507,7 +1507,7 @@ using namespace std;
 int main(){
     int n;cin>>n;
     vector<int>t(n);for(auto&x:t)cin>>x;
-    cout<<*max_element(t.begin(),t.end())-*min_element(t.begin(),t.end())<<"\n";
+    cout<<*max_element(t.begin(),t.end())-*min_element(t.begin(),t.end())<<"\\n";
 }`,
 p2_bee_m:`#include <iostream>
 #include <vector>
@@ -1521,7 +1521,7 @@ int main(){
         while(t[r]-t[l]>w)l++;
         ans=max(ans,r-l+1);
     }
-    cout<<ans<<"\n";
+    cout<<ans<<"\\n";
 }`,
 p2_card_b:`#include <iostream>
 #include <vector>
@@ -1533,7 +1533,7 @@ int main(){
     sort(a.begin(),a.end());
     long long s=0;
     for(int i=n-k;i<n;i++)s+=a[i];
-    cout<<s<<"\n";
+    cout<<s<<"\\n";
 }`,
 p2_card_m:`#include <iostream>
 #include <vector>
@@ -1552,7 +1552,7 @@ int main(){
             if(!used[i]&&a[i]>x){used[i]=true;score++;break;}
         }
     }
-    cout<<score<<"\n";
+    cout<<score<<"\\n";
 }`
 
 ,
@@ -1563,31 +1563,31 @@ int main(){
     int n;cin>>n;
     long long s=0;int x;
     for(int i=0;i<n;i++){cin>>x;s+=x;}
-    cout<<(s*2+n)/(2LL*n)<<"\n";
+    cout<<(s*2+n)/(2LL*n)<<"\\n";
 }`,
 o_isprime:`#include <iostream>
 using namespace std;
 int main(){
     long long n;cin>>n;
-    if(n<2){cout<<"No\n";return 0;}
-    for(long long i=2;i*i<=n;i++)if(n%i==0){cout<<"No\n";return 0;}
-    cout<<"Yes\n";
+    if(n<2){cout<<"No\\n";return 0;}
+    for(long long i=2;i*i<=n;i++)if(n%i==0){cout<<"No\\n";return 0;}
+    cout<<"Yes\\n";
 }`,
 o_count_digit:`#include <iostream>
 using namespace std;
 int main(){
     long long n;cin>>n;
-    if(n==0){cout<<1<<"\n";return 0;}
+    if(n==0){cout<<1<<"\\n";return 0;}
     int cnt=0;
     while(n>0){cnt++;n/=10;}
-    cout<<cnt<<"\n";
+    cout<<cnt<<"\\n";
 }`,
 o_reverse_num:`#include <iostream>
 using namespace std;
 int main(){
     long long n,rev=0;cin>>n;
     while(n>0){rev=rev*10+n%10;n/=10;}
-    cout<<rev<<"\n";
+    cout<<rev<<"\\n";
 }`,
 o_count_char:`#include <iostream>
 #include <string>
@@ -1596,7 +1596,7 @@ int main(){
     string s;char c;cin>>s>>c;
     int cnt=0;
     for(char x:s)if(x==c)cnt++;
-    cout<<cnt<<"\n";
+    cout<<cnt<<"\\n";
 }`,
 o_prefix:`#include <iostream>
 #include <vector>
@@ -1605,7 +1605,7 @@ int main(){
     int n,q;cin>>n>>q;
     vector<long long>pref(n+1,0);
     for(int i=0;i<n;i++){int x;cin>>x;pref[i+1]=pref[i]+x;}
-    while(q--){int l,r;cin>>l>>r;cout<<pref[r]-pref[l-1]<<"\n";}
+    while(q--){int l,r;cin>>l>>r;cout<<pref[r]-pref[l-1]<<"\\n";}
 }`,
 o_twosum:`#include <iostream>
 #include <vector>
@@ -1616,7 +1616,7 @@ int main(){
     unordered_map<int,int>seen;
     for(int i=0;i<n;i++){
         int x;cin>>x;
-        if(seen.count(target-x)){cout<<seen[target-x]+1<<" "<<i+1<<"\n";return 0;}
+        if(seen.count(target-x)){cout<<seen[target-x]+1<<" "<<i+1<<"\\n";return 0;}
         seen[x]=i;
     }
 }`,
@@ -1627,9 +1627,9 @@ int main(){
     int n;cin>>n;
     set<int,greater<int>>s;
     for(int i=0;i<n;i++){int x;cin>>x;s.insert(x);}
-    if(s.size()<2){cout<<-1<<"\n";return 0;}
+    if(s.size()<2){cout<<-1<<"\\n";return 0;}
     auto it=s.begin();++it;
-    cout<<*it<<"\n";
+    cout<<*it<<"\\n";
 }`,
 o_transpose:`#include <iostream>
 #include <vector>
@@ -1640,7 +1640,7 @@ int main(){
     for(auto&r:a)for(auto&x:r)cin>>x;
     for(int j=0;j<m;j++){
         for(int i=0;i<n;i++){if(i)cout<<" ";cout<<a[i][j];}
-        cout<<"\n";
+        cout<<"\\n";
     }
 }`,
 o_str_compress:`#include <iostream>
@@ -1655,7 +1655,7 @@ int main(){
         cout<<s[i]<<(j-i);
         i=j;
     }
-    cout<<"\n";
+    cout<<"\\n";
 }`,
 o_edit_dist:`#include <iostream>
 #include <string>
@@ -1672,7 +1672,7 @@ int main(){
         if(A[i-1]==B[j-1])dp[i][j]=dp[i-1][j-1];
         else dp[i][j]=1+min({dp[i-1][j],dp[i][j-1],dp[i-1][j-1]});
     }
-    cout<<dp[m][n]<<"\n";
+    cout<<dp[m][n]<<"\\n";
 }`,
 o_nqueen:`#include <iostream>
 #include <set>
@@ -1690,7 +1690,7 @@ void solve(int row){
 }
 int main(){
     cin>>n;solve(0);
-    cout<<cnt<<"\n";
+    cout<<cnt<<"\\n";
 }`,
 o_kth_min:`#include <iostream>
 #include <vector>
@@ -1700,7 +1700,7 @@ int main(){
     int n,k;cin>>n>>k;
     vector<int>a(n);for(auto&x:a)cin>>x;
     sort(a.begin(),a.end());
-    cout<<a[k-1]<<"\n";
+    cout<<a[k-1]<<"\\n";
 }`,
 m_two_sum:`#include <iostream>\n#include <unordered_map>\nusing namespace std;\nint main(){\n    int n,K;cin>>n>>K;\n    unordered_map<int,int>m;\n    for(int i=1;i<=n;i++){int x;cin>>x;if(m.count(K-x)){cout<<m[K-x]<<" "<<i<<"\\n";return 0;}m[x]=i;}\n}`,
 m_uniq_cnt:`#include <iostream>\n#include <set>\nusing namespace std;\nint main(){int n;cin>>n;set<int>s;for(int i=0;i<n;i++){int x;cin>>x;s.insert(x);}cout<<s.size()<<"\\n";}`,
@@ -2172,7 +2172,7 @@ int main(){
     for(int i=0;i<k;i++){int r,c;scanf("%d %d",&r,&c);g[r][c]=1;}
     int cnt=0;
     for(int i=0;i<n;i++)for(int j=0;j<n;j++)if(g[i][j])cnt++;
-    printf("%d\n",cnt);
+    printf("%d\\n",cnt);
 }`,
 p2_color_m:`#include <stdio.h>
 int g[100][100];
@@ -2184,7 +2184,7 @@ int main(){
     }
     int cnt=0,s=0;
     for(int i=0;i<n;i++)for(int j=0;j<n;j++)if(g[i][j]){cnt++;s+=g[i][j];}
-    printf("%d %d\n",cnt,s);
+    printf("%d %d\\n",cnt,s);
 }`,
 p2_str_b:`#include <stdio.h>
 #include <ctype.h>
@@ -2192,7 +2192,7 @@ int main(){
     char s[200];fgets(s,sizeof(s),stdin);
     int cnt=0;
     for(int i=0;s[i];i++)if(isalpha((unsigned char)s[i]))cnt++;
-    printf("%d\n",cnt);
+    printf("%d\\n",cnt);
 }`,
 p2_str_m:`#include <stdio.h>
 #include <string.h>
@@ -2213,14 +2213,14 @@ int main(){
             strcpy(cur,tmp);curlen=strlen(cur);
         }else{cur[curlen++]=c;cur[curlen]=0;}
     }
-    printf("%s\n",cur);
+    printf("%s\\n",cur);
 }`,
 p2_bee_b:`#include <stdio.h>
 int main(){
     int n;scanf("%d",&n);
     int t[100],mx=-1,mn=1000000;
     for(int i=0;i<n;i++){scanf("%d",&t[i]);if(t[i]>mx)mx=t[i];if(t[i]<mn)mn=t[i];}
-    printf("%d\n",mx-mn);
+    printf("%d\\n",mx-mn);
 }`,
 p2_bee_m:`#include <stdio.h>
 int main(){
@@ -2232,7 +2232,7 @@ int main(){
         while(t[r]-t[l]>w)l++;
         if(r-l+1>ans)ans=r-l+1;
     }
-    printf("%d\n",ans);
+    printf("%d\\n",ans);
 }`,
 p2_card_b:`#include <stdio.h>
 #include <stdlib.h>
@@ -2244,7 +2244,7 @@ int main(){
     qsort(a,n,sizeof(int),cmp);
     long long s=0;
     for(int i=n-k;i<n;i++)s+=a[i];
-    printf("%lld\n",s);
+    printf("%lld\\n",s);
 }`,
 p2_card_m:`#include <stdio.h>
 #include <stdlib.h>
@@ -2261,7 +2261,7 @@ int main(){
             if(!used[j]&&a[j]>b[i]){used[j]=1;score++;break;}
         }
     }
-    printf("%d\n",score);
+    printf("%d\\n",score);
 }`
 
 ,
@@ -2270,28 +2270,28 @@ int main(){
     int n;scanf("%d",&n);
     long long s=0;int x;
     for(int i=0;i<n;i++){scanf("%d",&x);s+=x;}
-    printf("%lld\n",(s*2+n)/(2LL*n));
+    printf("%lld\\n",(s*2+n)/(2LL*n));
 }`,
 o_isprime:`#include <stdio.h>
 int main(){
     long long n;scanf("%lld",&n);
-    if(n<2){printf("No\n");return 0;}
-    for(long long i=2;i*i<=n;i++)if(n%i==0){printf("No\n");return 0;}
-    printf("Yes\n");
+    if(n<2){printf("No\\n");return 0;}
+    for(long long i=2;i*i<=n;i++)if(n%i==0){printf("No\\n");return 0;}
+    printf("Yes\\n");
 }`,
 o_count_digit:`#include <stdio.h>
 int main(){
     long long n;scanf("%lld",&n);
-    if(n==0){printf("1\n");return 0;}
+    if(n==0){printf("1\\n");return 0;}
     int cnt=0;
     while(n>0){cnt++;n/=10;}
-    printf("%d\n",cnt);
+    printf("%d\\n",cnt);
 }`,
 o_reverse_num:`#include <stdio.h>
 int main(){
     long long n,rev=0;scanf("%lld",&n);
     while(n>0){rev=rev*10+n%10;n/=10;}
-    printf("%lld\n",rev);
+    printf("%lld\\n",rev);
 }`,
 o_count_char:`#include <stdio.h>
 #include <string.h>
@@ -2300,21 +2300,21 @@ int main(){
     scanf("%s %c",s,&c);
     int cnt=0;
     for(int i=0;s[i];i++)if(s[i]==c)cnt++;
-    printf("%d\n",cnt);
+    printf("%d\\n",cnt);
 }`,
 o_prefix:`#include <stdio.h>
 long long pref[100001];
 int main(){
     int n,q;scanf("%d %d",&n,&q);
     for(int i=0;i<n;i++){int x;scanf("%d",&x);pref[i+1]=pref[i]+x;}
-    while(q--){int l,r;scanf("%d %d",&l,&r);printf("%lld\n",pref[r]-pref[l-1]);}
+    while(q--){int l,r;scanf("%d %d",&l,&r);printf("%lld\\n",pref[r]-pref[l-1]);}
 }`,
 o_twosum:`#include <stdio.h>
 int a[100001];
 int main(){
     int n,target;scanf("%d %d",&n,&target);
     for(int i=0;i<n;i++)scanf("%d",&a[i]);
-    for(int i=0;i<n;i++)for(int j=i+1;j<n;j++)if(a[i]+a[j]==target){printf("%d %d\n",i+1,j+1);return 0;}
+    for(int i=0;i<n;i++)for(int j=i+1;j<n;j++)if(a[i]+a[j]==target){printf("%d %d\\n",i+1,j+1);return 0;}
 }`,
 o_2nd_max:`#include <stdio.h>
 #include <stdlib.h>
@@ -2326,7 +2326,7 @@ int main(){
     qsort(a,n,sizeof(int),cmp);
     int sec=-1;
     for(int i=1;i<n;i++)if(a[i]!=a[0]){sec=a[i];break;}
-    printf("%d\n",sec);
+    printf("%d\\n",sec);
 }`,
 o_transpose:`#include <stdio.h>
 int a[51][51];
@@ -2335,7 +2335,7 @@ int main(){
     for(int i=0;i<n;i++)for(int j=0;j<m;j++)scanf("%d",&a[i][j]);
     for(int j=0;j<m;j++){
         for(int i=0;i<n;i++){if(i)printf(" ");printf("%d",a[i][j]);}
-        printf("\n");
+        printf("\\n");
     }
 }`,
 o_str_compress:`#include <stdio.h>
@@ -2349,7 +2349,7 @@ int main(){
         printf("%c%d",s[i],j-i);
         i=j;
     }
-    printf("\n");
+    printf("\\n");
 }`,
 o_edit_dist:`#include <stdio.h>
 #include <string.h>
@@ -2364,7 +2364,7 @@ int main(){
         if(A[i-1]==B[j-1])dp[i][j]=dp[i-1][j-1];
         else dp[i][j]=1+min3(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
     }
-    printf("%d\n",dp[m][n]);
+    printf("%d\\n",dp[m][n]);
 }`,
 o_nqueen:`#include <stdio.h>
 int n,cnt=0;
@@ -2381,7 +2381,7 @@ void solve(int row){
 int main(){
     scanf("%d",&n);
     solve(0);
-    printf("%d\n",cnt);
+    printf("%d\\n",cnt);
 }`,
 o_kth_min:`#include <stdio.h>
 #include <stdlib.h>
@@ -2391,7 +2391,7 @@ int main(){
     int a[100000];
     for(int i=0;i<n;i++)scanf("%d",&a[i]);
     qsort(a,n,sizeof(int),cmp);
-    printf("%d\n",a[k-1]);
+    printf("%d\\n",a[k-1]);
 }`,
 m_two_sum:`#include <stdio.h>\nint main(){int n,K;scanf("%d %d",&n,&K);int a[5000];for(int i=0;i<n;i++)scanf("%d",&a[i]);for(int i=0;i<n;i++)for(int j=i+1;j<n;j++)if(a[i]+a[j]==K){printf("%d %d\\n",i+1,j+1);return 0;}return 0;}`,
 m_uniq_cnt:`#include <stdio.h>\n#include <stdlib.h>\nint cmp(const void*a,const void*b){return *(int*)a-*(int*)b;}\nint main(){int n;scanf("%d",&n);int a[100000];for(int i=0;i<n;i++)scanf("%d",&a[i]);qsort(a,n,sizeof(int),cmp);int c=n?1:0;for(int i=1;i<n;i++)if(a[i]!=a[i-1])c++;printf("%d\\n",c);return 0;}`,
@@ -3066,7 +3066,7 @@ public class Main {
         while(q-->0){
             st=new StringTokenizer(br.readLine());
             int l=Integer.parseInt(st.nextToken()),r=Integer.parseInt(st.nextToken());
-            sb.append(pref[r]-pref[l-1]).append('\n');
+            sb.append(pref[r]-pref[l-1]).append('\\n');
         }
         System.out.print(sb);
     }
@@ -3106,7 +3106,7 @@ public class Main {
         StringBuilder sb=new StringBuilder();
         for(int j=0;j<m;j++){
             for(int i=0;i<n;i++){if(i>0)sb.append(' ');sb.append(a[i][j]);}
-            sb.append('\n');
+            sb.append('\\n');
         }
         System.out.print(sb);
     }
@@ -3667,6 +3667,7 @@ async function runSingle(code, stdin, expectedRaw) {
     if (currentLang === 'py') {
       const lines = stdin.split('\n');
       pyodide.globals.set('_stdin_lines', lines);
+      pyodide.globals.set('_stdin_text', stdin.endsWith('\n') ? stdin : stdin + '\n');
       output = await pyodide.runPythonAsync(`
 import sys, io, builtins
 _lines = _stdin_lines; _idx = [0]
@@ -3674,9 +3675,10 @@ def _inp(p=''):
     if _idx[0] < len(_lines): v=_lines[_idx[0]]; _idx[0]+=1; return v
     raise EOFError()
 builtins.input = _inp
+sys.stdin = io.StringIO(_stdin_text)
 _old = sys.stdout; sys.stdout = io.StringIO()
 try:
-${code.split('\n').map(l => '    ' + l).join('\n')}
+${code.split('\\n').map(l => '    ' + l).join('\\n')}
     _out = sys.stdout.getvalue()
 except Exception as e:
     _out = 'ERROR: ' + str(e)

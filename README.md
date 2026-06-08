@@ -1,7 +1,7 @@
 # APCS Multi-Language Online Judge / APCS 多語言線上評分系統
 
-> 一個專案、四種語言、83 道題目（332 份解答全齊備）、20 章互動式基礎教學、即時瀏覽器評分、附解題思路
-> One project, four languages, 83 problems (332 solutions across all langs), 20 interactive tutorial chapters, in-browser instant grading, with solution hints
+> 一個專案、四種語言、125 道題目、68 章互動式基礎教學、即時瀏覽器評分、附解題思路
+> One project, four languages, 125 problems, 68 interactive tutorial chapters, in-browser instant grading, with solution hints
 
 🔗 **教學頁面 / Tutorial**：[tutorial.html](https://yu-0312.github.io/apcs-judge/tutorial.html)
 
@@ -18,13 +18,13 @@
 這是一個為 **APCS（大學程式設計先修檢測）** 設計的線上練習平台，特色是：
 
 - **單一 HTML 檔案**：無需後端，瀏覽器打開即用
-- **四語言切換**：Python / C++ / C / Java，所有 83 題都有 4 語言解答
-- **瀏覽器內執行**：Python 用 Pyodide、C/C++ 用 JSCPP、Java 用 Piston API
+- **四語言切換**：Python / C++ / C / Java，所有 125 題都有 4 語言解答
+- **瀏覽器內執行**：Python 用 Pyodide、C/C++/Java 走 Judge0 CE 線上編譯
 - **即時評分**：對照預期輸出，顯示 AC / WA 與詳細差異
 - **解題思路提示**：每題都附「💡 思路」，解釋題目中的關鍵字暗示了什麼演算法
 - **難度星等**：⭐ 初級 / ⭐⭐ 中級 / ⭐⭐⭐ 高級 一目了然
-- **83 道題目**：涵蓋初級、中級、高級三個難度
-- **20 章基礎教學**：tutorial.html 從變數一路教到 APCS 實戰技巧
+- **125 道題目**：涵蓋初級、中級、高級三個難度
+- **68 章基礎教學**：tutorial.html 從變數一路教到 APCS 實戰技巧
 
 ### 🎯 題目分布
 
@@ -36,7 +36,7 @@
 
 ### 📚 基礎教學（tutorial.html）
 
-**20 章** 互動式教學，每章左側 Markdown 教材、右側即時 Python 編輯器：
+**68 章** 互動式教學，每章左側 Markdown 教材、右側即時 Python 編輯器：
 
 **基礎篇**
 1. 變數與資料型別
@@ -96,8 +96,7 @@
 | 元件 | 用途 |
 |------|------|
 | **Pyodide** | Python 3.12 編譯為 WebAssembly，瀏覽器內執行 |
-| **JSCPP** | C/C++ 直譯器，純 JavaScript 實作，無需編譯 |
-| **Piston API** | Java 雲端執行（免費、無需 API Key） |
+| **Judge0 CE** | C / C++ / Java 雲端編譯執行（公開實例，免 API Key） |
 | **CodeMirror 5** | 語法高亮編輯器 |
 | **marked.js** | Markdown 渲染（題目敘述與思路） |
 
@@ -169,13 +168,13 @@ MIT License。題目敘述若引用自 APCS、ZeroJudge、啟思博等來源，�
 A web-based practice platform for Taiwan's **APCS (Advanced Placement Computer Science)** exam, featuring:
 
 - **Single HTML file**: No backend needed, runs entirely in the browser
-- **Four language modes**: Python / C++ / C / Java — all 83 problems have solutions in all 4 languages
-- **In-browser execution**: Pyodide (Python), JSCPP (C/C++), Piston API (Java)
+- **Four language modes**: Python / C++ / C / Java — all 125 problems have solutions in all 4 languages
+- **In-browser execution**: Pyodide (Python), Judge0 CE (C / C++ / Java)
 - **Instant grading**: Automatic comparison with expected output, AC/WA verdicts with diff view
 - **Solution hints**: Every problem includes a "💡 Hint" panel explaining which keywords in the problem statement suggest which algorithm
 - **Difficulty stars**: ⭐ Easy / ⭐⭐ Medium / ⭐⭐⭐ Hard shown in sidebar
-- **83 problems** across easy, medium, and hard
-- **20-chapter tutorial** (tutorial.html) from variables to APCS combat tips
+- **125 problems** across easy, medium, and hard
+- **68-chapter tutorial** (tutorial.html) from variables to APCS combat tips
 
 ### 🎯 Problem Breakdown
 
@@ -187,7 +186,7 @@ A web-based practice platform for Taiwan's **APCS (Advanced Placement Computer S
 
 ### 📚 Tutorial (tutorial.html)
 
-**20 interactive chapters**, each with a Markdown lesson on the left and a live Pyodide editor on the right.
+**68 interactive chapters**, each with a Markdown lesson on the left and a live Pyodide editor on the right.
 
 **Basics**: variables, I/O, operators, conditionals, loops
 **Data structures**: strings, lists, 2D arrays, functions, dicts/sets
@@ -224,8 +223,7 @@ Example for "Maximum Subarray Sum":
 | Component | Purpose |
 |-----------|---------|
 | **Pyodide** | Python 3.12 compiled to WebAssembly, runs in-browser |
-| **JSCPP** | Pure-JavaScript C/C++ interpreter, no compilation needed |
-| **Piston API** | Cloud Java execution (free, no API key required) |
+| **Judge0 CE** | Cloud compilation for C / C++ / Java (public instance, no API key) |
 | **CodeMirror 5** | Syntax-highlighted code editor |
 | **marked.js** | Markdown rendering for problem descriptions and hints |
 
