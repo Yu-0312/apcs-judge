@@ -1634,12 +1634,12 @@ print(min(passed) if passed else "worst case")
 
 樹 = **沒有環的連通圖**。最常見的表示法：
 
-\\\`\\\`\\\`python
+\`\`\`python
 # children[u] = u 的所有子節點
 children = {0:[1,2], 1:[3,4], 2:[], 3:[], 4:[]}
-\\\`\\\`\\\`
+\`\`\`
 
-或用「父節點陣列」：\\\`parent[i] = i 的父親\\\`。
+或用「父節點陣列」：\`parent[i] = i 的父親\`。
 
 ## 21.2 三種走訪順序
 
@@ -1653,32 +1653,32 @@ children = {0:[1,2], 1:[3,4], 2:[], 3:[], 4:[]}
 
 ## 21.3 一般樹用 DFS 走
 
-\\\`\\\`\\\`python
+\`\`\`python
 def dfs(u, par=-1):
     # 進入 u 時做的事
     for v in children[u]:
         if v != par:
             dfs(v, u)
     # 離開 u 時做的事（後序處理）
-\\\`\\\`\\\`
+\`\`\`
 
 ## 21.4 子樹大小（最常考）
 
-\\\`\\\`\\\`python
+\`\`\`python
 size = [1]*n
 def dfs(u, par):
     for v in children[u]:
         if v != par:
             dfs(v, u)
             size[u] += size[v]
-\\\`\\\`\\\`
+\`\`\`
 
 這就是「樹 DP」的雛形：子樹算完才能算自己。
 
 ## 21.5 注意事項
 
-- **遞迴深度**：Python 預設 1000，深樹要 \\\`sys.setrecursionlimit(10**6)\\\`
-- **不要重訪父節點**：用 \\\`par\\\` 參數擋住
+- **遞迴深度**：Python 預設 1000，深樹要 \`sys.setrecursionlimit(10**6)\`
+- **不要重訪父節點**：用 \`par\` 參數擋住
 `,example:`
 # 子樹大小範例
 import sys
@@ -1706,24 +1706,24 @@ print(*size)  # 5 3 1 1 1
 
 ## 22.1 圖的表示
 
-\\\`\\\`\\\`python
+\`\`\`python
 # 鄰接表（最常用）
 graph = {0:[1,2], 1:[0,3], 2:[0,3], 3:[1,2]}
-\\\`\\\`\\\`
+\`\`\`
 
 讀邊：
-\\\`\\\`\\\`python
+\`\`\`python
 from collections import defaultdict
 g = defaultdict(list)
 for _ in range(m):
     u, v = map(int, input().split())
     g[u].append(v)
     g[v].append(u)   # 無向圖才加這行
-\\\`\\\`\\\`
+\`\`\`
 
 ## 22.2 BFS：找最短步數
 
-\\\`\\\`\\\`python
+\`\`\`python
 from collections import deque
 def bfs(start):
     dist = {start: 0}
@@ -1735,13 +1735,13 @@ def bfs(start):
                 dist[v] = dist[u] + 1
                 q.append(v)
     return dist
-\\\`\\\`\\\`
+\`\`\`
 
 **為什麼 BFS = 最短步數？** 一層一層擴展，第一次碰到目標就是最少步數。
 
 ## 22.3 DFS：找連通分量
 
-\\\`\\\`\\\`python
+\`\`\`python
 visited = set()
 def dfs(u):
     visited.add(u)
@@ -1755,18 +1755,18 @@ for node in range(n):
         dfs(node)
         count += 1
 print(count)   # 連通分量數
-\\\`\\\`\\\`
+\`\`\`
 
 ## 22.4 二維迷宮
 
-把 \\\`grid[i][j]\\\` 想成圖中一個節點，四方向就是邊：
-\\\`\\\`\\\`python
+把 \`grid[i][j]\` 想成圖中一個節點，四方向就是邊：
+\`\`\`python
 dr = [-1,1,0,0]; dc = [0,0,-1,1]
 for d in range(4):
     ni, nj = i+dr[d], j+dc[d]
     if 0<=ni<R and 0<=nj<C and grid[ni][nj]=='.':
         ...
-\\\`\\\`\\\`
+\`\`\`
 `,example:`
 # 連通分量數
 n, m = 6, 4
@@ -1799,7 +1799,7 @@ print(cnt)   # 3
 
 核心想法：每次取出「目前距離最短的點」展開。用最小堆（heapq）達成。
 
-\\\`\\\`\\\`python
+\`\`\`python
 import heapq
 def dijkstra(start, n):
     dist = [float('inf')] * n
@@ -1813,7 +1813,7 @@ def dijkstra(start, n):
                 dist[v] = dist[u] + w
                 heapq.heappush(pq, (dist[v], v))
     return dist
-\\\`\\\`\\\`
+\`\`\`
 
 時間：**O((n + m) log n)**
 
@@ -1825,7 +1825,7 @@ BFS 假設每條邊長度都是 1。一旦邊有不同權重（例：距離、�
 
 「課程先修」、「工序相依」這類題目。Kahn 演算法（BFS 變形）：
 
-\\\`\\\`\\\`python
+\`\`\`python
 from collections import deque
 indeg = [0]*n
 for u in range(n):
@@ -1842,7 +1842,7 @@ while q:
         if indeg[v] == 0: q.append(v)
 
 # 若 len(order) < n → 有環
-\\\`\\\`\\\`
+\`\`\`
 
 ## 23.4 速查表
 
@@ -1880,15 +1880,15 @@ print(*dist)   # 0 1 3 2
 
 ## 24.1 DP 的三步驟
 
-1. **定義狀態**：\\\`dp[i]\\\` 代表什麼？
-2. **寫出轉移**：\\\`dp[i]\\\` 怎麼從前面算出來？
+1. **定義狀態**：\`dp[i]\` 代表什麼？
+2. **寫出轉移**：\`dp[i]\` 怎麼從前面算出來？
 3. **初始 + 順序**：邊界值、計算順序
 
 ## 24.2 最長遞增子序列 (LIS)
 
-**狀態**：\\\`dp[i]\\\` = 以 a[i] 結尾的最長遞增子序列長度
+**狀態**：\`dp[i]\` = 以 a[i] 結尾的最長遞增子序列長度
 
-\\\`\\\`\\\`python
+\`\`\`python
 def lis(a):
     n = len(a)
     dp = [1]*n
@@ -1897,31 +1897,31 @@ def lis(a):
             if a[j] < a[i]:
                 dp[i] = max(dp[i], dp[j]+1)
     return max(dp)
-\\\`\\\`\\\`
-**O(n²)**。進階可用 \\\`bisect\\\` 做到 O(n log n)。
+\`\`\`
+**O(n²)**。進階可用 \`bisect\` 做到 O(n log n)。
 
 ## 24.3 0/1 背包
 
 n 個物品（重量 w[i]、價值 v[i]），背包容量 W，求最大價值總和。
 
-**狀態**：\\\`dp[j]\\\` = 容量 j 時最大價值
+**狀態**：\`dp[j]\` = 容量 j 時最大價值
 
-\\\`\\\`\\\`python
+\`\`\`python
 def knapsack(w, v, W):
     dp = [0]*(W+1)
     for i in range(len(w)):
         for j in range(W, w[i]-1, -1):    # 注意倒序
             dp[j] = max(dp[j], dp[j-w[i]] + v[i])
     return dp[W]
-\\\`\\\`\\\`
+\`\`\`
 
 **為什麼倒序？** 正序的話會把同一個物品用兩次（變成完全背包）。
 
 ## 24.4 最長共同子序列 (LCS)
 
-**狀態**：\\\`dp[i][j]\\\` = a[:i] 和 b[:j] 的 LCS 長度
+**狀態**：\`dp[i][j]\` = a[:i] 和 b[:j] 的 LCS 長度
 
-\\\`\\\`\\\`python
+\`\`\`python
 def lcs(a, b):
     m, n = len(a), len(b)
     dp = [[0]*(n+1) for _ in range(m+1)]
@@ -1932,7 +1932,7 @@ def lcs(a, b):
             else:
                 dp[i][j] = max(dp[i-1][j], dp[i][j-1])
     return dp[m][n]
-\\\`\\\`\\\`
+\`\`\`
 `,example:`
 # 0/1 背包範例
 weights = [2, 3, 4, 5]
@@ -1954,12 +1954,12 @@ print(dp[W])   # 7 (取 w=2 + w=3)
 ## 25.1 核心需求
 
 兩件事，都要 O(近乎常數)：
-1. \\\`find(x)\\\` — x 在哪個集合？
-2. \\\`union(x, y)\\\` — 把 x 跟 y 合併成同一個集合
+1. \`find(x)\` — x 在哪個集合？
+2. \`union(x, y)\` — 把 x 跟 y 合併成同一個集合
 
 ## 25.2 基本實作（路徑壓縮）
 
-\\\`\\\`\\\`python
+\`\`\`python
 parent = list(range(n))    # 一開始每個人自成一群
 
 def find(x):
@@ -1973,22 +1973,22 @@ def union(x, y):
         parent[rx] = ry
         return True   # 真的合併了
     return False      # 早就在同一群
-\\\`\\\`\\\`
+\`\`\`
 
 ## 25.3 經典應用：算連通分量數
 
-\\\`\\\`\\\`python
+\`\`\`python
 n, m = map(int, input().split())
 parent = list(range(n))
 for _ in range(m):
     u, v = map(int, input().split())
     union(u, v)
 print(len(set(find(i) for i in range(n))))
-\\\`\\\`\\\`
+\`\`\`
 
 ## 25.4 進階：按秩合併
 
-\\\`\\\`\\\`python
+\`\`\`python
 rank = [0]*n
 def union(x, y):
     rx, ry = find(x), find(y)
@@ -1997,7 +1997,7 @@ def union(x, y):
     parent[ry] = rx
     if rank[rx] == rank[ry]: rank[rx] += 1
     return True
-\\\`\\\`\\\`
+\`\`\`
 
 ## 25.5 解什麼題？
 
@@ -2035,7 +2035,7 @@ print(groups)   # 3
 
 讓「比對兩段字串是否相同」變 O(1)。
 
-\\\`\\\`\\\`python
+\`\`\`python
 MOD = 10**9 + 7
 BASE = 131
 
@@ -2051,7 +2051,7 @@ def get_hashes(s):
 def sub_hash(h, p, l, r):
     # s[l..r-1] 的 hash
     return (h[r] - h[l]*p[r-l]) % MOD
-\\\`\\\`\\\`
+\`\`\`
 
 預處理 O(n)，每次查詢 O(1)。
 
@@ -2059,13 +2059,13 @@ def sub_hash(h, p, l, r):
 
 「在字串 t 中找 pattern p 的位置」，O(n+m)。重點是 fail array：紀錄「失敗時可以跳到哪」。
 
-實戰 Python 通常直接用 \\\`t.find(p)\\\` 或 \\\`re.search\\\`，但要懂 fail 函數的原理。
+實戰 Python 通常直接用 \`t.find(p)\` 或 \`re.search\`，但要懂 fail 函數的原理。
 
 ## 26.3 Trie（前綴樹）
 
 存大量字串，快速查「有沒有某前綴開頭」。
 
-\\\`\\\`\\\`python
+\`\`\`python
 trie = {}
 def insert(word):
     node = trie
@@ -2086,7 +2086,7 @@ def starts_with(prefix):
         if c not in node: return False
         node = node[c]
     return True
-\\\`\\\`\\\`
+\`\`\`
 
 每次操作 O(L)，L 為字串長度。
 
@@ -2126,49 +2126,49 @@ print(starts_with("cat"))  # False
 
 ## 27.1 讀整個檔案
 
-\\\`\\\`\\\`python
+\`\`\`python
 with open("data.txt", "r", encoding="utf-8") as f:
     text = f.read()
 print(text)
-\\\`\\\`\\\`
+\`\`\`
 
-\\\`with\\\` 是「結束自動關檔」的安全寫法，比 \\\`f.close()\\\` 不容易出錯。
+\`with\` 是「結束自動關檔」的安全寫法，比 \`f.close()\` 不容易出錯。
 
 ## 27.2 一行一行讀（大檔案用這個）
 
-\\\`\\\`\\\`python
+\`\`\`python
 with open("data.txt", "r", encoding="utf-8") as f:
     for line in f:
         line = line.rstrip("\\n")    # 去掉尾部換行
         print(line)
-\\\`\\\`\\\`
+\`\`\`
 
 ## 27.3 寫檔案
 
-\\\`\\\`\\\`python
+\`\`\`python
 with open("out.txt", "w", encoding="utf-8") as f:
     f.write("Hello\\n")
     f.write("APCS\\n")
-\\\`\\\`\\\`
+\`\`\`
 
 模式：
-- \\\`"r"\\\` 讀 / \\\`"w"\\\` 寫（蓋掉）/ \\\`"a"\\\` 附加
-- \\\`"rb"\\\` / \\\`"wb"\\\` 二進位（圖片、PDF 用）
+- \`"r"\` 讀 / \`"w"\` 寫（蓋掉）/ \`"a"\` 附加
+- \`"rb"\` / \`"wb"\` 二進位（圖片、PDF 用）
 
 ## 27.4 處理路徑
 
-\\\`\\\`\\\`python
+\`\`\`python
 from pathlib import Path
 p = Path("data") / "scores.txt"
 text = p.read_text(encoding="utf-8")     # 一行搞定
 p.write_text("hello", encoding="utf-8")
-\\\`\\\`\\\`
+\`\`\`
 
-\\\`pathlib\\\` 比手拼字串路徑安全，自動處理跨平台分隔符。
+\`pathlib\` 比手拼字串路徑安全，自動處理跨平台分隔符。
 
 ## 27.5 JSON：結構化資料的最佳搭擋
 
-\\\`\\\`\\\`python
+\`\`\`python
 import json
 data = {"name": "Alice", "scores": [90, 85, 77]}
 # 存
@@ -2176,9 +2176,9 @@ Path("data.json").write_text(json.dumps(data, ensure_ascii=False, indent=2))
 # 讀
 loaded = json.loads(Path("data.json").read_text())
 print(loaded["scores"])
-\\\`\\\`\\\`
+\`\`\`
 
-> 💡 **本章練習用 stdin/stdout 模擬**（瀏覽器沙箱不能寫真正檔案）。回到本機再用 \\\`open()\\\`。
+> 💡 **本章練習用 stdin/stdout 模擬**（瀏覽器沙箱不能寫真正檔案）。回到本機再用 \`open()\`。
 `,example:`
 # 模擬「讀檔內容、算平均」
 # 把 stdin 當成檔案內容
@@ -2200,13 +2200,13 @@ print(round(total / n, 1))   # 84.0
 ## 28.1 為什麼要拆檔案？
 
 當一個檔案超過 200-300 行，找東西就會崩潰。拆成模組：
-- \\\`main.py\\\` — 程式入口
-- \\\`utils.py\\\` — 工具函式
-- \\\`models.py\\\` — 資料結構
+- \`main.py\` — 程式入口
+- \`utils.py\` — 工具函式
+- \`models.py\` — 資料結構
 
 ## 28.2 import 的三種寫法
 
-\\\`\\\`\\\`python
+\`\`\`python
 import math
 print(math.sqrt(16))             # 4.0
 
@@ -2214,55 +2214,55 @@ from math import sqrt, pi
 print(sqrt(16), pi)              # 4.0 3.141...
 
 from math import *                # 全部拉進來（不建議）
-\\\`\\\`\\\`
+\`\`\`
 
 ## 28.3 自己寫模組
 
-\\\`\\\`\\\`python
+\`\`\`python
 # utils.py
 def gcd(a, b):
     return a if b == 0 else gcd(b, a % b)
 
 PI = 3.14159
-\\\`\\\`\\\`
+\`\`\`
 
-\\\`\\\`\\\`python
+\`\`\`python
 # main.py
 from utils import gcd, PI
 print(gcd(12, 18))    # 6
-\\\`\\\`\\\`
+\`\`\`
 
-## 28.4 \\\`if __name__ == "__main__":\\\`
+## 28.4 \`if __name__ == "__main__":\`
 
-\\\`\\\`\\\`python
+\`\`\`python
 # tool.py
 def main():
     print("Hello")
 
 if __name__ == "__main__":
     main()
-\\\`\\\`\\\`
+\`\`\`
 
 意思是「**只有直接執行這個檔案時才跑 main()**，被別人 import 時不跑」。寫小工具務必加。
 
 ## 28.5 套件管理：pip
 
-\\\`\\\`\\\`bash
+\`\`\`bash
 pip install requests
 pip install pandas matplotlib
 pip list
 pip freeze > requirements.txt
-\\\`\\\`\\\`
+\`\`\`
 
-\\\`requirements.txt\\\` 是專案的依賴清單，新環境 \\\`pip install -r requirements.txt\\\` 一次裝齊。
+\`requirements.txt\` 是專案的依賴清單，新環境 \`pip install -r requirements.txt\` 一次裝齊。
 
 ## 28.6 虛擬環境（避免套件互相打架）
 
-\\\`\\\`\\\`bash
+\`\`\`bash
 python -m venv .venv
 source .venv/bin/activate    # mac/linux
 .venv\\\\Scripts\\\\activate     # windows
-\\\`\\\`\\\`
+\`\`\`
 `,example:`
 # 用 math 模組
 import math
@@ -2278,7 +2278,7 @@ print(round(math.pi, 4))      # 3.1416
 
 ## 29.1 第一個 class
 
-\\\`\\\`\\\`python
+\`\`\`python
 class Student:
     def __init__(self, name, score):
         self.name = name
@@ -2289,17 +2289,17 @@ class Student:
 
 s = Student("Alice", 85)
 print(s.name, s.is_pass())   # Alice True
-\\\`\\\`\\\`
+\`\`\`
 
 關鍵字：
-- \\\`class\\\` 定義一個「類別」（藍圖）
-- \\\`__init__\\\` 建立物件時自動呼叫（建構子）
-- \\\`self\\\` = 「這個物件」自己，第一個參數固定是它
+- \`class\` 定義一個「類別」（藍圖）
+- \`__init__\` 建立物件時自動呼叫（建構子）
+- \`self\` = 「這個物件」自己，第一個參數固定是它
 
 ## 29.2 為什麼用 class？
 
 對比版本：
-\\\`\\\`\\\`python
+\`\`\`python
 # 程序式：資料散在外面
 students = [{"name":"Alice","score":85}, ...]
 def is_pass(s): return s["score"] >= 60
@@ -2307,13 +2307,13 @@ def is_pass(s): return s["score"] >= 60
 # OOP：資料 + 方法綁一起
 s = Student("Alice", 85)
 s.is_pass()
-\\\`\\\`\\\`
+\`\`\`
 
 當邏輯變複雜（成績加權、排名、輸出格式...），OOP 把相關東西聚在一個 class 裡。
 
 ## 29.3 繼承
 
-\\\`\\\`\\\`python
+\`\`\`python
 class GraduateStudent(Student):
     def __init__(self, name, score, advisor):
         super().__init__(name, score)
@@ -2324,13 +2324,13 @@ class GraduateStudent(Student):
 
 g = GraduateStudent("Bob", 90, "Prof. Lin")
 print(g.is_pass(), g.info())
-\\\`\\\`\\\`
+\`\`\`
 
-\\\`super().__init__(...)\\\` 呼叫父類別建構子。
+\`super().__init__(...)\` 呼叫父類別建構子。
 
 ## 29.4 常用魔術方法
 
-\\\`\\\`\\\`python
+\`\`\`python
 class Point:
     def __init__(self, x, y):
         self.x, self.y = x, y
@@ -2341,7 +2341,7 @@ class Point:
 
 p = Point(1,2) + Point(3,4)
 print(p)    # Point(4, 6)
-\\\`\\\`\\\`
+\`\`\`
 
 ## 29.5 什麼時候不要用 class？
 
@@ -2371,7 +2371,7 @@ for s in students:
 
 ## 30.1 try / except 基本
 
-\\\`\\\`\\\`python
+\`\`\`python
 try:
     n = int(input())
     print(100 // n)
@@ -2379,26 +2379,26 @@ except ZeroDivisionError:
     print("不能除以 0")
 except ValueError:
     print("請輸入整數")
-\\\`\\\`\\\`
+\`\`\`
 
 執行流程：try 區塊正常跑；發生指定錯誤 → 跳到對應 except；都沒事 → 跳過所有 except。
 
 ## 30.2 多重 except / 全包
 
-\\\`\\\`\\\`python
+\`\`\`python
 try:
     risky_call()
 except (KeyError, IndexError) as e:
     print(f"找不到資料: {e}")
 except Exception as e:                # 兜底（少用）
     print(f"意外錯誤: {e}")
-\\\`\\\`\\\`
+\`\`\`
 
-> ⚠️ **不要寫 \\\`except: pass\\\`**！把所有錯誤吞掉，最難 debug。
+> ⚠️ **不要寫 \`except: pass\`**！把所有錯誤吞掉，最難 debug。
 
 ## 30.3 finally / else
 
-\\\`\\\`\\\`python
+\`\`\`python
 try:
     f = open("data.txt")
     data = f.read()
@@ -2408,37 +2408,37 @@ else:
     print("讀檔成功")
 finally:
     f.close()      # 不管有沒有錯都會跑
-\\\`\\\`\\\`
+\`\`\`
 
-實際上現代 Python 用 \\\`with open(...)\\\` 自動關檔，這裡是舊寫法示範。
+實際上現代 Python 用 \`with open(...)\` 自動關檔，這裡是舊寫法示範。
 
 ## 30.4 主動丟錯：raise
 
-\\\`\\\`\\\`python
+\`\`\`python
 def divide(a, b):
     if b == 0:
         raise ValueError("除數不能為 0")
     return a / b
-\\\`\\\`\\\`
+\`\`\`
 
 呼叫端可以接住，或讓它向上拋。
 
 ## 30.5 自訂例外
 
-\\\`\\\`\\\`python
+\`\`\`python
 class InvalidScore(Exception):
     pass
 
 def add_score(s):
     if not (0 <= s <= 100):
         raise InvalidScore(f"成績 {s} 超出範圍")
-\\\`\\\`\\\`
+\`\`\`
 
 ## 30.6 EAFP vs LBYL
 
 Python 風格偏好「先試再說，錯了再接」(EAFP)：
 
-\\\`\\\`\\\`python
+\`\`\`python
 # Pythonic
 try:
     return d[key]
@@ -2450,7 +2450,7 @@ if key in d:
     return d[key]
 else:
     return 0
-\\\`\\\`\\\`
+\`\`\`
 `,example:`
 # 安全除法示範
 inputs = ["10", "0", "abc", "5"]
@@ -2471,7 +2471,7 @@ for s in inputs:
 
 ## 31.1 用 assert 做隨手測試
 
-\\\`\\\`\\\`python
+\`\`\`python
 def add(a, b):
     return a + b
 
@@ -2479,13 +2479,13 @@ assert add(2, 3) == 5
 assert add(-1, 1) == 0
 assert add(0, 0) == 0
 print("all passed")
-\\\`\\\`\\\`
+\`\`\`
 
-\\\`assert\\\` 為假就 \\\`AssertionError\\\`。簡單但有效。
+\`assert\` 為假就 \`AssertionError\`。簡單但有效。
 
 ## 31.2 unittest（標準框架）
 
-\\\`\\\`\\\`python
+\`\`\`python
 import unittest
 
 def is_prime(n):
@@ -2509,38 +2509,38 @@ class TestPrime(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-\\\`\\\`\\\`
+\`\`\`
 
-執行：\\\`python -m unittest test_prime.py\\\`
+執行：\`python -m unittest test_prime.py\`
 
 ## 31.3 系統性除錯：4 步驟
 
 1. **重現**：找到「一定會出錯」的最小輸入
-2. **二分**：在中間插 \\\`print(...)\\\`，看哪段開始不對
+2. **二分**：在中間插 \`print(...)\`，看哪段開始不對
 3. **假設 → 驗證**：猜原因，寫一個簡單測試證明 / 推翻
 4. **修完加測試**：避免下次再壞
 
 ## 31.4 用 pdb 互動除錯
 
-\\\`\\\`\\\`python
+\`\`\`python
 import pdb
 def buggy(a, b):
     pdb.set_trace()      # 跑到這停下來
     return a / b
 
 buggy(10, 0)
-\\\`\\\`\\\`
+\`\`\`
 
-常用指令：\\\`n\\\`（下一行）、\\\`s\\\`（進入函式）、\\\`p var\\\`（印變數）、\\\`c\\\`（繼續）。
+常用指令：\`n\`（下一行）、\`s\`（進入函式）、\`p var\`（印變數）、\`c\`（繼續）。
 
 ## 31.5 logging 比 print 強
 
-\\\`\\\`\\\`python
+\`\`\`python
 import logging
 logging.basicConfig(level=logging.DEBUG, format='%(levelname)s | %(message)s')
 logging.debug("input n=%d", n)
 logging.warning("意外狀況")
-\\\`\\\`\\\`
+\`\`\`
 
 正式專案不要 print，用 logging — 可調等級、可輸出到檔案。
 `,example:`
@@ -2561,24 +2561,24 @@ print("all passed")
 {id:32,title:"命令列工具 (CLI)",tag:"專案",content:`
 # 第 32 章：做一個命令列小工具
 
-> 🚀 **製作專案**：把 Python 變成可以 \\\`python tool.py --score 85\\\` 這樣用的工具。
+> 🚀 **製作專案**：把 Python 變成可以 \`python tool.py --score 85\` 這樣用的工具。
 
 ## 32.1 sys.argv：最原始的方式
 
-\\\`\\\`\\\`python
+\`\`\`python
 # greet.py
 import sys
 name = sys.argv[1] if len(sys.argv) > 1 else "World"
 print(f"Hello, {name}!")
-\\\`\\\`\\\`
+\`\`\`
 
-執行：\\\`python greet.py Alice\\\` → \\\`Hello, Alice!\\\`
+執行：\`python greet.py Alice\` → \`Hello, Alice!\`
 
-\\\`sys.argv[0]\\\` 是檔名本身，\\\`[1:]\\\` 開始才是參數。
+\`sys.argv[0]\` 是檔名本身，\`[1:]\` 開始才是參數。
 
 ## 32.2 argparse：正經做法
 
-\\\`\\\`\\\`python
+\`\`\`python
 import argparse
 
 parser = argparse.ArgumentParser(description="成績分級工具")
@@ -2591,18 +2591,18 @@ args = parser.parse_args()
 threshold = 70 if args.strict else 60
 result = "及格" if args.score >= threshold else "不及格"
 print(f"{args.name}: {args.score} → {result}")
-\\\`\\\`\\\`
+\`\`\`
 
 執行範例：
-\\\`\\\`\\\`bash
+\`\`\`bash
 python grade.py 75 --name Alice
 python grade.py 65 --strict
 python grade.py --help        # 自動產生說明！
-\\\`\\\`\\\`
+\`\`\`
 
 ## 32.3 設計一個完整的小工具：成績計算機
 
-\\\`\\\`\\\`python
+\`\`\`python
 # grader.py
 import argparse, sys, statistics
 
@@ -2631,17 +2631,17 @@ def main():
 
 if __name__ == "__main__":
     main()
-\\\`\\\`\\\`
+\`\`\`
 
 執行：
-\\\`\\\`\\\`bash
+\`\`\`bash
 echo "85\\n72\\n50" | python grader.py - --summary
-\\\`\\\`\\\`
+\`\`\`
 
 ## 32.4 進階：打包成可分享的工具
 
-- \\\`setup.py\\\` 或 \\\`pyproject.toml\\\` 定義套件
-- \\\`pip install -e .\\\` 安裝後可以 \\\`grader 85\\\` 直接呼叫
+- \`setup.py\` 或 \`pyproject.toml\` 定義套件
+- \`pip install -e .\` 安裝後可以 \`grader 85\` 直接呼叫
 - 加 README、加 license、push 上 GitHub
 `,example:`
 # 模擬 CLI 行為
@@ -2663,7 +2663,7 @@ print("及格" if score >= threshold else "不及格")
 
 ## 33.1 csv 模組基本
 
-\\\`\\\`\\\`python
+\`\`\`python
 import csv
 
 with open("scores.csv", encoding="utf-8") as f:
@@ -2671,31 +2671,31 @@ with open("scores.csv", encoding="utf-8") as f:
     headers = next(reader)   # 第一列是欄位名
     for row in reader:
         print(row)   # ['Alice', '90']
-\\\`\\\`\\\`
+\`\`\`
 
 ## 33.2 用 DictReader 更直覺
 
-\\\`\\\`\\\`python
+\`\`\`python
 with open("scores.csv", encoding="utf-8") as f:
     for row in csv.DictReader(f):
         print(row["name"], int(row["score"]))
-\\\`\\\`\\\`
+\`\`\`
 
 ## 33.3 寫 CSV
 
-\\\`\\\`\\\`python
+\`\`\`python
 with open("out.csv", "w", encoding="utf-8", newline="") as f:
     w = csv.writer(f)
     w.writerow(["name", "grade"])
     for name, grade in result:
         w.writerow([name, grade])
-\\\`\\\`\\\`
+\`\`\`
 
-> 注意：寫 csv 時記得 \\\`newline=""\\\`，否則 Windows 上會多空行。
+> 注意：寫 csv 時記得 \`newline=""\`，否則 Windows 上會多空行。
 
 ## 33.4 小專案：班級成績分析
 
-\\\`\\\`\\\`python
+\`\`\`python
 import csv, statistics
 from collections import Counter
 
@@ -2716,18 +2716,18 @@ print(Counter(grade(int(r["score"])) for r in rows))
 top3 = sorted(rows, key=lambda r: -int(r["score"]))[:3]
 for r in top3:
     print(r["name"], r["score"])
-\\\`\\\`\\\`
+\`\`\`
 
 ## 33.5 進階：用 pandas（如果要做更多事）
 
-\\\`\\\`\\\`python
+\`\`\`python
 import pandas as pd
 
 df = pd.read_csv("class.csv")
 print(df.describe())
 print(df.groupby("class")["score"].mean())
 df.sort_values("score", ascending=False).head(3)
-\\\`\\\`\\\`
+\`\`\`
 
 pandas 適合資料超過幾百列、要做 group / merge / 視覺化的情境。
 `,example:`
@@ -2753,41 +2753,41 @@ print(max(scores))                          # 最高
 
 ## 34.1 requests：呼叫 API 的標準套件
 
-\\\`\\\`\\\`python
+\`\`\`python
 import requests
 r = requests.get("https://api.github.com/users/torvalds")
 print(r.status_code)        # 200
 data = r.json()             # 自動解析 JSON
 print(data["name"], data["public_repos"])
-\\\`\\\`\\\`
+\`\`\`
 
-\\\`\\\`\\\`bash
+\`\`\`bash
 pip install requests
-\\\`\\\`\\\`
+\`\`\`
 
 ## 34.2 HTTP 動詞速覽
 
 | 動詞 | 用途 | requests 寫法 |
 |------|------|---------------|
-| GET | 讀取 | \\\`requests.get(url)\\\` |
-| POST | 新增 | \\\`requests.post(url, json={...})\\\` |
-| PUT | 更新 | \\\`requests.put(url, json={...})\\\` |
-| DELETE | 刪除 | \\\`requests.delete(url)\\\` |
+| GET | 讀取 | \`requests.get(url)\` |
+| POST | 新增 | \`requests.post(url, json={...})\` |
+| PUT | 更新 | \`requests.put(url, json={...})\` |
+| DELETE | 刪除 | \`requests.delete(url)\` |
 
 ## 34.3 查詢參數、header、認證
 
-\\\`\\\`\\\`python
+\`\`\`python
 r = requests.get(
     "https://api.example.com/search",
     params={"q": "python", "page": 1},
     headers={"Authorization": "Bearer YOUR_TOKEN"},
     timeout=10,
 )
-\\\`\\\`\\\`
+\`\`\`
 
 ## 34.4 處理失敗
 
-\\\`\\\`\\\`python
+\`\`\`python
 try:
     r = requests.get(url, timeout=5)
     r.raise_for_status()        # 4xx/5xx 會 raise
@@ -2796,11 +2796,11 @@ except requests.Timeout:
     print("逾時")
 except requests.RequestException as e:
     print("請求失敗:", e)
-\\\`\\\`\\\`
+\`\`\`
 
 ## 34.5 小專案：抓 GitHub 使用者資訊
 
-\\\`\\\`\\\`python
+\`\`\`python
 import requests, sys
 
 def get_user(login):
@@ -2819,15 +2819,15 @@ def summary(login):
 
 for name in sys.argv[1:]:
     summary(name)
-\\\`\\\`\\\`
+\`\`\`
 
-執行：\\\`python gh.py torvalds gvanrossum\\\`
+執行：\`python gh.py torvalds gvanrossum\`
 
 ## 34.6 速率限制、重試、快取
 
 實戰要記得：
-- API 通常有 rate limit → 加 \\\`time.sleep()\\\` 或退避策略
-- 重要請求要 retry（試 \\\`requests-cache\\\` / \\\`tenacity\\\`）
+- API 通常有 rate limit → 加 \`time.sleep()\` 或退避策略
+- 重要請求要 retry（試 \`requests-cache\` / \`tenacity\`）
 - 機密 token 用環境變數，不要 commit 到 git
 
 > 💡 瀏覽器沙箱通常不能發外部 HTTP（CORS），本地端跑才能體驗。
@@ -2853,7 +2853,7 @@ print(f"repos={data['public_repos']}")
 
 ## 35.1 LV1：猜數字
 
-\\\`\\\`\\\`python
+\`\`\`python
 import random
 
 def play():
@@ -2878,13 +2878,13 @@ if __name__ == "__main__":
         play()
         if input("再玩一次？ (y/n) ").lower() != "y":
             break
-\\\`\\\`\\\`
+\`\`\`
 
 用到的東西：random / try-except / while / if-else / 函式 / main 入口。
 
 ## 35.2 LV2：成績管理小系統
 
-\\\`\\\`\\\`python
+\`\`\`python
 import json
 from pathlib import Path
 
@@ -2920,13 +2920,13 @@ def main():
 
 if __name__ == "__main__":
     main()
-\\\`\\\`\\\`
+\`\`\`
 
 用到：dict / JSON / pathlib / sorted + lambda / 函式組合。
 
 ## 35.3 LV3：終端機 2048 核心邏輯
 
-\\\`\\\`\\\`python
+\`\`\`python
 import random
 from copy import deepcopy
 
@@ -2972,9 +2972,9 @@ def show(b):
 
 b = new_board()
 show(b)
-\\\`\\\`\\\`
+\`\`\`
 
-剩下交給你：補上「按鍵讀取」（用 \\\`input()\\\` 接 w/a/s/d）、勝負判斷、計分。
+剩下交給你：補上「按鍵讀取」（用 \`input()\` 接 w/a/s/d）、勝負判斷、計分。
 
 ## 35.4 從這裡可以走去哪？
 
