@@ -151,7 +151,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 </head>
 <body>
 <header>
-  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub">52 章 · APCS 考試準備 + 實用程式 + 製作專案 + 專項教學</div></div>
+  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub">60 章 · APCS 考試準備 + 實用程式 + 製作專案 + 專項教學</div></div>
   <div class="hright">
     <a href="index.html">🎯 前往題庫</a>
     <span><span class="status-dot" id="status-dot"></span><span id="status-text">Pyodide 載入中...</span></span>
@@ -5162,6 +5162,1448 @@ for city in sorted(city_scores):
     marker_pos = int(avg / 100 * 40)
     line = '·' * marker_pos + '●'
     print(f"  {city:4} {line} {avg:.1f}")
+`},
+{id:52,title:"Bot 是什麼？事件迴圈入門",tag:"專項",content:`
+# 第 52 章：Bot 是什麼？
+
+> 🤖 **專項教學 · Bot**：先搞懂「機器人」到底在跑什麼，再寫第一行程式。
+
+## 52.1 一句話定義
+
+**Bot = 一個 24 小時掛在網路上的程式，收到訊息會自動回。**
+
+跟你寫的 print("Hello") 不一樣的是——它不會跑完就結束，而是**一直等下一個事件**。
+
+## 52.2 兩種運作模式
+
+### 模式 1：Webhook（推播）
+
+平台主動打你：
+
+\`\`\`
+1. 使用者：「!hello」
+2. Discord/LINE 伺服器 → POST https://yourbot.com/webhook
+3. 你的程式收到 → 回 200 + 訊息
+\`\`\`
+
+- ✅ 即時
+- ✅ 省資源
+- ❌ 需要公開網址（部署或 ngrok）
+
+### 模式 2：Long Polling / Gateway
+
+你的程式主動連，連著不斷：
+
+\`\`\`
+1. 你的程式：「Discord，有新訊息嗎？」
+2. Discord：「沒有」（保持連線）
+3. 使用者發 !hello → Discord 推訊息給你
+4. 你的程式：回 "Hi!"
+\`\`\`
+
+- ✅ 不用公開網址
+- ✅ 本機開發容易
+- ❌ 你的程式不能斷
+
+| 平台 | 預設模式 |
+|------|----------|
+| **Discord** (\`discord.py\`) | Gateway（WebSocket） |
+| **LINE** | Webhook |
+| **Telegram** | 兩種都支援 |
+
+## 52.3 事件迴圈 (Event Loop) 是 Bot 的骨架
+
+每個 Bot 都長這樣：
+
+\`\`\`python
+def bot():
+    connect_to_platform()
+    while True:                  # ← 永遠不結束
+        event = wait_for_event()
+        handler = handlers[event.type]
+        handler(event)
+\`\`\`
+
+\`discord.py\` 和 \`line-bot-sdk\` 都已經幫你寫好 while True，你只要**註冊「事件 → 函式」對應**。
+
+## 52.4 你需要準備什麼
+
+| 東西 | 用途 |
+|------|------|
+| **Bot Token** | 平台給你的「身分證」，是長字串，**千萬不能 push 上 GitHub** |
+| **環境變數** | 用 \`os.getenv("TOKEN")\` 讀，避免寫死在 code |
+| **Python 套件** | \`discord.py\` / \`line-bot-sdk\` / \`python-dotenv\` |
+| **公開網址**（LINE 必要） | ngrok / Render / Railway |
+
+## 52.5 Token 怎麼放？三步驟
+
+1. 建一個 \`.env\` 檔（**加進 .gitignore**！）
+\`\`\`
+DISCORD_TOKEN=MTIzNDU2...
+LINE_TOKEN=abc...
+\`\`\`
+
+2. 程式裡用 \`dotenv\` 讀：
+\`\`\`python
+from dotenv import load_dotenv
+import os
+load_dotenv()
+TOKEN = os.getenv("DISCORD_TOKEN")
+\`\`\`
+
+3. 部署時把 \`.env\` 的內容貼到平台的「環境變數」設定。
+
+> 🚨 **Token 外洩後果**：別人能用你的 bot 名義發垃圾訊息、踢人、洗版。Discord/LINE 也會封你的帳號。
+
+## 52.6 動手試試（模擬版）
+
+範例自己寫一個迷你版「事件迴圈 + 處理器註冊」系統，看 Bot 框架內部到底怎麼運作。
+
+> **跨語言對應**：JavaScript (\`discord.js\`) 也是業界主流，Java 有 \`JDA\`。
+> 不同語言，但事件迴圈 + 處理器註冊的模式都一樣。
+`,
+example:`# 模擬迷你 Bot 框架：事件分派器
+# 真實的 discord.py / line-bot-sdk 內部就是這個結構
+
+handlers = {}
+
+def on(event_type):
+    # 裝飾器：註冊事件處理器
+    def deco(fn):
+        handlers[event_type] = fn
+        return fn
+    return deco
+
+# === 使用者寫的 bot 程式 ===
+@on("ready")
+def handle_ready(event):
+    print(f"[BOT] 上線了！我是 {event['bot_name']}")
+
+@on("message")
+def handle_message(event):
+    text = event["text"]
+    user = event["user"]
+    if text == "!hello":
+        print(f"[BOT] → @{user}: Hi! 我是教學 Bot")
+    elif text == "!help":
+        print(f"[BOT] → @{user}: 指令: !hello / !help / !ping")
+    elif text == "!ping":
+        print(f"[BOT] → @{user}: pong! (45ms)")
+
+@on("member_join")
+def handle_join(event):
+    print(f"[BOT] 歡迎 @{event['user']} 加入伺服器 🎉")
+
+# === 框架內部的事件迴圈（簡化）===
+def dispatch(event):
+    fn = handlers.get(event["type"])
+    if fn:
+        fn(event)
+    else:
+        print(f"[BOT] 沒處理器: {event['type']}")
+
+# 模擬一連串事件
+events = [
+    {"type": "ready",       "bot_name": "TutorBot"},
+    {"type": "message",     "user": "alice", "text": "!hello"},
+    {"type": "message",     "user": "bob",   "text": "!ping"},
+    {"type": "member_join", "user": "cara"},
+    {"type": "message",     "user": "cara",  "text": "!help"},
+    {"type": "message",     "user": "dan",   "text": "嗨嗨"},   # 不是指令
+]
+
+for ev in events:
+    dispatch(ev)
+`},
+{id:53,title:"Discord Bot 入門",tag:"專項",content:`
+# 第 53 章：Discord Bot 入門
+
+> 🤖 **專項教學 · Bot**：從零做出第一個會聊天的 Discord Bot。
+
+## 53.1 申請 Bot
+
+1. 到 https://discord.com/developers/applications → **New Application**
+2. 左側選 **Bot** → **Add Bot**
+3. **Reset Token** 拿到一串長字串 → 抄起來貼進 \`.env\`
+4. 下方 **Privileged Gateway Intents** 把這三個打開：
+   - PRESENCE INTENT
+   - SERVER MEMBERS INTENT
+   - **MESSAGE CONTENT INTENT** ← 沒開的話 bot 收不到訊息內容！
+
+## 53.2 邀請 Bot 進伺服器
+
+1. **OAuth2 → URL Generator**
+2. Scopes 勾 \`bot\` + \`applications.commands\`
+3. Bot Permissions 勾你需要的：Send Messages / Read Message History / Use Slash Commands
+4. 複製產生的 URL → 用瀏覽器開 → 邀請進你的測試伺服器
+
+## 53.3 安裝套件
+
+\`\`\`bash
+pip install -U discord.py python-dotenv
+\`\`\`
+
+## 53.4 第一支 Bot
+
+\`\`\`python
+# bot.py
+import os, discord
+from dotenv import load_dotenv
+
+load_dotenv()
+TOKEN = os.getenv("DISCORD_TOKEN")
+
+intents = discord.Intents.default()
+intents.message_content = True       # 對應前面開的 MESSAGE CONTENT
+intents.members = True
+
+client = discord.Client(intents=intents)
+
+@client.event
+async def on_ready():
+    print(f"上線了！我是 {client.user}")
+
+@client.event
+async def on_message(message):
+    # 不要回自己（會無限迴圈）
+    if message.author == client.user:
+        return
+
+    if message.content.startswith("!hello"):
+        await message.channel.send(f"嗨 {message.author.mention}！")
+
+    elif message.content == "!ping":
+        latency = round(client.latency * 1000)
+        await message.channel.send(f"pong! 延遲 {latency}ms")
+
+client.run(TOKEN)
+\`\`\`
+
+執行：
+\`\`\`bash
+python bot.py
+\`\`\`
+
+到伺服器打 \`!hello\`、\`!ping\` 試試。
+
+## 53.5 重要事件
+
+| 事件 | 何時觸發 |
+|------|----------|
+| \`on_ready\` | Bot 上線 |
+| \`on_message\` | 任何訊息（含自己的） |
+| \`on_member_join\` | 有人加入伺服器 |
+| \`on_member_remove\` | 有人離開 |
+| \`on_reaction_add\` | 有人按表情 |
+| \`on_disconnect\` | 斷線 |
+
+## 53.6 訊息物件 \`message\`
+
+\`\`\`python
+message.content              # 文字內容
+message.author               # User 物件
+message.author.id            # User ID
+message.author.mention       # <@123456>
+message.channel              # 頻道
+message.guild                # 伺服器 (DM 時是 None)
+message.attachments          # 附件 list
+message.created_at           # datetime
+\`\`\`
+
+## 53.7 async / await：必學
+
+\`discord.py\` 用 \`asyncio\`：
+
+\`\`\`python
+# ✅ 對
+@client.event
+async def on_message(message):
+    await message.channel.send("hi")
+
+# ❌ 錯（沒 await，訊息不會送出去）
+@client.event
+async def on_message(message):
+    message.channel.send("hi")
+
+# ❌ 錯（用 time.sleep 會卡住整個 bot）
+import time
+time.sleep(5)
+
+# ✅ 對
+import asyncio
+await asyncio.sleep(5)
+\`\`\`
+
+## 53.8 常見錯誤
+
+| 症狀 | 原因 |
+|------|------|
+| Bot 上線但不回 | 沒開 MESSAGE CONTENT INTENT |
+| \`Improper token\` | Token 抄錯或被 reset |
+| Bot 卡住 | 用了 \`time.sleep\` 沒用 \`asyncio.sleep\` |
+| 訊息發兩次 | 沒過濾 \`message.author == client.user\` |
+
+## 53.9 動手試試（模擬版）
+
+範例模擬 discord.py 的「指令解析」：解析 prefix、command name、arguments。
+`,
+example:`# 模擬：Discord bot 的指令解析邏輯
+PREFIX = "!"
+
+commands = {}
+
+def command(name):
+    def deco(fn):
+        commands[name] = fn
+        return fn
+    return deco
+
+@command("hello")
+def cmd_hello(author, args):
+    target = args[0] if args else author
+    return f"嗨 {target}！我是教學 Bot"
+
+@command("ping")
+def cmd_ping(author, args):
+    return "pong! 延遲 45ms"
+
+@command("add")
+def cmd_add(author, args):
+    try:
+        nums = [int(x) for x in args]
+        return f"總和 = {sum(nums)}"
+    except ValueError:
+        return "用法: !add 1 2 3"
+
+@command("help")
+def cmd_help(author, args):
+    return f"指令: {', '.join('!' + c for c in commands)}"
+
+# 模擬 on_message 的解析邏輯
+def on_message(author, content):
+    if not content.startswith(PREFIX):
+        return None  # 不是指令，忽略
+    body = content[len(PREFIX):].split()
+    if not body:
+        return None
+    name, args = body[0], body[1:]
+    fn = commands.get(name)
+    if not fn:
+        return f"不認識指令 !{name}，試試 !help"
+    return fn(author, args)
+
+# 模擬使用者訊息
+msgs = [
+    ("alice", "!hello"),
+    ("bob",   "!ping"),
+    ("cara",  "!add 3 5 8"),
+    ("dan",   "!help"),
+    ("eve",   "!unknown"),
+    ("frank", "嗨嗨大家"),     # 不是指令
+]
+
+for user, text in msgs:
+    reply = on_message(user, text)
+    if reply:
+        print(f"[{user}] {text}")
+        print(f"  → {reply}")
+`},
+{id:54,title:"Discord 指令進階：Cog / Slash / Embed",tag:"專項",content:`
+# 第 54 章：Discord 指令進階 — Cog / Slash / Embed
+
+> 🤖 **專項教學 · Bot**：寫超過 5 個指令就會發現需要更好的組織方式。
+
+## 54.1 commands.Bot：比 Client 強
+
+\`discord.py\` 提供 \`commands.Bot\`，幫你做好指令解析：
+
+\`\`\`python
+from discord.ext import commands
+
+bot = commands.Bot(command_prefix="!", intents=intents)
+
+@bot.command()
+async def hello(ctx, name: str = "world"):
+    await ctx.send(f"Hello {name}!")
+
+@bot.command()
+async def add(ctx, a: int, b: int):
+    await ctx.send(f"{a} + {b} = {a + b}")
+
+bot.run(TOKEN)
+\`\`\`
+
+注意 \`a: int, b: int\` — \`discord.py\` 會**自動把字串轉成 int**，轉不了就回錯誤訊息。
+
+## 54.2 Cog：把指令分組
+
+寫多了就把指令拆成 class：
+
+\`\`\`python
+# cogs/math_cog.py
+from discord.ext import commands
+
+class MathCog(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def add(self, ctx, a: int, b: int):
+        await ctx.send(f"{a+b}")
+
+    @commands.command()
+    async def mul(self, ctx, a: int, b: int):
+        await ctx.send(f"{a*b}")
+
+async def setup(bot):
+    await bot.add_cog(MathCog(bot))
+\`\`\`
+
+主程式：
+\`\`\`python
+async def main():
+    await bot.load_extension("cogs.math_cog")
+    await bot.start(TOKEN)
+\`\`\`
+
+## 54.3 Slash Commands：現代 Discord 標配
+
+使用者打 \`/\` 會跳選單，比 \`!\` 直覺：
+
+\`\`\`python
+@bot.tree.command(name="hello", description="跟你打招呼")
+async def slash_hello(interaction: discord.Interaction, name: str = "world"):
+    await interaction.response.send_message(f"Hello {name}!")
+
+@bot.event
+async def on_ready():
+    await bot.tree.sync()   # 把指令同步到 Discord
+\`\`\`
+
+> ⏰ **首次同步要等**：Discord 全域 slash command 最久要 **1 小時**才生效。測試時請用 \`bot.tree.sync(guild=discord.Object(id=YOUR_GUILD))\` 同步到特定伺服器（即時生效）。
+
+## 54.4 Embed：漂亮的卡片訊息
+
+\`\`\`python
+@bot.command()
+async def profile(ctx, member: discord.Member):
+    embed = discord.Embed(
+        title=member.display_name,
+        description=f"ID: {member.id}",
+        color=0x3498db,
+    )
+    embed.set_thumbnail(url=member.display_avatar.url)
+    embed.add_field(name="加入時間", value=member.joined_at.strftime("%Y-%m-%d"))
+    embed.add_field(name="角色數", value=len(member.roles))
+    embed.set_footer(text=f"由 {ctx.author} 查詢")
+    await ctx.send(embed=embed)
+\`\`\`
+
+## 54.5 互動按鈕 (View)
+
+\`\`\`python
+import discord
+from discord.ui import Button, View
+
+class HelloView(View):
+    @discord.ui.button(label="點我", style=discord.ButtonStyle.green)
+    async def click(self, interaction, button):
+        await interaction.response.send_message("你按了！", ephemeral=True)
+
+@bot.command()
+async def menu(ctx):
+    await ctx.send("試試按鈕：", view=HelloView())
+\`\`\`
+
+\`ephemeral=True\` 只有按的人看得到。
+
+## 54.6 處理錯誤
+
+\`\`\`python
+@add.error
+async def add_error(ctx, error):
+    if isinstance(error, commands.BadArgument):
+        await ctx.send("參數要是整數！")
+    elif isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("用法: !add 數字 數字")
+\`\`\`
+
+## 54.7 動手試試（模擬版）
+
+範例模擬 commands.Bot 的「型別自動轉換」：把字串參數轉成 int / float / 自訂型別。
+`,
+example:`# 模擬 commands.Bot 的型別自動轉換
+import inspect
+
+commands = {}
+
+def command(fn):
+    # 裝飾器：自動讀取函式型別註記
+    sig = inspect.signature(fn)
+    commands[fn.__name__] = (fn, sig)
+    return fn
+
+@command
+def add(a: int, b: int):
+    return f"{a} + {b} = {a + b}"
+
+@command
+def avg(a: float, b: float, c: float):
+    return f"avg = {(a + b + c) / 3:.2f}"
+
+@command
+def repeat(text: str, times: int):
+    return f"{text} " * times
+
+def dispatch(line):
+    parts = line.split()
+    if not parts: return None
+    name, raw_args = parts[0], parts[1:]
+    if name not in commands:
+        return f"[error] 不認識 {name}"
+    fn, sig = commands[name]
+    params = list(sig.parameters.values())
+    if len(raw_args) != len(params):
+        return f"[error] {name} 要 {len(params)} 個參數"
+    # 依照註記自動轉型
+    converted = []
+    for arg, p in zip(raw_args, params):
+        try:
+            converted.append(p.annotation(arg))
+        except ValueError:
+            return f"[error] 參數 {p.name} 期望 {p.annotation.__name__}, 收到 {arg!r}"
+    return fn(*converted)
+
+tests = [
+    "add 3 5",
+    "avg 80 90 100",
+    "repeat hi 3",
+    "add 3 abc",        # 型別錯
+    "add 3",            # 參數不夠
+    "unknown 1 2",      # 沒這個指令
+]
+for line in tests:
+    print(f"> {line}")
+    print(f"  {dispatch(line)}")
+`},
+{id:55,title:"LINE Bot 入門",tag:"專項",content:`
+# 第 55 章：LINE Bot 入門
+
+> 🤖 **專項教學 · Bot**：台灣最常見的 Bot 平台。用 webhook + Flask 寫。
+
+## 55.1 申請 Channel
+
+1. 到 https://developers.line.biz/console → 建一個 Provider
+2. 建一個 **Messaging API** Channel
+3. 拿到三個關鍵資訊：
+   - **Channel Secret** (Basic Settings)
+   - **Channel Access Token** (Messaging API → Issue)
+   - **Bot Basic ID** (\`@xxx\`)
+
+## 55.2 安裝套件
+
+\`\`\`bash
+pip install line-bot-sdk flask python-dotenv
+\`\`\`
+
+## 55.3 第一支 LINE Bot
+
+\`\`\`python
+# app.py
+import os
+from flask import Flask, request, abort
+from linebot.v3 import WebhookHandler
+from linebot.v3.exceptions import InvalidSignatureError
+from linebot.v3.messaging import (
+    Configuration, ApiClient, MessagingApi,
+    ReplyMessageRequest, TextMessage,
+)
+from linebot.v3.webhooks import MessageEvent, TextMessageContent
+from dotenv import load_dotenv
+
+load_dotenv()
+SECRET = os.getenv("LINE_CHANNEL_SECRET")
+TOKEN  = os.getenv("LINE_CHANNEL_ACCESS_TOKEN")
+
+app = Flask(__name__)
+handler = WebhookHandler(SECRET)
+config = Configuration(access_token=TOKEN)
+
+@app.route("/callback", methods=["POST"])
+def callback():
+    sig = request.headers["X-Line-Signature"]
+    body = request.get_data(as_text=True)
+    try:
+        handler.handle(body, sig)
+    except InvalidSignatureError:
+        abort(400)
+    return "OK"
+
+@handler.add(MessageEvent, message=TextMessageContent)
+def handle_text(event):
+    text = event.message.text
+    reply = f"你說了：{text}"
+    with ApiClient(config) as api_client:
+        MessagingApi(api_client).reply_message(
+            ReplyMessageRequest(
+                reply_token=event.reply_token,
+                messages=[TextMessage(text=reply)]
+            )
+        )
+
+if __name__ == "__main__":
+    app.run(port=5000)
+\`\`\`
+
+## 55.4 讓 LINE 找得到你：ngrok
+
+本機程式 LINE 連不到。用 ngrok 開隧道：
+
+\`\`\`bash
+# 下載 ngrok 後執行
+ngrok http 5000
+# 會給你：https://abc123.ngrok-free.app
+\`\`\`
+
+把這個網址 + \`/callback\` 貼到 LINE Developer Console → Webhook URL → Verify → 開啟 Use webhook。
+
+## 55.5 webhook 事件結構
+
+LINE 傳過來的 JSON 長這樣：
+
+\`\`\`json
+{
+  "events": [{
+    "type": "message",
+    "replyToken": "abc123...",
+    "source": {"userId": "U123...", "type": "user"},
+    "timestamp": 1717830000000,
+    "message": {"type": "text", "id": "456...", "text": "你好"}
+  }]
+}
+\`\`\`
+
+\`event.reply_token\` 只能用 **1 次**且 **30 秒內**，超過要用 \`push_message\`（會算錢）。
+
+## 55.6 訊息種類
+
+| event.message.type | 怎麼拿 |
+|--------------------|--------|
+| \`text\` | \`event.message.text\` |
+| \`image\` | 用 \`MessagingApiBlob\` 下載 |
+| \`video\` / \`audio\` / \`file\` | 同上 |
+| \`location\` | \`event.message.latitude / longitude\` |
+| \`sticker\` | \`event.message.sticker_id\` |
+
+## 55.7 reply vs push
+
+| API | 時機 | 限制 |
+|-----|------|------|
+| **reply** | 使用者剛發訊息（拿到 token） | 免費，30 秒內 |
+| **push** | 你想主動找使用者（推播） | 計入 200/月免費額度 |
+| **multicast** | 一次推給多人 | 500/次 |
+| **broadcast** | 推給所有好友 | 看方案 |
+
+## 55.8 動手試試（模擬版）
+
+範例自己組一個 webhook payload，做簽章驗證 + event dispatch。
+`,
+example:`# 模擬：LINE webhook 處理流程
+import json, hmac, hashlib, base64
+
+SECRET = "my_secret_key"
+
+def sign(body):
+    # 模擬 LINE 用 HMAC-SHA256 算簽章
+    h = hmac.new(SECRET.encode(), body.encode(), hashlib.sha256)
+    return base64.b64encode(h.digest()).decode()
+
+def verify(body, signature):
+    return hmac.compare_digest(sign(body), signature)
+
+# 模擬 LINE 傳過來的 payload
+payload = {
+    "events": [{
+        "type": "message",
+        "replyToken": "tok_abc123",
+        "source": {"userId": "U001", "type": "user"},
+        "message": {"type": "text", "text": "你好"}
+    }, {
+        "type": "message",
+        "replyToken": "tok_def456",
+        "source": {"userId": "U002", "type": "user"},
+        "message": {"type": "text", "text": "!ping"}
+    }, {
+        "type": "follow",   # 加好友
+        "replyToken": "tok_xyz",
+        "source": {"userId": "U003", "type": "user"},
+    }]
+}
+
+body = json.dumps(payload)
+sig = sign(body)
+print(f"簽章驗證: {verify(body, sig)}")
+
+# webhook handler
+def handle_message(event):
+    text = event["message"]["text"]
+    user = event["source"]["userId"]
+    if text == "!ping":
+        reply = "pong!"
+    else:
+        reply = f"你說了：{text}"
+    print(f"[reply→{user}] {reply}")
+    print(f"  (使用 reply_token={event['replyToken'][:10]}...)")
+
+def handle_follow(event):
+    user = event["source"]["userId"]
+    print(f"[reply→{user}] 歡迎加入！輸入 !ping 試試看")
+
+handlers = {"message": handle_message, "follow": handle_follow}
+
+# dispatch
+for ev in json.loads(body)["events"]:
+    fn = handlers.get(ev["type"])
+    if fn: fn(ev)
+`},
+{id:56,title:"LINE 訊息類型：Text / Template / Flex",tag:"專項",content:`
+# 第 56 章：LINE 訊息類型 — 文字 / 貼圖 / 圖片 / 卡片
+
+> 🤖 **專項教學 · Bot**：LINE 提供豐富的訊息類型，學會用就能做好用的 Bot。
+
+## 56.1 文字 TextMessage
+
+\`\`\`python
+from linebot.v3.messaging import TextMessage
+
+TextMessage(text="嗨嗨")
+
+# 帶 emoji
+TextMessage(text="$ APCS 教學 Bot $", emojis=[
+    {"index": 0, "productId": "5ac1bfd5040ab15980c9b435", "emojiId": "001"},
+    {"index": 16, "productId": "5ac1bfd5040ab15980c9b435", "emojiId": "002"},
+])
+\`\`\`
+
+## 56.2 貼圖 StickerMessage
+
+\`\`\`python
+from linebot.v3.messaging import StickerMessage
+StickerMessage(packageId="446", stickerId="1988")
+\`\`\`
+
+可用貼圖清單：https://developers.line.biz/en/docs/messaging-api/sticker-list/
+
+## 56.3 圖片 ImageMessage
+
+\`\`\`python
+from linebot.v3.messaging import ImageMessage
+
+ImageMessage(
+    originalContentUrl="https://example.com/full.jpg",   # 必須 HTTPS
+    previewImageUrl="https://example.com/thumb.jpg",
+)
+\`\`\`
+
+## 56.4 Template Message：按鈕、確認
+
+\`\`\`python
+from linebot.v3.messaging import (
+    TemplateMessage, ButtonsTemplate, MessageAction, URIAction,
+)
+
+TemplateMessage(
+    altText="選單",
+    template=ButtonsTemplate(
+        title="點餐",
+        text="請選擇主餐",
+        actions=[
+            MessageAction(label="牛肉麵", text="點 牛肉麵"),
+            MessageAction(label="炒飯",   text="點 炒飯"),
+            URIAction(label="完整菜單",   uri="https://menu.example.com"),
+        ]
+    )
+)
+\`\`\`
+
+## 56.5 Carousel：可滑卡片
+
+\`\`\`python
+from linebot.v3.messaging import CarouselTemplate, CarouselColumn
+
+TemplateMessage(
+    altText="商品列表",
+    template=CarouselTemplate(
+        columns=[
+            CarouselColumn(
+                thumbnailImageUrl="https://.../p1.jpg",
+                title="商品 1", text="說明...",
+                actions=[MessageAction(label="購買", text="買 商品1")]
+            ),
+            CarouselColumn(
+                thumbnailImageUrl="https://.../p2.jpg",
+                title="商品 2", text="說明...",
+                actions=[MessageAction(label="購買", text="買 商品2")]
+            ),
+        ]
+    )
+)
+\`\`\`
+
+## 56.6 Flex Message：最強排版
+
+可自訂 layout，幾乎不限制：
+
+\`\`\`python
+from linebot.v3.messaging import FlexMessage, FlexContainer
+
+flex_json = {
+    "type": "bubble",
+    "body": {
+        "type": "box", "layout": "vertical",
+        "contents": [
+            {"type": "text", "text": "天氣", "weight": "bold", "size": "xl"},
+            {"type": "text", "text": "台北 26°C 雷雨"},
+        ]
+    }
+}
+
+FlexMessage(altText="天氣", contents=FlexContainer.from_dict(flex_json))
+\`\`\`
+
+用 https://developers.line.biz/flex-simulator/ 設計版面，再貼 JSON。
+
+## 56.7 一次回多則
+
+\`\`\`python
+MessagingApi(api).reply_message(ReplyMessageRequest(
+    reply_token=event.reply_token,
+    messages=[
+        TextMessage(text="第一則"),
+        StickerMessage(packageId="446", stickerId="1988"),
+        TextMessage(text="第三則"),
+    ]
+))
+\`\`\`
+
+最多 5 則。
+
+## 56.8 訊息類型對應表（速查）
+
+| 想做的事 | 用什麼 |
+|----------|--------|
+| 純回文字 | \`TextMessage\` |
+| 回貼圖 | \`StickerMessage\` |
+| 推圖片 | \`ImageMessage\` |
+| 選單按鈕 | \`ButtonsTemplate\` |
+| 多項選擇 | \`CarouselTemplate\` |
+| 客製版面 | \`FlexMessage\` |
+| 是非確認 | \`ConfirmTemplate\` |
+| 引導加好友 | \`URIAction\` |
+
+## 56.9 動手試試（模擬版）
+
+範例設計一個「點餐 Bot」：根據訊息回不同 template。
+`,
+example:`# 模擬：根據訊息決定回什麼訊息類型
+def reply(user_msg):
+    # 回傳訊息類型 + 內容（模擬 LINE message 物件）
+    m = user_msg.strip()
+
+    # 1) 純文字
+    if m == "hi" or m == "你好":
+        return ("Text", "嗨嗨！我是點餐 Bot。輸入 'menu' 看菜單。")
+
+    # 2) 主選單 → Buttons template
+    if m == "menu":
+        return ("Buttons", {
+            "title": "點餐選單",
+            "actions": ["牛肉麵 $120", "炒飯 $80", "拉麵 $150"]
+        })
+
+    # 3) 商品列表 → Carousel
+    if m == "shop":
+        return ("Carousel", {
+            "items": [
+                {"title": "T-shirt", "price": 350},
+                {"title": "Cap",     "price": 280},
+                {"title": "Mug",     "price": 180},
+            ]
+        })
+
+    # 4) 確認 → Confirm template
+    if m.startswith("buy "):
+        item = m[4:]
+        return ("Confirm", {
+            "text": f"確定購買 {item}？",
+            "yes": f"確認 {item}",
+            "no":  "取消"
+        })
+
+    # 5) 點貼圖（記錄 sticker id）
+    if m == "sticker":
+        return ("Sticker", {"package": "446", "id": "1988"})
+
+    # 6) 預設
+    return ("Text", "聽不懂，輸入 'menu' 看選單")
+
+
+tests = ["hi", "menu", "shop", "buy 牛肉麵", "sticker", "asdf"]
+for msg in tests:
+    msg_type, content = reply(msg)
+    print(f"[USER] {msg}")
+    if isinstance(content, str):
+        print(f"  → {msg_type}: {content}")
+    else:
+        print(f"  → {msg_type}: {content}")
+`},
+{id:57,title:"狀態管理：讓 Bot 記住使用者",tag:"專項",content:`
+# 第 57 章：狀態管理 — 讓 Bot 記住使用者
+
+> 🤖 **專項教學 · Bot**：Bot 不只是「問答」——讓它記住「上次點的菜、累計簽到次數、對話流程」。
+
+## 57.1 三種儲存方式
+
+| 方式 | 適合 | 缺點 |
+|------|------|------|
+| **記憶體 dict** | 開發測試 | 程式重啟就沒了 |
+| **JSON 檔** | 小型 Bot < 1000 人 | 多執行緒寫入會壞 |
+| **SQLite** | 中型 Bot | 沒備援 |
+| **PostgreSQL** | 正式上線 | 要部署 |
+| **Redis** | 高速 / 快取 | 要部署 |
+
+## 57.2 記憶體 dict（最簡單）
+
+\`\`\`python
+user_data = {}    # {user_id: {...}}
+
+@bot.command()
+async def signin(ctx):
+    uid = ctx.author.id
+    data = user_data.setdefault(uid, {"count": 0})
+    data["count"] += 1
+    await ctx.send(f"已連續簽到 {data['count']} 次")
+\`\`\`
+
+> ⚠️ **重啟就沒了**！
+
+## 57.3 JSON 檔（持久化）
+
+\`\`\`python
+import json, pathlib, threading
+
+LOCK = threading.Lock()
+DATA = pathlib.Path("data.json")
+
+def load():
+    return json.loads(DATA.read_text()) if DATA.exists() else {}
+
+def save(d):
+    with LOCK:
+        DATA.write_text(json.dumps(d, ensure_ascii=False, indent=2))
+
+@bot.command()
+async def signin(ctx):
+    data = load()
+    uid = str(ctx.author.id)
+    data.setdefault(uid, {"count": 0})
+    data[uid]["count"] += 1
+    save(data)
+    await ctx.send(f"已簽到 {data[uid]['count']} 次")
+\`\`\`
+
+> 💡 用 str(uid) 是因為 JSON key 只能是字串。
+
+## 57.4 SQLite（推薦中型 Bot）
+
+\`\`\`python
+import sqlite3
+
+conn = sqlite3.connect("bot.db")
+conn.execute(
+    "CREATE TABLE IF NOT EXISTS signin "
+    "(user_id TEXT PRIMARY KEY, count INT)"
+)
+
+@bot.command()
+async def signin(ctx):
+    uid = str(ctx.author.id)
+    row = conn.execute("SELECT count FROM signin WHERE user_id=?", (uid,)).fetchone()
+    cnt = (row[0] if row else 0) + 1
+    conn.execute(
+        "INSERT INTO signin VALUES(?,?) "
+        "ON CONFLICT(user_id) DO UPDATE SET count=excluded.count",
+        (uid, cnt))
+    conn.commit()
+    await ctx.send(f"已簽到 {cnt} 次")
+\`\`\`
+
+## 57.5 對話流程（多步驟）
+
+「!order 開始 → 問主餐 → 問副餐 → 問甜點 → 結帳」這種**有狀態**的流程：
+
+\`\`\`python
+sessions = {}    # {user_id: {"step": ..., "order": {...}}}
+
+@bot.command()
+async def order(ctx):
+    sessions[ctx.author.id] = {"step": "main", "order": {}}
+    await ctx.send("要點什麼主餐？(牛肉麵/炒飯)")
+
+@bot.event
+async def on_message(message):
+    await bot.process_commands(message)
+    s = sessions.get(message.author.id)
+    if not s: return
+    if s["step"] == "main":
+        s["order"]["main"] = message.content
+        s["step"] = "drink"
+        await message.channel.send("要喝什麼？")
+    elif s["step"] == "drink":
+        s["order"]["drink"] = message.content
+        s["step"] = None
+        await message.channel.send(f"訂單：{s['order']} ✅")
+        sessions.pop(message.author.id)
+\`\`\`
+
+## 57.6 注意事項
+
+| 陷阱 | 解法 |
+|------|------|
+| 並發寫 JSON 損毀 | 用 threading.Lock 或改 SQLite |
+| 記憶體爆炸 | 設過期：閒置 1 小時清除 session |
+| 重啟丟資料 | 用 atexit 在退出前 save() |
+
+## 57.7 動手試試
+
+範例做完整的「對話狀態機」：點餐流程。
+`,
+example:`# 模擬：點餐 Bot 的對話狀態機 (FSM)
+sessions = {}    # {user: {"step": str, "order": dict}}
+
+def handle_message(user, text):
+    s = sessions.get(user)
+
+    # 起手指令
+    if text == "/order":
+        sessions[user] = {"step": "main", "order": {}}
+        return "要點什麼主餐？(牛肉麵 / 炒飯 / 拉麵)"
+
+    # 沒在會話中
+    if s is None:
+        return "輸入 /order 開始點餐"
+
+    if s["step"] == "main":
+        s["order"]["main"] = text
+        s["step"] = "drink"
+        return "要什麼飲料？(紅茶 / 綠茶 / 無)"
+
+    if s["step"] == "drink":
+        s["order"]["drink"] = text
+        s["step"] = "confirm"
+        order = s["order"]
+        return f"確認訂單: {order['main']} + {order['drink']}? (yes/no)"
+
+    if s["step"] == "confirm":
+        if text.lower() == "yes":
+            order = s["order"]
+            sessions.pop(user)
+            return f"✅ 訂單已送出: {order}"
+        else:
+            sessions.pop(user)
+            return "已取消"
+
+    return "??"
+
+# 模擬使用者對話
+dialog = [
+    ("alice", "/order"),
+    ("alice", "牛肉麵"),
+    ("alice", "紅茶"),
+    ("alice", "yes"),
+    ("bob",   "hi"),
+    ("bob",   "/order"),
+    ("bob",   "炒飯"),
+    ("bob",   "綠茶"),
+    ("bob",   "no"),
+]
+
+for user, msg in dialog:
+    reply = handle_message(user, msg)
+    print(f"[{user}] {msg}")
+    print(f"  → {reply}")
+
+print(f"\\n剩餘 session: {list(sessions.keys())}")
+`},
+{id:58,title:"排程任務：定時推播",tag:"專項",content:`
+# 第 58 章：排程任務 — 定時推播
+
+> 🤖 **專項教學 · Bot**：每天早上 9 點推天氣、每週一統計上週活躍度。
+
+## 58.1 三種排程方式
+
+| 方式 | 適合 |
+|------|------|
+| \`asyncio.sleep\` 迴圈 | Discord/asyncio bot |
+| \`schedule\` 套件 | 簡單同步腳本 |
+| \`APScheduler\` | 進階：cron 語法、持久化 |
+
+## 58.2 Discord 用 tasks（最常用）
+
+\`\`\`python
+from discord.ext import tasks
+
+@tasks.loop(seconds=60)
+async def heartbeat():
+    channel = bot.get_channel(CHANNEL_ID)
+    await channel.send("💓 還活著")
+
+@bot.event
+async def on_ready():
+    heartbeat.start()
+\`\`\`
+
+| 參數 | 意思 |
+|------|------|
+| \`seconds=60\` | 每 60 秒 |
+| \`minutes=5\` | 每 5 分鐘 |
+| \`hours=1\` | 每小時 |
+| \`time=datetime.time(hour=9)\` | 每天 09:00 |
+
+## 58.3 每天固定時間推播
+
+\`\`\`python
+import datetime
+from discord.ext import tasks
+
+@tasks.loop(time=datetime.time(hour=9, minute=0, tzinfo=...))
+async def morning_news():
+    await channel.send("☀ 早安！今天天氣...")
+\`\`\`
+
+## 58.4 LINE 推播：用 push_message
+
+LINE webhook 是被動的，要主動推用 \`push_message\`：
+
+\`\`\`python
+from linebot.v3.messaging import (
+    MessagingApi, PushMessageRequest, TextMessage,
+)
+
+def daily_push():
+    with ApiClient(config) as api_client:
+        MessagingApi(api_client).push_message(
+            PushMessageRequest(
+                to=USER_ID,
+                messages=[TextMessage(text="早安")]
+            )
+        )
+
+# 配合 schedule
+import schedule, time
+schedule.every().day.at("09:00").do(daily_push)
+while True:
+    schedule.run_pending()
+    time.sleep(60)
+\`\`\`
+
+## 58.5 schedule 套件語法
+
+\`\`\`python
+import schedule
+
+schedule.every(10).seconds.do(job)
+schedule.every().hour.do(job)
+schedule.every().day.at("10:30").do(job)
+schedule.every().monday.do(job)
+schedule.every().wednesday.at("13:15").do(job)
+
+while True:
+    schedule.run_pending()
+    time.sleep(1)
+\`\`\`
+
+## 58.6 APScheduler：cron 語法
+
+\`\`\`python
+from apscheduler.schedulers.background import BackgroundScheduler
+
+sched = BackgroundScheduler()
+
+# 每天 9 點
+sched.add_job(daily_news, 'cron', hour=9)
+
+# 每週一 10 點
+sched.add_job(weekly_report, 'cron', day_of_week='mon', hour=10)
+
+# 每 5 分鐘
+sched.add_job(heartbeat, 'interval', minutes=5)
+
+# 一次性 (10 秒後)
+sched.add_job(reminder, 'date',
+              run_date=datetime.now() + timedelta(seconds=10))
+
+sched.start()
+\`\`\`
+
+## 58.7 算今天到下次執行的秒數
+
+\`\`\`python
+import datetime
+def seconds_until(hour, minute=0):
+    now = datetime.datetime.now()
+    target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+    if target <= now:
+        target += datetime.timedelta(days=1)   # 移到明天
+    return (target - now).total_seconds()
+
+async def daily_at(hour, minute, fn):
+    while True:
+        await asyncio.sleep(seconds_until(hour, minute))
+        await fn()
+\`\`\`
+
+## 58.8 注意事項
+
+| 陷阱 | 解法 |
+|------|------|
+| Bot 重啟錯過時間 | APScheduler \`misfire_grace_time\` |
+| 時區搞錯 | 永遠帶 tzinfo |
+| 推播超過配額 | 用 batch / multicast |
+| 卡在 sleep | 用 asyncio 不要 time.sleep |
+
+## 58.9 動手試試
+
+範例自己實作「下次幾點觸發」的計算。
+`,
+example:`# 模擬：計算「下次每天 9:00 / 21:00 推播」的秒數
+import datetime
+
+def seconds_until(now, hour, minute=0):
+    # 回傳從 now 到下次 hour:minute 還剩幾秒
+    target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+    if target <= now:
+        target += datetime.timedelta(days=1)
+    return int((target - now).total_seconds())
+
+# 用固定時間測試（不依賴系統時間）
+tests = [
+    (datetime.datetime(2026, 6, 8, 7, 30), 9, 0),    # 同天等到 9:00
+    (datetime.datetime(2026, 6, 8, 9, 0),  9, 0),    # 整點 → 等明天
+    (datetime.datetime(2026, 6, 8, 14, 0), 9, 0),    # 過了 → 等明天 9
+    (datetime.datetime(2026, 6, 8, 14, 0), 21, 0),   # 同天 21:00
+    (datetime.datetime(2026, 6, 8, 23, 30), 21, 0),  # 過了 → 等明天 21
+]
+
+print(f"{'now':<20} {'target':>8} {'秒數':>10} {'≈時間':>15}")
+print('-' * 60)
+for now, h, m in tests:
+    secs = seconds_until(now, h, m)
+    hr = secs // 3600
+    mn = (secs % 3600) // 60
+    print(f"{now!s:<20} {h:>2}:{m:02d}    {secs:>10}    {hr:>4}h{mn:02d}m")
+
+# 模擬排程器：依時間表觸發
+print("\\n=== 模擬一天的排程 ===")
+schedule = [
+    ("09:00", "推送早安"),
+    ("12:00", "推送午餐提醒"),
+    ("18:00", "推送收工提醒"),
+    ("21:00", "推送晚安"),
+]
+
+# 假裝從 08:00 跑到 22:00
+fake_now = datetime.datetime(2026, 6, 8, 8, 0)
+end = datetime.datetime(2026, 6, 8, 22, 0)
+while fake_now <= end:
+    for t, job in schedule:
+        h, m = map(int, t.split(":"))
+        target = fake_now.replace(hour=h, minute=m, second=0)
+        if target == fake_now:
+            print(f"  [{t}] 執行：{job}")
+    fake_now += datetime.timedelta(hours=1)
+`},
+{id:59,title:"部署上線：Render / Railway / VPS",tag:"專項",content:`
+# 第 59 章：部署上線 — Render / Railway / VPS
+
+> 🤖 **專項教學 · Bot**：本機關電腦 Bot 就掛了。學會 24/7 部署，Bot 才能真的「上線」。
+
+## 59.1 選哪個平台？
+
+| 平台 | 免費額度 | 適合 |
+|------|----------|------|
+| **Render** | 750 hours/月，閒置 15 分睡眠 | LINE Bot（睡了被叫醒會自動起來） |
+| **Railway** | $5/月免費額度 | Discord Bot（不睡眠） |
+| **Fly.io** | 256MB RAM 免費 | 進階 |
+| **VPS**（DigitalOcean / Linode） | $5/月起 | 完全自主 |
+| **Replit** | 免費可跑（要有人按 run） | 學習用 |
+
+> 💡 **2024 起 Heroku 不再免費**。
+
+## 59.2 部署前準備：3 個檔案
+
+### \`requirements.txt\`
+\`\`\`
+discord.py==2.3.2
+python-dotenv==1.0.0
+\`\`\`
+
+或 LINE：
+\`\`\`
+line-bot-sdk==3.5.0
+flask==3.0.0
+python-dotenv==1.0.0
+\`\`\`
+
+產生方式：
+\`\`\`bash
+pip freeze > requirements.txt
+\`\`\`
+
+### \`Procfile\`（告訴平台怎麼跑）
+\`\`\`
+# Discord
+worker: python bot.py
+
+# LINE (web service)
+web: gunicorn app:app
+\`\`\`
+
+### \`.gitignore\`
+\`\`\`
+.env
+__pycache__/
+*.pyc
+venv/
+data.json     # 如果有本機測試資料
+\`\`\`
+
+## 59.3 Render 部署 LINE Bot
+
+1. GitHub 推上去：
+\`\`\`bash
+git init
+git add .
+git commit -m "init"
+git remote add origin git@github.com:你/bot.git
+git push -u origin main
+\`\`\`
+
+2. https://dashboard.render.com → **New Web Service** → 連你的 repo
+3. 設定：
+   - Runtime: Python 3
+   - Build Command: \`pip install -r requirements.txt\`
+   - Start Command: \`gunicorn app:app\`
+4. **Environment**：把 \`.env\` 的內容貼進去
+5. Deploy → 拿到 \`https://your-bot.onrender.com\`
+6. 回 LINE Developer Console，Webhook URL 改成 \`https://your-bot.onrender.com/callback\`
+
+## 59.4 Railway 部署 Discord Bot
+
+1. https://railway.app → **New Project → Deploy from GitHub**
+2. 選 repo
+3. Settings → Environment Variables → 加 \`DISCORD_TOKEN=...\`
+4. Settings → Service Type → **Worker**（不是 web）
+5. Deploys 完成
+
+## 59.5 ngrok 本機測試（不部署）
+
+只是想測 webhook，不想真部署：
+
+\`\`\`bash
+# 下載 ngrok https://ngrok.com/download
+ngrok http 5000
+# 輸出：https://abc123.ngrok-free.app
+\`\`\`
+
+- ✅ 5 秒就好
+- ❌ 重開 ngrok 網址會變
+- ❌ 關電腦就沒了
+
+## 59.6 部署後常見錯誤
+
+| 症狀 | 原因 |
+|------|------|
+| \`ModuleNotFoundError\` | 套件沒加進 requirements.txt |
+| Bot 啟動就 crash | env 沒設好 |
+| webhook verify 失敗 | URL 拼錯、SSL 沒生效 |
+| 500 error | 看平台 logs，多半是程式內未接的例外 |
+| Render 啟動很慢 | 免費方案睡眠 15 分後第一次 request 要 30 秒喚醒 |
+
+## 59.7 監控 Bot 健康
+
+最簡單：寫個 health check endpoint：
+
+\`\`\`python
+@app.route("/healthz")
+def health():
+    return {"status": "ok", "uptime": time.time() - START_TIME}
+\`\`\`
+
+用免費的 UptimeRobot（https://uptimerobot.com）每 5 分鐘打一次，掛了 email 通知。
+
+## 59.8 升級路徑
+
+| 階段 | 規模 | 建議架構 |
+|------|------|----------|
+| 學習 | 1-2 人測試 | 本機 + ngrok |
+| 朋友圈 | < 100 人 | Render 免費 + SQLite |
+| 開始紅 | < 1000 人 | Railway/Fly + PostgreSQL |
+| 真正大 | 萬人以上 | 多 instance + Redis + 監控 |
+
+## 59.9 動手試試（模擬版）
+
+範例做「環境變數讀取 + 健康檢查」的核心邏輯。
+
+> 🎉 **恭喜完成 Bot 主題 8 章！** 接下來自己選個方向：
+> - 做一個校園活動通知 Bot
+> - 做一個簡易記帳 Bot
+> - 做一個爬題目庫的 APCS 練習 Bot（把前面學的爬蟲串起來）
+`,
+example:`# 模擬：讀取環境變數 + 啟動前檢查
+import os, time
+
+REQUIRED = ["DISCORD_TOKEN", "LINE_CHANNEL_SECRET", "DB_URL"]
+
+# 假裝環境變數（真實是 os.environ 從 .env 或平台讀）
+fake_env = {
+    "DISCORD_TOKEN": "MTIz...REDACTED...abc",
+    "LINE_CHANNEL_SECRET": "abc123secret",
+    # DB_URL 故意沒設
+    "PORT": "5000",
+    "LOG_LEVEL": "INFO",
+}
+
+# 啟動前檢查
+print("=== Bot 啟動檢查 ===")
+missing = []
+for key in REQUIRED:
+    val = fake_env.get(key)
+    if not val:
+        missing.append(key)
+        print(f"  ❌ {key}: 未設定")
+    else:
+        # 安全：不印完整 token
+        masked = val[:4] + "..." + val[-4:] if len(val) > 12 else "***"
+        print(f"  ✓  {key}: {masked}")
+
+if missing:
+    print(f"\\n⚠ 缺少環境變數: {missing}")
+    print("  請到平台 Dashboard 設定 Environment Variables")
+else:
+    print("\\n✓ 所有必要環境變數齊全，可以啟動")
+
+# 健康檢查 endpoint 概念
+START_TIME = time.time()
+
+def healthz():
+    return {
+        "status": "ok",
+        "uptime_seconds": int(time.time() - START_TIME),
+        "version": "1.0.0",
+    }
+
+print(f"\\n=== /healthz 回應 ===\\n{healthz()}")
 `}
 ];
 
@@ -5521,7 +6963,15 @@ const CHAPTER_META = {
 48:{learn:["mean/median/std/quantile 描述分佈", "value_counts 看類別欄", "rank / cumsum / cummax 進階統計"],try:["加一筆「Henry, 75, 台北」，看 value_counts 變化", "改成印「分數最低的 3 個」(nsmallest)", "改 rank 用 dense 方法（並列下一名 +1）"],code:{"task": "從 stdin 讀多行整數分數。輸出三行：「median NUM」、「std X.XX」（兩位小數）、「top3 a b c」（最大 3 個從大到小空白分隔）。", "stdin": "92\n75\n88\n60\n95\n82\n75\n", "expect": "median 82\nstd 12.11\ntop3 95 92 88"}},
 49:{learn:["split-apply-combine 三步驟", "agg 多種彙總同時做", "transform 廣播回原表"],try:["多加幾筆台北的資料，看 city_avg 怎麼變", "改成按「city + grade」雙欄分組", "加 filter：只保留人數 >=2 的城市"],code:{"task": "從 stdin 讀多行「city score」，按 city groupby 算平均分。輸出每組「city avg」（avg 一位小數），按 city 字典序排序。", "stdin": "台北 92\n台中 75\n台北 88\n高雄 60\n台北 95\n台中 82\n", "expect": "台中 78.5\n台北 91.7\n高雄 60.0"}},
 50:{learn:["concat 拼接同結構資料", "merge 4 種 how: inner/left/right/outer", "melt / pivot 寬長互轉"],try:["把 students 加一筆 id=6 Eve，重做 outer", "改成 right join: 以 scores 為主", "用兩個欄位 (id, year) 當 key 試試"],code:{"task": "stdin 兩個區塊用空行分隔：第一塊每行「id name」、第二塊每行「id score」。輸出 INNER JOIN 結果，每行「name score」，按 id 升冪排序。", "stdin": "1 Alice\n2 Bob\n3 Cara\n4 Dan\n\n1 92\n2 75\n3 88\n5 70\n", "expect": "Alice 92\nBob 75\nCara 88"}},
-51:{learn:["plot/bar/hist 三大圖型", "pandas 內建 .plot() 比 matplotlib 直觀", "中文要設 font.sans-serif"],try:["加多幾筆資料，看 histogram bucket 怎麼變", "改成印「分數中位數」而不是平均", "把 bar chart 改成橫式 (barh)"],code:{"task": "從 stdin 讀多行整數分數，用 ASCII 印每個分數桶 (0-9, 10-19, ..., 90-99, 100) 的人數，每行格式「Start-End: ★★★」（n 個 ★），跳過空桶。", "stdin": "92\n75\n88\n95\n82\n75\n80\n90\n", "expect": "70-79: ★★\n80-89: ★★★\n90-99: ★★★"}}
+51:{learn:["plot/bar/hist 三大圖型", "pandas 內建 .plot() 比 matplotlib 直觀", "中文要設 font.sans-serif"],try:["加多幾筆資料，看 histogram bucket 怎麼變", "改成印「分數中位數」而不是平均", "把 bar chart 改成橫式 (barh)"],code:{"task": "從 stdin 讀多行整數分數，用 ASCII 印每個分數桶 (0-9, 10-19, ..., 90-99, 100) 的人數，每行格式「Start-End: ★★★」（n 個 ★），跳過空桶。", "stdin": "92\n75\n88\n95\n82\n75\n80\n90\n", "expect": "70-79: ★★\n80-89: ★★★\n90-99: ★★★"}},
+52:{learn:["Bot 就是事件迴圈 + 處理器註冊", "Webhook vs Gateway 兩種模式", "Token 放 .env，永遠不要 push 上 git"],try:["加一個 @on(\"message_delete\") 處理器", "在 handle_message 多加 !time 指令印當下時間", "把不認識的指令統一回「不認識的指令」"],code:{"task": "寫一個事件分派器：handlers 是 dict, key=事件類型, value=函式。從 stdin 讀多行「TYPE DATA」，每行查 handlers 並執行；找不到印「unknown TYPE」。給定 handlers = {\"hi\": lambda d: print(f\"hello {d}\"), \"bye\": lambda d: print(f\"goodbye {d}\")}。", "stdin": "hi alice\nbye bob\nfoo cara\nhi dan\n", "expect": "hello alice\ngoodbye bob\nunknown foo\nhello dan"}},
+53:{learn:["Discord Bot 三步：申請→邀請→寫 code", "必開 MESSAGE CONTENT INTENT 才收得到訊息", "async/await + asyncio.sleep（不能用 time.sleep）"],try:["加一個 !echo 指令把後面的字原樣回傳", "改 !add 支援浮點數", "加邊界：args 超過 10 個就拒絕"],code:{"task": "寫指令分派器，prefix=!。實作 !sum a b c 印「sum=N」, !max a b c 印「max=N」, !min a b c 印「min=N」。從 stdin 讀多行訊息，逐行處理；非指令或不認識的不要印任何東西。", "stdin": "!sum 3 5 8\nhello\n!max 1 9 4\n!min 7 2 8\n!bad 1 2\n", "expect": "sum=16\nmax=9\nmin=2"}},
+54:{learn:["commands.Bot 比 Client 強：自動解析參數型別", "Cog 拆檔組織指令", "Slash command 用 @bot.tree.command + tree.sync"],try:["加 sub 指令做減法", "加 max 接 *args 變動參數", "改 repeat times>10 拒絕（防呆）"],code:{"task": "實作型別轉換分派器：commands={\"sum\": (lambda *xs: sum(xs), int), \"join\": (lambda *xs: \"-\".join(xs), str)}。從 stdin 讀「name arg1 arg2 ...」，把參數依型別轉換後呼叫並印結果。", "stdin": "sum 1 2 3\njoin a b c\nsum 10 20\n", "expect": "6\na-b-c\n30"}},
+55:{learn:["LINE Bot = Flask webhook + line-bot-sdk", "ngrok 把本機 5000 port 開到網上", "reply_token 用 1 次 30 秒、push 才能主動找人"],try:["加 sticker 訊息處理（印 sticker_id）", "加 location 訊息處理（印經緯度）", "把 !ping 改成回時間"],code:{"task": "寫 webhook event 分派器：handlers={\"message\": lambda e: print(f\"reply {e[\\\"text\\\"]}\"), \"follow\": lambda e: print(\"welcome\")}。從 stdin 讀多行「TYPE TEXT」(follow 沒 TEXT)，組成 event dict 後 dispatch。", "stdin": "message hi\nfollow\nmessage bye\n", "expect": "reply hi\nwelcome\nreply bye"}},
+56:{learn:["Text/Sticker/Image 三大基礎訊息", "ButtonsTemplate / CarouselTemplate 做選單", "FlexMessage + Flex Simulator 完全客製"],try:["加「快速回覆 (QuickReply)」的概念", "在 menu 加更多選項", "寫一個 \"weather 台北\" 指令回 Flex 卡片"],code:{"task": "寫訊息分類器：輸入文字若以「hi」開頭回「Text greet」，以「menu」開頭回「Buttons menu」，以「buy 」開頭回「Confirm buy」，否則回「Text fallback」。從 stdin 讀多行訊息逐行處理輸出。", "stdin": "hi there\nmenu\nbuy apple\nrandom\n", "expect": "Text greet\nButtons menu\nConfirm buy\nText fallback"}},
+57:{learn:["記憶體 dict 最簡單，重啟就沒了", "JSON / SQLite 持久化方式", "多步驟對話用 FSM（每個 user 一個 step）"],try:["加 /cancel 指令立刻清掉 session", "記錄訂單到 list 模擬資料庫", "加超時：閒置 10 分鐘自動清掉 session"],code:{"task": "簽到累計器：用 dict 記每個 user 的簽到次數。從 stdin 讀多行 user 名字，每行印「user N」（N=該 user 累計簽到次數）。", "stdin": "alice\nbob\nalice\nalice\nbob\ncara\n", "expect": "alice 1\nbob 1\nalice 2\nalice 3\nbob 2\ncara 1"}},
+58:{learn:["discord.ext.tasks.loop 內建排程", "schedule / APScheduler 套件做 cron", "永遠用 asyncio.sleep 不要 time.sleep"],try:["改成每 30 分鐘觸發 heartbeat", "加 \"每週一 10:00\" 的排程", "寫一個閒置 timeout：使用者 30 分沒回就清 session"],code:{"task": "寫 seconds_until(now_h, now_m, target_h, target_m)，回傳秒數（若 target 已過則算到明天同時刻）。從 stdin 讀多行「now_h now_m target_h target_m」逐行輸出秒數。", "stdin": "7 30 9 0\n9 0 9 0\n14 0 9 0\n14 0 21 0\n", "expect": "5400\n86400\n68400\n25200"}},
+59:{learn:["Render/Railway 是免費部署選擇", "requirements.txt + Procfile + .gitignore 三件套", "健康檢查 + UptimeRobot 監控"],try:["加更多 REQUIRED 環境變數", "把 missing 改成 raise SystemExit 強制中止", "加「啟動超過 1 小時要重啟」的健康規則"],code:{"task": "從 stdin 讀環境變數定義（每行 KEY=VALUE），檢查 REQUIRED=[\"TOKEN\",\"DB_URL\"] 是否都存在。輸出：對每個 REQUIRED 印「KEY ok」或「KEY missing」（按 REQUIRED 順序）。", "stdin": "TOKEN=abc123\nLOG_LEVEL=INFO\nPORT=5000\n", "expect": "TOKEN ok\nDB_URL missing"}}
 };
 
 // ── 常見錯誤訊息翻譯 ─────────────────────────────────────────────────────
