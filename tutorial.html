@@ -10724,7 +10724,10 @@ function chapSection(id){
   if(id <= 26) return {key:'apcs', label:'📘 APCS 考試準備', desc:'語法 → 演算法 → 競賽題型'};
   if(id <= 31) return {key:'practical', label:'🛠 實用程式', desc:'檔案、模組、OOP、測試 — 寫工具的基本功'};
   if(id <= 35) return {key:'project', label:'🚀 製作專案', desc:'CLI / CSV / API / 遊戲，整合練習'};
-  return {key:'topic', label:'🕷 專項教學', desc:'爬蟲、資料分析、Bot、遊戲開發（陸續推出）'};
+  if(id <= 43) return {key:'topic-crawl', label:'🕷 專項教學 · 爬蟲', desc:'HTTP、requests、BeautifulSoup、實戰爬取'};
+  if(id <= 51) return {key:'topic-data',  label:'📊 專項教學 · 資料分析', desc:'pandas、清理、groupby、視覺化'};
+  if(id <= 59) return {key:'topic-bot',   label:'🤖 專項教學 · Bot', desc:'Discord / LINE、事件、指令、部署'};
+  return {key:'topic-game', label:'🎮 專項教學 · pygame', desc:'game loop、輸入、碰撞、完整小遊戲'};
 }
 function renderChapList() {
   const list = document.getElementById('chap-list');
