@@ -3678,7 +3678,7 @@ builtins.input = _inp
 sys.stdin = io.StringIO(_stdin_text)
 _old = sys.stdout; sys.stdout = io.StringIO()
 try:
-${code.split('\\n').map(l => '    ' + l).join('\\n')}
+${code.split('\n').map(l => '    ' + l).join('\n')}
     _out = sys.stdout.getvalue()
 except Exception as e:
     _out = 'ERROR: ' + str(e)
