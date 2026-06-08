@@ -147,17 +147,6 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .intro-card{background:linear-gradient(135deg,rgba(63,185,80,.08),rgba(121,192,255,.06));border:1px solid rgba(63,185,80,.3);padding:16px 18px;border-radius:8px;margin:14px 0}
 .intro-card h3{margin-top:0;color:var(--py)}
 .intro-card p{font-size:13.5px;margin:6px 0}
-.pg-demo{margin:18px 0;padding:14px;background:#0d1117;border:1px solid var(--border);border-radius:8px}
-.pg-demo-title{font-size:12px;color:var(--text-muted);margin-bottom:8px;letter-spacing:.3px;text-transform:uppercase}
-.pg-demo canvas{display:block;background:#000;border-radius:4px;width:100%;max-width:480px;height:auto;outline:none;touch-action:none}
-.pg-demo canvas:focus{box-shadow:0 0 0 2px var(--py)}
-.pg-demo-ctrl{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.pg-demo-ctrl button{background:#21262d;color:#e6edf3;border:1px solid var(--border);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit}
-.pg-demo-ctrl button:hover{background:#30363d;border-color:var(--py)}
-.pg-demo-ctrl button:active{transform:translateY(1px)}
-.pg-demo-ctrl label{font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:6px}
-.pg-demo-ctrl input[type=range]{vertical-align:middle}
-.pg-demo-info{margin-top:8px;font-size:12px;color:var(--text-muted);font-family:'SF Mono',Consolas,monospace;min-height:18px}
 </style>
 </head>
 <body>
@@ -6740,13 +6729,7 @@ Pyodide 沒裝 pygame，範例用 ASCII 模擬一個「會動的點」game loop 
 > - **Java**：libGDX
 > - **Unity (C#)** / **Godot (GDScript)**：大型遊戲引擎
 > 都是相同的 game loop 結構，只是 API 不同。
-
-
-## 🎮 互動 Demo（真的能玩，不是 ASCII 模擬）
-
-<div class="pg-demo" data-demo="60"></div>
-
-> 上方 demo 用 HTML5 canvas / WebAudio 即時模擬 pygame 的概念，**真的可以互動**。下方「執行」按鈕的 Python 程式碼，請複製到本機 `python` 跑（要先 `pip install pygame`）。`,
+`,
 example:`# 模擬 game loop：印出每一幀的狀態
 import time
 
@@ -6899,13 +6882,7 @@ pygame.quit()
 ## 61.7 動手試試（模擬版）
 
 範例用 ASCII grid 模擬「在畫布上畫矩形/線」的座標邏輯。
-
-
-## 🎮 互動 Demo（真的能玩，不是 ASCII 模擬）
-
-<div class="pg-demo" data-demo="61"></div>
-
-> 上方 demo 用 HTML5 canvas / WebAudio 即時模擬 pygame 的概念，**真的可以互動**。下方「執行」按鈕的 Python 程式碼，請複製到本機 `python` 跑（要先 `pip install pygame`）。`,
+`,
 example:`# 模擬：用 2D char array 當 screen，畫矩形與線
 W, H = 30, 12
 screen = [['.' for _ in range(W)] for _ in range(H)]
@@ -7071,13 +7048,7 @@ while running:
 ## 62.7 動手試試（模擬版）
 
 範例做事件佇列模擬：處理一連串按鍵與滑鼠輸入。
-
-
-## 🎮 互動 Demo（真的能玩，不是 ASCII 模擬）
-
-<div class="pg-demo" data-demo="62"></div>
-
-> 上方 demo 用 HTML5 canvas / WebAudio 即時模擬 pygame 的概念，**真的可以互動**。下方「執行」按鈕的 Python 程式碼，請複製到本機 `python` 跑（要先 `pip install pygame`）。`,
+`,
 example:`# 模擬：處理一連串輸入事件
 # 玩家位置
 player = {"x": 10, "y": 5}
@@ -7262,13 +7233,7 @@ while running:
 ## 63.7 動手試試（模擬版）
 
 範例做「彈跳球」物理模擬：重力 + 邊界反彈。
-
-
-## 🎮 互動 Demo（真的能玩，不是 ASCII 模擬）
-
-<div class="pg-demo" data-demo="63"></div>
-
-> 上方 demo 用 HTML5 canvas / WebAudio 即時模擬 pygame 的概念，**真的可以互動**。下方「執行」按鈕的 Python 程式碼，請複製到本機 `python` 跑（要先 `pip install pygame`）。`,
+`,
 example:`# 模擬：彈跳球（重力 + 反彈）
 # 場地寬 40，地板 y=15
 W, H = 40, 15
@@ -7432,13 +7397,7 @@ while running:
 ## 64.9 動手試試（模擬版）
 
 範例做「子彈 vs 怪物」AABB 碰撞偵測。
-
-
-## 🎮 互動 Demo（真的能玩，不是 ASCII 模擬）
-
-<div class="pg-demo" data-demo="64"></div>
-
-> 上方 demo 用 HTML5 canvas / WebAudio 即時模擬 pygame 的概念，**真的可以互動**。下方「執行」按鈕的 Python 程式碼，請複製到本機 `python` 跑（要先 `pip install pygame`）。`,
+`,
 example:`# 模擬：AABB 碰撞偵測 + 子彈打怪物
 def aabb(r1, r2):
     return (r1["x"] < r2["x"] + r2["w"] and
@@ -7589,13 +7548,7 @@ def draw_hud(screen, score, hp, font):
 ## 65.8 動手試試（模擬版）
 
 範例做 ASCII 版的「分數顯示」+「自動換行」邏輯。
-
-
-## 🎮 互動 Demo（真的能玩，不是 ASCII 模擬）
-
-<div class="pg-demo" data-demo="65"></div>
-
-> 上方 demo 用 HTML5 canvas / WebAudio 即時模擬 pygame 的概念，**真的可以互動**。下方「執行」按鈕的 Python 程式碼，請複製到本機 `python` 跑（要先 `pip install pygame`）。`,
+`,
 example:`# 模擬：分數顯示 + 自動換行
 def render(text, max_width):
     # 把字串依 max_width 拆成多行（簡化版：按空白切）
@@ -7745,13 +7698,7 @@ def go_to_boss_room():
 ## 66.8 動手試試（模擬版）
 
 範例做「音效事件分派器」：根據遊戲事件決定播什麼音效。
-
-
-## 🎮 互動 Demo（真的能玩，不是 ASCII 模擬）
-
-<div class="pg-demo" data-demo="66"></div>
-
-> 上方 demo 用 HTML5 canvas / WebAudio 即時模擬 pygame 的概念，**真的可以互動**。下方「執行」按鈕的 Python 程式碼，請複製到本機 `python` 跑（要先 `pip install pygame`）。`,
+`,
 example:`# 模擬：音效事件分派器
 class SoundMixer:
     def __init__(self):
@@ -7966,13 +7913,7 @@ pygame.quit()
 ## 67.5 動手試試（模擬版）
 
 範例做純文字版的 Pong：球在 1D 軌道彈來彈去，玩家加分到 3 分結束。
-
-
-## 🎮 互動 Demo（真的能玩，不是 ASCII 模擬）
-
-<div class="pg-demo" data-demo="67"></div>
-
-> 上方 demo 用 HTML5 canvas / WebAudio 即時模擬 pygame 的概念，**真的可以互動**。下方「執行」按鈕的 Python 程式碼，請複製到本機 `python` 跑（要先 `pip install pygame`）。`,
+`,
 example:`# 模擬：簡化版 Pong（文字版）
 # 球在 0~width 之間左右移動，撞牆會被反彈
 # 球出左邊 → P2 得分；出右邊 → P1 得分
@@ -10823,9 +10764,7 @@ function selectChap(id, opts) {
   if(el) el.classList.add('active');
   document.getElementById('lesson-title').textContent = `第 ${currentChap.id} 章：${currentChap.title}`;
   document.getElementById('lesson-tag').textContent = currentChap.tag;
-  if(window._pgCleanup){ try{window._pgCleanup();}catch(e){} window._pgCleanup=null; }
   body.innerHTML = marked.parse(getContent(currentChap)) + renderMeta(currentChap);
-  mountPygameDemos();
   if(!opts.preserveEditor){
     cm.setValue(getExample(currentChap));
     document.getElementById('stdin-input').value = getStdin(currentChap);
@@ -10942,335 +10881,6 @@ async function checkAnswer(chapId){
   if(passed && !completed.has(chapId)) markDone(chapId);
   if(currentChap && currentChap.id === chapId) selectChap(chapId, {preserveEditor:true});
 }
-
-// ── pygame 互動 Demo（Canvas / WebAudio 即時模擬，不依賴 Pyodide） ──
-function mountPygameDemos(){
-  document.querySelectorAll('.pg-demo[data-demo]').forEach(el => {
-    const id = el.getAttribute('data-demo');
-    const fn = window.PG_DEMOS && window.PG_DEMOS[id];
-    if(fn && !el.dataset.mounted){
-      el.dataset.mounted = '1';
-      try{ fn(el); }catch(e){ el.innerHTML = '<div style="color:#f85149">Demo 錯誤：'+e.message+'</div>'; }
-    }
-  });
-}
-function _pgMakeCanvas(parent, w, h, title){
-  parent.innerHTML = '';
-  const t = document.createElement('div'); t.className='pg-demo-title'; t.textContent = title || '🎮 互動 Demo（真的能玩）';
-  parent.appendChild(t);
-  const c = document.createElement('canvas'); c.width=w; c.height=h; c.tabIndex=0;
-  parent.appendChild(c);
-  return c;
-}
-function _pgCtrlRow(parent){
-  const r = document.createElement('div'); r.className='pg-demo-ctrl'; parent.appendChild(r); return r;
-}
-function _pgInfo(parent){
-  const i = document.createElement('div'); i.className='pg-demo-info'; parent.appendChild(i); return i;
-}
-function _pgBtn(label, onClick){
-  const b = document.createElement('button'); b.textContent = label; b.onclick = onClick; return b;
-}
-function _pgLoop(stepFn){
-  let raf, last = performance.now(), running = true;
-  function frame(now){
-    if(!running) return;
-    const dt = Math.min(0.05, (now - last)/1000);
-    last = now;
-    stepFn(dt, now);
-    raf = requestAnimationFrame(frame);
-  }
-  raf = requestAnimationFrame(frame);
-  return () => { running = false; if(raf) cancelAnimationFrame(raf); };
-}
-
-window.PG_DEMOS = {
-  // ── ch60: game loop（事件 → 更新 → 繪製 → tick）──
-  '60': function(host){
-    const c = _pgMakeCanvas(host, 480, 200, '🎮 Game Loop 示範：跳動的方塊');
-    const ctx = c.getContext('2d');
-    const ctrl = _pgCtrlRow(host);
-    const info = _pgInfo(host);
-    let state = {x:40, y:100, vx:120, frame:0, fps:0, paused:false};
-    let fpsAcc=0, fpsCnt=0;
-    function reset(){ state = {x:40, y:100, vx:120, frame:0, fps:state.fps, paused:state.paused}; }
-    ctrl.appendChild(_pgBtn('▶ Start/Pause', () => { state.paused = !state.paused; }));
-    ctrl.appendChild(_pgBtn('🔄 Reset', reset));
-    const stop = _pgLoop((dt) => {
-      // 1) events → 2) update
-      if(!state.paused){
-        state.x += state.vx * dt;
-        if(state.x > c.width-30 || state.x < 0) state.vx = -state.vx;
-        state.frame++;
-        fpsAcc += dt; fpsCnt++;
-        if(fpsAcc >= 0.5){ state.fps = Math.round(fpsCnt/fpsAcc); fpsAcc=0; fpsCnt=0; }
-      }
-      // 3) draw
-      ctx.fillStyle='#000'; ctx.fillRect(0,0,c.width,c.height);
-      ctx.fillStyle='#79c0ff'; ctx.fillRect(state.x, state.y-15, 30, 30);
-      ctx.fillStyle='#8b949e'; ctx.font='12px monospace';
-      ctx.fillText('frame: '+state.frame, 10, 20);
-      ctx.fillText('fps: '+state.fps, 10, 38);
-      ctx.fillText(state.paused?'⏸ PAUSED':'▶ RUNNING', 10, 56);
-      info.textContent = '這就是 pygame 的 game loop：每幀 events→update→draw→tick，瀏覽器版用 requestAnimationFrame 替代 clock.tick(60)。';
-    });
-    window._pgCleanup = stop;
-  },
-
-  // ── ch61: 繪圖（rect / circle / line / polygon）──
-  '61': function(host){
-    const c = _pgMakeCanvas(host, 480, 280, '🎨 繪圖示範：點按鈕加入隨機圖形');
-    const ctx = c.getContext('2d');
-    const ctrl = _pgCtrlRow(host);
-    const info = _pgInfo(host);
-    let shapes = [];
-    const colors = ['#f85149','#79c0ff','#3fb950','#d29922','#bc8cff','#ff7b72'];
-    function rand(a,b){ return a + Math.random()*(b-a); }
-    function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-    function add(kind){
-      shapes.push({kind, color:pick(colors), x:rand(40,c.width-40), y:rand(40,c.height-40),
-        w:rand(20,80), h:rand(20,80), r:rand(15,45),
-        x2:rand(40,c.width-40), y2:rand(40,c.height-40)});
-    }
-    ctrl.appendChild(_pgBtn('+ 方塊 rect', () => add('rect')));
-    ctrl.appendChild(_pgBtn('+ 圓 circle', () => add('circle')));
-    ctrl.appendChild(_pgBtn('+ 線 line', () => add('line')));
-    ctrl.appendChild(_pgBtn('+ 三角 polygon', () => add('tri')));
-    ctrl.appendChild(_pgBtn('🗑 清除', () => { shapes = []; }));
-    const stop = _pgLoop(() => {
-      ctx.fillStyle='#000'; ctx.fillRect(0,0,c.width,c.height);
-      for(const s of shapes){
-        ctx.fillStyle = s.color; ctx.strokeStyle = s.color; ctx.lineWidth = 3;
-        if(s.kind==='rect') ctx.fillRect(s.x,s.y,s.w,s.h);
-        else if(s.kind==='circle'){ ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); }
-        else if(s.kind==='line'){ ctx.beginPath(); ctx.moveTo(s.x,s.y); ctx.lineTo(s.x2,s.y2); ctx.stroke(); }
-        else if(s.kind==='tri'){ ctx.beginPath(); ctx.moveTo(s.x,s.y); ctx.lineTo(s.x+s.w,s.y); ctx.lineTo(s.x+s.w/2,s.y-s.h); ctx.closePath(); ctx.fill(); }
-      }
-      info.textContent = '圖形數：'+shapes.length+'   ｜對應 pygame：pygame.draw.rect / circle / line / polygon';
-    });
-    window._pgCleanup = stop;
-  },
-
-  // ── ch62: 輸入處理（鍵盤 + 滑鼠）──
-  '62': function(host){
-    const c = _pgMakeCanvas(host, 480, 280, '⌨ 鍵盤滑鼠示範：點 canvas 後用 WASD / 方向鍵移動');
-    const ctx = c.getContext('2d');
-    const info = _pgInfo(host);
-    const keys = {};
-    let px=220, py=130, mx=0, my=0, focused=false;
-    c.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; e.preventDefault(); });
-    c.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
-    c.addEventListener('focus', () => focused = true);
-    c.addEventListener('blur', () => focused = false);
-    c.addEventListener('mousemove', e => {
-      const r = c.getBoundingClientRect();
-      mx = Math.round((e.clientX - r.left) * c.width / r.width);
-      my = Math.round((e.clientY - r.top) * c.height / r.height);
-    });
-    const stop = _pgLoop((dt) => {
-      const sp = 180;
-      if(keys['w']||keys['arrowup']) py -= sp*dt;
-      if(keys['s']||keys['arrowdown']) py += sp*dt;
-      if(keys['a']||keys['arrowleft']) px -= sp*dt;
-      if(keys['d']||keys['arrowright']) px += sp*dt;
-      px = Math.max(15, Math.min(c.width-15, px));
-      py = Math.max(15, Math.min(c.height-15, py));
-      ctx.fillStyle='#000'; ctx.fillRect(0,0,c.width,c.height);
-      // mouse crosshair
-      ctx.strokeStyle='#444'; ctx.beginPath(); ctx.moveTo(mx,0); ctx.lineTo(mx,c.height); ctx.moveTo(0,my); ctx.lineTo(c.width,my); ctx.stroke();
-      // player
-      ctx.fillStyle = focused ? '#3fb950' : '#8b949e';
-      ctx.fillRect(px-15, py-15, 30, 30);
-      ctx.fillStyle='#e6edf3'; ctx.font='12px monospace';
-      ctx.fillText(focused ? '✓ 已聚焦，按 WASD 移動' : '⚠ 點 canvas 才能接收鍵盤', 10, 20);
-      const pressed = Object.keys(keys).filter(k=>keys[k]);
-      info.textContent = '按鍵：['+pressed.join(', ')+']   滑鼠：('+mx+', '+my+')   ｜對應 pygame：pygame.key.get_pressed() + pygame.mouse.get_pos()';
-    });
-    window._pgCleanup = stop;
-  },
-
-  // ── ch63: 速度向量 + 重力 ──
-  '63': function(host){
-    const c = _pgMakeCanvas(host, 480, 280, '🏀 速度向量示範：點 canvas 給球加力，拉桿調重力');
-    const ctx = c.getContext('2d');
-    const ctrl = _pgCtrlRow(host);
-    const info = _pgInfo(host);
-    let ball = {x:240, y:60, vx:80, vy:0, r:14};
-    let gravity = 400, damp = 0.8;
-    const gLbl = document.createElement('label'); gLbl.innerHTML = '重力 <input type="range" min="0" max="1500" value="400" style="width:100px"> <span>400</span>';
-    ctrl.appendChild(gLbl);
-    const gSlider = gLbl.querySelector('input'), gVal = gLbl.querySelector('span');
-    gSlider.oninput = () => { gravity = +gSlider.value; gVal.textContent = gravity; };
-    ctrl.appendChild(_pgBtn('🔄 Reset', () => { ball.x=240; ball.y=60; ball.vx=80; ball.vy=0; }));
-    c.addEventListener('mousedown', e => {
-      const r = c.getBoundingClientRect();
-      const cx = (e.clientX - r.left) * c.width / r.width;
-      const cy = (e.clientY - r.top) * c.height / r.height;
-      ball.vx = (cx - ball.x) * 3;
-      ball.vy = (cy - ball.y) * 3;
-    });
-    const stop = _pgLoop((dt) => {
-      ball.vy += gravity * dt;
-      ball.x += ball.vx * dt; ball.y += ball.vy * dt;
-      if(ball.x - ball.r < 0){ ball.x = ball.r; ball.vx = -ball.vx * damp; }
-      if(ball.x + ball.r > c.width){ ball.x = c.width-ball.r; ball.vx = -ball.vx * damp; }
-      if(ball.y + ball.r > c.height){ ball.y = c.height-ball.r; ball.vy = -ball.vy * damp; ball.vx *= 0.95; }
-      ctx.fillStyle='#000'; ctx.fillRect(0,0,c.width,c.height);
-      ctx.fillStyle='#d29922'; ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2); ctx.fill();
-      ctx.strokeStyle='#f85149'; ctx.beginPath(); ctx.moveTo(ball.x,ball.y); ctx.lineTo(ball.x+ball.vx*0.1, ball.y+ball.vy*0.1); ctx.stroke();
-      info.textContent = 'vx='+ball.vx.toFixed(0)+'  vy='+ball.vy.toFixed(0)+'   ｜對應 pygame：每幀 pos += vel * dt';
-    });
-    window._pgCleanup = stop;
-  },
-
-  // ── ch64: AABB 碰撞 ──
-  '64': function(host){
-    const c = _pgMakeCanvas(host, 480, 280, '💥 碰撞示範：拖藍色方塊去撞紅色方塊');
-    const ctx = c.getContext('2d');
-    const info = _pgInfo(host);
-    let a = {x:60, y:120, w:60, h:60}, b = {x:340, y:120, w:60, h:60};
-    let drag = null;
-    function aabb(r1,r2){ return r1.x < r2.x+r2.w && r1.x+r1.w > r2.x && r1.y < r2.y+r2.h && r1.y+r1.h > r2.y; }
-    function pt(e){ const r=c.getBoundingClientRect(); return {x:(e.clientX-r.left)*c.width/r.width, y:(e.clientY-r.top)*c.height/r.height}; }
-    c.addEventListener('mousedown', e => {
-      const p = pt(e);
-      if(p.x>=a.x && p.x<=a.x+a.w && p.y>=a.y && p.y<=a.y+a.h) drag = {tgt:a, dx:p.x-a.x, dy:p.y-a.y};
-      else if(p.x>=b.x && p.x<=b.x+b.w && p.y>=b.y && p.y<=b.y+b.h) drag = {tgt:b, dx:p.x-b.x, dy:p.y-b.y};
-    });
-    c.addEventListener('mousemove', e => { if(drag){ const p=pt(e); drag.tgt.x = p.x-drag.dx; drag.tgt.y = p.y-drag.dy; }});
-    c.addEventListener('mouseup', () => drag=null);
-    c.addEventListener('mouseleave', () => drag=null);
-    const stop = _pgLoop(() => {
-      const hit = aabb(a,b);
-      ctx.fillStyle='#000'; ctx.fillRect(0,0,c.width,c.height);
-      ctx.fillStyle = hit ? '#f85149' : '#79c0ff'; ctx.fillRect(a.x,a.y,a.w,a.h);
-      ctx.fillStyle = hit ? '#f85149' : '#3fb950'; ctx.fillRect(b.x,b.y,b.w,b.h);
-      if(hit){ ctx.fillStyle='#fff'; ctx.font='bold 24px monospace'; ctx.fillText('💥 COLLISION', c.width/2-90, 30); }
-      info.textContent = 'AABB 判定：'+(hit?'碰撞':'安全')+'   ｜對應 pygame：rect.colliderect(other)';
-    });
-    window._pgCleanup = stop;
-  },
-
-  // ── ch65: HUD 文字 / 計分 ──
-  '65': function(host){
-    const c = _pgMakeCanvas(host, 480, 280, '🎯 HUD 示範：點靶心得分');
-    const ctx = c.getContext('2d');
-    const info = _pgInfo(host);
-    let score = 0, high = 0, t0 = performance.now(), target = {x:240, y:140, r:30, ttl:2};
-    function newTarget(){ target = {x:60+Math.random()*(c.width-120), y:60+Math.random()*(c.height-120), r:18+Math.random()*20, ttl:1.5+Math.random()}; }
-    c.addEventListener('mousedown', e => {
-      const r = c.getBoundingClientRect();
-      const px = (e.clientX-r.left)*c.width/r.width, py = (e.clientY-r.top)*c.height/r.height;
-      const d = Math.hypot(px-target.x, py-target.y);
-      if(d <= target.r){ score += Math.round(50 - target.r); if(score>high) high=score; newTarget(); }
-      else { score = Math.max(0, score-5); }
-    });
-    const stop = _pgLoop((dt, now) => {
-      target.ttl -= dt; if(target.ttl<=0){ score = Math.max(0, score-3); newTarget(); }
-      ctx.fillStyle='#0d1117'; ctx.fillRect(0,0,c.width,c.height);
-      const pulse = 1 + 0.1*Math.sin(now/100);
-      ctx.fillStyle='#f85149'; ctx.beginPath(); ctx.arc(target.x,target.y,target.r*pulse,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(target.x,target.y,target.r*pulse*0.5,0,Math.PI*2); ctx.fill();
-      // HUD
-      const sec = ((now-t0)/1000).toFixed(1);
-      ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(0,0,c.width,32);
-      ctx.fillStyle='#e6edf3'; ctx.font='bold 14px monospace';
-      ctx.fillText('SCORE: '+score, 10, 22);
-      ctx.fillText('HIGH: '+high, 160, 22);
-      ctx.fillText('TIME: '+sec+'s', 300, 22);
-      ctx.fillStyle = target.ttl<0.5?'#f85149':'#8b949e'; ctx.fillText('TTL: '+target.ttl.toFixed(1), 400, 22);
-      info.textContent = '點紅靶得分、漏掉扣分。｜對應 pygame：font.render(text, True, color)';
-    });
-    window._pgCleanup = stop;
-  },
-
-  // ── ch66: 音效（WebAudio）──
-  '66': function(host){
-    host.innerHTML = '';
-    const t = document.createElement('div'); t.className='pg-demo-title'; t.textContent='🔊 音效示範（WebAudio）';
-    host.appendChild(t);
-    const ctrl = _pgCtrlRow(host);
-    const info = _pgInfo(host);
-    let ac = null, music = null;
-    function ctx(){ if(!ac) ac = new (window.AudioContext||window.webkitAudioContext)(); return ac; }
-    function tone(freq, dur, type){
-      const a = ctx(); const o = a.createOscillator(); const g = a.createGain();
-      o.type = type||'sine'; o.frequency.value = freq; o.connect(g); g.connect(a.destination);
-      g.gain.setValueAtTime(0.3, a.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, a.currentTime+dur);
-      o.start(); o.stop(a.currentTime+dur);
-    }
-    function jump(){ const a=ctx(); const o=a.createOscillator(); const g=a.createGain();
-      o.type='square'; o.frequency.setValueAtTime(300,a.currentTime); o.frequency.exponentialRampToValueAtTime(800,a.currentTime+0.15);
-      g.gain.setValueAtTime(0.2,a.currentTime); g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+0.2);
-      o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime+0.2); }
-    function hit(){ const a=ctx(); const b=a.createBufferSource(); const buf=a.createBuffer(1,a.sampleRate*0.15,a.sampleRate);
-      const d=buf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*(1-i/d.length);
-      const g=a.createGain(); g.gain.value=0.3; b.buffer=buf; b.connect(g); g.connect(a.destination); b.start(); }
-    function toggleMusic(){
-      const a = ctx();
-      if(music){ music.stop(); music=null; info.textContent='🔇 背景音樂停止'; return; }
-      const notes = [261.63, 329.63, 392.0, 523.25, 392.0, 329.63];
-      const o = a.createOscillator(); const g = a.createGain();
-      o.type='triangle'; g.gain.value=0.08; o.connect(g); g.connect(a.destination);
-      let i = 0;
-      const step = () => { if(!music) return; o.frequency.setValueAtTime(notes[i%notes.length], a.currentTime); i++; music.tid = setTimeout(step, 280); };
-      o.start(); music = {stop: () => { o.stop(); clearTimeout(music.tid); }}; step();
-      info.textContent='🎵 背景音樂播放中（C-E-G-C-G-E 循環）';
-    }
-    ctrl.appendChild(_pgBtn('🔔 嗶 440Hz', () => tone(440,0.3)));
-    ctrl.appendChild(_pgBtn('🦘 跳躍音', jump));
-    ctrl.appendChild(_pgBtn('💥 撞擊音', hit));
-    ctrl.appendChild(_pgBtn('🎵 背景音樂 (toggle)', toggleMusic));
-    info.textContent = '對應 pygame：pygame.mixer.Sound("jump.wav").play()';
-    window._pgCleanup = () => { if(music){ music.stop(); music=null; } };
-  },
-
-  // ── ch67: 完整 Pong ──
-  '67': function(host){
-    const c = _pgMakeCanvas(host, 480, 280, '🏓 完整 Pong：W/S 控制左拍，CPU 在右邊');
-    const ctx = c.getContext('2d');
-    const ctrl = _pgCtrlRow(host);
-    const info = _pgInfo(host);
-    const PH = 60, PW = 8, BR = 7;
-    let pl = c.height/2, cpu = c.height/2;
-    let bx = c.width/2, by = c.height/2, bvx = 220, bvy = 140;
-    let sP = 0, sC = 0, keys = {}, paused = false;
-    c.addEventListener('keydown', e => { keys[e.key.toLowerCase()]=true; e.preventDefault(); });
-    c.addEventListener('keyup', e => { keys[e.key.toLowerCase()]=false; });
-    function reset(dir){ bx=c.width/2; by=c.height/2; bvx=220*(dir||(Math.random()<0.5?-1:1)); bvy=140*(Math.random()<0.5?-1:1); }
-    ctrl.appendChild(_pgBtn('▶ Pause/Resume', () => paused=!paused));
-    ctrl.appendChild(_pgBtn('🔄 New Game', () => { sP=0; sC=0; reset(); }));
-    const stop = _pgLoop((dt) => {
-      if(!paused){
-        // player
-        if(keys['w']||keys['arrowup']) pl -= 280*dt;
-        if(keys['s']||keys['arrowdown']) pl += 280*dt;
-        pl = Math.max(PH/2, Math.min(c.height-PH/2, pl));
-        // cpu
-        const tgt = by; cpu += Math.sign(tgt-cpu) * Math.min(Math.abs(tgt-cpu), 200*dt);
-        cpu = Math.max(PH/2, Math.min(c.height-PH/2, cpu));
-        // ball
-        bx += bvx*dt; by += bvy*dt;
-        if(by-BR<0){ by=BR; bvy=-bvy; } if(by+BR>c.height){ by=c.height-BR; bvy=-bvy; }
-        // collide paddles
-        if(bx-BR < 20 && Math.abs(by-pl)<PH/2){ bx=20+BR; bvx=Math.abs(bvx)*1.05; bvy += (by-pl)*4; }
-        if(bx+BR > c.width-20 && Math.abs(by-cpu)<PH/2){ bx=c.width-20-BR; bvx=-Math.abs(bvx)*1.05; bvy += (by-cpu)*4; }
-        if(bx<0){ sC++; reset(1); } if(bx>c.width){ sP++; reset(-1); }
-      }
-      ctx.fillStyle='#000'; ctx.fillRect(0,0,c.width,c.height);
-      ctx.strokeStyle='#30363d'; ctx.setLineDash([6,6]); ctx.beginPath(); ctx.moveTo(c.width/2,0); ctx.lineTo(c.width/2,c.height); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle='#79c0ff'; ctx.fillRect(12, pl-PH/2, PW, PH);
-      ctx.fillStyle='#f85149'; ctx.fillRect(c.width-12-PW, cpu-PH/2, PW, PH);
-      ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(bx,by,BR,0,Math.PI*2); ctx.fill();
-      ctx.font='bold 28px monospace'; ctx.fillStyle='#8b949e';
-      ctx.fillText(sP, c.width/2-50, 36); ctx.fillText(sC, c.width/2+30, 36);
-      if(paused){ ctx.fillStyle='#fff'; ctx.font='bold 20px monospace'; ctx.fillText('⏸ PAUSED', c.width/2-60, c.height/2); }
-      info.textContent = '點 canvas 後按 W/S 控制左拍。｜這就是 ch67 教的：game loop + 輸入 + 速度 + 碰撞 + HUD 全部整合。';
-    });
-    window._pgCleanup = stop;
-  }
-};
 
 renderChapList();
 initEditor();
