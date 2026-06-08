@@ -150,7 +150,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 </head>
 <body>
 <header>
-  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub"><span id="chapter-total">69</span> 章 · APCS 考試準備 + 新制分級 + 程式識讀 + 專項教學</div></div>
+  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub"><span id="chapter-total">71</span> 章 · APCS 考試準備 + 新制分級 + 程式識讀 + 專項教學</div></div>
   <div class="hright">
     <a href="index.html">🎯 前往題庫</a>
     <span><span class="status-dot" id="status-dot"></span><span id="status-text">Pyodide 載入中...</span></span>
@@ -11745,8 +11745,9 @@ function chapSection(id){
   if(id <= 43) return {key:'topic-crawl', label:'🕷 專項教學 · 爬蟲', desc:'HTTP、requests、BeautifulSoup、實戰爬取'};
   if(id <= 51) return {key:'topic-data',  label:'📊 專項教學 · 資料分析', desc:'pandas、清理、groupby、視覺化'};
   if(id <= 59) return {key:'topic-bot',   label:'🤖 專項教學 · Bot', desc:'Discord / LINE、事件、指令、部署'};
+  if(id <= 67) return {key:'topic-game', label:'🎮 專項教學 · pygame', desc:'game loop、輸入、碰撞、完整小遊戲'};
   if(id === 68) return {key:'apcs-new', label:'📗 APCS 新制與識讀', desc:'四級題本、題目分級、程式追蹤'};
-  return {key:'topic-game', label:'🎮 專項教學 · pygame', desc:'game loop、輸入、碰撞、完整小遊戲'};
+  return {key:'advanced-practice', label:'🔥 高級題訓練', desc:'快速冪、模運算、分治與逆序對'};
 }
 function renderChapList() {
   const list = document.getElementById('chap-list');
