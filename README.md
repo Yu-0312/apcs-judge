@@ -1,7 +1,7 @@
 # APCS Multi-Language Online Judge / APCS 多語言線上評分系統
 
-> 一個專案、四種語言、125 道題目、69 章互動式基礎教學、即時瀏覽器評分、附解題思路
-> One project, four languages, 125 problems, 69 interactive tutorial chapters, in-browser instant grading, with solution hints
+> 一個專案、四種語言、125 道題目、71 章互動式基礎教學（含 🔥 高級題專章）、即時瀏覽器評分、附解題思路
+> One project, four languages, 125 problems, 71 interactive tutorial chapters (incl. 🔥 advanced-topic chapters), in-browser instant grading, with solution hints
 
 🔗 **教學頁面 / Tutorial**：[tutorial.html](https://yu-0312.github.io/apcs-judge/tutorial.html)
 
@@ -24,7 +24,7 @@
 - **解題思路提示**：每題都附「💡 思路」，解釋題目中的關鍵字暗示了什麼演算法
 - **難度星等**：⭐ 初級 / ⭐⭐ 中級 / ⭐⭐⭐ 中高級 / ⭐⭐⭐⭐ 高級 一目了然
 - **125 道題目**：涵蓋初級、中級、中高級、高級四個難度
-- **69 章基礎教學**：tutorial.html 從變數一路教到 APCS 新制分級與程式識讀技巧
+- **71 章基礎教學**：tutorial.html 從變數一路教到 APCS 新制分級與程式識讀技巧，**含 🔥 高級題專章**（快速冪、分治、區間 DP 等）
 
 ### 🎯 題目分布
 
@@ -52,7 +52,7 @@
 
 ### 📚 基礎教學（tutorial.html）
 
-**69 章** 互動式教學，每章左側 Markdown 教材、右側即時 Python 編輯器：
+**71 章** 互動式教學，每章左側 Markdown 教材、右側即時 Python 編輯器（標 🔥 為高級題專章）：
 
 **基礎篇**
 1. 變數與資料型別
@@ -81,7 +81,14 @@
 **實戰篇**
 19. 綜合練習：完整 APCS 題
 20. APCS 實戰技巧
-21. APCS 新制分級與程式識讀
+68. APCS 新制分級與程式識讀
+
+**🔥 高級題專章篇**（覆蓋 ⭐⭐⭐⭐ 高級題目所需的演算法）
+- 第 11 章新增 **11.7 Kadane 1D / 2D**（最大連續子陣列和；高級題 2D 延伸）
+- 第 24 章擴充：**LIS O(n log n)**、**24.5 完全背包**、**24.6 編輯距離**、**24.7 區間 DP / 矩陣連乘**
+- **第 69 章 🔥 快速冪與模運算**（含模逆元、矩陣快速冪）
+- **第 70 章 🔥 分治與逆序對**（合併排序計數法）
+- 其他相關：Ch 21 樹走訪、Ch 22 BFS/DFS、Ch 23 最短路徑+拓樸、Ch 25 並查集、Ch 26 字串 hash & Trie
 
 ### 🚀 使用方式
 
@@ -191,7 +198,7 @@ A web-based practice platform for Taiwan's **APCS (Advanced Placement Computer S
 - **Solution hints**: Every problem includes a "💡 Hint" panel explaining which keywords in the problem statement suggest which algorithm
 - **Difficulty stars**: ⭐ Beginner / ⭐⭐ Intermediate / ⭐⭐⭐ Upper-Intermediate / ⭐⭐⭐⭐ Advanced shown in sidebar
 - **125 problems** across beginner, intermediate, upper-intermediate, and advanced levels
-- **69-chapter tutorial** (tutorial.html) from variables to APCS new-level mapping and code-reading tactics
+- **71-chapter tutorial** (tutorial.html) from variables to APCS new-level mapping and code-reading tactics, **including 🔥 advanced-topic chapters** (fast power, divide-and-conquer, interval DP, etc.)
 
 ### 🎯 Problem Breakdown
 
@@ -204,7 +211,7 @@ A web-based practice platform for Taiwan's **APCS (Advanced Placement Computer S
 
 ### 📚 Tutorial (tutorial.html)
 
-**69 interactive chapters**, each with a Markdown lesson on the left and a live Pyodide editor on the right.
+**71 interactive chapters**, each with a Markdown lesson on the left and a live Pyodide editor on the right. Chapters marked 🔥 are advanced-topic deep-dives covering the algorithms needed for the ⭐⭐⭐⭐ Advanced problem set: Kadane 1D/2D (ch 11.7), LIS O(n log n) + unbounded knapsack + edit distance + interval DP (ch 24.2–24.7), fast power & modular arithmetic (ch 69), divide-and-conquer & inversion counting (ch 70).
 
 **Basics**: variables, I/O, operators, conditionals, loops
 **Data structures**: strings, lists, 2D arrays, functions, dicts/sets

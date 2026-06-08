@@ -966,7 +966,23 @@ def lcm(a, b):
     return a * b // gcd(a, b)
 \`\`\`
 
-## 11.7 試試看
+## 11.7 Kadane — 最大連續子陣列和 🔥【中級必備 / 高級題基石】
+> 「**最大連續**子陣列和」這幾個關鍵字一出現，幾乎都是 Kadane。
+> 一行核心思路：對每個位置 \`x\`，問自己「**接續**前面、還是**從這裡重啟**」。
+
+\`\`\`python
+def kadane(a):
+    cur = best = a[0]
+    for x in a[1:]:
+        cur = max(x, cur + x)   # 要嘛重啟、要嘛延伸
+        best = max(best, cur)
+    return best
+\`\`\`
+
+**陷阱**：題目若要求「至少選 1 個」、且陣列全為負，答案是「最大的負數」而不是 0。
+**進階（高級題）**：把它擴成 **2D Kadane**（固定左右兩欄、把列壓成 1D 再跑 Kadane）→ 第 24 章後段會用到。
+
+## 11.8 試試看
 `,
 example:`# 前綴和應用：找子陣列總和 = K 的個數
 a = [1, 2, 3, 4, 5, 2, 1, 3]
@@ -1898,7 +1914,22 @@ def lis(a):
                 dp[i] = max(dp[i], dp[j]+1)
     return max(dp)
 \`\`\`
-**O(n²)**。進階可用 \`bisect\` 做到 O(n log n)。
+**O(n²)**。進階可用 \`bisect\` 做到 O(n log n) 👇
+
+### 🔥【高級題】LIS O(n log n) — 耐心排序 + 二分搜
+**直覺**：維護一個「目前最佳的尾巴序列」\`tails\`，新元素若大於尾端就 append；否則用二分搜把它**取代**第一個 ≥ 它的位置。\`tails\` 的長度即 LIS 長度（但內容不是真正的 LIS）。
+
+\`\`\`python
+from bisect import bisect_left
+def lis_fast(a):
+    tails = []
+    for x in a:
+        i = bisect_left(tails, x)
+        if i == len(tails): tails.append(x)
+        else: tails[i] = x
+    return len(tails)
+\`\`\`
+\`bisect_left\` → 嚴格遞增；要非遞減改 \`bisect_right\`。
 
 ## 24.3 0/1 背包
 
@@ -1933,6 +1964,68 @@ def lcs(a, b):
                 dp[i][j] = max(dp[i-1][j], dp[i][j-1])
     return dp[m][n]
 \`\`\`
+
+## 24.5 🔥【高級題】完全背包（無限背包）
+跟 0/1 背包**只差迴圈方向**：每個物品可以拿無限次，所以 j 由小到大跑（允許重用）。
+
+\`\`\`python
+def unbounded_knapsack(w, v, W):
+    dp = [0]*(W+1)
+    for i in range(len(w)):
+        for j in range(w[i], W+1):    # 正序 → 同物品可重複加
+            dp[j] = max(dp[j], dp[j-w[i]] + v[i])
+    return dp[W]
+\`\`\`
+
+**口訣**：0/1 倒序、完全正序。
+
+## 24.6 🔥【高級題】編輯距離 (Edit Distance / Levenshtein)
+從字串 a 改成字串 b 的最少操作數（插入、刪除、替換各算 1 次）。
+
+\`\`\`python
+def edit_distance(a, b):
+    m, n = len(a), len(b)
+    dp = [[0]*(n+1) for _ in range(m+1)]
+    for i in range(m+1): dp[i][0] = i      # 全刪
+    for j in range(n+1): dp[0][j] = j      # 全插
+    for i in range(1, m+1):
+        for j in range(1, n+1):
+            if a[i-1] == b[j-1]:
+                dp[i][j] = dp[i-1][j-1]
+            else:
+                dp[i][j] = 1 + min(
+                    dp[i-1][j],     # 刪
+                    dp[i][j-1],     # 插
+                    dp[i-1][j-1]    # 替換
+                )
+    return dp[m][n]
+\`\`\`
+
+跟 LCS 的關係：兩者都是 \`dp[i][j]\` + 字元比較，但**轉移方向不同**——LCS 取 max、Edit Distance 取 min+1。
+
+## 24.7 🔥【高級題】區間 DP — 矩陣連乘 (Matrix Chain)
+給定矩陣鏈 \`A1 (p0×p1) · A2 (p1×p2) · … · An (p(n-1)×pn)\`，求**最少純量乘法次數**。
+
+**狀態**：\`dp[l][r]\` = 把 \`A_l … A_r\` 乘起來的最少代價。
+**轉移**：枚舉切點 k，\`dp[l][r] = min(dp[l][k] + dp[k+1][r] + p[l-1]·p[k]·p[r])\`。
+
+\`\`\`python
+def matrix_chain(p):           # p = [p0, p1, ..., pn]，共 n 個矩陣
+    n = len(p) - 1
+    dp = [[0]*(n+1) for _ in range(n+1)]
+    for length in range(2, n+1):                     # 區間長度由短到長
+        for l in range(1, n - length + 2):
+            r = l + length - 1
+            dp[l][r] = float('inf')
+            for k in range(l, r):                    # 切點
+                cost = dp[l][k] + dp[k+1][r] + p[l-1]*p[k]*p[r]
+                dp[l][r] = min(dp[l][r], cost)
+    return dp[1][n]
+
+print(matrix_chain([30, 35, 15, 5, 10, 20, 25]))     # 15125
+\`\`\`
+
+**所有區間 DP 的共同骨架**：**外層 by length、內層 by left、最內層 by split point**。看到「合併相鄰、求最佳代價」就想到它。
 `,example:`
 # 0/1 背包範例
 weights = [2, 3, 4, 5]
@@ -8045,6 +8138,221 @@ print("final", ans)
 # 3 1 5
 # 4 5 10
 # final 10
+`},
+
+{id:69,title:"🔥 快速冪與模運算【高級題】",tag:"高級",content:`
+# 第 69 章：快速冪與模運算 🔥【高級題】
+
+> 🎯 看到 \`a^n mod m\`、n 很大（10^9 以上）、或題目給「答案請對 1000000007 取模」——就是這章。
+
+## 69.1 為什麼不能直接乘？
+n = 10^9 時，迴圈乘 n 次絕對 TLE；而且就算不超時，整數也會爆。
+**快速冪**用「平方分解」把 O(n) 壓到 **O(log n)**。
+
+## 69.2 核心觀察
+\`a^n\` 可以拆成：
+- 若 n 是偶數：\`a^n = (a^(n/2))^2\`
+- 若 n 是奇數：\`a^n = a · a^(n-1)\`
+
+每一步問題規模砍半 → log n 步。
+
+## 69.3 迭代版（推薦背這個）
+\`\`\`python
+def fast_pow(a, n, mod=None):
+    result = 1
+    while n > 0:
+        if n & 1:               # n 的最低位是 1
+            result = result * a
+            if mod: result %= mod
+        a = a * a
+        if mod: a %= mod
+        n >>= 1                  # n //= 2
+    return result
+
+print(fast_pow(2, 10))                 # 1024
+print(fast_pow(2, 10**9, 10**9 + 7))   # 模運算下的 2^(10^9)
+\`\`\`
+
+## 69.4 Python 內建——其實有現成的
+\`\`\`python
+pow(2, 10**9, 10**9 + 7)    # C 實作、最快
+\`\`\`
+**APCS 寫 Python 直接用 \`pow(a, n, m)\` 就好**；但 C/C++/Java 一定要會手刻。
+
+## 69.5 C++ 版本（高級題模板）
+\`\`\`cpp
+typedef long long ll;
+ll fast_pow(ll a, ll n, ll mod) {
+    ll res = 1; a %= mod;
+    while (n > 0) {
+        if (n & 1) res = res * a % mod;
+        a = a * a % mod;
+        n >>= 1;
+    }
+    return res;
+}
+\`\`\`
+> ⚠️ 用 \`long long\`，否則 \`a*a\` 會溢位。
+
+## 69.6 應用一：模逆元（費馬小定理）
+當 \`mod\` 是質數時，\`a 的反元素 = a^(mod-2) mod\`：
+\`\`\`python
+MOD = 10**9 + 7
+inv = pow(a, MOD-2, MOD)        # a 在模 MOD 下的反元素
+\`\`\`
+這在組合數 \`C(n,k) mod p\` 題型常見。
+
+## 69.7 應用二：矩陣快速冪 → 線性遞迴加速
+費氏數列可以寫成矩陣：
+\`\`\`
+[F(n+1)]   [1 1]^n  [F(1)]
+[F(n)  ] = [1 0]  · [F(0)]
+\`\`\`
+配合矩陣快速冪 → O(log n) 算第 n 個費氏數。是高級 DP 加速的常見手段。
+
+## 69.8 陷阱清單
+- 模運算下不能直接除法 → 改乘上模逆元
+- \`a\` 進函式前先 \`a %= mod\` 一次，避免一開始就溢位
+- \`n = 0\` 時答案是 1（注意 \`0^0\` 慣例為 1）
+
+## 69.9 試試看
+`,example:`# 比較三種寫法的速度
+import time
+
+def slow_pow(a, n, mod):
+    r = 1
+    for _ in range(n):
+        r = r * a % mod
+    return r
+
+def fast_pow(a, n, mod):
+    r = 1; a %= mod
+    while n > 0:
+        if n & 1: r = r * a % mod
+        a = a * a % mod
+        n >>= 1
+    return r
+
+a, n, mod = 3, 1_000_000, 10**9 + 7
+
+t = time.time(); v1 = slow_pow(a, n, mod);   t1 = time.time()-t
+t = time.time(); v2 = fast_pow(a, n, mod);   t2 = time.time()-t
+t = time.time(); v3 = pow(a, n, mod);        t3 = time.time()-t
+
+print(f"slow_pow : {v1}  耗時 {t1:.4f}s")
+print(f"fast_pow : {v2}  耗時 {t2:.6f}s")
+print(f"內建 pow : {v3}  耗時 {t3:.6f}s")
+print(f"\\n快速冪比迴圈快 {t1/max(t2,1e-9):.0f} 倍")
+`},
+
+{id:70,title:"🔥 分治與逆序對【高級題】",tag:"高級",content:`
+# 第 70 章：分治與逆序對 🔥【高級題】
+
+> 🎯 「逆序對個數」(\`i < j\` 但 \`a[i] > a[j]\`) 是 APCS 高級題常考——也是把「合併排序」用在計數上的經典例子。
+
+## 70.1 分治三步驟
+1. **拆**：把問題切成兩半（通常從中點）
+2. **解**：遞迴解左半、右半
+3. **併**：把兩個子答案合起來，並算「跨越中線的貢獻」
+
+合併排序、最近點對、最大子陣列分治版……都套這個骨架。
+
+## 70.2 為什麼 O(n²) 不夠？
+直觀寫法：雙層 for 數逆序對 → 1e5 筆資料就要 10^10 次比較，**TLE**。
+分治可以做到 **O(n log n)**。
+
+## 70.3 合併排序回顧
+\`\`\`python
+def merge_sort(a):
+    if len(a) <= 1: return a
+    mid = len(a) // 2
+    L = merge_sort(a[:mid])
+    R = merge_sort(a[mid:])
+    return merge(L, R)
+
+def merge(L, R):
+    out, i, j = [], 0, 0
+    while i < len(L) and j < len(R):
+        if L[i] <= R[j]:
+            out.append(L[i]); i += 1
+        else:
+            out.append(R[j]); j += 1
+    out += L[i:]; out += R[j:]
+    return out
+\`\`\`
+
+## 70.4 改裝成「邊排序邊算逆序對」
+**關鍵觀察**：當合併時取了右邊的 \`R[j]\`，代表 L 中「還沒取出來」的所有元素 \`L[i..]\` 都比 \`R[j]\` 大 → 一次貢獻 \`len(L) - i\` 對逆序對。
+
+\`\`\`python
+def count_inv(a):
+    def go(a):
+        if len(a) <= 1: return a, 0
+        mid = len(a) // 2
+        L, cL = go(a[:mid])
+        R, cR = go(a[mid:])
+        out, i, j, c = [], 0, 0, 0
+        while i < len(L) and j < len(R):
+            if L[i] <= R[j]:
+                out.append(L[i]); i += 1
+            else:
+                out.append(R[j]); j += 1
+                c += len(L) - i      # ← 一次累計
+        out += L[i:]; out += R[j:]
+        return out, cL + cR + c
+    return go(a)[1]
+
+print(count_inv([2, 4, 1, 3, 5]))   # 3：(2,1)(4,1)(4,3)
+\`\`\`
+時間 **O(n log n)**、空間 O(n)。
+
+## 70.5 為什麼計數對是 \`len(L) - i\`？
+合併時兩邊**各自已排序**。如果 \`L[i] > R[j]\`，那麼 \`L[i], L[i+1], …, L[-1]\` 全部都 > \`R[j]\`；
+而它們的原始 index 都在 \`R[j]\` 的左邊（因為 L 是左半） → 它們全都跟 \`R[j]\` 形成逆序對。
+
+## 70.6 另一招：BIT (Binary Indexed Tree) 也能算
+離散化 + BIT 從右往左掃，每次查「比目前 a[i] 小的有幾個」累加。
+也是 O(n log n)、空間 O(n)。實作較多但常數小。
+（BIT 的細節超出本章範圍，先建立「分治版」的直覺即可。）
+
+## 70.7 變體題
+- 數「**順序對**」：把 \`<=\` 改成 \`<\` 或對稱處理即可
+- 數「\`a[i] - a[j] > k\` 的對數」：合併時改用雙指標
+- 最大子陣列分治版（CLRS 經典）：left 內最大 / right 內最大 / 跨中線最大，三者取 max
+
+## 70.8 試試看
+`,example:`# 比較 O(n²) 暴力 vs O(n log n) 分治
+import time, random
+
+def brute(a):
+    n = len(a); c = 0
+    for i in range(n):
+        for j in range(i+1, n):
+            if a[i] > a[j]: c += 1
+    return c
+
+def fast(a):
+    def go(a):
+        if len(a) <= 1: return a, 0
+        m = len(a)//2
+        L, cL = go(a[:m]); R, cR = go(a[m:])
+        out, i, j, c = [], 0, 0, 0
+        while i < len(L) and j < len(R):
+            if L[i] <= R[j]: out.append(L[i]); i += 1
+            else: out.append(R[j]); j += 1; c += len(L)-i
+        out += L[i:]; out += R[j:]
+        return out, cL+cR+c
+    return go(a)[1]
+
+random.seed(0)
+arr = [random.randint(1, 10**6) for _ in range(3000)]
+
+t = time.time(); b = brute(arr); t1 = time.time()-t
+t = time.time(); f = fast(arr);  t2 = time.time()-t
+
+print(f"暴力 O(n²)    答案 = {b}  耗時 {t1:.4f}s")
+print(f"分治 O(n log n) 答案 = {f}  耗時 {t2:.4f}s")
+print(f"\\n結果一致：{b == f}    分治快 {t1/max(t2,1e-9):.1f} 倍")
 `}
 ];
 
