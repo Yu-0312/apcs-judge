@@ -45,12 +45,19 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .layout{display:grid;grid-template-columns:240px 1fr;height:calc(100vh - var(--header-h) - var(--tab-h));overflow:hidden;}
 .sidebar{background:var(--sidebar-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
 .sidebar-header{padding:10px 14px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
-.problem-list{overflow-y:auto;flex:1;}
-.problem-item{display:flex;align-items:center;gap:8px;padding:9px 14px;cursor:pointer;border-bottom:1px solid rgba(48,54,61,.5);transition:background .12s;font-size:12px;}
+.problem-list{overflow-y:auto;flex:1;padding:8px 0;}
+.problem-group{padding-bottom:8px;border-bottom:1px solid rgba(48,54,61,.45);}
+.level-header{position:relative;margin:0 8px 6px;padding:13px 12px 14px 16px;border-radius:7px;background:linear-gradient(135deg,var(--level-bg),rgba(22,27,34,.94));border:1px solid var(--level-border);border-left:4px solid var(--level-color);box-shadow:0 8px 18px rgba(0,0,0,.12);}
+.level-title-row{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:750;color:var(--text);}
+.level-title-row .count{margin-left:auto;font-size:10px;color:var(--level-color);background:rgba(255,255,255,.06);border:1px solid var(--level-border);border-radius:999px;padding:1px 7px;font-weight:700;}
+.level-desc{margin-top:6px;font-size:11px;color:var(--text-muted);line-height:1.45;}
+.problem-item{display:block;padding:9px 14px 10px 18px;cursor:pointer;border-bottom:1px solid rgba(48,54,61,.38);transition:background .12s,border-color .12s;font-size:12px;border-left:3px solid transparent;}
 .problem-item:hover{background:rgba(255,255,255,.03);}
-.problem-item.active{background:rgba(255,255,255,.07);border-left:2px solid var(--lang-color);padding-left:12px;transition:border-color .2s;}
-.problem-item .pnum{font-size:10px;color:var(--text-muted);min-width:22px;font-weight:600;}
-.problem-item .ptitle{flex:1;font-weight:500;}
+.problem-item.active{background:rgba(255,255,255,.07);border-left-color:var(--level-color);}
+.problem-item .pmeta{font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:.3px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.problem-row{display:flex;align-items:center;gap:8px;}
+.problem-item .ptitle{flex:1;font-weight:650;font-size:13px;color:var(--text);line-height:1.35;min-width:0;}
+.problem-item .pmarks{display:flex;align-items:center;gap:5px;flex-shrink:0;}
 .pstatus.pass{color:var(--green);font-size:10px;font-weight:700;}
 .pstatus.fail{color:var(--red);font-size:10px;font-weight:700;}
 .pstatus.partial{color:var(--yellow);font-size:10px;font-weight:700;}
@@ -116,7 +123,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 </head>
 <body>
 <header>
-  <div><div class="logo" id="logo">APCS 多語言評分系統</div><div class="sub">125 題 · 初/中/高級 · Python / C++ / C / Java</div></div>
+  <div><div class="logo" id="logo">APCS 多語言評分系統</div><div class="sub">125 題 · 初/中/中高/高級 · Python / C++ / C / Java</div></div>
   <div class="hright">
     <a href="tutorial.html" style="color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;">📚 基礎教學</a>
     <span><span class="status-dot" id="status-dot"></span><span id="status-text">載入中...</span></span>
@@ -135,7 +142,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
   <aside class="sidebar">
     <div class="sidebar-header">
       <span>題目列表（125 題）</span>
-      <span id="solved-count" style="color:var(--green);font-size:11px;">0 / 83</span>
+      <span id="solved-count" style="color:var(--green);font-size:11px;">0 / 125</span>
     </div>
     <div class="problem-list" id="problem-list"></div>
   </aside>
@@ -169,122 +176,122 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 <script>
 // ── Problem data (language-independent) ──────────────────────────────────────
 const PROBLEMS=[
-{id:"b964",title:"成績指標",topic:"排序、陣列",date:"2016/03",
+{id:"b964",title:"成績指標",topic:"排序、陣列",date:"2016/03",diff:"easy",
 desc:"讀入全班成績，排序後找出不及格中最高分數（或 best case）和及格中最低分數（或 worst case）。及格分數為 60。",
 input_desc:"第一行學生人數，第二行各學生分數（0~100），以空白分隔。學生人數為 1~20 的整數。",
 output_desc:"第一行由小而大印出所有成績；第二行最高不及格分數或 best case；第三行最低及格分數或 worst case。",
 samples:[{input:"10\n0 11 22 33 55 66 77 99 88 44\n",output:"0 11 22 33 44 55 66 77 88 99\n55\n66\n"},{input:"1\n13\n",output:"13\n13\nworst case\n"},{input:"2\n73 65\n",output:"65 73\nbest case\n65\n"}],hint:"**關鍵字**：「排序」「最高/最低」「不及格中最高」→ `sort()` 後掃過一次。\n**特殊值**：題目說「找不到時印 best case / worst case」→ 用 `None`（Python）或 `-1`（C/C++）當「未找到」標記。\n**輸出格式**：第一行用 `print(*scores)` 自動空白分隔。"},
-{id:"c294",title:"三角形辨別",topic:"條件判斷",date:"2016/10",
+{id:"c294",title:"三角形辨別",topic:"條件判斷",date:"2016/10",diff:"easy",
 desc:"給定三個線段長度，判斷能否構成三角形；若可以，判斷為 Obtuse / Right / Acute。\n\n若 a+b≤c → No；a²+b²<c² → Obtuse；a²+b²=c² → Right；a²+b²>c² → Acute",
 input_desc:"一行三個正整數，皆小於 30001。",
 output_desc:"第一行由小而大印出三個正整數；第二行輸出 No/Obtuse/Right/Acute。",
 samples:[{input:"3 4 5\n",output:"3 4 5\nRight\n"},{input:"101 100 99\n",output:"99 100 101\nAcute\n"},{input:"10 10 100\n",output:"10 10 100\nNo\n"}],hint:"**關鍵字**：「三邊」「c 為最大值」→ 先 `sort` 把最大邊放在最後。\n**判斷順序**：先檢查 `a+b≤c`（無法構成）→ 再比 `a²+b²` vs `c²`（角度類型）。\n**陷阱**：浮點數比較會有誤差，本題用整數平方 `a*a+b*b == c*c` 比較安全。"},
-{id:"c290",title:"秘密差",topic:"字串",date:"2017/03",
+{id:"c290",title:"秘密差",topic:"字串",date:"2017/03",diff:"easy",
 desc:"將十進位正整數的奇數位數字和稱為 A，偶數位數字和稱為 B，|A－B| 為秘密差。（從個位開始算第 1 位）\n\n例如：263541 → A=6+5+1=12，B=2+3+4=9，秘密差=3。",
 input_desc:"輸入一個十進位正整數 X。",
 output_desc:"輸出 X 的秘密差。",
 samples:[{input:"263541\n",output:"3\n"},{input:"131\n",output:"1\n"}],hint:"**關鍵字**：「奇數位」「從個位開始」→ 反轉字串後用索引 `i%2` 區分奇偶位。\n**作法**：`s[::-1]` 反轉 → enumerate → 偶數索引(0,2,4) 是第 1,3,5 位（奇數位）。\n**輸出**：絕對值用 `abs()`。"},
-{id:"c461",title:"邏輯運算子",topic:"條件判斷",date:"2017/10",
+{id:"c461",title:"邏輯運算子",topic:"條件判斷",date:"2017/10",diff:"easy",
 desc:"給非負整數 a, b 和結果 r（0 或 1），判斷哪些邏輯運算（AND/OR/XOR）能讓 a 和 b 得到結果 r。非零整數視為 1。若不可能輸出 IMPOSSIBLE。",
 input_desc:"一行三個整數 a b r。",
 output_desc:"輸出符合的運算（AND/OR/XOR），每行一個。若不可能輸出 IMPOSSIBLE。",
 samples:[{input:"0 0 0\n",output:"AND\nOR\nXOR\n"},{input:"1 1 1\n",output:"AND\nOR\n"},{input:"3 0 1\n",output:"OR\nXOR\n"},{input:"0 0 1\n",output:"IMPOSSIBLE\n"}],hint:"**關鍵字**：「非負整數」「0 或 1 的運算結果」→ 非零視為 1。\n**作法**：先把 a, b 標準化成 0/1，然後用 Python/C++ 的位元運算 `&`, `|`, `^` 直接套公式。\n**輸出順序**：題目指定 AND, OR, XOR 順序固定，不需排序。"},
-{id:"e283",title:"特殊編碼",topic:"陣列",date:"2018/06",
+{id:"e283",title:"特殊編碼",topic:"陣列",date:"2018/06",diff:"easy",
 desc:"每個字串由 A~F 組成，編碼：A→0101, B→0111, C→0010, D→1101, E→1000, F→1100。\n\n多筆輸入：每筆第一行 N，接下來 N 行各 4 個數字，以 EOF 結束。",
 input_desc:"多筆輸入，每筆第一行 N，接下來 N 行各 4 個 0 或 1，以 EOF 結束。",
 output_desc:"多筆輸出，每筆輸出原始字串。",
 samples:[{input:"1\n0 1 0 1\n1\n0 0 1 0\n2\n1 0 0 0\n1 1 0 0\n4\n1 1 0 1\n1 0 0 0\n0 1 1 1\n1 1 0 1\n",output:"A\nC\nEF\nDEBD\n"}],hint:"**關鍵字**：「對照表」「4-bit 序列」「直到 EOF」→ 用 dict/map 做查表，迴圈讀到 EOF。\n**作法**：將 4 個輸入數字拼成字串 key 查表得到字元。\n**EOF 處理**：Python 用 `try/except EOFError`；C/C++ 用 `while(cin >> n)` 或 `scanf` 回傳值判斷。"},
-{id:"e313",title:"最少相異字母",topic:"陣列",date:"2018/10",
+{id:"e313",title:"最少相異字母",topic:"陣列",date:"2018/10",diff:"easy",
 desc:"在 N 個字串中，找出含有最少相異字母的字串。有多個時選字典序最小者。",
 input_desc:"第一行 N；接下來 N 行，每行一個只含大寫字母的字串。",
 output_desc:"輸出最少相異字母的字串（字典序最小）。",
 samples:[{input:"3\nABBCAAB\nAABBACC\nAAPPCCSS\n",output:"AABBACC\n"}],hint:"**關鍵字**：「最少相異字母」「字典序最小」→ 雙重排序條件。\n**作法**：用 `set` 算相異字母數，更新條件：`count < best_count` 或 `count == best_count and s < best`。\n**注意**：字串比較直接用 `<`（Python/C++ 內建字典序）。"},
-{id:"e286",title:"籃球比賽",topic:"陣列",date:"2019/06",
+{id:"e286",title:"籃球比賽",topic:"陣列",date:"2019/06",diff:"easy",
 desc:"兩隊進行兩場籃球比賽（每場四局）。輸出每場比數，最後輸出主隊勝負：Win/Lose/Tie。",
 input_desc:"四行，每行四個數字（四局分數），第一二行為第一場主客隊，第三四行為第二場。",
 output_desc:"兩行比數（主:客），第三行 Win/Lose/Tie。",
 samples:[{input:"87 87 87 87\n78 78 78 78\n87 87 87 87\n78 78 78 78\n",output:"348:312\n348:312\nWin\n"}],hint:"**關鍵字**：「四局分數」「兩場」→ 用 `sum(map(int, input().split()))` 直接相加四局。\n**勝負判斷**：用布林轉整數計算贏的場數，例如 `(h1>c1) + (h2>c2)`。\n**輸出格式**：`{h1}:{c1}` 用 f-string 或 `cout<<h1<<\":\"<<c1`。"},
-{id:"h026",title:"猜拳",topic:"條件判斷",date:"2020/01",
+{id:"h026",title:"猜拳",topic:"條件判斷",date:"2020/01",diff:"easy",
 desc:"出拳：0(石頭)、2(剪刀)、5(布)。哥哥第一輪出 F。策略：若妹妹連續兩輪出同一拳→出打敗該拳；否則→出妹妹前一輪的拳。輸出哥哥每輪出拳及勝負。",
 input_desc:"第一行哥哥第一輪出拳 F；第二行 N；第三行妹妹出的 N 個拳。",
 output_desc:"輸出哥哥每輪出拳及勝負結果（Won/Lost/Drew at round k）。",
 samples:[{input:"0\n4\n2 5 0 2\n",output:"0 : Won at round 1\n"},{input:"5\n4\n5 5 0 0\n",output:"5 5 2 : Lost at round 3\n"},{input:"5\n6\n5 5 2 2 0 0\n",output:"5 5 2 2 0 0 : Drew at round 6\n"}],hint:"**關鍵字**：「連續兩輪一樣」「打敗的拳」→ 寫 helper function `beat(x)` 處理勝負規則。\n**狀態**：用 `finished` 旗標避免太早 break。\n**核心邏輯**：每輪先檢查勝負，再決定下一輪的拳（i>=1 且 y[i]==y[i-1] 時出 `beat(y[i])`）。"},
-{id:"f579",title:"購物車",topic:"計數",date:"2020/07",
+{id:"f579",title:"購物車",topic:"計數",date:"2020/07",diff:"easy",
 desc:"給商品編號 a, b。感應器記錄：正整數 x 表示放入 x，負整數 -x 表示移除 x，0 表示結束。統計同時購買兩商品的客人數。",
 input_desc:"第一行 a, b；第二行客人數 n；接下來 n 行每行是購物車紀錄（最後為 0）。",
 output_desc:"輸出同時購買商品 a 與 b 的客人數。",
 samples:[{input:"1 8\n5\n1 8 0\n5 6 0\n2 7 0\n8 1 0\n33 22 0\n",output:"2\n"},{input:"3 9\n2\n3 9 -3 3 9 0\n3 3 -3 -3 9 0\n",output:"1\n"}],hint:"**關鍵字**：「最後購買 = 放入 > 取出」→ 每位客人獨立計數，只追蹤商品 a 和 b。\n**作法**：對每筆紀錄掃描，正數加 1，負數減 1，遇到 0 停止。\n**簡化**：題目只關心兩件商品，用兩個變數 `ca, cb` 即可，不必字典。"},
-{id:"f312",title:"人力分配",topic:"枚舉",date:"2020/10",
+{id:"f312",title:"人力分配",topic:"枚舉",date:"2020/10",diff:"easy",
 desc:"兩工廠，收益為二次函數 Y₁=A₁X₁²+B₁X₁+C₁，Y₂=A₂X₂²+B₂X₂+C₂。n 個員工全部分配到兩廠，枚舉所有分配方式，輸出最大收益。",
 input_desc:"第一行 A₁ B₁ C₁；第二行 A₂ B₂ C₂；第三行 n（1≤n≤100）。",
 output_desc:"輸出最大收益。",
 samples:[{input:"2 -1 3\n4 -5 2\n2\n",output:"11\n"}],hint:"**關鍵字**：「每個員工都必須分配」「最大收益」→ 枚舉 X₁ 從 0 到 n。\n**作法**：`X₂ = n - X₁`，套二次式 Y = AX² + BX + C 計算總和。\n**注意**：可能負值，初始化 `best = None` 或 `LONG_MIN`。"},
-{id:"f605",title:"購買力",topic:"枚舉",date:"2021/01",
+{id:"f605",title:"購買力",topic:"枚舉",date:"2021/01",diff:"easy",
 desc:"市場 n 個商品，三天價格。若最高最低差≥d 則購買（費用為平均值，保證整數）。輸出購買數量和總費用。",
 input_desc:"第一行 n, d；接下來 n 行，每行三個價格。",
 output_desc:"輸出購買數量和總費用（空格分隔）。",
 samples:[{input:"1 3\n24 27 21\n",output:"1 24\n"},{input:"3 4\n24 33 42\n51 48 60\n77 77 77\n",output:"2 86\n"}],hint:"**關鍵字**：「最高最低差至少 d」「三天平均」→ 用 `max(prices) - min(prices) >= d` 篩選。\n**作法**：迴圈讀入每商品三天價格，符合條件就 `cnt++; cost += sum(prices)//3`。\n**注意**：題目保證平均為整數，直接整數除法。"},
-{id:"g275",title:"七言對聯",topic:"條件判斷",date:"2021/09",
+{id:"g275",title:"七言對聯",topic:"條件判斷",date:"2021/09",diff:"easy",
 desc:"七言對聯三條規則：A 二四不同二六同；B 上句末仄(1)下句末平(0)；C 上下第2,4,6字平仄相反。輸出違反的規則或 None。",
 input_desc:"第一行 n；接下來 2n 行，每行 7 個 0 或 1。",
 output_desc:"對每組對聯輸出違反的規則（A/B/C 組合）或 None。",
 samples:[{input:"1\n1 1 0 0 0 1 1\n1 0 0 0 1 1 0\n",output:"AC\n"},{input:"1\n0 1 1 0 1 1 1\n1 0 1 1 0 0 0\n",output:"None\n"}],hint:"**關鍵字**：「平仄 0/1」「7 個字」「規則 A/B/C」→ 用陣列存每個位置，依規則比對。\n**索引對應**：第 2,4,6 字 = 索引 1,3,5；末字 = 索引 6。\n**字串拼接**：違反規則時 `bad += 'A'`，最後判斷是否為空輸出 None。"},
-{id:"g595",title:"修補圍籬",topic:"陣列",date:"2021/11",
+{id:"g595",title:"修補圍籬",topic:"陣列",date:"2021/11",diff:"easy",
 desc:"有 n 個圍籬，高度為 0 的被吹斷。農場主人取左右較小高度填上。保證不會有兩個相鄰的吹斷圍籬。求新增圍籬長度總和。",
 input_desc:"第一行 n（3≤n≤100）；第二行 n 個整數（0≤h[i]≤100）。",
 output_desc:"輸出新增的圍籬長度總和。",
 samples:[{input:"3\n2 0 4\n",output:"2\n"},{input:"9\n0 5 3 0 6 4 0 1 0\n",output:"10\n"}],hint:"**關鍵字**：「相鄰較小高度」「邊界」「不會兩個相鄰吹斷」→ 對每個 0 直接看左右鄰居。\n**邊界處理**：`i==0` 只看右；`i==n-1` 只看左；中間取 `min(h[i-1], h[i+1])`。"},
-{id:"h081",title:"程式交易",topic:"條件判斷",date:"2022/01",
+{id:"h081",title:"程式交易",topic:"條件判斷",date:"2022/01",diff:"easy",
 desc:"股票交易：在時間點 1 買進；持股時遇到 y≥買進價+D 即賣出；未持股時遇到 y≤上次賣出價-D 則買進。若結束仍持股則忽略。輸出總利潤。",
 input_desc:"第一行 n, D；接下來 n 個正整數代表股票價格。",
 output_desc:"輸出總利潤。",
 samples:[{input:"3 10\n50 20 45\n",output:"0\n"},{input:"6 10\n30 20 45 38 10 20\n",output:"25\n"}],hint:"**關鍵字**：「同時最多持一張」「達到門檻就交易」→ 用 `holding` 布林表示狀態。\n**狀態機**：持股時只檢查賣出條件；未持股時只檢查買進條件。\n**注意**：賣出時更新 `price` 為賣出價（下次買進門檻基準）。"},
-{id:"i399",title:"數字遊戲",topic:"條件判斷、陣列",date:"2022/06",
+{id:"i399",title:"數字遊戲",topic:"條件判斷、陣列",date:"2022/06",diff:"easy",
 desc:"給三個介於 1~9 的整數，先輸出眾數次數 P，再輸出去重後由大到小排列的數字。",
 input_desc:"一行三個整數。",
 output_desc:"輸出 P 和去重後由大到小排列的數字（同一行）。",
 samples:[{input:"6 6 6\n",output:"3 6\n"},{input:"7 9 7\n",output:"2 9 7\n"},{input:"4 1 8\n",output:"1 8 4 1\n"}],hint:"**關鍵字**：「眾數次數」「去重」「由大到小」→ 三招組合。\n**作法**：`count()` 找出現次數 → `sort(reverse=True)` → 去重時用 `prev` 變數避免重複。\n**輸出**：`print(P, *unique)` 自動空白分隔。"},
-{id:"i428",title:"巴士站牌",topic:"迴圈",date:"2022/10",
+{id:"i428",title:"巴士站牌",topic:"迴圈",date:"2022/10",diff:"easy",
 desc:"n 個巴士站，依序從站 1 到站 n。相鄰兩站行進時間為曼哈頓距離。輸出最大值與最小值。",
 input_desc:"第一行 n（4≤n≤100）；接下來 n 行，每行兩個整數（-100≤x,y≤100）。",
 output_desc:"輸出最大行進時間與最小行進時間。",
 samples:[{input:"4\n1 1\n1 3\n4 5\n2 6\n",output:"5 2\n"},{input:"4\n1 2\n-1 -1\n1 3\n0 0\n",output:"6 4\n"}],hint:"**關鍵字**：「曼哈頓距離」「相鄰兩站」「最大值最小值」→ 公式 `|x₁-x₂| + |y₁-y₂|`。\n**作法**：讀入所有座標 → 計算 n-1 個距離 → `max()` 和 `min()` 取結果。"},
-{id:"j605",title:"程式考試",topic:"迴圈、條件判斷",date:"2023/01",
+{id:"j605",title:"程式考試",topic:"迴圈、條件判斷",date:"2023/01",diff:"easy",
 desc:"K 筆提交紀錄，s=-1 為嚴重錯誤。總分 = 最高分 - K - 嚴重錯誤×2（最小0）。輸出總分和第一次最高分時間。",
 input_desc:"第一行 K；接下來 K 行，每行 t, s（保證第一筆不是嚴重錯誤）。",
 output_desc:"輸出總分和第一次獲得最高分的時間點。",
 samples:[{input:"5\n3 89\n5 -1\n10 90\n15 0\n20 90\n",output:"83 10\n"},{input:"3\n3 0\n5 -1\n6 -1\n",output:"0 3\n"}],hint:"**關鍵字**：「第一次最高分時間」「嚴重錯誤」「最小為 0」→ 用 `>` 而非 `>=` 保留首次最高分時間。\n**公式**：`max(0, best - K - errors*2)`。\n**輸入處理**：s=-1 時 `continue` 跳過更新最高分。"},
-{id:"k731",title:"路徑偵測",topic:"幾何",date:"2023/06",
+{id:"k731",title:"路徑偵測",topic:"幾何",date:"2023/06",diff:"easy",
 desc:"從(0,0)出發，初始方向向右，依序移動到 n 個座標點（只水平或垂直移動）。輸出左轉、右轉、迴轉次數。",
 input_desc:"第一行 n；接下來 n 行，每行座標 x, y。",
 output_desc:"輸出三個整數：左轉、右轉、迴轉次數。",
 samples:[{input:"2\n2 0\n2 1\n",output:"1 0 0\n"},{input:"9\n4 0\n4 9\n4 8\n4 10\n4 2\n4 3\n6 3\n6 10\n6 9\n",output:"2 1 5\n"}],hint:"**關鍵字**：「方向」「左右轉」「迴轉」→ 用向量外積 (cross) 和內積 (dot) 判斷。\n**判斷規則**：`dot < 0` → 迴轉；`cross > 0` → 左轉；`cross < 0` → 右轉。\n**初始方向**：(1, 0) 代表向右。"},
-{id:"m370",title:"機械鼠",topic:"陣列",date:"2023/10",
+{id:"m370",title:"機械鼠",topic:"陣列",date:"2023/10",diff:"easy",
 desc:"老鼠在位置 x，n 個食物（n 為奇數）。選左或右方向，輸出最多能吃幾個食物及最後位置。",
 input_desc:"第一行 x, n；第二行 n 個食物位置。",
 output_desc:"輸出最多能吃到的食物數目和最後位置。",
 samples:[{input:"10 3\n1 5 13\n",output:"2 1\n"},{input:"10 9\n-1 13 12 16 100 -9 7 8 25\n",output:"5 100\n"}],hint:"**關鍵字**：「選方向」「奇數個食物」→ 因為 n 為奇數，左右數量必定不同。\n**作法**：分成左 (`p<x`) 右 (`p>x`) 兩堆 → 比較數量大的方向 → 最後位置是該方向的極值。"},
-{id:"m931",title:"遊戲選角",topic:"排序",date:"2024/01",
+{id:"m931",title:"遊戲選角",topic:"排序",date:"2024/01",diff:"easy",
 desc:"n 個角色，能力值 = a²+d²（每個相異）。輸出能力值第二大的攻擊力和防禦力。",
 input_desc:"第一行 n（3≤n≤20）；接下來 n 行，每行攻擊力和防禦力。",
 output_desc:"輸出能力值第二大的角色的攻擊力和防禦力。",
 samples:[{input:"3\n3 1\n5 2\n1 4\n",output:"1 4\n"},{input:"6\n6 6\n1 3\n8 6\n5 4\n2 8\n7 2\n",output:"6 6\n"}],hint:"**關鍵字**：「能力值 = a²+d²」「第二大」「能力值相異」→ 直接排序。\n**作法**：建立 `(power, a, d)` 陣列 → 由大到小排序 → 取索引 [1] 的 a, d。"},
-{id:"o076",title:"特技表演",topic:"陣列",date:"2024/06",
+{id:"o076",title:"特技表演",topic:"陣列",date:"2024/06",diff:"easy",
 desc:"有 n 棟高樓，滑翔路徑的樓高必須越來越低。請找出最長連續下降路徑長度。",
 input_desc:"第一行 n（5≤n≤100）；第二行 n 個正整數代表樓高。",
 output_desc:"輸出最長滑翔路徑長度。",
 samples:[{input:"5\n6 2 5 3 1\n",output:"3\n"},{input:"10\n31 41 97 93 23 89 59 26 15 58\n",output:"4\n"}],hint:"**關鍵字**：「越來越低」「最長」→ 經典最長連續下降序列。\n**作法**：維護 `cur`（目前連續下降長度），若 `h[i]<h[i-1]` 則 `cur++`，否則重置為 1，過程中更新 `ans = max(ans, cur)`。"},
-{id:"o711",title:"裝飲料",topic:"模擬",date:"2024/10",
+{id:"o711",title:"裝飲料",topic:"模擬",date:"2024/10",diff:"easy",
 desc:"杯子由上下兩段長方體組成（下：w₁×w₁，高h₁；上：w₂×w₂，高h₂）。依序倒 n 次飲料，杯子滿後水位不再上升。輸出最大單次水位上升量。",
 input_desc:"第一行 n；第二行 w₁ w₂ h₁ h₂；第三行 n 個容量。",
 output_desc:"輸出最大水位上升量（整數）。",
 samples:[{input:"1\n4 6 8 5\n200\n",output:"10\n"},{input:"2\n5 10 12 8\n400 600\n",output:"13\n"}],hint:"**關鍵字**：「兩段長方體」「滿後不上升」→ 寫 helper function `height(volume)` 處理分段公式。\n**核心**：若 `v ≤ cap1`（下段未滿）回傳 `v/(w1*w1)`；否則回傳 `h1 + (v-cap1)/(w2*w2)`。\n**水量上限**：`water = min(total_cap, water + v)`。"},
-{id:"q181",title:"等紅綠燈",topic:"週期",date:"2025/01",
+{id:"q181",title:"等紅綠燈",topic:"週期",date:"2025/01",diff:"easy",
 desc:"綠燈 a 秒，紅燈 b 秒循環。n 個小朋友各自騎完一圈時間為 t。若到達時為紅燈需等到下一個綠燈。求共等待幾秒。",
 input_desc:"第一行 a, b；第二行 n；第三行 n 個時間。",
 output_desc:"輸出總等待秒數。",
 samples:[{input:"10 10\n1\n14\n",output:"6\n"},{input:"4 3\n3\n12 16 25\n",output:"5\n"}],hint:"**關鍵字**：「綠燈 a 秒紅燈 b 秒循環」→ 用模運算找週期內位置。\n**作法**：`cycle = a+b`，`r = t % cycle`。若 `r >= a`（在紅燈內）→ 需等 `cycle - r` 秒。"},
-{id:"q836",title:"小心陷阱",topic:"模擬",date:"2025/06",
+{id:"q836",title:"小心陷阱",topic:"模擬",date:"2025/06",diff:"easy",
 desc:"從位置 0 出發，生命值 k。當前生命值 v 時移動到 pos+v。落在 x1 倍數扣 y1，落在 x2 倍數扣 y2。生命值 ≤ 0 時輸出位置。",
 input_desc:"第一行 k；第二行 x1 y1；第三行 x2 y2。",
 output_desc:"輸出遊戲結束所在的位置。",
@@ -301,7 +308,7 @@ desc:"有 n 階樓梯，每次可以爬 **1 階**或 **2 階**。請問爬到頂
 input_desc:"輸入一個正整數 n（1 ≤ n ≤ 40）。",
 output_desc:"輸出爬到頂端的方法數。",
 samples:[{input:"3\n",output:"3\n"},{input:"5\n",output:"8\n"},{input:"10\n",output:"89\n"}],hint:"**關鍵字**：「1 階或 2 階」「方法數」→ 經典費氏數列。\n**遞迴式**：`f(n) = f(n-1) + f(n-2)`（最後一步可能是 1 階或 2 階）。\n**底**：f(1)=1, f(2)=2。直接迭代避免遞迴堆疊。"},
-{id:"m003",title:"括號配對",topic:"堆疊（Stack）",date:"中級 ⭐⭐",diff:"medium",
+{id:"m003",title:"括號配對",topic:"堆疊（Stack）",date:"中高級 ⭐⭐⭐",diff:"midhigh",
 desc:"給定一個只包含 ()、[]、{} 的字串，判斷括號是否**合法配對**。\n\n演算法：使用堆疊，遇到左括號壓入；遇到右括號時，若堆疊為空或堆頂不匹配則非法；最後堆疊需為空。",
 input_desc:"輸入一個只含括號的字串（長度 ≤ 10000）。",
 output_desc:"若合法輸出 Valid，否則輸出 Invalid。",
@@ -311,7 +318,7 @@ desc:"給定一個**嚴格遞增的整數陣列**，以及 m 個查詢，每次�
 input_desc:"第一行 n m；第二行 n 個嚴格遞增整數；接下來 m 行，每行一個查詢 x。",
 output_desc:"每行輸出對應查詢的答案（1-based 索引或 -1）。",
 samples:[{input:"5 3\n1 3 5 7 9\n4\n7\n10\n",output:"3\n4\n-1\n"},{input:"4 4\n2 4 6 8\n1\n2\n7\n9\n",output:"1\n1\n4\n-1\n"}],hint:"**關鍵字**：「嚴格遞增」「第一個大於等於 x」→ **二分搜尋**經典 `lower_bound` 模板。\n**模板**：`lo=0, hi=n-1, ans=-1`；`if a[mid] >= x: ans=mid+1, hi=mid-1; else: lo=mid+1`。"},
-{id:"m005",title:"最長遞增子序列（LIS）",topic:"動態規劃（DP）",date:"中級 ⭐⭐",diff:"medium",
+{id:"m005",title:"最長遞增子序列（LIS）",topic:"動態規劃（DP）",date:"中高級 ⭐⭐⭐",diff:"midhigh",
 desc:"給定一個整數序列，找出最長嚴格遞增子序列的長度。\n\n**O(n²) DP**：dp[i] = 以 a[i] 結尾的 LIS 長度。對每個 i，遍歷所有 j<i 且 a[j]<a[i]，取 dp[j]+1 的最大值。\n\n例：[10,9,2,5,3,7,101,18] → LIS = [2,3,7,101]，長度 **4**。",
 input_desc:"第一行 n（1≤n≤1000）；第二行 n 個整數。",
 output_desc:"輸出 LIS 的長度。",
@@ -332,27 +339,27 @@ input_desc:"輸入一行字串（長度 ≤ 10000）。",
 output_desc:"輸出反轉後的句子。",
 samples:[{input:"the sky is blue\n",output:"blue is sky the\n"},{input:"hello world\n",output:"world hello\n"},{input:"APCS\n",output:"APCS\n"}],hint:"**關鍵字**：「反轉單字順序」→ `split()` + `reverse()` + `join`。\n**Python 一行**：`' '.join(reversed(input().split()))`。"},
 // ===== 高級（Hard）=====
-{id:"h001",title:"0/1 背包問題",topic:"動態規劃（DP）",date:"高級 ⭐⭐⭐",diff:"hard",
+{id:"h001",title:"0/1 背包問題",topic:"動態規劃（DP）",date:"高級 ⭐⭐⭐⭐",diff:"hard",
 desc:"有 n 件物品和一個容量為 W 的背包。第 i 件物品的重量為 w[i]，價值為 v[i]。每件物品**只能選擇拿或不拿**，求背包所能容納物品的**最大總價值**。\n\n**DP**：dp[j] = 容量 j 時的最大價值。對每件物品從大到小更新：dp[j] = max(dp[j], dp[j-w[i]] + v[i])。時間複雜度 O(nW)。",
 input_desc:"第一行 n W（1≤n≤100，1≤W≤1000）；接下來 n 行，每行兩個整數 w[i] v[i]。",
 output_desc:"輸出最大總價值。",
 samples:[{input:"4 7\n1 1\n3 4\n4 5\n5 7\n",output:"9\n"},{input:"3 5\n2 3\n3 4\n4 5\n",output:"7\n"},{input:"1 10\n11 100\n",output:"0\n"}],hint:"**關鍵字**：「每件只拿或不拿」「最大價值」→ **0/1 背包經典 DP**。\n**滾動陣列**：`dp[j]` = 容量 j 時的最大價值。\n**關鍵**：內迴圈 `j` 要從大到小遍歷，避免同一物品被重複選。"},
-{id:"h002",title:"最長共同子序列（LCS）",topic:"動態規劃（DP）",date:"高級 ⭐⭐⭐",diff:"hard",
+{id:"h002",title:"最長共同子序列（LCS）",topic:"動態規劃（DP）",date:"高級 ⭐⭐⭐⭐",diff:"hard",
 desc:"給定兩個字串 A 和 B，找出**最長共同子序列（LCS）**的長度。\n\nDP：dp[i][j] = A 前 i 個字元和 B 前 j 個字元的 LCS 長度。\n- A[i]==B[j]：dp[i][j] = dp[i-1][j-1] + 1\n- 否則：dp[i][j] = max(dp[i-1][j], dp[i][j-1])",
 input_desc:"輸入兩行，每行一個只含大寫英文字母的字串（長度 ≤ 1000）。",
 output_desc:"輸出 LCS 的長度。",
 samples:[{input:"ABCBDAB\nBDCAB\n",output:"4\n"},{input:"AGGTAB\nGXTXAYB\n",output:"4\n"},{input:"ABC\nABC\n",output:"3\n"}],hint:"**關鍵字**：「最長共同子序列」「不要求連續」→ **LCS 經典 DP**。\n**狀態**：`dp[i][j]` = A 前 i 字元和 B 前 j 字元的 LCS 長度。\n**轉移**：字元相同則 `+1`，不同則取兩邊較大值。"},
-{id:"h003",title:"迷宮最短路（BFS）",topic:"廣度優先搜尋（BFS）",date:"高級 ⭐⭐⭐",diff:"hard",
+{id:"h003",title:"迷宮最短路（BFS）",topic:"廣度優先搜尋（BFS）",date:"中高級 ⭐⭐⭐",diff:"midhigh",
 desc:"給定一個 n×m 的網格迷宮，0 表示可通行，1 表示牆壁。從左上角 (0,0) 出發，每步可向上下左右移動，求到達右下角 (n-1,m-1) 的**最短路徑步數**。若無法到達，輸出 -1。\n\n**BFS** 保證第一次到達目標時的步數最短。",
 input_desc:"第一行 n m（1≤n,m≤100）；接下來 n 行，每行 m 個 0 或 1（以空白分隔）。",
 output_desc:"輸出最短步數，若不可達輸出 -1。",
 samples:[{input:"5 5\n0 0 0 0 0\n1 1 0 1 0\n0 0 0 1 0\n0 1 1 1 0\n0 0 0 0 0\n",output:"8\n"},{input:"3 3\n0 1 0\n0 1 0\n0 0 0\n",output:"4\n"},{input:"2 2\n0 1\n1 0\n",output:"-1\n"}],hint:"**關鍵字**：「網格」「最短路徑」「上下左右」→ **BFS**（不是 DFS！）。\n**為何 BFS**：每步權重相同，BFS 第一次訪問即最短距離。\n**模板**：queue + visited（或 dist 陣列）+ 四方向陣列。"},
-{id:"h004",title:"矩陣螺旋遍歷",topic:"陣列、模擬",date:"高級 ⭐⭐⭐",diff:"hard",
+{id:"h004",title:"矩陣螺旋遍歷",topic:"陣列、模擬",date:"中級 ⭐⭐",diff:"medium",
 desc:"給定一個 n×m 的矩陣，按**順時針螺旋順序**遍歷並輸出所有元素。\n\n方向順序：右 → 下 → 左 → 上 → 右 → ...\n\n維護四個邊界 top, bottom, left, right，每次走完一個方向後縮小對應邊界。",
 input_desc:"第一行 n m（1≤n,m≤50）；接下來 n 行，每行 m 個整數。",
 output_desc:"輸出螺旋遍歷的元素序列，以空白分隔。",
 samples:[{input:"3 3\n1 2 3\n4 5 6\n7 8 9\n",output:"1 2 3 6 9 8 7 4 5\n"},{input:"1 4\n1 2 3 4\n",output:"1 2 3 4\n"},{input:"3 4\n1 2 3 4\n5 6 7 8\n9 10 11 12\n",output:"1 2 3 4 8 12 11 10 9 5 6 7\n"}],hint:"**關鍵字**：「順時針螺旋」→ **邊界四指標模擬**。\n**作法**：維護 `top, bottom, left, right`，每走完一邊就縮小對應邊界。\n**注意**：中間兩步要檢查 `top<=bottom` 和 `left<=right` 避免重複輸出。"},
-{id:"h005",title:"快速冪（mod）",topic:"數學、遞迴",date:"高級 ⭐⭐⭐",diff:"hard",
+{id:"h005",title:"快速冪（mod）",topic:"數學、遞迴",date:"中級 ⭐⭐",diff:"medium",
 desc:"計算 **a^n mod m** 的值。\n\n直接乘 n 次在 n 很大時會超時。**快速冪（Binary Exponentiation）**：\n- n 為偶數：a^n = (a^(n/2))²\n- n 為奇數：a^n = a × a^(n-1)\n\n每次問題規模減半，時間複雜度 O(log n)。",
 input_desc:"輸入一行三個整數 a, n, m（0≤a≤10⁹，0≤n≤10¹⁸，1≤m≤10⁹）。",
 output_desc:"輸出 a^n mod m 的值。",
@@ -460,7 +467,7 @@ output_desc:"每個查詢輸出區間和（一行一個）。",
 samples:[{input:"5 3\n1 2 3 4 5\n1 3\n2 4\n1 5\n",output:"6\n9\n15\n"},{input:"3 2\n-1 2 -3\n1 1\n1 3\n",output:"-1\n-2\n"}],
 hint:"**關鍵字**：「多次區間和查詢」「O(1)」→ **前綴和**經典題。\n**預處理**：`prefix[i] = a[0]+...+a[i-1]`，`prefix[0]=0`。\n**查詢**：區間 [l, r]（1-based）= `prefix[r] - prefix[l-1]`。\n**注意**：總和可能超過 int 範圍，建議用 long long。"},
 
-{id:"o_twosum",title:"兩數之和",topic:"雜湊表",date:"自製 中級",diff:"medium",
+{id:"o_twosum",title:"兩數之和",topic:"雜湊表",date:"自製 中高級",diff:"midhigh",
 desc:"給定一個整數陣列和目標值 target，找出陣列中**兩個數的索引**（1-based），使其和等於 target。\n\n保證恰好有一組解。輸出兩個索引（較小的在前）。",
 input_desc:"第一行 n target（2≤n≤10⁵）；第二行 n 個整數。",
 output_desc:"輸出兩個 1-based 索引，空白分隔。",
@@ -503,7 +510,7 @@ output_desc:"輸出放置方案總數。",
 samples:[{input:"4\n",output:"2\n"},{input:"8\n",output:"92\n"},{input:"1\n",output:"1\n"}],
 hint:"**關鍵字**：「N 皇后」「同行/同列/同斜線」→ **回溯（DFS）**經典題。\n**作法**：逐行放置（自動避免同行衝突），用 3 個 set 記錄：已佔用的「列」「主對角線（r-c）」「副對角線（r+c）」。\n**遞迴**：若 row==n 表示找到一組解，count++ 後 return。"},
 
-{id:"o_kth_min",title:"第 k 小的元素",topic:"排序、快速選擇",date:"自製 高級",diff:"hard",
+{id:"o_kth_min",title:"第 k 小的元素",topic:"排序、快速選擇",date:"自製 中高級",diff:"midhigh",
 desc:"給定 n 個整數，輸出**第 k 小的元素**（1-based，相同值算多次）。\n\n例：[3, 1, 2, 1, 5] 中第 2 小是 1，第 3 小是 2。",
 input_desc:"第一行 n k（1≤k≤n≤10⁵）；第二行 n 個整數。",
 output_desc:"輸出第 k 小的元素。",
@@ -511,7 +518,7 @@ samples:[{input:"5 3\n3 1 2 1 5\n",output:"2\n"},{input:"4 1\n9 7 8 6\n",output:
 hint:"**關鍵字**：「第 k 小」→ 排序後取 a[k-1]。\n**簡單作法**：`sort()` + 索引，O(n log n)。\n**進階作法**：**快速選擇（QuickSelect）** O(n) 平均。\n**注意**：1-based 索引轉 0-based 要 -1。"},
 
 // === 新增中級題（依 635 索引主題） ===
-{id:"m_two_sum",title:"兩數之和",topic:"雜湊表、雙指標",date:"自製 中級",diff:"medium",
+{id:"m_two_sum",title:"兩數之和",topic:"雜湊表、雙指標",date:"自製 中高級",diff:"midhigh",
 desc:"給 n 個整數與目標值 K，找一組 (i, j) 使得 a[i]+a[j]=K（i<j），輸出索引（1-based）。保證唯一解。",
 input_desc:"第一行 n K；第二行 n 個整數。",
 output_desc:"輸出 i 與 j，以空白分隔。",
@@ -581,14 +588,14 @@ output_desc:"輸出旋轉後的 N×N 矩陣。",
 samples:[{input:"3\n1 2 3\n4 5 6\n7 8 9\n",output:"7 4 1\n8 5 2\n9 6 3\n"}],
 hint:"**關鍵字**：「順時針 90°」→ 新位置：`new[j][N-1-i] = old[i][j]`。\n**Python 取巧**：`list(zip(*a[::-1]))` 直接旋轉。"},
 
-{id:"m_paren",title:"括號匹配",topic:"堆疊",date:"自製 中級",diff:"medium",
+{id:"m_paren",title:"括號匹配",topic:"堆疊",date:"自製 中高級",diff:"midhigh",
 desc:"給含 `(){}[]` 的字串，判斷括號是否合法配對。",
 input_desc:"一行字串，長度 ≤ 10⁵。",
 output_desc:"輸出 Yes 或 No。",
 samples:[{input:"({[]})\n",output:"Yes\n"},{input:"([)]\n",output:"No\n"},{input:"((\n",output:"No\n"}],
 hint:"**關鍵字**：「括號配對」→ **堆疊**。\n**作法**：開括號入棧，閉括號比對棧頂。\n**結束檢查**：所有字符處理完畢時棧必須空。"},
 
-{id:"m_postfix",title:"後綴運算式求值",topic:"堆疊",date:"自製 中級",diff:"medium",
+{id:"m_postfix",title:"後綴運算式求值",topic:"堆疊",date:"自製 中高級",diff:"midhigh",
 desc:"給後綴（RPN）運算式，求結果。運算子有 `+ - * /`（整數除法，向零截斷），數字為整數。",
 input_desc:"一行字串，token 以空白分隔。",
 output_desc:"輸出結果整數。",
@@ -638,7 +645,7 @@ output_desc:"n 個整數，第 i 個為點 1 到點 i 的最短距離。",
 samples:[{input:"5 6\n1 2 2\n1 3 5\n2 3 1\n2 4 3\n3 4 2\n4 5 1\n",output:"0 2 3 5 6\n"}],
 hint:"**關鍵字**：「正權最短路」→ **Dijkstra + 優先佇列**。\n**Python**：`import heapq`，距離初始化為無限大，每次 pop 最短的點，更新鄰居。\n**鄰接表**：`adj = [[] for _ in range(n+1)]`。"},
 
-{id:"h_dsu_island",title:"連通元件 (DSU)",topic:"並查集",date:"自製 高級",diff:"hard",
+{id:"h_dsu_island",title:"連通元件 (DSU)",topic:"並查集",date:"自製 中高級",diff:"midhigh",
 desc:"n 個點 m 條無向邊，輸出**連通元件數**。",
 input_desc:"第一行 n m；接下來 m 行各 u v。",
 output_desc:"連通元件數。",
@@ -652,7 +659,7 @@ output_desc:"最少乘法次數。",
 samples:[{input:"3\n10 30 5 60\n",output:"4500\n"},{input:"4\n40 20 30 10 30\n",output:"26000\n"}],
 hint:"**關鍵字**：「最少乘法」「矩陣連乘」→ **區間 DP**。\n**狀態**：`dp[i][j]` = 連乘第 i~j 矩陣的最少次數。\n**轉移**：`dp[i][j] = min(dp[i][k] + dp[k+1][j] + p[i-1]*p[k]*p[j])`。"},
 
-{id:"h_fast_pow",title:"快速冪取模",topic:"數論",date:"自製 高級",diff:"hard",
+{id:"h_fast_pow",title:"快速冪取模",topic:"數論",date:"自製 中級",diff:"medium",
 desc:"求 a^b mod m。",
 input_desc:"一行三個整數 a b m（0≤a, b≤10¹⁸，1≤m≤10⁹）。",
 output_desc:"輸出結果。",
@@ -687,7 +694,7 @@ output_desc:"最少操作數。",
 samples:[{input:"horse\nros\n",output:"3\n"},{input:"intention\nexecution\n",output:"5\n"}],
 hint:"**關鍵字**：「插入刪除取代」→ **編輯距離 DP**。\n**狀態**：`dp[i][j]` = A 前 i 字到 B 前 j 字的最少操作。\n**轉移**：相同則 `dp[i-1][j-1]`；否則 `1 + min(三方向)`。"},
 
-{id:"j_str_digits",title:"字串保留數字",topic:"字串",date:"靈感 202501P2",diff:"medium",
+{id:"j_str_digits",title:"字串保留數字",topic:"字串",date:"靈感 202501P2",diff:"easy",
 desc:"給字串 S，輸出由 S 中所有數字字元（'0'-'9'）依原順序組成的新字串。\n若 S 沒有任何數字字元，輸出 `-1`。",
 input_desc:"一行字串 S（長度 ≤ 10⁵）。",
 output_desc:"一行字串。",
@@ -709,7 +716,7 @@ samples:[
 ],
 hint:"**關鍵字**：「不可相鄰」→ **House Robber DP**。\n**狀態**：`dp[i] = max(dp[i-1], dp[i-2] + v[i])`。"},
 
-{id:"j_canvas_cc",title:"黑色連通塊",topic:"BFS/DFS、連通元件",date:"靈感 202406P2",diff:"medium",
+{id:"j_canvas_cc",title:"黑色連通塊",topic:"BFS/DFS、連通元件",date:"靈感 202406P2",diff:"midhigh",
 desc:"n×m 畫布，每格為 'B' 或 'W'。\n找出 B 構成的四連通塊數量（上下左右相鄰）。",
 input_desc:"第一行 n m（1 ≤ n,m ≤ 50）。\n接下來 n 行，每行 m 個字元，僅含 B 或 W。",
 output_desc:"一個整數，連通塊數量。",
@@ -775,7 +782,7 @@ samples:[
 ],
 hint:"**作法**：邊讀邊累計數字，遇字母就重複輸出並清零。\n**陷阱**：多位數字（如 `10X`）要算完整。"},
 
-{id:"j_match_winner",title:"比賽勝場判定",topic:"計數",date:"靈感 202201P2",diff:"medium",
+{id:"j_match_winner",title:"比賽勝場判定",topic:"計數",date:"靈感 202201P2",diff:"easy",
 desc:"n 場比賽。每場輸入兩隊得分 a, b（A 隊先、B 隊後）。\n統計 A 贏 (a>b) 場數與 B 贏 (b>a) 場數（平手不算）。\n若 A 贏比較多輸出 `A`、B 多輸出 `B`、相同輸出 `Tie`。",
 input_desc:"第一行整數 n（1 ≤ n ≤ 1000）。\n接下來 n 行，各兩個整數 a b。",
 output_desc:"一行：A / B / Tie。",
@@ -809,7 +816,7 @@ samples:[
 ],
 hint:"**作法**：維護 top/bot/N/S/E/W 六個變數，每次翻滾依規則更新。\n**對面驗證**：top+bot=7, N+S=7, E+W=7 必須一直成立。"},
 
-{id:"j_submatrix_sum",title:"子矩陣總和",topic:"二維前綴和",date:"靈感 202001P2",diff:"medium",
+{id:"j_submatrix_sum",title:"子矩陣總和",topic:"二維前綴和",date:"靈感 202001P2",diff:"midhigh",
 desc:"給 n×m 整數矩陣與 q 個查詢。\n每個查詢 (r1, c1, r2, c2) 詢問子矩陣 [r1..r2] × [c1..c2] 的所有元素總和（座標從 0 開始）。",
 input_desc:"第一行 n m q（1 ≤ n,m ≤ 500；1 ≤ q ≤ 10⁵）。\n接下來 n 行各 m 個整數。\n接著 q 行，每行 4 個整數 r1 c1 r2 c2。",
 output_desc:"q 行，每行一個整數。",
@@ -818,31 +825,31 @@ samples:[
 {input:"3 3 2\n1 2 3\n4 5 6\n7 8 9\n0 0 0 2\n1 1 2 2\n",output:"6\n28\n"}
 ],
 hint:"**關鍵字**：「多次查詢區間和」→ **二維前綴和**。\n**公式**：`sum = ps[r2+1][c2+1] - ps[r1][c2+1] - ps[r2+1][c1] + ps[r1][c1]`。"},
-{id:"p101",title:"森林查詢",topic:"二維前綴和",date:"延伸題",source:"CSES",diff:"medium",
+{id:"p101",title:"森林查詢",topic:"二維前綴和",date:"延伸題",source:"CSES",diff:"midhigh",
 desc:"N×N 森林網格，'*' 是樹、'.' 是空地。Q 筆查詢，每筆 (r1,c1,r2,c2) 詢問子矩形樹的數量。",input_desc:"第一行 N Q（1≤N≤1000，1≤Q≤2×10⁵）；接下來 N 行每行 N 個字元；接下來 Q 行各 r1 c1 r2 c2（1-indexed）。",output_desc:"每行一個整數，為對應子矩形內樹的數量。",
 samples:[{input:"4 3\n.*..\n*.**\n**..\n****\n2 2 3 4\n3 1 3 1\n1 1 2 2\n",output:"3\n1\n2\n"},{input:"2 1\n**\n**\n1 1 2 2\n",output:"4\n"}],hint:"**關鍵字**：「子矩形樹的數量」「多次查詢」→ **二維前綴和**。\n**公式**：`sum = ps[r2][c2] - ps[r1-1][c2] - ps[r2][c1-1] + ps[r1-1][c1-1]`。\n**時間**：建表 O(N²)，每次查詢 O(1)。"},
-{id:"p102",title:"可整除的子陣列",topic:"前綴和、計數",date:"延伸題",source:"CSES",diff:"medium",
+{id:"p102",title:"可整除的子陣列",topic:"前綴和、計數",date:"延伸題",source:"CSES",diff:"midhigh",
 desc:"給長度 N 的整數陣列，求有多少個非空連續子陣列其總和可被 N 整除。",input_desc:"第一行 N（1≤N≤2×10⁵）；第二行 N 個整數（-10⁹≤aᵢ≤10⁹）。",output_desc:"一個整數：答案。",
 samples:[{input:"5\n3 1 2 7 4\n",output:"1\n"},{input:"3\n2 -2 2\n",output:"2\n"}],hint:"**關鍵字**：「子陣列和 % N == 0」→ 前綴和對 N 取模。\n**作法**：若 `pref[r] ≡ pref[l-1] (mod N)`，子陣列和可被 N 整除。\n**統計**：用 dict 記錄各模值出現次數，每次 `ans += c[s]; c[s]++`。注意 C 要 `((x%N)+N)%N`。"},
-{id:"p103",title:"子陣列和為 X",topic:"前綴和、雜湊",date:"延伸題",source:"CSES",diff:"medium",
+{id:"p103",title:"子陣列和為 X",topic:"前綴和、雜湊",date:"延伸題",source:"CSES",diff:"midhigh",
 desc:"給長度 N 的正整數陣列與目標 X，求和等於 X 的連續子陣列數量。",input_desc:"第一行 N X（1≤N≤2×10⁵，1≤X≤10⁹）；第二行 N 個正整數。",output_desc:"一個整數：答案。",
 samples:[{input:"5 7\n2 4 1 2 7\n",output:"3\n"},{input:"3 3\n1 2 3\n",output:"2\n"}],hint:"**關鍵字**：「連續子陣列和 = X」→ 前綴和 + 雜湊。\n**作法**：累加 `s`，查 `c[s-X]` 累計到答案，再 `c[s]++`。\n**初始**：`c[0]=1` 處理從頭開始的子陣列。"},
 {id:"p104",title:"區間加值",topic:"差分陣列",date:"延伸題",source:"Codeforces",diff:"medium",
 desc:"長度 N 的陣列初值全為 0。給 M 筆操作 (l, r, v)，將 a[l..r] 全部加上 v。輸出最終陣列。",input_desc:"第一行 N M（1≤N,M≤2×10⁵）；接下來 M 行各 l r v（1≤l≤r≤N，1≤v≤10⁹）。",output_desc:"一行 N 個整數，以空格分隔。",
 samples:[{input:"5 3\n1 3 2\n2 5 1\n3 4 4\n",output:"2 3 7 5 1\n"},{input:"3 2\n1 1 10\n2 3 5\n",output:"10 5 5\n"}],hint:"**關鍵字**：「N 次區間加 + 最後輸出」→ **差分陣列**。\n**作法**：`diff[l]+=v; diff[r+1]-=v`，最後做前綴和還原。\n**複雜度**：O(N+M)。"},
-{id:"p105",title:"咖啡溫度",topic:"差分陣列",date:"延伸題",source:"Codeforces",diff:"medium",
+{id:"p105",title:"咖啡溫度",topic:"差分陣列",date:"延伸題",source:"Codeforces",diff:"midhigh",
 desc:"N 份食譜，每份建議的沖泡溫度區間 [l,r]。一個溫度 t 為「合適」當至少 K 份食譜涵蓋它。Q 筆查詢 (a,b)，問 [a,b] 內合適的溫度數量。溫度範圍 1..200000。",input_desc:"第一行 N K Q（1≤N,K,Q≤2×10⁵）；接下來 N 行各 l r（1≤l≤r≤200000）；接下來 Q 行各 a b。",output_desc:"每行一個整數。",
 samples:[{input:"3 2 4\n91 94\n92 97\n97 99\n92 94\n93 97\n95 96\n90 100\n",output:"3\n3\n0\n4\n"}],hint:"**關鍵字**：「至少 K 份涵蓋的點」→ 差分 + 前綴和 + 計數前綴和。\n**步驟**：1) 用 diff 累計每個溫度的食譜數 → 2) 標記合適（≥K）→ 3) 對「合適」做前綴和回答區間查詢。"},
 {id:"p106",title:"乾草堆計數",topic:"二分搜尋",date:"延伸題",source:"USACO Silver",diff:"medium",
 desc:"一維數線上有 N 個乾草堆。Q 次查詢，每次 (a,b) 問位於區間 [a,b] 的乾草堆數量。",input_desc:"第一行 N Q（1≤N,Q≤10⁵）；第二行 N 個整數（位置，可重複）；接下來 Q 行各 a b。",output_desc:"每行一個整數。",
 samples:[{input:"6 3\n3 2 7 5 1 8\n2 4\n3 7\n8 12\n",output:"2\n3\n1\n"}],hint:"**關鍵字**：「區間內點的數量」→ 先排序，再對每個查詢用 **bisect** 找上下界。\n**公式**：`bisect_right(b) - bisect_left(a)`。\n**複雜度**：O((N+Q) log N)。"},
-{id:"p107",title:"中位數最大化",topic:"二分搜答案、貪心",date:"延伸題",source:"Codeforces",diff:"medium",
+{id:"p107",title:"中位數最大化",topic:"二分搜答案、貪心",date:"延伸題",source:"Codeforces",diff:"hard",
 desc:"長度 N（奇數）的陣列 a，可進行 K 次「+1」操作（每次只挑一個元素加 1）。求操作後最大可能的中位數（排序後第 (N+1)/2 個）。",input_desc:"第一行 N K（1≤N≤2×10⁵，N 為奇數，0≤K≤10⁹）；第二行 N 個整數（0≤aᵢ≤10⁹）。",output_desc:"一個整數：最大中位數。",
 samples:[{input:"3 2\n1 3 5\n",output:"5\n"},{input:"5 5\n1 2 1 1 1\n",output:"3\n"}],hint:"**關鍵字**：「最大化中位數」「+1 操作」→ 二分搜答案 m。\n**check(m)**：排序後從中位數位置往右計算 `sum(max(0, m-a[i]))` ≤ K。"},
-{id:"p108",title:"最長無重複片段",topic:"滑動視窗",date:"延伸題",source:"CSES",diff:"medium",
+{id:"p108",title:"最長無重複片段",topic:"滑動視窗",date:"延伸題",source:"CSES",diff:"midhigh",
 desc:"給長度 N 的歌曲序列，求最長連續區間使得區間內無重複歌曲，輸出此長度。",input_desc:"第一行 N（1≤N≤2×10⁵）；第二行 N 個整數（1≤aᵢ≤10⁹）。",output_desc:"一個整數：最大長度。",
 samples:[{input:"8\n1 2 1 3 2 7 4 2\n",output:"5\n"},{input:"4\n1 1 1 1\n",output:"1\n"}],hint:"**關鍵字**：「最長」「無重複」→ **滑動視窗**。\n**作法**：右指針掃過，遇到重複時左指針跳到撞見的位置之後。用 dict 記錄每個值最近出現位置。"},
-{id:"p109",title:"兩數和為 X",topic:"雜湊",date:"延伸題",source:"CSES",diff:"medium",
+{id:"p109",title:"兩數和為 X",topic:"雜湊",date:"延伸題",source:"CSES",diff:"midhigh",
 desc:"給長度 N 的陣列與目標 X，找兩個不同位置 i≠j 使 a[i]+a[j]=X，輸出位置 (1-indexed，較小者在前)。若無解輸出 IMPOSSIBLE。",input_desc:"第一行 N X（1≤N≤2×10⁵，1≤X≤2×10⁹）；第二行 N 個整數（1≤aᵢ≤10⁹）。",output_desc:"兩個位置（空白分隔）或 IMPOSSIBLE。",
 samples:[{input:"4 8\n2 7 5 1\n",output:"2 4\n"},{input:"3 100\n1 2 3\n",output:"IMPOSSIBLE\n"}],hint:"**關鍵字**：「兩數和」「輸出原位置」→ 雜湊 O(N)。\n**作法**：邊掃邊查 `X-a[i]` 是否在 dict 中；若在，直接輸出位置。"},
 {id:"p110",title:"棍子等長",topic:"貪心、中位數",date:"延伸題",source:"CSES",diff:"medium",
@@ -854,7 +861,7 @@ samples:[{input:"3\n3 5\n4 9\n5 8\n",output:"2\n"},{input:"4\n1 3\n2 5\n4 6\n5 9
 {id:"p112",title:"餐廳同時客數",topic:"事件掃描",date:"延伸題",source:"CSES",diff:"medium",
 desc:"N 位客人到達/離開時間。求餐廳同時間最多有幾位客人。",input_desc:"第一行 N（1≤N≤2×10⁵）；接下來 N 行各 a b（1≤a<b≤10⁹），到達 a 離開 b。",output_desc:"一個整數：最大同時客數。",
 samples:[{input:"3\n5 8\n2 4\n3 9\n",output:"2\n"},{input:"2\n1 5\n5 10\n",output:"1\n"}],hint:"**關鍵字**：「最大重疊區間」→ 事件法。\n**作法**：每位客人拆成 (a,+1) 與 (b,-1) 兩事件，排序後累加 cur，全程取最大。\n**併點**：a=b'（前人離開 = 後人到達）視為先離開再進入，所以同座標 -1 排前。"},
-{id:"p113",title:"演唱會售票",topic:"二分搜、多重集",date:"延伸題",source:"CSES",diff:"medium",
+{id:"p113",title:"演唱會售票",topic:"二分搜、多重集",date:"延伸題",source:"CSES",diff:"midhigh",
 desc:"售票員有 N 張票（各有價格）。M 位顧客依序進場，每位有最高願付價 m。對每位顧客，售出價格 ≤ m 的「最高價票」並從庫存移除；若無則輸出 -1。",input_desc:"第一行 N M（1≤N,M≤2×10⁵）；第二行 N 張票價；第三行 M 位顧客上限。",output_desc:"M 行，每位顧客實際買到的價格或 -1。",
 samples:[{input:"5 3\n5 3 7 8 5\n4 8 3\n",output:"3\n8\n-1\n"}],hint:"**關鍵字**：「找 ≤ m 的最大值」「需刪除」→ 用多重集合。\n**Python**：`sortedcontainers.SortedList` + `bisect_right` 取上界前一個。\n**C++**：`multiset::upper_bound`。\n**Java**：`TreeMap<Integer,Integer>` 記次數，`floorKey(m)` 取得。"},
 {id:"p114",title:"公寓配對",topic:"貪心、雙指針",date:"延伸題",source:"CSES",diff:"medium",
@@ -863,31 +870,31 @@ samples:[{input:"4 3 5\n60 45 80 60\n30 60 75\n",output:"2\n"},{input:"2 2 0\n5 
 {id:"p115",title:"相異數字數量",topic:"集合",date:"延伸題",source:"CSES",diff:"medium",
 desc:"給 N 個整數，求其中**相異**數字的數量。",input_desc:"第一行 N（1≤N≤2×10⁵）；第二行 N 個整數（1≤aᵢ≤10⁹）。",output_desc:"一個整數：相異數字數量。",
 samples:[{input:"5\n2 3 2 2 3\n",output:"2\n"},{input:"4\n1 2 3 4\n",output:"4\n"}],hint:"**關鍵字**：「相異」→ 直接用 set 大小，或排序後相鄰比較。\n**Python**：`len(set(a))`。\n**C/C++**：`qsort/sort` 後自己掃描相鄰。"},
-{id:"p116",title:"房間計數",topic:"BFS/DFS、連通元件",date:"延伸題",source:"CSES",diff:"medium",
+{id:"p116",title:"房間計數",topic:"BFS/DFS、連通元件",date:"延伸題",source:"CSES",diff:"midhigh",
 desc:"N×M 地圖，'.' 是地板、'#' 是牆。求由相鄰（上下左右）地板組成的房間數。",input_desc:"第一行 N M（1≤N,M≤1000）；接下來 N 行各 M 字元（'.' 或 '#'）。",output_desc:"一個整數：房間數。",
 samples:[{input:"5 8\n########\n#..#...#\n####.#.#\n#..#...#\n########\n",output:"3\n"}],hint:"**關鍵字**：「連通分量」→ BFS 或 DFS。\n**作法**：對每個未訪問的 '.' 起點做 BFS 標記整片，計數 +1。Python 用 deque，遞迴 DFS 對 1000×1000 會堆疊溢位。"},
-{id:"p117",title:"連通城鎮",topic:"DSU、最少邊",date:"延伸題",source:"CSES",diff:"medium",
+{id:"p117",title:"連通城鎮",topic:"DSU、最少邊",date:"延伸題",source:"CSES",diff:"midhigh",
 desc:"N 個城鎮，M 條已有道路。要使全部城鎮連通，至少還需新增幾條道路，並輸出任一組可行方案（連通分量之間任挑一城鎮對相連）。",input_desc:"第一行 N M（1≤N≤10⁵，0≤M≤2×10⁵）；接下來 M 行各 u v（無自環，可能有重邊）。",output_desc:"第一行新增道路數 k；接下來 k 行各兩個城鎮 u v。",
 samples:[{input:"4 2\n1 2\n3 4\n",output:"1\n2 4\n"},{input:"3 0\n",output:"2\n1 2\n1 3\n"}],hint:"**關鍵字**：「連通」「最少邊」→ **DSU** 找連通分量代表。\n**作法**：每個分量任取代表，把它們和第一個分量代表相連即可。"},
-{id:"p118",title:"迷宮最短距離",topic:"BFS",date:"延伸題",source:"CSES",diff:"medium",
+{id:"p118",title:"迷宮最短距離",topic:"BFS",date:"延伸題",source:"CSES",diff:"midhigh",
 desc:"N×M 迷宮：'.' 路、'#' 牆、'A' 起點、'B' 終點。求 A 到 B 的最短步數，無法到達輸出 -1。每步可走上下左右。",input_desc:"第一行 N M（1≤N,M≤1000）；接下來 N 行 M 字元。",output_desc:"最短步數或 -1。",
 samples:[{input:"5 8\n########\n#.A#...#\n#.##.#B#\n#......#\n########\n",output:"9\n"},{input:"3 3\n###\n#A#\n###\n",output:"-1\n"}],hint:"**關鍵字**：「最短路徑」「等權」→ **BFS**。\n**作法**：dist[A]=0，四方向 BFS，第一次抵達 B 即為答案。"},
-{id:"p119",title:"部屬人數",topic:"樹、DFS",date:"延伸題",source:"CSES",diff:"medium",
+{id:"p119",title:"部屬人數",topic:"樹、DFS",date:"延伸題",source:"CSES",diff:"midhigh",
 desc:"N 人公司，1 號是 CEO；2..N 各有一位直屬上司（編號小於自己）。對每人輸出其下屬（直接或間接）人數。",input_desc:"第一行 N（1≤N≤2×10⁵）；第二行 N-1 個整數，第 i 個是 (i+1) 號的上司。",output_desc:"一行 N 個整數，第 i 個是 i 號的下屬數。",
 samples:[{input:"5\n1 1 2 3\n",output:"4 1 1 0 0\n"},{input:"3\n1 2\n",output:"2 1 0\n"}],hint:"**關鍵字**：「樹上每點的子樹大小減 1」。\n**作法**：因為上司編號 < 自己，按 i=N..2 累加 `cnt[boss[i]] += cnt[i] + 1` 一次走完，O(N)。"},
-{id:"p120",title:"硬幣湊金額（順序敏感）",topic:"DP",date:"延伸題",source:"CSES",diff:"medium",
+{id:"p120",title:"硬幣湊金額（順序敏感）",topic:"DP",date:"延伸題",source:"CSES",diff:"midhigh",
 desc:"N 種硬幣面額（可重複使用），求湊出金額 X 的「方案數」，**不同順序視為不同方案**。答案模 10⁹+7。",input_desc:"第一行 N X（1≤N≤100，1≤X≤10⁶）；第二行 N 個面額（1≤cᵢ≤10⁶）。",output_desc:"一個整數：方案數 mod 10⁹+7。",
 samples:[{input:"3 9\n2 3 5\n",output:"8\n"},{input:"2 4\n1 2\n",output:"5\n"}],hint:"**關鍵字**：「順序敏感」「方案數」→ `dp[x] = Σ dp[x-cᵢ]`。\n**順序敏感**：外層金額、內層硬幣（與 0/1 完全背包外內顛倒）。\n**模數**：每次相加後取 mod。"},
-{id:"p121",title:"硬幣湊金額（不分順序）",topic:"DP",date:"延伸題",source:"CSES",diff:"medium",
+{id:"p121",title:"硬幣湊金額（不分順序）",topic:"DP",date:"延伸題",source:"CSES",diff:"midhigh",
 desc:"N 種硬幣面額（可重複使用），求湊出金額 X 的「組合數」，**不同順序視為同一方案**。答案模 10⁹+7。",input_desc:"第一行 N X（1≤N≤100，1≤X≤10⁶）；第二行 N 個面額。",output_desc:"一個整數 mod 10⁹+7。",
 samples:[{input:"3 9\n2 3 5\n",output:"3\n"},{input:"2 5\n1 2\n",output:"3\n"}],hint:"**關鍵字**：「不分順序」→ 經典完全背包：**外層硬幣、內層金額**。\n**對比**：順序敏感是外層金額、內層硬幣；這題交換順序即可。"},
-{id:"p122",title:"硬幣湊金額（最少硬幣）",topic:"DP",date:"延伸題",source:"CSES",diff:"medium",
+{id:"p122",title:"硬幣湊金額（最少硬幣）",topic:"DP",date:"延伸題",source:"CSES",diff:"midhigh",
 desc:"N 種硬幣面額（可重複用），求湊出金額 X 的最少硬幣數；無法湊出輸出 -1。",input_desc:"第一行 N X（1≤N≤100，1≤X≤10⁶）；第二行 N 個面額。",output_desc:"一個整數：最少硬幣數或 -1。",
 samples:[{input:"3 11\n1 5 7\n",output:"3\n"},{input:"2 5\n2 3\n",output:"2\n"},{input:"1 5\n2\n",output:"-1\n"}],hint:"**關鍵字**：「最少硬幣」「無限取」→ 完全背包最小化版本。\n**遞推**：`dp[x] = min(dp[x-cᵢ] + 1)`，dp[0]=0，初始為 INF。"},
-{id:"p123",title:"削減位數",topic:"DP",date:"延伸題",source:"CSES",diff:"medium",
+{id:"p123",title:"削減位數",topic:"DP",date:"延伸題",source:"CSES",diff:"midhigh",
 desc:"從整數 N 開始，每步可選 N 任一非零位數字 d 並令 N -= d。求變成 0 的最少步數。",input_desc:"一個整數 N（1≤N≤10⁶）。",output_desc:"一個整數：最少步數。",
 samples:[{input:"27\n",output:"5\n"},{input:"10\n",output:"2\n"},{input:"1\n",output:"1\n"}],hint:"**關鍵字**：「最少操作」→ DP。\n**遞推**：`dp[x] = 1 + min(dp[x-d])` 其中 d 是 x 的非零位數字之一。\n**作法**：從 0 升序計算到 N。"},
-{id:"p124",title:"網格路徑數",topic:"DP、計數",date:"延伸題",source:"CSES",diff:"medium",
+{id:"p124",title:"網格路徑數",topic:"DP、計數",date:"延伸題",source:"CSES",diff:"midhigh",
 desc:"N×N 網格，從 (1,1) 到 (N,N)，每步只能向下或向右。'.' 可走、'*' 不能走。求路徑數模 10⁹+7。",input_desc:"第一行 N（1≤N≤1000）；接下來 N 行各 N 字元。",output_desc:"一個整數 mod 10⁹+7。",
 samples:[{input:"4\n....\n.*..\n...*\n*...\n",output:"3\n"},{input:"1\n.\n",output:"1\n"},{input:"2\n.*\n..\n",output:"1\n"}],hint:"**關鍵字**：「向下或向右」「路徑數」→ 二維 DP。\n**遞推**：`dp[i][j] = dp[i-1][j] + dp[i][j-1]`，若 (i,j) 是 '*' 則 dp=0。"},
 {id:"p125",title:"兩集合等和",topic:"構造",date:"延伸題",source:"CSES",diff:"medium",
@@ -896,7 +903,7 @@ samples:[{input:"7\n",output:"YES\n3 7 6 1\n4 5 4 3 2\n"},{input:"6\n",output:"N
 {id:"p126",title:"位元字串計數",topic:"快速冪、模運算",date:"延伸題",source:"CSES",diff:"medium",
 desc:"計算長度 N 的 0/1 字串總數，模 10⁹+7。",input_desc:"一個整數 N（1≤N≤10⁶）。",output_desc:"一個整數 2^N mod 10⁹+7。",
 samples:[{input:"3\n",output:"8\n"},{input:"1\n",output:"2\n"},{input:"10\n",output:"1024\n"}],hint:"**關鍵字**：「2 的 N 次方」「模」→ **快速冪**。\n**作法**：迴圈 N 次直接乘 2 也可（N≤10⁶ 夠快），或用 O(log N) 快速冪。"},
-{id:"p127",title:"階乘尾零數量",topic:"數論",date:"延伸題",source:"CSES",diff:"medium",
+{id:"p127",title:"階乘尾零數量",topic:"數論",date:"延伸題",source:"CSES",diff:"easy",
 desc:"計算 N! 末尾有多少個 0。",input_desc:"一個整數 N（1≤N≤10⁹）。",output_desc:"一個整數：尾零數。",
 samples:[{input:"20\n",output:"4\n"},{input:"100\n",output:"24\n"},{input:"5\n",output:"1\n"}],hint:"**關鍵字**：「階乘末尾 0」→ 計算 2 與 5 的對數，其中 5 較少。\n**Legendre**：`N/5 + N/25 + N/125 + ...` 直到 0。"},
 {id:"p128",title:"非遞減化陣列",topic:"貪心",date:"延伸題",source:"CSES",diff:"medium",
@@ -3568,9 +3575,58 @@ async function loadPyodide() {
 }
 
 // ── Problem list ──────────────────────────────────────────────────────────────
+const DIFFICULTY = {
+  easy:    { stars:'⭐',       label:'初級',   color:'#3fb950', bg:'rgba(63,185,80,.15)',   border:'rgba(63,185,80,.3)' },
+  medium:  { stars:'⭐⭐',     label:'中級',   color:'#d29922', bg:'rgba(210,153,34,.15)',  border:'rgba(210,153,34,.3)' },
+  midhigh: { stars:'⭐⭐⭐',   label:'中高級', color:'#bc8cff', bg:'rgba(188,140,255,.14)', border:'rgba(188,140,255,.32)' },
+  hard:    { stars:'⭐⭐⭐⭐', label:'高級',   color:'#f85149', bg:'rgba(248,81,73,.15)',   border:'rgba(248,81,73,.3)' }
+};
+
+const LEVEL_SECTIONS = [
+  { diff:'easy',    icon:'📗', desc:'語法 → 基礎實作 → 直接模擬' },
+  { diff:'medium',  icon:'📙', desc:'序列資料 → 排序/前綴 → 狀態整理' },
+  { diff:'midhigh', icon:'📘', desc:'資料結構 → 圖/樹 → 狀態管理' },
+  { diff:'hard',    icon:'📕', desc:'演算法設計 → 複雜度最佳化' }
+];
+
+function difficultyInfo(diff) {
+  return DIFFICULTY[diff] || DIFFICULTY.easy;
+}
+
+function difficultyStars(diff) {
+  const d = difficultyInfo(diff);
+  return `<span style="font-size:9px;color:${d.color};">${d.stars}</span>`;
+}
+
+function difficultyBadge(diff) {
+  const d = difficultyInfo(diff);
+  return `<span class="badge" style="color:${d.color};background:${d.bg};border-color:${d.border};">${d.stars} ${d.label}</span>`;
+}
+
 function renderProblemList() {
   const list = document.getElementById('problem-list');
-  list.innerHTML = PROBLEMS.map((p, i) => {
+  const indexedProblems = PROBLEMS.map((p, i) => ({ p, i }));
+  list.innerHTML = LEVEL_SECTIONS.map(section => {
+    const d = difficultyInfo(section.diff);
+    const items = indexedProblems.filter(({ p }) => (p.diff || 'easy') === section.diff);
+    return `<div class="problem-group">
+      <div class="level-header" style="--level-color:${d.color};--level-bg:${d.bg};--level-border:${d.border};">
+        <div class="level-title-row"><span>${section.icon}</span><span>${d.label}練習</span><span class="count">${items.length} 題</span></div>
+        <div class="level-desc">${section.desc}</div>
+      </div>
+      ${items.map(({ p, i }) => renderProblemItem(p, i, d)).join('')}
+    </div>`;
+  }).join('');
+
+  // Solved count for current language
+  const solved = PROBLEMS.filter(p => {
+    const s = scores[currentLang + '_' + p.id];
+    return s && s.passed === s.total;
+  }).length;
+  document.getElementById('solved-count').textContent = `${solved} / ${PROBLEMS.length}`;
+}
+
+function renderProblemItem(p, i, d) {
     const key = currentLang + '_' + p.id;
     const s = scores[key];
     let sh = '';
@@ -3580,19 +3636,13 @@ function renderProblemList() {
       else sh = '<span class="pstatus fail">WA</span>';
     }
     const active = currentProblem?.id === p.id ? ' active' : '';
-    return `<div class="problem-item${active}" onclick="selectProblem(${i})">
-      <span class="pnum">${String(i+1).padStart(2,'0')}</span>
-      <span class="ptitle">${p.title}</span>
-      ${p.diff==='medium'?'<span style="font-size:9px;color:#d29922;margin-left:2px">⭐⭐</span>':p.diff==='hard'?'<span style="font-size:9px;color:#f85149;margin-left:2px">⭐⭐⭐</span>':'<span style="font-size:9px;color:#3fb950;margin-left:2px">⭐</span>'}
-      ${sh}</div>`;
-  }).join('');
-
-  // Solved count for current language
-  const solved = PROBLEMS.filter(p => {
-    const s = scores[currentLang + '_' + p.id];
-    return s && s.passed === s.total;
-  }).length;
-  document.getElementById('solved-count').textContent = `${solved} / ${PROBLEMS.length}`;
+    return `<div class="problem-item${active}" style="--level-color:${d.color};" onclick="selectProblem(${i})">
+      <div class="pmeta">第 ${String(i+1).padStart(2,'0')} 題 · ${p.topic || p.date}</div>
+      <div class="problem-row">
+        <span class="ptitle">${p.title}</span>
+        <span class="pmarks">${difficultyStars(p.diff)}${sh}</span>
+      </div>
+    </div>`;
 }
 
 // ── Select problem ────────────────────────────────────────────────────────────
@@ -3625,7 +3675,7 @@ function renderProblemContent() {
       ${p.source ? `<span class="badge" style="color:#79c0ff;background:rgba(121,192,255,.12);border-color:rgba(121,192,255,.35);">🌏 ${p.source}</span>` : `<span class="badge">${p.id}</span>`}
       <span class="badge lang">${cfg.icon} ${cfg.name}</span>
       ${p.topic ? `<span class="badge topic">${p.topic}</span>` : ''}
-      ${p.diff==='medium'?'<span class="badge" style="color:#d29922;background:rgba(210,153,34,.15);border-color:rgba(210,153,34,.3);">⭐⭐ 中級</span>':p.diff==='hard'?'<span class="badge" style="color:#f85149;background:rgba(248,81,73,.15);border-color:rgba(248,81,73,.3);">⭐⭐⭐ 高級</span>':'<span class="badge" style="color:#3fb950;background:rgba(63,185,80,.15);border-color:rgba(63,185,80,.3);">⭐ 初級</span>'}
+      ${difficultyBadge(p.diff)}
     </div>
     <div class="section-label">題目說明</div><div class="desc-text">${marked.parse(p.desc)}</div>
     <div class="section-label">輸入說明</div><div class="desc-text">${marked.parse(p.input_desc)}</div>

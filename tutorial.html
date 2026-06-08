@@ -150,7 +150,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 </head>
 <body>
 <header>
-  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub">68 章 · APCS 考試準備 + 實用程式 + 製作專案 + 專項教學</div></div>
+  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub">69 章 · APCS 考試準備 + 新制分級 + 程式識讀 + 專項教學</div></div>
   <div class="hright">
     <a href="index.html">🎯 前往題庫</a>
     <span><span class="status-dot" id="status-dot"></span><span id="status-text">Pyodide 載入中...</span></span>
@@ -170,7 +170,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
     <div class="sidebar-hdr">學習進度</div>
     <div class="progress-wrap">
       <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
-      <div class="progress-text"><span id="prog-count">0 / 36 章</span><span id="prog-pct">0%</span></div>
+      <div class="progress-text"><span id="prog-count">0 / 69 章</span><span id="prog-pct">0%</span></div>
     </div>
     <div class="chap-list" id="chap-list"></div>
   </aside>
@@ -7904,7 +7904,7 @@ pygame.quit()
 └── 用 Godot / Unity 做完整遊戲   ← 引擎輔助
 \`\`\`
 
-> 🎉 **恭喜完成全 68 章教學！** 從第一個 \`print("Hello")\` 到完整小遊戲，你已經走過 Python 開發的完整 spectrum。
+> 🎉 **恭喜完成到 Pong 這章！** 從第一個 \`print("Hello")\` 到完整小遊戲，你已經走過 Python 開發的完整 spectrum。
 >
 > 接下來最重要的一件事：**做一個自己想做的東西**。
 > 不管是寫個工具、爬資料、做 Bot、做小遊戲，**完成 1 個小作品**比讀完 10 章新教材更能讓你進步。
@@ -7951,6 +7951,100 @@ while max(score) < WIN:
 winner = "P1" if score[0] > score[1] else "P2"
 print(f"\\n🏆 {winner} 獲勝！最終比數 {score[0]}-{score[1]}")
 print(f"總共跑了 {frame} 幀")
+`},
+{id:68,title:"APCS 新制分級與程式識讀",tag:"APCS",
+content:`# 68. APCS 新制分級與程式識讀
+
+這一章把 APCS 新制整理成可以拿來練題的判準。官方新制把程式實作分成初級、中級、中高級、高級四種題本；程式識讀則考你讀懂程式流程、變數變化與輸出結果的能力。
+
+## 68.1 先建立四級理解
+
+| 等級 | 能力重點 | 看到題目時的判斷線索 |
+|------|----------|----------------------|
+| 初級 | 基礎程式設計能力 | 題目規則能直接翻成 if、loop、array 或 string 操作，限制通常不大 |
+| 中級 | 序列型資料結構運用能力 | 需要處理一串資料、一張表、排序、前綴和、雙指標、滑動視窗或簡單 DP |
+| 中高級 | 基礎資料結構運用能力 | 需要 stack、queue、set、map、hash、BFS/DFS、DSU、樹或較完整的狀態管理 |
+| 高級 | 基礎演算法程序運用能力 | 暴力法通常不夠，需要最短路、進階 DP、分治、二分搜答案、字串雜湊或複雜度最佳化 |
+
+簡單說：初級重在寫對，中級重在把序列資料整理好，中高級重在選對資料結構，高級重在把演算法和複雜度設計出來。
+
+## 68.2 做題前的 5 步判斷
+
+1. 先看輸入輸出格式，不要先想演算法。
+2. 看資料範圍。N 小可以枚舉，N 到十萬以上通常需要 O(N log N) 或 O(N)。
+3. 圈出關鍵字：連續、相異、最短、最多、區間、多次查詢、可重複、不能相鄰。
+4. 用範例手算一次，確定你真的懂題意，不只是看懂中文。
+5. 再決定資料結構：list、dict、set、queue、stack、heap、DSU 或 graph。
+
+## 68.3 程式識讀技巧
+
+程式識讀不是猜答案，是有方法地追蹤狀態。
+
+| 題型 | 讀法 |
+|------|------|
+| 迴圈 | 寫追蹤表，欄位放 i、目前元素、關鍵變數、輸出 |
+| 巢狀迴圈 | 先標出外層每次固定什麼，再看內層怎麼累加或更新 |
+| 遞迴 | 先找終止條件，再畫呼叫樹，最後從最底層回推 |
+| list/dict/set | 追蹤每次新增、刪除、覆蓋，特別注意同一個 key 會被更新 |
+| 輸出題 | 每次 print 都寫下來，空白與換行也要算進去 |
+
+常見陷阱：整數除法、索引從 0 開始、range 結尾不包含、break/continue、變數在迴圈外保留、list 被原地修改、函式呼叫有副作用。
+
+## 68.4 追蹤表長什麼樣
+
+看到迴圈時，把腦中的模糊感變成表格：
+
+| i | x | 動作 | ans |
+|---|---|------|-----|
+| 0 | 3 | 偶數索引，加上 x | 3 |
+| 1 | 1 | 奇數索引，減掉 x | 2 |
+| 2 | 4 | 偶數索引，加上 x | 6 |
+| 3 | 1 | 奇數索引，減掉 x | 5 |
+| 4 | 5 | 偶數索引，加上 x | 10 |
+
+APCS 程式識讀常常不是程式很長，而是容易在一兩個變數上看錯。把變數寫成表，錯誤率會明顯下降。
+
+## 68.5 回到題庫怎麼練
+
+本題庫已把 125 題重新分成四級：
+
+| 等級 | 題數 |
+|------|------|
+| 初級 | 36 |
+| 中級 | 49 |
+| 中高級 | 27 |
+| 高級 | 13 |
+
+建議練習路線：
+
+1. 初級先刷到能快速完成，重點是輸入處理、條件分支與邊界。
+2. 中級開始整理自己的模板：排序、前綴和、二分搜尋、滑動視窗、簡單 DP。
+3. 中高級開始記錄「我為什麼選這個資料結構」。
+4. 高級每題都要先寫複雜度，再寫程式。
+
+> 小提醒：題本等級不是人的等級。今天卡在中級，只代表這一類資料處理還需要練，不代表你不適合寫程式。
+`,
+example:`# 程式識讀練習：先不要執行，自己追一次表格
+
+a = [3, 1, 4, 1, 5]
+ans = 0
+
+for i, x in enumerate(a):
+    if i % 2 == 0:
+        ans += x
+    else:
+        ans -= x
+    print(i, x, ans)
+
+print("final", ans)
+
+# 預期輸出：
+# 0 3 3
+# 1 1 2
+# 2 4 6
+# 3 1 5
+# 4 5 10
+# final 10
 `}
 ];
 
@@ -8326,7 +8420,17 @@ const CHAPTER_META = {
 64:{learn:["AABB 是最常用的碰撞算法", "pygame Rect.colliderect / collidepoint 內建", "x/y 分開檢查避免卡牆"],try:["加更多子彈/怪物，看結果", "改成圓形碰撞 (距離公式)", "加 dokill 邏輯：撞到的怪物從 enemies 移除"],code:{"task": "AABB 碰撞：從 stdin 讀 2 行，每行「x y w h」表示一個矩形。輸出「YES」或「NO」表示是否相撞。", "stdin": "0 0 5 5\n3 3 5 5\n", "expect": "YES"}},
 65:{learn:["font.render(text, True, color) → Surface", "中文要指定中文字型或用 .ttf 檔", "get_rect(center=...) 置中對齊"],try:["改 HP 為 30，看血條變紅短", "寫一個 right_align 函式", "加邊框：「[ GAME OVER ]」"],code:{"task": "自動換行：從 stdin 讀第一行 max_width (整數)，第二行一個英文句子。按空白切詞、貪心放進每行（每行字數 ≤ max_width）。輸出每行一行。", "stdin": "15\nThe quick brown fox jumps over the lazy dog\n", "expect": "The quick brown\nfox jumps over\nthe lazy dog"}},
 66:{learn:["Sound (短) vs music (長) 兩種 API", "play(loops=-1) 無限循環、fadeout 淡出", ".wav/.ogg 最穩；多平台音樂用 .ogg"],try:["加 walk 音效隔 0.3 秒才能再播一次", "改 boss BGM 從 30 秒處 start", "加全域 master_volume = 0.5 乘上每個音效"],code:{"task": "寫音效播放紀錄器：從 stdin 讀多行「event」。對照表 {\"jump\":\"jump.wav\", \"coin\":\"coin.wav\", \"hit\":\"hit.wav\"}，找得到就印「play X」，找不到印「skip X」(X 是輸入字串)。", "stdin": "jump\ncoin\ndie\nhit\nfoo\n", "expect": "play jump.wav\nplay coin.wav\nskip die\nplay hit.wav\nskip foo"}},
-67:{learn:["完整 game loop = events + input + update + collision + draw", "狀態機 (state machine) 管理 menu/playing/gameover", "從小遊戲開始：先 Pong → 貪食蛇 → 平台跳躍"],try:["加 AI 對手自動追球", "加加速：每次撞板 vel.x *= 1.05", "改 WIN_SCORE = 11 看比賽更長"],code:{"task": "計分遊戲：從 stdin 讀多行「P1」或「P2」表示誰得分。先到 3 分獲勝。輸出「WINNER FINAL_A_B」（FINAL 是「P1 wins」或「P2 wins」, A_B 是最終比數）。獲勝後忽略後續輸入。", "stdin": "P1\nP2\nP1\nP2\nP1\nP2\n", "expect": "P1 wins 3-2"}}
+67:{learn:["完整 game loop = events + input + update + collision + draw", "狀態機 (state machine) 管理 menu/playing/gameover", "從小遊戲開始：先 Pong → 貪食蛇 → 平台跳躍"],try:["加 AI 對手自動追球", "加加速：每次撞板 vel.x *= 1.05", "改 WIN_SCORE = 11 看比賽更長"],code:{"task": "計分遊戲：從 stdin 讀多行「P1」或「P2」表示誰得分。先到 3 分獲勝。輸出「WINNER FINAL_A_B」（FINAL 是「P1 wins」或「P2 wins」, A_B 是最終比數）。獲勝後忽略後續輸入。", "stdin": "P1\nP2\nP1\nP2\nP1\nP2\n", "expect": "P1 wins 3-2"}},
+68:{
+  learn:["理解 APCS 新制四種實作題本", "用資料範圍與關鍵字判斷題目等級", "用追蹤表降低程式識讀錯誤率"],
+  try:["選 3 題題庫題目，先不寫程式，寫下你判斷的等級與理由", "把本章範例的 a 改成 [2,7,1,8]，自己重畫追蹤表", "挑一段有迴圈的程式，列出每一次 print 的精確輸出"],
+  quiz:[
+    {q:"中高級題目通常最需要先思考什麼？", opts:["要不要加很多註解","該用哪個資料結構維護狀態","變數名稱要不要很短","輸出要不要漂亮"], ans:1, why:"中高級的核心是基礎資料結構運用能力，通常要先選 stack、queue、map、set、graph、DSU 等工具。"},
+    {q:"做程式識讀的迴圈題時，最穩的方式是？", opts:["只看最後一行","把每次迭代的關鍵變數寫成追蹤表","先猜輸出再看選項","只找最長的變數名稱"], ans:1, why:"追蹤表能把每輪 i、元素、狀態與輸出固定下來，最能避免 off-by-one 或變數更新順序錯誤。"},
+    {q:"看到 N 到 200000 且多次區間查詢，通常不該先寫什麼？", opts:["前綴和","排序或二分","每次查詢都從頭掃到尾","雜湊表"], ans:2, why:"每次查詢都線性掃描通常會超時，應先思考前處理或更好的資料結構。"}
+  ],
+  code:{"task": "依本章範例，計算 a=[3,1,4,1,5] 在偶數索引加、奇數索引減後的結果。輸出每輪 i x ans，最後輸出 final ans。", "stdin": "", "expect": "0 3 3\n1 1 2\n2 4 6\n3 1 5\n4 5 10\nfinal 10"}
+}
 };
 
 // ── 常見錯誤訊息翻譯 ─────────────────────────────────────────────────────
@@ -10726,6 +10830,7 @@ function chapSection(id){
   if(id <= 43) return {key:'topic-crawl', label:'🕷 專項教學 · 爬蟲', desc:'HTTP、requests、BeautifulSoup、實戰爬取'};
   if(id <= 51) return {key:'topic-data',  label:'📊 專項教學 · 資料分析', desc:'pandas、清理、groupby、視覺化'};
   if(id <= 59) return {key:'topic-bot',   label:'🤖 專項教學 · Bot', desc:'Discord / LINE、事件、指令、部署'};
+  if(id === 68) return {key:'apcs-new', label:'📗 APCS 新制與識讀', desc:'四級題本、題目分級、程式追蹤'};
   return {key:'topic-game', label:'🎮 專項教學 · pygame', desc:'game loop、輸入、碰撞、完整小遊戲'};
 }
 function renderChapList() {

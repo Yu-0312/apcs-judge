@@ -1,7 +1,7 @@
 # APCS Multi-Language Online Judge / APCS 多語言線上評分系統
 
-> 一個專案、四種語言、125 道題目、68 章互動式基礎教學、即時瀏覽器評分、附解題思路
-> One project, four languages, 125 problems, 68 interactive tutorial chapters, in-browser instant grading, with solution hints
+> 一個專案、四種語言、125 道題目、69 章互動式基礎教學、即時瀏覽器評分、附解題思路
+> One project, four languages, 125 problems, 69 interactive tutorial chapters, in-browser instant grading, with solution hints
 
 🔗 **教學頁面 / Tutorial**：[tutorial.html](https://yu-0312.github.io/apcs-judge/tutorial.html)
 
@@ -22,21 +22,37 @@
 - **瀏覽器內執行**：Python 用 Pyodide、C/C++/Java 走 Judge0 CE 線上編譯
 - **即時評分**：對照預期輸出，顯示 AC / WA 與詳細差異
 - **解題思路提示**：每題都附「💡 思路」，解釋題目中的關鍵字暗示了什麼演算法
-- **難度星等**：⭐ 初級 / ⭐⭐ 中級 / ⭐⭐⭐ 高級 一目了然
-- **125 道題目**：涵蓋初級、中級、高級三個難度
-- **68 章基礎教學**：tutorial.html 從變數一路教到 APCS 實戰技巧
+- **難度星等**：⭐ 初級 / ⭐⭐ 中級 / ⭐⭐⭐ 中高級 / ⭐⭐⭐⭐ 高級 一目了然
+- **125 道題目**：涵蓋初級、中級、中高級、高級四個難度
+- **69 章基礎教學**：tutorial.html 從變數一路教到 APCS 新制分級與程式識讀技巧
 
 ### 🎯 題目分布
 
-| 難度 | 題數 | 涵蓋內容 |
+| 難度 | 題數 | 分級理解 |
 |------|------|---------|
-| ⭐ 初級 | **33 題** | APCS 歷屆 P1 全部 24 題（2016–2025）+ APCS P2 簡化版 4 題 + 自製基礎題 5 題 |
-| ⭐⭐ 中級 | **32 題** | Kadane、LIS、二分搜尋、質數篩、堆疊、前綴和、雙指標、雜湊表、滑動視窗、後綴運算式、區間合併、GCD、矩陣旋轉、回文等 |
-| ⭐⭐⭐ 高級 | **18 題** | 0/1 背包、無限背包、LIS O(n log n)、LCS、Dijkstra、DSU、BFS、矩陣連乘、Kadane 2D、快速冪、編輯距離、字串雜湊、逆序對、N 皇后等 |
+| ⭐ 初級 | **36 題** | 基礎輸入輸出、算術、條件判斷、迴圈、簡單陣列與直接模擬。重點是「能把題目規則翻成程式」。 |
+| ⭐⭐ 中級 | **49 題** | 序列型資料處理：字串、list/array、二維陣列、排序、前綴和、雙指標、滑動視窗、基本 DP 與狀態模擬。 |
+| ⭐⭐⭐ 中高級 | **27 題** | 基礎資料結構與狀態管理：stack/queue/set/map/hash、BFS/DFS、DSU、樹、較完整的解析或多階段前處理。 |
+| ⭐⭐⭐⭐ 高級 | **13 題** | 演算法程序與最佳化：圖論最短路、進階 DP、分治、二分搜答案、字串雜湊、回溯與大型限制下的複雜度控制。 |
+
+### 🧭 APCS 新制分級理解
+
+依 APCS 官方題目範例與成績說明，新制包含「程式識讀」與「程式實作」兩部分；實作題本分為初級、中級、中高級、高級四種，成績再依選測題本與原始分數換算成一到五級分。王一哲老師的 APCS 課程整理也提醒：2025 年 10 月起觀念題改為程式識讀，並增加 Python 題本可選。
+
+本專案的分級採用以下判準：
+
+| 題本 | 能力核心 | 本專案判題線索 |
+|------|----------|----------------|
+| 初級 | 基礎程式設計能力 | 題意規則直接、限制小，主要考 if/loop/array/string 的正確實作 |
+| 中級 | 序列型資料結構運用能力 | 需要整理序列資料、維護狀態、做排序/前綴/滑窗/簡單 DP |
+| 中高級 | 基礎資料結構運用能力 | 需要選對 stack/queue/map/set/graph/tree/DSU 等資料結構 |
+| 高級 | 基礎演算法程序運用能力 | 需要明確的演算法設計與複雜度最佳化，暴力法通常不夠 |
+
+參考來源：[APCS 題目範例](https://apcs.csie.ntnu.edu.tw/index.php/questionstypes/previousexam/)、[APCS 成績說明](https://apcs.csie.ntnu.edu.tw/index.php/grades/)、[王一哲老師 APCS 課程整理](https://sites.google.com/view/yizhe/%E8%AA%B2%E7%A8%8B/apcs)。
 
 ### 📚 基礎教學（tutorial.html）
 
-**68 章** 互動式教學，每章左側 Markdown 教材、右側即時 Python 編輯器：
+**69 章** 互動式教學，每章左側 Markdown 教材、右側即時 Python 編輯器：
 
 **基礎篇**
 1. 變數與資料型別
@@ -65,6 +81,7 @@
 **實戰篇**
 19. 綜合練習：完整 APCS 題
 20. APCS 實戰技巧
+21. APCS 新制分級與程式識讀
 
 ### 🚀 使用方式
 
@@ -123,7 +140,7 @@ python3 -m http.server 8000
   title: "成績指標",
   topic: "排序、陣列",
   date: "2016/03",
-  diff: "easy",        // easy | medium | hard
+  diff: "easy",        // easy | medium | midhigh | hard
   desc: "...",          // 題目敘述（Markdown）
   input_desc: "...",    // 輸入格式
   output_desc: "...",   // 輸出格式
@@ -172,26 +189,27 @@ A web-based practice platform for Taiwan's **APCS (Advanced Placement Computer S
 - **In-browser execution**: Pyodide (Python), Judge0 CE (C / C++ / Java)
 - **Instant grading**: Automatic comparison with expected output, AC/WA verdicts with diff view
 - **Solution hints**: Every problem includes a "💡 Hint" panel explaining which keywords in the problem statement suggest which algorithm
-- **Difficulty stars**: ⭐ Easy / ⭐⭐ Medium / ⭐⭐⭐ Hard shown in sidebar
-- **125 problems** across easy, medium, and hard
-- **68-chapter tutorial** (tutorial.html) from variables to APCS combat tips
+- **Difficulty stars**: ⭐ Beginner / ⭐⭐ Intermediate / ⭐⭐⭐ Upper-Intermediate / ⭐⭐⭐⭐ Advanced shown in sidebar
+- **125 problems** across beginner, intermediate, upper-intermediate, and advanced levels
+- **69-chapter tutorial** (tutorial.html) from variables to APCS new-level mapping and code-reading tactics
 
 ### 🎯 Problem Breakdown
 
 | Difficulty | Count | Coverage |
 |------------|-------|----------|
-| ⭐ Easy | **33** | All 24 APCS P1 problems (2016–2025) + 4 simplified P2 + 5 custom basics |
-| ⭐⭐ Medium | **32** | Kadane, LIS, binary search, prime sieve, stack, prefix sums, two pointers, hash maps, sliding window, RPN, interval merge, GCD, matrix rotation, palindrome, etc. |
-| ⭐⭐⭐ Hard | **18** | 0/1 knapsack, unbounded knapsack, LIS O(n log n), LCS, Dijkstra, DSU, BFS shortest path, matrix chain DP, 2D Kadane, fast power, edit distance, string hashing, inversion count, N-queens, etc. |
+| ⭐ Beginner | **36** | Direct implementation, I/O, arithmetic, conditionals, loops, simple arrays, strings, and simulations. |
+| ⭐⭐ Intermediate | **49** | Sequence processing: arrays/lists, strings, matrices, sorting, prefix sums, two pointers, sliding windows, simple DP, and state simulation. |
+| ⭐⭐⭐ Upper-Intermediate | **27** | Core data structures and state handling: stack, queue, set/map/hash, BFS/DFS, DSU, trees, parsing, and multi-step preprocessing. |
+| ⭐⭐⭐⭐ Advanced | **13** | Algorithmic optimization: shortest paths, advanced DP, divide and conquer, binary search on answer, hashing, backtracking, and large constraints. |
 
 ### 📚 Tutorial (tutorial.html)
 
-**68 interactive chapters**, each with a Markdown lesson on the left and a live Pyodide editor on the right.
+**69 interactive chapters**, each with a Markdown lesson on the left and a live Pyodide editor on the right.
 
 **Basics**: variables, I/O, operators, conditionals, loops
 **Data structures**: strings, lists, 2D arrays, functions, dicts/sets
 **Advanced**: algorithm basics, nested loops, list comprehensions, sorting with `key`/`lambda`, recursion, enumeration patterns, deque/heap/Counter, common bugs & debugging
-**Combat**: full APCS problem walkthrough, exam tips
+**Combat**: full APCS problem walkthrough, exam tips, new APCS level mapping, and code-reading tactics
 
 ### 🚀 How to Use
 
@@ -250,7 +268,7 @@ Problems live in the `PROBLEMS` array as JS objects:
   title: "成績指標",
   topic: "排序、陣列",
   date: "2016/03",
-  diff: "easy",        // easy | medium | hard
+  diff: "easy",        // easy | medium | midhigh | hard
   desc: "...",          // Problem description (Markdown)
   input_desc: "...",    // Input format
   output_desc: "...",   // Output format
@@ -285,4 +303,3 @@ PRs welcome for:
 ### 📜 License
 
 MIT License. Problem statements adapted from APCS, ZeroJudge, and 啟思博 sources retain their original copyrights.
-
