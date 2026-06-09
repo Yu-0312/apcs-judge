@@ -1,7 +1,7 @@
 # APCS Multi-Language Online Judge / APCS 多語言線上評分系統
 
-> 一個專案、四種語言、125 道題目、71 章互動式基礎教學（含 🔥 高級題專章）、即時瀏覽器評分、附解題思路
-> One project, four languages, 125 problems, 71 interactive tutorial chapters (incl. 🔥 advanced-topic chapters), in-browser instant grading, with solution hints
+> 一個專案、四種語言、300 道題目、71 章互動式基礎教學（含 🔥 高級題專章）、即時瀏覽器評分、附解題思路
+> One project, four languages, 300 problems, 71 interactive tutorial chapters (incl. 🔥 advanced-topic chapters), in-browser instant grading, with solution hints
 
 🔗 **教學頁面 / Tutorial**：[tutorial.html](https://yu-0312.github.io/apcs-judge/tutorial.html)
 
@@ -18,7 +18,7 @@
 **APCS Judge** 是一個完全跑在瀏覽器內的 APCS 練習站——從基礎語法教學到 ⭐⭐⭐⭐ 高級題實戰，一個網址全包。沒有後端、沒有註冊、不用 npm build；打開分頁就能寫題、看解答、看思路、跑教學。
 
 - 🌐 **單一 HTML、無後端**：clone 下來開靜態伺服器或直接打開 GitHub Pages 即用
-- 🧩 **四語言全套解答**：Python / C++ / C / Java 對 125 道題目皆提供官解
+- 🧩 **四語言全套解答**：Python / C++ / C / Java 對 300 道題目皆提供官解
 - ⚡ **真實編譯執行**：Python 透過 Pyodide（WebAssembly）離線跑；C / C++ / Java 經 Judge0 CE 雲端 GCC/G++/javac 執行，輸出與正式比賽一致
 - ✅ **即時評分**：自動跑全部測資、顯示 AC/WA 與逐字元 diff
 - 💡 **解題思路**：每題附「關鍵字 → 演算法」對照、核心一行、常見陷阱與進階優化
@@ -30,9 +30,11 @@
 | 難度 | 題數 | 分級理解 |
 |------|------|---------|
 | ⭐ 初級 | **36 題** | 基礎輸入輸出、算術、條件判斷、迴圈、簡單陣列與直接模擬。重點是「能把題目規則翻成程式」。 |
-| ⭐⭐ 中級 | **49 題** | 序列型資料處理：字串、list/array、二維陣列、排序、前綴和、雙指標、滑動視窗、基本 DP 與狀態模擬。 |
-| ⭐⭐⭐ 中高級 | **27 題** | 基礎資料結構與狀態管理：stack/queue/set/map/hash、BFS/DFS、DSU、樹、較完整的解析或多階段前處理。 |
-| ⭐⭐⭐⭐ 高級 | **13 題** | 演算法程序與最佳化：圖論最短路、進階 DP、分治、二分搜答案、字串雜湊、回溯與大型限制下的複雜度控制。 |
+| ⭐⭐ 中級 | **84 題** | 序列型資料處理：字串、list/array、二維陣列、排序、前綴和、雙指標、滑動視窗、基本 DP 與狀態模擬。 |
+| ⭐⭐⭐ 中高級 | **53 題** | 基礎資料結構與狀態管理：stack/queue/set/map/hash、BFS/DFS、DSU、樹、較完整的解析或多階段前處理。 |
+| ⭐⭐⭐⭐ 高級 | **127 題** | 演算法程序與最佳化：圖論最短路、進階 DP、分治、二分搜答案、字串雜湊、回溯與大型限制下的複雜度控制；含 Codeforces / CF Gym / USACO 題源延伸訓練。 |
+
+> 總計 **300 題**。題源涵蓋 APCS 官方歷屆、ZeroJudge、啟思博，以及進階訓練用的 Codeforces / CF Gym / USACO（題 ID 以 `src` 前綴標示）。
 
 ### 🧭 APCS 新制分級理解
 
@@ -198,7 +200,7 @@ MIT License。題目敘述若引用自 APCS、ZeroJudge、啟思博等來源，�
 **APCS Judge** is a fully in-browser practice site for Taiwan's APCS exam — from beginner syntax tutorials to ⭐⭐⭐⭐ advanced-tier problem drills, all behind a single URL. No backend, no signup, no `npm build`; open the tab and start coding.
 
 - 🌐 **Single HTML, no backend** — clone + static server, or just open the GitHub Pages link
-- 🧩 **Full four-language solutions** — Python / C++ / C / Java reference solutions for all 125 problems
+- 🧩 **Full four-language solutions** — Python / C++ / C / Java reference solutions for all 300 problems
 - ⚡ **Real compilation** — Pyodide (WebAssembly) for offline Python; Judge0 CE cloud GCC/G++/javac for C / C++ / Java, matching real-contest output
 - ✅ **Instant grading** — auto-runs every sample, AC/WA verdict with per-character diff
 - 💡 **Solution hints** — "keyword → algorithm" mapping, key one-liner, common pitfalls, and advanced optimizations per problem
@@ -210,9 +212,11 @@ MIT License。題目敘述若引用自 APCS、ZeroJudge、啟思博等來源，�
 | Difficulty | Count | Coverage |
 |------------|-------|----------|
 | ⭐ Beginner | **36** | Direct implementation, I/O, arithmetic, conditionals, loops, simple arrays, strings, and simulations. |
-| ⭐⭐ Intermediate | **49** | Sequence processing: arrays/lists, strings, matrices, sorting, prefix sums, two pointers, sliding windows, simple DP, and state simulation. |
-| ⭐⭐⭐ Upper-Intermediate | **27** | Core data structures and state handling: stack, queue, set/map/hash, BFS/DFS, DSU, trees, parsing, and multi-step preprocessing. |
-| ⭐⭐⭐⭐ Advanced | **13** | Algorithmic optimization: shortest paths, advanced DP, divide and conquer, binary search on answer, hashing, backtracking, and large constraints. |
+| ⭐⭐ Intermediate | **84** | Sequence processing: arrays/lists, strings, matrices, sorting, prefix sums, two pointers, sliding windows, simple DP, and state simulation. |
+| ⭐⭐⭐ Upper-Intermediate | **53** | Core data structures and state handling: stack, queue, set/map/hash, BFS/DFS, DSU, trees, parsing, and multi-step preprocessing. |
+| ⭐⭐⭐⭐ Advanced | **127** | Algorithmic optimization: shortest paths, advanced DP, divide and conquer, binary search on answer, hashing, backtracking, and large constraints; extended with Codeforces / CF Gym / USACO problems for serious training. |
+
+> **300 problems total.** Sources include official APCS past papers, ZeroJudge, 啟思博, plus advanced-training picks from Codeforces / CF Gym / USACO (IDs prefixed `src`).
 
 ### 📚 Tutorial (tutorial.html)
 
