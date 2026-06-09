@@ -3,7 +3,7 @@
 > 一個專案、四種語言、300 道題目、71 章互動式基礎教學（含 🔥 高級題專章）、即時瀏覽器評分、附解題思路
 > One project, four languages, 300 problems, 71 interactive tutorial chapters (incl. 🔥 advanced-topic chapters), in-browser instant grading, with solution hints
 
-🔗 **教學頁面 / Tutorial**：[tutorial.html](https://yu-0312.github.io/apcs-judge/tutorial.html)
+🔗 **教學頁面 / Tutorial**：(https://yu-0312.github.io/apcs-judge/tutorial.html)
 
 🔗 **Live Demo / 線上體驗**：**https://yu-0312.github.io/apcs-judge/**
 
