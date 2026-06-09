@@ -15,16 +15,15 @@
 
 ### 📖 簡介
 
-這是一個為 **APCS（大學程式設計先修檢測）** 設計的線上練習平台，特色是：
+**APCS Judge** 是一個完全跑在瀏覽器內的 APCS 練習站——從基礎語法教學到 ⭐⭐⭐⭐ 高級題實戰，一個網址全包。沒有後端、沒有註冊、不用 npm build；打開分頁就能寫題、看解答、看思路、跑教學。
 
-- **單一 HTML 檔案**：無需後端，瀏覽器打開即用
-- **四語言切換**：Python / C++ / C / Java，所有 125 題都有 4 語言解答
-- **瀏覽器內執行**：Python 用 Pyodide、C/C++/Java 走 Judge0 CE 線上編譯
-- **即時評分**：對照預期輸出，顯示 AC / WA 與詳細差異
-- **解題思路提示**：每題都附「💡 思路」，解釋題目中的關鍵字暗示了什麼演算法
-- **難度星等**：⭐ 初級 / ⭐⭐ 中級 / ⭐⭐⭐ 中高級 / ⭐⭐⭐⭐ 高級 一目了然
-- **125 道題目**：涵蓋初級、中級、中高級、高級四個難度
-- **71 章基礎教學**：tutorial.html 從變數一路教到 APCS 新制分級與程式識讀技巧，**含 🔥 高級題專章**（快速冪、分治、區間 DP 等）
+- 🌐 **單一 HTML、無後端**：clone 下來開靜態伺服器或直接打開 GitHub Pages 即用
+- 🧩 **四語言全套解答**：Python / C++ / C / Java 對 125 道題目皆提供官解
+- ⚡ **真實編譯執行**：Python 透過 Pyodide（WebAssembly）離線跑；C / C++ / Java 經 Judge0 CE 雲端 GCC/G++/javac 執行，輸出與正式比賽一致
+- ✅ **即時評分**：自動跑全部測資、顯示 AC/WA 與逐字元 diff
+- 💡 **解題思路**：每題附「關鍵字 → 演算法」對照、核心一行、常見陷阱與進階優化
+- ⭐ **難度可視化**：⭐ 初級 / ⭐⭐ 中級 / ⭐⭐⭐ 中高級 / ⭐⭐⭐⭐ 高級 直接顯示在側欄
+- 📚 **71 章互動教學**：tutorial.html 從變數一路教到 APCS 新制程式識讀，**包含 7 個 🔥 高級題專章/小節**（快速冪、分治逆序對、區間 DP、Kadane 2D、LIS O(n log n)、完全背包、編輯距離）
 
 ### 🎯 題目分布
 
@@ -84,11 +83,18 @@
 68. APCS 新制分級與程式識讀
 
 **🔥 高級題專章篇**（覆蓋 ⭐⭐⭐⭐ 高級題目所需的演算法）
-- 第 11 章新增 **11.7 Kadane 1D / 2D**（最大連續子陣列和；高級題 2D 延伸）
-- 第 24 章擴充：**LIS O(n log n)**、**24.5 完全背包**、**24.6 編輯距離**、**24.7 區間 DP / 矩陣連乘**
-- **第 69 章 🔥 快速冪與模運算**（含模逆元、矩陣快速冪）
-- **第 70 章 🔥 分治與逆序對**（合併排序計數法）
-- 其他相關：Ch 21 樹走訪、Ch 22 BFS/DFS、Ch 23 最短路徑+拓樸、Ch 25 並查集、Ch 26 字串 hash & Trie
+
+| 章節 | 標題 | 覆蓋題型/核心觀念 |
+|------|------|-------------------|
+| 11.7 | 🔥 Kadane 1D / 2D | 最大連續子陣列和；2D 用「列前綴和 + 1D Kadane」壓成 O(n³) |
+| 24.2 | 🔥 LIS O(n log n) | 最長遞增子序列：patience sort + `bisect_left`，破 O(n²) 朴素 DP |
+| 24.5 | 🔥 完全背包 | 物品可重複選；對比 0/1 背包的迴圈方向差異 |
+| 24.6 | 🔥 編輯距離 | Levenshtein：插入/刪除/替換的二維 DP |
+| 24.7 | 🔥 區間 DP / 矩陣連乘 | `dp[i][j] = min(dp[i][k] + dp[k+1][j] + cost)` 的區間切點枚舉 |
+| 69   | 🔥 快速冪與模運算 | 迭代 fast_pow、Python `pow(a,n,m)`、Fermat 模逆元、矩陣快速冪求 Fibonacci |
+| 70   | 🔥 分治與逆序對 | 合併排序計數 `c += len(L) - i`，把 O(n²) 降到 O(n log n) |
+
+**相關進階主題**（非 🔥 但配合高級題）：Ch 21 樹走訪、Ch 22 BFS/DFS、Ch 23 最短路徑 + 拓樸排序、Ch 25 並查集 DSU、Ch 26 字串雜湊 & Trie。
 
 ### 🚀 使用方式
 
@@ -189,16 +195,15 @@ MIT License。題目敘述若引用自 APCS、ZeroJudge、啟思博等來源，�
 
 ### 📖 Overview
 
-A web-based practice platform for Taiwan's **APCS (Advanced Placement Computer Science)** exam, featuring:
+**APCS Judge** is a fully in-browser practice site for Taiwan's APCS exam — from beginner syntax tutorials to ⭐⭐⭐⭐ advanced-tier problem drills, all behind a single URL. No backend, no signup, no `npm build`; open the tab and start coding.
 
-- **Single HTML file**: No backend needed, runs entirely in the browser
-- **Four language modes**: Python / C++ / C / Java — all 125 problems have solutions in all 4 languages
-- **In-browser execution**: Pyodide (Python), Judge0 CE (C / C++ / Java)
-- **Instant grading**: Automatic comparison with expected output, AC/WA verdicts with diff view
-- **Solution hints**: Every problem includes a "💡 Hint" panel explaining which keywords in the problem statement suggest which algorithm
-- **Difficulty stars**: ⭐ Beginner / ⭐⭐ Intermediate / ⭐⭐⭐ Upper-Intermediate / ⭐⭐⭐⭐ Advanced shown in sidebar
-- **125 problems** across beginner, intermediate, upper-intermediate, and advanced levels
-- **71-chapter tutorial** (tutorial.html) from variables to APCS new-level mapping and code-reading tactics, **including 🔥 advanced-topic chapters** (fast power, divide-and-conquer, interval DP, etc.)
+- 🌐 **Single HTML, no backend** — clone + static server, or just open the GitHub Pages link
+- 🧩 **Full four-language solutions** — Python / C++ / C / Java reference solutions for all 125 problems
+- ⚡ **Real compilation** — Pyodide (WebAssembly) for offline Python; Judge0 CE cloud GCC/G++/javac for C / C++ / Java, matching real-contest output
+- ✅ **Instant grading** — auto-runs every sample, AC/WA verdict with per-character diff
+- 💡 **Solution hints** — "keyword → algorithm" mapping, key one-liner, common pitfalls, and advanced optimizations per problem
+- ⭐ **Visualized difficulty** — ⭐ Beginner / ⭐⭐ Intermediate / ⭐⭐⭐ Upper-Intermediate / ⭐⭐⭐⭐ Advanced badges in the sidebar
+- 📚 **71-chapter interactive tutorial** — tutorial.html walks from variables all the way to APCS new-format code-reading tactics, **including 7 🔥 advanced-topic chapters/subsections** (fast power, divide-and-conquer inversions, interval DP, 2D Kadane, LIS O(n log n), unbounded knapsack, edit distance)
 
 ### 🎯 Problem Breakdown
 
@@ -211,7 +216,17 @@ A web-based practice platform for Taiwan's **APCS (Advanced Placement Computer S
 
 ### 📚 Tutorial (tutorial.html)
 
-**71 interactive chapters**, each with a Markdown lesson on the left and a live Pyodide editor on the right. Chapters marked 🔥 are advanced-topic deep-dives covering the algorithms needed for the ⭐⭐⭐⭐ Advanced problem set: Kadane 1D/2D (ch 11.7), LIS O(n log n) + unbounded knapsack + edit distance + interval DP (ch 24.2–24.7), fast power & modular arithmetic (ch 69), divide-and-conquer & inversion counting (ch 70).
+**71 interactive chapters**, each with a Markdown lesson on the left and a live Pyodide editor on the right. Chapters marked 🔥 are advanced-topic deep-dives covering the algorithms required by the ⭐⭐⭐⭐ Advanced problem set:
+
+| Chapter | Title | Topic |
+|---------|-------|-------|
+| 11.7 | 🔥 Kadane 1D / 2D | Maximum contiguous subarray sum; 2D via row prefix sums + 1D Kadane → O(n³) |
+| 24.2 | 🔥 LIS O(n log n) | Longest increasing subsequence: patience sort + `bisect_left` |
+| 24.5 | 🔥 Unbounded knapsack | Items reusable; loop-direction contrast vs. 0/1 knapsack |
+| 24.6 | 🔥 Edit distance | Levenshtein 2D DP (insert/delete/replace) |
+| 24.7 | 🔥 Interval DP / matrix chain | `dp[i][j] = min(dp[i][k] + dp[k+1][j] + cost)` split-point enumeration |
+| 69   | 🔥 Fast power & modular arithmetic | Iterative fast_pow, Python `pow(a,n,m)`, Fermat modular inverse, matrix fast power for Fibonacci |
+| 70   | 🔥 Divide-and-conquer & inversions | Merge-sort counting `c += len(L) - i`, O(n²) → O(n log n) |
 
 **Basics**: variables, I/O, operators, conditionals, loops
 **Data structures**: strings, lists, 2D arrays, functions, dicts/sets
