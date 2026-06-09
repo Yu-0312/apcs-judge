@@ -5,7 +5,7 @@
 
 🔗 **教學頁面 / Tutorial**：https://yu-0312.github.io/apcs-judge/tutorial.html
 
-🔗 **Live Demo / 線上體驗**：**https://yu-0312.github.io/apcs-judge/**
+🔗 **線上體驗 / Live Demo**：**https://yu-0312.github.io/apcs-judge/**
 
 [English](#english) · [繁體中文](#繁體中文)
 
