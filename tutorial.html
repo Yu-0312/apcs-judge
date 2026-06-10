@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>APCS 初級 Python 教學</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
@@ -19998,6 +20001,8 @@ function applyUiLang(){
   const stdinLbl = document.querySelector('.input-area label'); if(stdinLbl) stdinLbl.textContent = t.stdinLabel;
   const stdinTa = document.getElementById('stdin-input'); if(stdinTa) stdinTa.placeholder = t.stdinPh;
   const outHdr = document.querySelector('.output-hdr'); if(outHdr) outHdr.textContent = t.outHdr;
+  const outBody = document.getElementById('output-body');
+  if(outBody && !outBody.textContent.trim().replace(/\(無輸出\)|\(no output\)/i,'')) outBody.textContent = t.outPlaceholder;
   if(typeof renderChapList === 'function') renderChapList();
   if(currentChap){ selectChap(currentChap.id, {preserveEditor:true}); }
   else {
@@ -36075,13 +36080,12 @@ async function checkAnswer(chapId){
 }
 
 updateStaticCounts();
-renderChapList();
 initEditor();
 switchLang('py');
+applyUiLang();
 loadPyodide_();
 updateProgress();
 selectChap(0);
-applyUiLang();
 </script>
 </body>
 </html>
