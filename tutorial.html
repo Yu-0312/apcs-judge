@@ -25417,7 +25417,33 @@ for (int i = 0; i < (int)v.size(); ++i) cout << v[i];
 
 > **\`.size()\` 是 unsigned**！\`for(int i=0; i<v.size()-1; i++)\` 在 v 為空時 \`v.size()-1\` 會變成大正整數，無限跑。要 cast 成 int 或用 \`(int)v.size()-1 >= 0\` 防呆。
 
-## 36.8 試試看
+## 36.8 容器選擇速查表
+
+| 想做的事 | 用這個 | 原因 |
+|----------|--------|------|
+| 動態陣列 | \`vector\` | 預設首選，cache 友善 |
+| 兩端 push/pop | \`deque\` | 滑動視窗、單調佇列 |
+| 鍵值對 + 排序 | \`map\` | 紅黑樹 O(log n) |
+| 鍵值對 + 速度 | \`unordered_map\` | hash 平均 O(1) |
+| 取 top k | \`priority_queue\` | Dijkstra / 哈夫曼 |
+| 集合運算 | \`set\` | union/intersect 配 STL algorithm |
+| 固定大小快取 | \`array\` | 編譯期決定，零開銷 |
+
+## 36.9 APCS 實戰：滑動視窗最大值
+
+deque 存 index、單調遞減維護最大值 O(n)：
+
+\`\`\`cpp
+deque<int> dq;
+for (int i = 0; i < n; i++) {
+    while (!dq.empty() && a[dq.back()] <= a[i]) dq.pop_back();
+    dq.push_back(i);
+    if (dq.front() <= i - k) dq.pop_front();
+    if (i >= k - 1) cout << a[dq.front()] << " ";
+}
+\`\`\`
+
+## 36.10 試試看
 
 下方練習：用 \`map\` 數字串中每個字母出現次數，照字母序輸出。
 `,
@@ -25487,7 +25513,30 @@ auto [x, y] = p;
 
 模板**全部展開在編譯期** — 用越多模板，編譯越慢、錯誤訊息越長。STL 模板錯誤訊息經常上百行。
 
-## 37.6 試試看
+## 37.6 SFINAE / if constexpr — 模板分支
+
+C++17 \`if constexpr\` 可以在編譯期分支，淘汰掉不該編譯的路徑：
+
+\`\`\`cpp
+template<typename T>
+void print(T x) {
+    if constexpr (is_integral_v<T>) cout << "int: " << x;
+    else if constexpr (is_floating_point_v<T>) cout << "float: " << x;
+    else cout << "other";
+}
+\`\`\`
+
+舊版要用 SFINAE \`enable_if\` 寫超長 — \`if constexpr\` 一行解決。
+
+## 37.7 與 C++ 跟 Java/Python 泛型對比
+
+| | C++ template | Java generics | Python duck typing |
+|---|--------------|---------------|--------------------|
+| 何時檢查 | 編譯期，每型別產生一份 | 編譯期，執行期擦除 | 執行期 |
+| 速度 | 最快（無動態派送） | 中等 | 最慢 |
+| 錯誤訊息 | 噩夢 | 還行 | 執行時才爆 |
+
+## 37.8 試試看
 `,
 c:``,
 java:``
@@ -25558,7 +25607,27 @@ lock_guard<mutex> lk(m);   // 建構：上鎖
 
 > ifstream、lock_guard、unique_ptr 都是 RAII 設計 — C++ 哲學的精髓。
 
-## 38.6 試試看
+## 38.6 weak_ptr 解循環引用
+
+\`\`\`cpp
+struct Node {
+    shared_ptr<Node> next;
+    weak_ptr<Node> parent;   // 不增加引用計數
+};
+\`\`\`
+
+雙向結構（parent ↔ child）若雙方都 shared_ptr，引用計數永遠 ≥1 → leak。weak_ptr 不算計數，需要時 \`p.lock()\` 升級成 shared_ptr。
+
+## 38.7 自訂 deleter
+
+\`\`\`cpp
+unique_ptr<FILE, decltype(&fclose)> f(fopen("a.txt", "r"), &fclose);
+// 離開作用域自動 fclose
+\`\`\`
+
+把任何「成對的 acquire / release」包成 RAII。socket、handle、mutex 都適用。
+
+## 38.8 試試看
 `,
 c:``,
 java:``
@@ -25630,7 +25699,29 @@ class MyBuf {
 
 或用 \`= default\` / \`= delete\` 顯式指定。
 
-## 39.6 試試看
+## 39.6 完美轉發 perfect forwarding
+
+寫泛型工廠函式時：
+
+\`\`\`cpp
+template<typename T, typename... Args>
+unique_ptr<T> make_my(Args&&... args) {
+    return unique_ptr<T>(new T(std::forward<Args>(args)...));
+}
+\`\`\`
+
+\`std::forward\` 保留 lvalue/rvalue 屬性 — lvalue 進來仍是 lvalue、rvalue 進來仍是 rvalue。\`make_unique\` 內部就是這樣寫的。
+
+## 39.7 何時用 move、何時不用
+
+| 情境 | 寫法 |
+|------|------|
+| return 區域變數 | 直接 return（編譯器自動 move/RVO） |
+| return std::move(x) | ❌ 抑制 RVO，反而變慢 |
+| 把參數塞進容器 | \`v.push_back(move(x))\` ✅ |
+| 用過 x 後還想再用 | 不要 move |
+
+## 39.8 試試看
 `,
 c:``,
 java:``
@@ -25701,7 +25792,35 @@ function<int(int, int)> f = [](int a, int b) { return a + b; };
 
 > std::function 內部有虛函式呼叫，比直接呼叫 lambda 慢 — 競賽不建議。
 
-## 40.6 試試看
+## 40.6 遞迴 lambda（C++14 起）
+
+Lambda 沒名字，要遞迴有兩招：
+
+\`\`\`cpp
+// 1. function 包起來（慢）
+function<int(int)> fact = [&](int n){ return n<=1 ? 1 : n*fact(n-1); };
+
+// 2. 把自己當參數傳（快、推薦）
+auto fact = [](auto self, int n) -> int {
+    return n <= 1 ? 1 : n * self(self, n-1);
+};
+fact(fact, 5);
+
+// 3. C++23 起：deducing this，更乾淨
+\`\`\`
+
+DFS / 遞迴公用程式用 lambda 寫，不用為了一次性遞迴另開全域函式。
+
+## 40.7 mutable lambda
+
+\`\`\`cpp
+auto counter = [n=0]() mutable { return ++n; };
+counter(); counter();   // 1, 2
+\`\`\`
+
+預設值捕獲是 const，加 \`mutable\` 才能改自己的副本。
+
+## 40.8 試試看
 `,
 c:``,
 java:``
@@ -25776,7 +25895,31 @@ do {
 
 枚舉所有排列 — n! 個。
 
-## 41.7 試試看
+## 41.7 partial_sort / nth_element — 部分排序
+
+只要前 k 大、或第 k 大，不用整個排：
+
+\`\`\`cpp
+// 把最小的 3 個放到前面（其餘亂序）
+partial_sort(v.begin(), v.begin()+3, v.end());
+
+// 把第 k 名放到位置 k（左邊 <=、右邊 >=，但都不一定排序）
+nth_element(v.begin(), v.begin()+k, v.end());
+cout << v[k];   // 第 k+1 小
+\`\`\`
+
+\`nth_element\` 是 O(n) 平均，比 sort 的 O(n log n) 快 — 求中位數神器。
+
+## 41.8 set_union / set_intersection
+
+兩個**已排序**序列做集合運算：
+
+\`\`\`cpp
+vector<int> r;
+set_intersection(a.begin(), a.end(), b.begin(), b.end(), back_inserter(r));
+\`\`\`
+
+## 41.9 試試看
 `,
 c:``,
 java:``
@@ -25858,7 +26001,36 @@ string s = to_string(42);
 | \`<regex>\` | 正則表達式（C++ 慢，少用） |
 | \`std::hash<string>{}(s)\` | 字串雜湊 |
 
-## 42.7 試試看
+## 42.7 KMP / Z-function 模板
+
+APCS 字串題：\`s.find\` 是 O(nm)，n=10⁶ 會 TLE。手刻 KMP：
+
+\`\`\`cpp
+vector<int> kmp(const string& s) {
+    int n = s.size();
+    vector<int> p(n, 0);
+    for (int i = 1, j = 0; i < n; i++) {
+        while (j > 0 && s[i] != s[j]) j = p[j-1];
+        if (s[i] == s[j]) j++;
+        p[i] = j;
+    }
+    return p;
+}
+\`\`\`
+
+預處理 O(n)，配對 O(n+m)。
+
+## 42.8 char vs string 的雷
+
+\`\`\`cpp
+string s = "hello";
+s[100];        // 不會炸，但 undefined（讀到隨機 byte）
+s.at(100);     // 丟 out_of_range exception
+s + 'a';       // OK
+s + 65;        // ⚠️ 把 65 當 ptrdiff，不是接 "A"！要 s + char(65)
+\`\`\`
+
+## 42.9 試試看
 `,
 c:``,
 java:``
@@ -25949,7 +26121,37 @@ cout << f.get();     // 42（會阻塞等結果）
 scoped_lock lk(m1, m2);     // C++17，原子地鎖兩個
 \`\`\`
 
-## 43.7 試試看
+## 43.7 condition_variable — thread 通知
+
+生產者通知消費者「有貨了」：
+
+\`\`\`cpp
+mutex m;
+condition_variable cv;
+queue<int> q;
+
+// 消費者
+unique_lock<mutex> lk(m);
+cv.wait(lk, []{ return !q.empty(); });
+int x = q.front(); q.pop();
+
+// 生產者
+{ lock_guard<mutex> lk(m); q.push(42); }
+cv.notify_one();
+\`\`\`
+
+## 43.8 與其他語言對比
+
+| | C++ | Python | Java |
+|---|---|---|---|
+| 真平行 | ✅ | ❌ GIL | ✅ |
+| 啟動成本 | 高 (~50μs) | 高 | 高 |
+| 同步原語 | mutex/atomic/cv | threading.Lock | synchronized/Lock |
+| 推薦池 | std::async | concurrent.futures | ExecutorService |
+
+CPU 密集型任務在 C++ 跟 Java 都有真平行；Python 必須用 multiprocessing 才能繞過 GIL。
+
+## 43.9 試試看
 `,
 c:``,
 java:``
@@ -26030,7 +26232,28 @@ const int * const p; // 都不能改
 
 **讀法**：從右往左 — 「p is a const pointer to const int」。
 
-## 36.6 試試看
+## 36.6 函式指標 vs 指標到函式
+
+\`\`\`c
+int (*f)(int);        // f 是「指向接收 int 回 int 的函式」的指標
+int *g(int);          // g 是「接收 int 回 int*」的函式
+\`\`\`
+
+括號很重要 — 沒括號就完全變另一個東西。
+
+## 36.7 指標進階：void* 與型別轉換
+
+\`\`\`c
+void *p;              // 萬用指標，不知道指向什麼型別
+int x = 42;
+p = &x;
+int *ip = (int*)p;    // 用之前要 cast 回正確型別
+printf("%d", *ip);
+\`\`\`
+
+\`malloc\` 回傳 \`void*\` 就是這個 — 不知道你要拿來裝什麼，由你 cast。\`memcpy\` / \`qsort\` 的參數也是 void*。
+
+## 36.8 試試看
 `,
 java:``
 },
@@ -26107,7 +26330,40 @@ valgrind --leak-check=full ./prog
 
 每個 malloc 沒對應 free 都會列出來，並指出在哪行。
 
-## 37.7 試試看
+## 37.7 stack vs heap
+
+| | stack | heap |
+|---|---|---|
+| 配置 | 自動（區域變數） | \`malloc\` |
+| 釋放 | 自動（離開函式） | \`free\` |
+| 速度 | 極快 | 慢 |
+| 大小 | 小（通常 ~8MB） | 大（GB 級） |
+| 失敗 | StackOverflow | malloc 回 NULL |
+
+\`\`\`c
+int big[10000000];   // ❌ stack overflow（超過 stack 大小）
+int *big = malloc(10000000 * sizeof(int));   // ✅ heap 沒問題
+\`\`\`
+
+> APCS 題目開 10⁶ 以上大陣列要用 global 或 malloc，不要放函式裡的區域變數。
+
+## 37.8 自訂簡易記憶體池
+
+熱迴圈裡 malloc/free 很慢 — 一次配一大塊、自己切：
+
+\`\`\`c
+char pool[1<<20];
+int pool_used = 0;
+void* my_alloc(size_t n){
+    void* p = pool + pool_used;
+    pool_used += n;
+    return p;
+}
+\`\`\`
+
+OI 比賽寫 Trie / 線段樹常見的技巧，比動態 malloc 快數倍。
+
+## 37.9 試試看
 `,
 java:``
 },
@@ -26189,7 +26445,38 @@ typedef struct {
 
 模擬「動態型別」— Python 的變數可以裝任何東西，C 要這樣手刻。
 
-## 38.7 試試看
+## 38.7 bit field — 位元欄位
+
+省記憶體的壓縮 struct：
+
+\`\`\`c
+struct Flags {
+    unsigned int is_open  : 1;
+    unsigned int is_dirty : 1;
+    unsigned int level    : 4;   // 0..15
+    unsigned int type     : 2;   // 0..3
+};   // 一個 struct 共 8 bit = 1 byte（編譯器決定 padding）
+\`\`\`
+
+驅動程式、網路封包解析常見。
+
+## 38.8 anonymous struct/union（C11）
+
+\`\`\`c
+struct {
+    int kind;
+    union {
+        int i;
+        char *s;
+    };   // 不用名字！
+} x;
+x.kind = 1;
+x.i = 42;       // 直接寫，不用 x.data.i
+\`\`\`
+
+讓 tagged union 用起來更乾淨。
+
+## 38.9 試試看
 `,
 java:``
 },
@@ -26262,7 +26549,27 @@ void forEach(int *arr, int n, void (*action)(int, void*), void *ctx) {
 }
 \`\`\`
 
-## 39.6 試試看
+\`pthread_create\` / \`qsort_r\` 都是這個套路 — 標準函式接收 void* 上下文。
+
+## 39.6 函式指標陣列：dispatch table
+
+把 switch 換成查表：
+
+\`\`\`c
+int add(int a, int b){ return a+b; }
+int sub(int a, int b){ return a-b; }
+int mul(int a, int b){ return a*b; }
+
+int (*ops[])(int, int) = {add, sub, mul};
+const char *names[] = {"add", "sub", "mul"};
+
+int op = 1;
+printf("%s = %d\\n", names[op], ops[op](10, 3));   // sub = 7
+\`\`\`
+
+直譯器、狀態機、虛擬機都靠這招分派指令。
+
+## 39.7 試試看
 `,
 java:``
 },
@@ -26335,7 +26642,40 @@ if (s == "hello") { ... }    // ❌ 比指標
 if (strcmp(s, "hello") == 0) { ... }   // ✅ 比內容
 \`\`\`
 
-## 40.7 試試看
+## 40.7 動態字串：手刻 string builder
+
+要組大量 token 又怕 overflow，自己管 buffer：
+
+\`\`\`c
+typedef struct { char *buf; size_t len, cap; } Str;
+void str_append(Str *s, const char *t) {
+    size_t tlen = strlen(t);
+    if (s->len + tlen + 1 > s->cap) {
+        s->cap = (s->cap + tlen + 1) * 2;
+        s->buf = realloc(s->buf, s->cap);
+    }
+    memcpy(s->buf + s->len, t, tlen);
+    s->len += tlen;
+    s->buf[s->len] = '\\0';
+}
+\`\`\`
+
+C++ 的 \`string\` 在底層大致這樣做的；在 C 你要自己重來。
+
+## 40.8 字串雜湊（APCS 進階）
+
+\`\`\`c
+unsigned long hash(const char *s){
+    unsigned long h = 5381;
+    int c;
+    while ((c = *s++)) h = ((h << 5) + h) + c;   // h*33 + c
+    return h;
+}
+\`\`\`
+
+djb2 是最知名的快速字串雜湊。自製 hash map 必備。
+
+## 40.9 試試看
 `,
 java:``
 },
@@ -26419,7 +26759,45 @@ CAT(my, var)    // myvar (識別子)
 
 防止同個 .h 被 include 兩次造成重複宣告。
 
-## 41.8 試試看
+## 41.8 X-Macro 範式
+
+一份資料同時產生多種程式碼：
+
+\`\`\`c
+#define COLORS \\
+    X(RED,   0xFF0000) \\
+    X(GREEN, 0x00FF00) \\
+    X(BLUE,  0x0000FF)
+
+// 1) 產生 enum
+enum Color {
+#define X(name, val) name,
+    COLORS
+#undef X
+};
+
+// 2) 產生 name 字串表
+const char *color_name[] = {
+#define X(name, val) #name,
+    COLORS
+#undef X
+};
+\`\`\`
+
+新增 \`YELLOW\` 只要改 COLORS 那行，enum 跟字串表自動同步。
+
+## 41.9 與 C++ template 對比
+
+| | C 巨集 | C++ template |
+|---|---|---|
+| 階段 | 預處理（文字替換） | 編譯期（型別安全） |
+| 錯誤訊息 | 已展開的天書 | 模板天書 |
+| 副作用安全 | ❌ | ✅ |
+| 跨型別 | ✅（粗暴） | ✅（型別參數化） |
+
+新專案優先 \`static inline\` / template；歷史 C code 才繼續用巨集。
+
+## 41.10 試試看
 `,
 java:``
 },
@@ -26507,7 +26885,33 @@ if (open(...) < 0) {
 
 每個系統呼叫失敗時都會設 errno；\`strerror\` 把它變成人話。
 
-## 42.7 試試看
+## 42.7 signal — 接收訊號
+
+\`\`\`c
+#include <signal.h>
+void handler(int sig) {
+    write(1, "got SIGINT\\n", 11);
+    _exit(0);
+}
+signal(SIGINT, handler);   // Ctrl+C 觸發
+\`\`\`
+
+> ⚠️ signal handler 只能呼叫 **async-signal-safe** 函式（write 可以、printf 不行）。
+
+## 42.8 mmap — 把檔案當記憶體用
+
+\`\`\`c
+#include <sys/mman.h>
+int fd = open("big.bin", O_RDONLY);
+struct stat st; fstat(fd, &st);
+char *p = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+// p 像普通陣列一樣讀
+munmap(p, st.st_size);
+\`\`\`
+
+大檔案處理不需 read 進 buffer — kernel 按需分頁，超快。
+
+## 42.9 試試看
 `,
 java:``
 },
@@ -26586,7 +26990,43 @@ clean:
 
 現代 C/C++ 專案多用 **CMake**（跨平台、產生 Makefile / Ninja / VS 專案）或 **Meson**。但理解 Makefile 仍是工程入門 。
 
-## 43.7 試試看
+## 43.7 標頭跟實作分檔的寫法
+
+\`\`\`c
+// utils.h
+#ifndef UTILS_H
+#define UTILS_H
+int gcd(int a, int b);   // 只宣告
+#endif
+
+// utils.c
+#include "utils.h"
+int gcd(int a, int b){ return b ? gcd(b, a%b) : a; }   // 實作
+
+// main.c
+#include "utils.h"
+int main(){ gcd(12, 18); }
+\`\`\`
+
+規則：
+- .h 只放**宣告**（function prototype、struct 定義、巨集）
+- .c 放**實作**（function body）
+- 用了某宣告的 .c 要 \`#include\` 對應 .h
+
+## 43.8 編譯旗標速查
+
+| 旗標 | 用途 |
+|------|------|
+| \`-Wall -Wextra\` | 開所有警告 |
+| \`-O2\` | 正式版優化 |
+| \`-g\` | 帶 debug symbol |
+| \`-fsanitize=address\` | AddressSanitizer 抓 buffer overflow |
+| \`-fsanitize=undefined\` | UBSan 抓 undefined behavior |
+| \`-std=c11\` | 指定 C 標準版 |
+
+開發時 \`-Wall -Wextra -g -fsanitize=address\` 走起，9 成的 C bug 編譯/執行階段就被抓到。
+
+## 43.9 試試看
 `,
 java:``
 },
@@ -26677,7 +27117,40 @@ pq.poll();                          // 1
 PriorityQueue<Integer> maxPq = new PriorityQueue<>(Comparator.reverseOrder());
 \`\`\`
 
-## 36.7 試試看
+## 36.7 排序與 Comparator
+
+\`\`\`java
+List<int[]> pairs = ...;
+pairs.sort((a, b) -> a[0] - b[0]);                  // 第一欄升冪
+pairs.sort(Comparator.comparingInt(a -> a[0])
+    .thenComparingInt(a -> -a[1]));                  // 多鍵
+\`\`\`
+
+> ⚠️ \`a[0] - b[0]\` 在大數會溢位！改成 \`Integer.compare(a[0], b[0])\` 比較安全。
+
+## 36.8 不可變集合（Java 9+）
+
+\`\`\`java
+List<Integer> immut = List.of(1, 2, 3);     // 不能改、不接受 null
+Map<String,Integer> m = Map.of("a", 1, "b", 2);
+\`\`\`
+
+加進去會丟 UnsupportedOperationException。當常數表用很方便。
+
+## 36.9 與 C++ STL 對比
+
+| 功能 | C++ | Java |
+|------|-----|------|
+| 動態陣列 | vector | ArrayList |
+| 雜湊表 | unordered_map | HashMap |
+| 紅黑樹 map | map | TreeMap |
+| 堆 | priority_queue | PriorityQueue |
+| 雙端 | deque | ArrayDeque |
+| 迭代 | iterator / range for | Iterator / for-each |
+
+語意幾乎一對一，名字不同而已。
+
+## 36.10 試試看
 `
 },
 88:{
@@ -26760,7 +27233,30 @@ T[] arr = new T[10];              // ❌ 不能 new 泛型陣列
 if (x instanceof List<String>)    // ❌ 不能 instanceof 泛型
 \`\`\`
 
-## 37.7 試試看
+## 37.7 多參數 + 限制條件
+
+\`\`\`java
+class Pair<K extends Comparable<K>, V> {
+    K key; V value;
+    int compareTo(Pair<K, V> o){ return key.compareTo(o.key); }
+}
+\`\`\`
+
+\`<K extends Comparable<K>>\` 強迫 K 可比較。
+
+## 37.8 與 C++ template 對比
+
+| | Java generics | C++ template |
+|---|---|---|
+| 編譯產出 | 一份 (擦除) | 每個型別一份 |
+| 執行期可看型別 | ❌ | ❌ (除非 RTTI) |
+| primitive 支援 | ❌（要包裝） | ✅ |
+| 編譯速度 | 快 | 慢 |
+| 錯誤訊息 | 普通 | 噩夢 |
+
+Java 不能 \`List<int>\` — 只能 \`List<Integer>\`，每個元素都裝箱（boxing）→ 慢且耗記憶體。APCS 用 \`int[]\` 直接陣列就好。
+
+## 37.9 試試看
 `
 },
 89:{
@@ -26840,7 +27336,35 @@ nums.parallelStream().filter(...).sum();
 
 幫你開多執行緒處理。注意：**資料要無共享狀態**，不然會壞。
 
-## 38.8 試試看
+## 38.8 Collectors 進階
+
+\`\`\`java
+// partitioningBy: 二分群
+Map<Boolean, List<Integer>> oddEven = nums.stream()
+    .collect(Collectors.partitioningBy(n -> n % 2 == 1));
+
+// toMap: 轉成 Map
+Map<String, Integer> lens = words.stream()
+    .collect(Collectors.toMap(w -> w, String::length));
+
+// summarizingInt: 一次得 count/sum/min/max/avg
+IntSummaryStatistics stat = nums.stream()
+    .collect(Collectors.summarizingInt(Integer::intValue));
+System.out.println(stat.getAverage());
+\`\`\`
+
+## 38.9 與 Python 對比
+
+| Python | Java |
+|--------|------|
+| \`[x*2 for x in xs if x>0]\` | \`xs.stream().filter(x->x>0).map(x->x*2).collect(toList())\` |
+| \`sum(xs)\` | \`xs.stream().mapToInt(...).sum()\` |
+| \`max(xs, key=f)\` | \`xs.stream().max(comparingInt(f::apply))\` |
+| \`{k: list(g) for k,g in groupby(xs, key)}\` | \`xs.stream().collect(groupingBy(key))\` |
+
+Python list comprehension 寫起來短；Java Stream 鏈式呼叫長但**冷編譯後跟手寫 for 一樣快**，且支援 \`.parallelStream()\` 自動分擔到多核。
+
+## 38.10 試試看
 `
 },
 90:{
@@ -26920,7 +27444,30 @@ Optional<User> result = findUser(id)
 
 ✅ 函式回傳值（明確說明「可能沒有」）
 
-## 39.7 試試看
+## 39.7 鏈式 Optional 範例
+
+\`\`\`java
+String city = Optional.ofNullable(user)
+    .map(User::getAddress)
+    .map(Address::getCity)
+    .map(String::toUpperCase)
+    .orElse("UNKNOWN");
+\`\`\`
+
+任何中間一環是 null → 結果就是 "UNKNOWN"，不會 NPE。等同 Kotlin 的 \`user?.address?.city?.uppercase() ?: "UNKNOWN"\`。
+
+## 39.8 Optional vs null vs Exception
+
+| 情境 | 建議 |
+|------|------|
+| 函式可能找不到結果 | \`Optional<T>\` |
+| 內部欄位暫未初始化 | null + 私有 |
+| 不應該發生的錯誤 | throw RuntimeException |
+| 預期錯誤（檔不存在） | checked exception |
+
+別用 Optional 當作所有 null 的萬靈丹 — 過度用會讓程式碼又長又亂。
+
+## 39.9 試試看
 `
 },
 91:{
@@ -27011,7 +27558,37 @@ Future<Integer> future = pool.submit(() -> {
 Integer result = future.get();   // 阻塞等結果
 \`\`\`
 
-## 40.7 試試看
+## 40.7 volatile 跟 Memory Model
+
+\`\`\`java
+volatile boolean stop = false;   // 別的 thread 改後立刻看得到
+\`\`\`
+
+沒 \`volatile\`，編譯器/CPU 可能把 \`while(!stop)\` 優化成讀一次後快取。\`volatile\` 強制每次都從主記憶體讀。
+
+> volatile 只保證**可見性**，不保證**原子性**！要原子操作用 AtomicInteger。
+
+## 40.8 ThreadLocal
+
+每個 thread 有自己的副本：
+
+\`\`\`java
+ThreadLocal<SimpleDateFormat> fmt = ThreadLocal.withInitial(
+    () -> new SimpleDateFormat("yyyy-MM-dd"));
+String s = fmt.get().format(new Date());
+\`\`\`
+
+SimpleDateFormat 不是 thread-safe → 用 ThreadLocal 每 thread 一份，避開共享問題。
+
+## 40.9 Virtual Threads（Java 21+）
+
+\`\`\`java
+Thread.startVirtualThread(() -> System.out.println("virtual"));
+\`\`\`
+
+百萬個 virtual thread 也沒事 — 對應 Go 的 goroutine。I/O 密集任務的 game changer。
+
+## 40.10 試試看
 `
 },
 92:{
@@ -27113,7 +27690,32 @@ new Thread(() -> { Integer x = q.take(); }).start();
 
 q 空時 \`take()\` 阻塞、滿時 \`put()\` 阻塞。
 
-## 41.8 試試看
+## 41.8 CompletableFuture — 鏈式非同步
+
+\`\`\`java
+CompletableFuture
+    .supplyAsync(() -> fetchUser(id))
+    .thenApply(User::getName)
+    .thenAccept(System.out::println)
+    .exceptionally(e -> { e.printStackTrace(); return null; });
+\`\`\`
+
+類似 JavaScript Promise — 不阻塞主執行緒。微服務、I/O 流水線常用。
+
+## 41.9 Concurrency 工具速查
+
+| 想做 | 用 |
+|------|-----|
+| 互斥 | synchronized / ReentrantLock |
+| 計數器 | AtomicInteger / LongAdder |
+| 等多個 thread | CountDownLatch / Phaser |
+| 限流 | Semaphore |
+| 生產者-消費者 | BlockingQueue |
+| 非同步結果 | Future / CompletableFuture |
+| Thread-safe Map | ConcurrentHashMap |
+| 共享布林 | AtomicBoolean / volatile |
+
+## 41.10 試試看
 `
 },
 93:{
@@ -27200,7 +27802,29 @@ JUnit 大致就是這樣運作 — 用 \`@Test\` 標方法、自動找出來執�
 
 > 業務邏輯**不要**用反射；框架層用得當才是好工具。
 
-## 42.7 試試看
+## 42.7 動態代理 Proxy
+
+\`\`\`java
+import java.lang.reflect.*;
+
+InvocationHandler h = (proxy, method, args) -> {
+    System.out.println("calling " + method.getName());
+    return null;
+};
+Runnable r = (Runnable) Proxy.newProxyInstance(
+    cl.getClassLoader(), new Class[]{Runnable.class}, h);
+r.run();   // 印 "calling run"
+\`\`\`
+
+Spring AOP、Mockito 都靠這個攔截方法呼叫。
+
+## 42.8 反射效能對策
+
+- **快取** \`Method\` 物件 — 不要每次 \`getMethod\`
+- 用 \`MethodHandle\`（Java 7+）— 比 reflection 快 5-10 倍
+- JIT 對重複呼叫的 reflection 會 inline，所以熱路徑也沒想像中慘
+
+## 42.9 試試看
 `
 },
 94:{
@@ -27284,7 +27908,33 @@ String s = new String("hello");   // 在 heap
 | 啟動速度 | 快 | 慢（JVM 暖機） |
 | 長時間執行 | 沒太多優化 | JIT 越跑越快 |
 
-## 43.8 試試看
+## 43.8 觀察 JVM 的工具
+
+| 工具 | 用途 |
+|------|------|
+| \`jps\` | 列出 JVM process |
+| \`jstack <pid>\` | dump thread stack（找死鎖） |
+| \`jmap -heap <pid>\` | heap 使用狀況 |
+| \`jhsdb jmap --histo --pid <pid>\` | 物件數量直方圖（找 leak） |
+| \`jfr\` (Java Flight Recorder) | low-overhead profiler |
+| VisualVM / JConsole | 圖形化監控 |
+| \`-verbose:gc\` | 每次 GC 印 log |
+
+## 43.9 OutOfMemoryError 排查 SOP
+
+1. \`-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./dump.hprof\` 抓 dump
+2. 用 **MAT** (Eclipse Memory Analyzer) 開 dump 找 retained heap 最大的物件
+3. 反推誰持有它（dominator tree）
+4. 修：解除引用、移到弱引用（WeakHashMap）、限制集合大小
+
+## 43.10 寫高效能 Java 的口訣
+
+- **少配置** — 物件 pool、StringBuilder 重用
+- **avoid boxing** — \`int\` 比 \`Integer\` 快 5×
+- **小函式** — 給 JIT inline 機會
+- **profile 再優化** — 不要憑感覺改
+
+## 43.11 試試看
 `
 }
 };
