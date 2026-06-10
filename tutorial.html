@@ -560,6 +560,52 @@ print(best)
 當然直接 \`max(nums)\` 更快，但理解迴圈邏輯很重要。
 
 ## 5.6 試試看
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 5.2 走訪 list / 字串（附拆包教學）
+
+
+**手動維護索引的方法：**
+\`\`\`python
+my_list = [10, 20, 30]
+i = 0
+for x in my_list:
+    print(i, x)
+    i = i + 1
+\`\`\`
+
+
+**使用 \`enumerate\`（更簡單）：**
+\`\`\`python
+for i, x in enumerate(my_list):
+    print(i, x)
+\`\`\`
+\`enumerate\` 會產生「配對」：第一個配對是 (0, 10)，第二個是 (1, 20)……  
+Python 允許直接把配對裡的兩個值分別放到 \`i\` 和 \`x\` 變數，這叫做**拆包 (unpacking)**。
+
+
+**你也可以先拿整個配對，再手動拆：**
+\`\`\`python
+for pair in enumerate(my_list):
+    i = pair[0]
+    x = pair[1]
+    print(i, x)
+\`\`\`
+
+
+## 🎯 range(開始, 結束, 步長) 的「結束」不會被包含
+
+
+\`\`\`python
+# range(3)  → 0, 1, 2   (沒有 3)
+# range(1, 5) → 1, 2, 3, 4 (沒有 5)
+\`\`\`
+**記憶技巧**：\`range(a, b)\` 會產生 a, a+1, ..., b-1，就像「不包含 b」。
+
 `,
 example:`# 印九九乘法表 (3-5)
 for i in range(3, 6):
@@ -615,6 +661,45 @@ print(abs(A - B))
 \`\`\`
 
 ## 6.5 試試看
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 6.2 切片 (slicing) － 從「迴圈反轉」到「切片魔法」
+
+
+**先用迴圈手動反轉：**
+\`\`\`python
+s = "ABCDE"
+reversed_str = ""
+for ch in s:
+    reversed_str = ch + reversed_str   # 把新的字母加到前面
+print(reversed_str)   # "EDCBA"
+\`\`\`
+
+
+**Python 切片 (slice) 寫法：**
+\`\`\`python
+s = "ABCDE"
+print(s[1:4])    # "BCD"  (索引 1 到 3)
+print(s[::2])    # "ACE"  (步長 2)
+print(s[::-1])   # "EDCBA" (步長 -1 → 從尾走到頭，反轉)
+\`\`\`
+切片的格式是 \`[起始:結束:步長]\`：
+- 起始沒寫 → 從頭開始
+- 結束沒寫 → 走到最後
+- 步長為正：往右走；步長為負：往左走
+
+
+> 🚫 **重要**：字串一旦建立就不能修改裡面的某個字元。  
+> \`\`\`python
+> s = "hello"
+> s[0] = "H"   # ❌ TypeError
+> \`\`\`
+> 要修改只能建立新字串：\`s = "H" + s[1:]\`
+
 `,
 example:`s = "Hello APCS Python"
 print("長度:", len(s))
@@ -674,6 +759,46 @@ print(min(passed) if passed else "worst case")
 > **技巧**：list comprehension \`[x for x in L if cond]\` 是 APCS 高頻寫法。
 
 ## 7.5 試試看
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 7.4 印出 list 內容的三種方法
+
+
+\`\`\`python
+scores = [30, 55, 60, 88]
+
+
+# 方法1：用迴圈印出，中間加空格
+for s in scores:
+    print(s, end=" ")
+print()   # 換行
+
+
+# 方法2：直接用 print(scores) → 會印出 [30, 55, 60, 88] 包含括號和逗號
+
+
+# 方法3：用 * 解包 (unpacking) － 把 list 裡的元素拆開當作獨立參數
+print(*scores)   # 等同於 print(30, 55, 60, 88)
+
+
+# 你也可以自己指定分隔符
+print(*scores, sep=", ")   # 30, 55, 60, 88
+\`\`\`
+
+
+## 📊 list 與字串的差異對照表
+
+
+| 特性 | 字串 (str) | 列表 (list) |
+|------|-----------|-------------|
+| 可以修改元素 | ❌ 不行 | ✅ 可以 |
+| 切片回傳 | 新字串 | 新列表 |
+| 常用方法 | \`split\`, \`replace\`, \`find\` | \`append\`, \`pop\`, \`sort\` |
+
 `,
 example:`nums = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3]
 print("原始:", nums)
@@ -741,6 +866,35 @@ for d in range(4):
 \`\`\`
 
 ## 8.6 試試看
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## ❌ 錯誤示範（千萬不要這樣寫）
+
+
+\`\`\`python
+grid = [[0]*3] * 2   # 看起來像是 2 列 3 行
+grid[0][0] = 1
+print(grid)  # 輸出 [[1, 0, 0], [1, 0, 0]]  ← 第二列也被改到了！
+\`\`\`
+
+
+**為什麼？**  
+\`[[0]*3]\` 產生一個 list，\`*2\` 只是複製了「同一個 list 的參考」。兩列實際上指向同一個記憶體位置。
+
+
+## ✅ 正確寫法
+
+
+\`\`\`python
+grid = [[0]*3 for _ in range(2)]  # 用 list comprehension 重新建立每一列
+grid[0][0] = 1
+print(grid)  # [[1, 0, 0], [0, 0, 0]]  ← 正確
+\`\`\`
+
 `,
 example:`# 印一個棋盤
 n = 5
@@ -813,6 +967,56 @@ print(fact(5))   # 120
 \`\`\`
 
 ## 9.7 試試看
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 9.5 APCS 案例：判斷質數（含數學解釋）
+
+
+\`\`\`python
+def is_prime(n):
+    if n < 2:
+        return False
+
+
+    # 只需要檢查到「平方根」就好，不用到 n-1
+    # 為什麼？因為如果 n = a * b，其中一個因數一定 ≤ √n
+    # 例如 36 = 6*6，檢查到 6 就夠了；36 = 4*9，4 ≤ 6
+    limit = int(n ** 0.5)   # 例如 n=37, √37 ≈ 6.08, int=6
+    # range(2, limit+1) 才會檢查 2,3,4,5,6
+    for i in range(2, limit + 1):
+        if n % i == 0:
+            return False
+    return True
+
+
+print(is_prime(37))   # True
+print(is_prime(36))   # False
+\`\`\`
+
+
+## 多個回傳值的拆包（tuple unpacking）
+
+
+\`\`\`python
+def min_max(lst):
+    return min(lst), max(lst)
+
+
+# 新手友善版
+result = min_max([3,1,4])
+small = result[0]   # 3
+large = result[1]   # 4
+
+
+# Pythonic 版（拆包）
+small, large = min_max([3,1,4])
+# 等號左邊的變數數量要跟右邊的 tuple 元素數量一致
+\`\`\`
+
 `,
 example:`def is_prime(n):
     if n < 2: return False
@@ -881,6 +1085,43 @@ print(best[1])
 \`\`\`
 
 ## 10.5 試試看
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 10.2 計數神器：從手動到 get 再到 Counter
+
+
+\`\`\`python
+s = "ABBCAAB"
+
+
+# ---------- 方法1：用手動判斷 key 是否存在 ----------
+cnt = {}
+for c in s:
+    if c in cnt:
+        cnt[c] = cnt[c] + 1
+    else:
+        cnt[c] = 1
+print(cnt)   # {'A': 3, 'B': 3, 'C': 1}
+
+
+# ---------- 方法2：用 dict.get() 更簡潔 ----------
+# dict.get(key, 預設值) 如果 key 不存在，回傳預設值
+cnt = {}
+for c in s:
+    cnt[c] = cnt.get(c, 0) + 1
+print(cnt)
+
+
+# ---------- 方法3：用 collections.Counter（最簡單）----------
+from collections import Counter
+cnt = Counter(s)
+print(cnt)   # Counter({'A':3, 'B':3, 'C':1})
+\`\`\`
+
 `,
 example:`from collections import Counter
 
@@ -984,6 +1225,99 @@ def kadane(a):
 **進階（高級題）**：把它擴成 **2D Kadane**（固定左右兩欄、把列壓成 1D 再跑 Kadane）→ 第 24 章後段會用到。
 
 ## 11.8 試試看
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 11.4 前綴和（從暴力到加速）
+
+
+\`\`\`python
+# 問題：經常需要問「陣列中從 L 到 R 的總和是多少？」
+a = [3, 1, 4, 1, 5, 9, 2, 6]
+
+
+# ---------- 方法1：每次直接加（慢，O(n) 每次查詢）----------
+def range_sum_slow(L, R):
+    total = 0
+    for i in range(L, R+1):
+        total += a[i]
+    return total
+print(range_sum_slow(2, 5))   # 4+1+5+9 = 19
+
+
+# ---------- 方法2：前綴和（預先計算，查詢 O(1)）----------
+# 前綴和陣列 ps[i] 表示 a[0] + a[1] + ... + a[i-1]
+ps = [0]  # ps[0] = 0
+for x in a:
+    ps.append(ps[-1] + x)
+# ps = [0, 3, 4, 8, 9, 14, 23, 25, 31]
+
+
+def range_sum_fast(L, R):
+    return ps[R+1] - ps[L]
+
+
+print(range_sum_fast(2, 5))   # 19
+\`\`\`
+
+
+## 11.7 Kadane — 最大連續子陣列和（完整推導）
+
+
+**問題**：找出一段連續的區間，讓總和最大。  
+例如 \`[-2, 1, -3, 4, -1, 2, 1, -5, 4]\` 的答案是 6（子陣列 \`[4,-1,2,1]\`）。
+
+
+**方法1：暴力枚舉 (O(n²))**
+\`\`\`python
+a = [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+n = len(a)
+best = a[0]
+for i in range(n):
+    total = 0
+    for j in range(i, n):
+        total += a[j]
+        if total > best:
+            best = total
+print("暴力法答案:", best)   # 6
+\`\`\`
+
+
+**方法2：Kadane 演算法 (O(n))**  
+關鍵想法：當你走到第 i 個數字時，你可以選擇  
+(1) 從這裡重新開始 (只取 a[i])  
+(2) 繼續接上前面的區塊 (前面區塊總和 + a[i])  
+取比較大的那個，就是「以 i 結尾的最佳子陣列和」。
+
+
+\`\`\`python
+cur = a[0]      # 以目前位置結尾的最大和
+best = a[0]     # 整體最大和
+for x in a[1:]:
+    cur = max(x, cur + x)   # 要嘛重啟，要嘛延續
+    best = max(best, cur)
+print("Kadane 答案:", best)   # 6
+\`\`\`
+
+
+**手動追蹤表（讓你完全看懂）**
+
+
+| i | a[i] | cur = max(a[i], 前cur+a[i]) | best |
+|---|------|-----------------------------|------|
+| 0 | -2   | -2                          | -2   |
+| 1 | 1    | max(1, -2+1= -1) = 1        | 1    |
+| 2 | -3   | max(-3, 1-3= -2) = -2       | 1    |
+| 3 | 4    | max(4, -2+4=2) = 4          | 4    |
+| 4 | -1   | max(-1, 4-1=3) = 3          | 4    |
+| 5 | 2    | max(2, 3+2=5) = 5           | 5    |
+| 6 | 1    | max(1, 5+1=6) = 6           | 6    |
+| 7 | -5   | max(-5, 6-5=1) = 1          | 6    |
+| 8 | 4    | max(4, 1+4=5) = 5           | 6    |
+
 `,
 example:`# 前綴和應用：找子陣列總和 = K 的個數
 a = [1, 2, 3, 4, 5, 2, 1, 3]
@@ -1044,6 +1378,45 @@ for i in range(n):
 O(n³)，只能用在 n ≤ 200 左右。
 
 ## 13.5 試試看
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 12.2 走訪 2D 的追蹤表範例
+
+
+將一個 3x4 的矩陣轉置成 4x3：
+
+
+\`\`\`python
+matrix = [
+    [1, 2, 3, 4],
+    [5, 6, 7, 8],
+    [9, 10, 11, 12]
+]
+
+
+transpose = []
+for j in range(4):          # 外層迴圈跑 0~3（原矩陣的欄）
+    new_row = []
+    for i in range(3):      # 內層迴圈跑 0~2（原矩陣的列）
+        new_row.append(matrix[i][j])
+    transpose.append(new_row)
+\`\`\`
+
+
+**手動追蹤表：**
+
+
+| j | 內層 i 取值 | new_row 內容 | transpose 累積 |
+|---|------------|--------------|----------------|
+| 0 | 0,1,2      | [1,5,9]      | [[1,5,9]] |
+| 1 | 0,1,2      | [2,6,10]     | [[1,5,9], [2,6,10]] |
+| 2 | 0,1,2      | [3,7,11]     | ... |
+| 3 | 0,1,2      | [4,8,12]     | ... |
+
 `,
 example:`# 印帕斯卡三角形
 n = 7
@@ -1101,6 +1474,48 @@ g = [list(map(int, input().split())) for _ in range(n)]
 \`\`\`
 
 ## 14.8 試試看
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 13.1 基本形式：從迴圈到 comprehension
+
+
+**目標：產生 0~9 的平方列表**
+
+
+\`\`\`python
+# 方法1：用迴圈
+squares = []
+for x in range(10):
+    squares.append(x * x)
+
+
+# 方法2：用 list comprehension（讀作：「x 的平方 for x in range(10)」）
+squares = [x * x for x in range(10)]
+\`\`\`
+
+
+## 13.2 加條件過濾：只留偶數的平方
+
+
+\`\`\`python
+# 方法1：迴圈
+evens_sq = []
+for x in range(10):
+    if x % 2 == 0:
+        evens_sq.append(x * x)
+
+
+# 方法2：comprehension（讀作：「x 的平方 for x in range(10) if x 是偶數」）
+evens_sq = [x * x for x in range(10) if x % 2 == 0]
+\`\`\`
+
+
+**語法順序：** \`[表達式 for 變數 in 可迭代物件 if 條件]\`
+
 `,
 example:`# 找九九乘法表中是質數的位置
 def is_prime(n):
@@ -1162,6 +1577,41 @@ for i, (name, score) in enumerate(data, 1):
 - \`sorted(a)\`：回傳新 list，不動原本的
 
 ## 15.6 試試看
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 15.2 lambda 速成（從一般函式到匿名函式）
+
+
+**問題：依字串長度排序**
+
+
+\`\`\`python
+words = ["apple", "kiwi", "banana"]
+
+
+# ---------- 方法1：定義一個函式傳給 key ----------
+def my_len(word):
+    return len(word)
+
+
+words.sort(key=my_len)
+print(words)   # ['kiwi', 'apple', 'banana']
+
+
+# ---------- 方法2：用 lambda 匿名函式（省去另外定義）----------
+words.sort(key=lambda word: len(word))
+# lambda 參數: 回傳值
+
+
+# 更常見的例子：依分數高低排序學生，分數相同依名字
+students = [("Alice", 90), ("Bob", 85), ("Cara", 90)]
+students.sort(key=lambda s: (-s[1], s[0]))  # 負號表示降冪
+\`\`\`
+
 `,
 example:`students = [
     ("Alice", 85, 17),
@@ -1234,6 +1684,32 @@ perms([1,2,3], [])
 \`\`\`
 
 ## 16.7 試試看
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 16.1 用縮排視覺化遞迴呼叫過程
+
+
+\`\`\`python
+def recite(n, depth=0):
+    print("  " * depth + f"進入 recite({n})")
+    if n <= 0:
+        print("  " * depth + f"  base case, 回傳 1")
+        return 1
+    result = n * recite(n-1, depth+1)
+    print("  " * depth + f"離開 recite({n}), 回傳 {result}")
+    return result
+
+
+recite(3)
+\`\`\`
+
+
+輸出會清楚看到每次呼叫的深度與返回順序。
+
 `,
 example:`# 8 皇后計數
 def queens(n):
@@ -1310,6 +1786,40 @@ print(x, y)
 \`\`\`
 
 ## 17.7 試試看
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 17.4 位元枚舉子集合（白話版）
+
+
+\`\`\`python
+# 假設有 3 個物品：A, B, C
+# 用 mask 的二進位表示「選哪些東西」：1 表示選，0 表示不選
+
+
+for mask in range(1 << 3):   # 1<<3 = 8，mask 從 0 到 7
+    items = []
+    if mask & 1:   # 檢查最低位（代表 A）
+        items.append("A")
+    if mask & 2:   # 檢查第二位（代表 B）
+        items.append("B")
+    if mask & 4:   # 檢查第三位（代表 C）
+        items.append("C")
+    print(f"{mask:3} ({mask:03b}) → {items}")
+# 輸出：
+#   0 (000) → []
+#   1 (001) → ['A']
+#   2 (010) → ['B']
+#   3 (011) → ['A', 'B']
+#   4 (100) → ['C']
+#   5 (101) → ['A', 'C']
+#   6 (110) → ['B', 'C']
+#   7 (111) → ['A', 'B', 'C']
+\`\`\`
+
 `,
 example:`# 枚舉所有子集合並算和
 nums = [3, 1, 4, 1, 5]
@@ -1391,6 +1901,28 @@ def bfs(start, grid):
 \`\`\`
 
 ## 18.6 試試看
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 為什麼 BFS 要用 deque？
+
+
+BFS 需要「從左邊拿元素（popleft）」，如果使用 list 的 \`pop(0)\`，每次會 O(n) 時間，非常慢。  
+\`deque\`（雙端佇列）設計成兩端操作都 O(1)。
+
+
+\`\`\`python
+from collections import deque
+
+
+queue = deque([1, 2, 3])
+queue.append(4)      # 右邊加
+queue.popleft()      # 左邊拿 → 2,3,4
+\`\`\`
+
 `,
 example:`# 用 heap 找前 3 大
 import heapq
@@ -1456,6 +1988,37 @@ print(g)
 3. **讀錯誤訊息**：行號通常準確
 
 ## 19.8 試試看：找 bug
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 📖 如何閱讀 Python 的錯誤訊息
+
+
+當你的程式崩潰時，會出現類似這樣的紅色文字：
+
+
+\`\`\`
+Traceback (most recent call last):
+  File "mycode.py", line 5, in <module>
+    print(1/0)
+ZeroDivisionError: division by zero
+\`\`\`
+
+
+**重點解讀：**
+- 最後一行：**錯誤類型**（ZeroDivisionError）和 **簡短說明**（division by zero）
+- 往上找 \`File "..."\` → 告訴你是哪個檔案的哪一行出錯（line 5）
+- 再上一行是那一行的程式碼內容
+
+
+> 🎯 **SOP**：
+> 1. 先看最後一行，知道錯在哪種類型。
+> 2. 看最上面的 \`File\` 行，找到檔案與行號。
+> 3. 修正那一行程式碼。
+
 `,
 example:`# 這支程式想算 1+2+3+...+n 但有 bug
 # 試著修正
@@ -1530,6 +2093,31 @@ print(min(passed) if passed else "worst case")
 | 18-20 分 | 測邊界值（n=1、全相同） |
 
 ## 20.3 試試看：完整流程
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 🧠 解題標準流程（填空練習）
+
+
+1. **題目要我輸出什麼？**  
+   → _________________________________
+
+
+2. **輸入資料的大小（n 範圍）？**  
+   → _________________________________
+
+
+3. **如果 n 很大，不能用哪種寫法？**  
+   → _________________________________
+
+
+4. **手算一個小範例（例如 n=3）：**  
+   輸入：_______  
+   預期輸出：_______
+
 `,
 example:`# 試做：找最大連續子陣列和 (Kadane 演算法)
 # 輸入: 9 個整數 -2 1 -3 4 -1 2 1 -5 4
@@ -1623,6 +2211,22 @@ print(f"{x:.2f}")
 | 二分搜尋 | O(log n) | n ≤ 10⁹ |
 
 ## 12.6 試試看：綜合練習
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## ⏱️ 複雜度的生活比喻
+
+
+| 複雜度 | 比喻 |
+|--------|------|
+| O(1) | 直接從書架上拿第 3 本書 |
+| O(n) | 從第一本看到最後一本，找一本書 |
+| O(n²) | 兩兩比較所有書（例如找出相同書名的對） |
+| O(log n) | 在字典裡用二分法找一個字，每次砍一半 |
+
 `,
 example:`# APCS 題型總演練：成績指標
 # 輸入: 10 / 0 11 22 33 55 66 77 99 88 44
@@ -1696,6 +2300,21 @@ def dfs(u, par):
 
 - **遞迴深度**：Python 預設 1000，深樹要 \`sys.setrecursionlimit(10**6)\`
 - **不要重訪父節點**：用 \`par\` 參數擋住
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 🌳 生活中哪裡有樹？
+
+
+- **電腦的資料夾**：一個資料夾裡有檔案和子資料夾，子資料夾裡又有檔案… → 就是樹結構。
+- **公司職位**：CEO → 部門主管 → 員工 → 也是樹。
+
+
+樹的每個節點可以有很多個「孩子」，但不會有環（不會 A 是 B 的上司同時 B 也是 A 的上司）。
+
 `,example:`
 # 子樹大小範例
 import sys
@@ -1784,6 +2403,21 @@ for d in range(4):
     if 0<=ni<R and 0<=nj<C and grid[ni][nj]=='.':
         ...
 \`\`\`
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 樹 vs 圖 對照表
+
+
+| 特性 | 樹 (Tree) | 圖 (Graph) |
+|------|-----------|-------------|
+| 有沒有環 | 沒有 | 可能有 |
+| 連通性 | 一定連通 | 可能不連通 |
+| 走訪時注意 | 小心不要往回走（用 parent 參數） | 一定要記錄 visited |
+
 `,example:`
 # 連通分量數
 n, m = 6, 4
@@ -1869,6 +2503,35 @@ while q:
 | 非負權最短路 | Dijkstra | O((n+m)log n) |
 | 有負權 | Bellman-Ford | O(nm) |
 | 全點對 | Floyd-Warshall | O(n³) |
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 無權圖的最短路：用 BFS（先學這個）
+
+
+\`\`\`python
+from collections import deque
+
+
+def bfs_shortest(graph, start, target):
+    dist = {start: 0}
+    q = deque([start])
+    while q:
+        u = q.popleft()
+        if u == target: return dist[u]
+        for v in graph[u]:
+            if v not in dist:
+                dist[v] = dist[u] + 1
+                q.append(v)
+    return -1
+\`\`\`
+
+
+**當邊有權重（不同距離）時，BFS 就不適用了，要用 Dijkstra。**
+
 `,example:`
 # Dijkstra 範例
 import heapq
@@ -2027,6 +2690,45 @@ print(matrix_chain([30, 35, 15, 5, 10, 20, 25]))     # 15125
 \`\`\`
 
 **所有區間 DP 的共同骨架**：**外層 by length、內層 by left、最內層 by split point**。看到「合併相鄰、求最佳代價」就想到它。
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 以費氏數列為例：從遞迴到 DP
+
+
+\`\`\`python
+# 問題：第 n 個費氏數
+
+
+# ---------- 方法1：純遞迴（慢，O(2^n)）----------
+def fib_rec(n):
+    if n <= 1: return n
+    return fib_rec(n-1) + fib_rec(n-2)
+
+
+# ---------- 方法2：遞迴 + 記憶化（memoization）----------
+memo = {}
+def fib_memo(n):
+    if n in memo: return memo[n]
+    if n <= 1: return n
+    memo[n] = fib_memo(n-1) + fib_memo(n-2)
+    return memo[n]
+
+
+# ---------- 方法3：DP（迭代，從小到大，O(n)）----------
+def fib_dp(n):
+    if n <= 1: return n
+    dp = [0] * (n+1)
+    dp[1] = 1
+    for i in range(2, n+1):
+        dp[i] = dp[i-1] + dp[i-2]
+    return dp[n]
+# 這就是「動態規劃」的精髓：先算小問題，再用小問題答案組出大問題。
+\`\`\`
+
 `,example:`
 # 0/1 背包範例
 weights = [2, 3, 4, 5]
@@ -2099,6 +2801,31 @@ def union(x, y):
 - Kruskal 最小生成樹
 - 動態加邊判斷連通
 - 「最早什麼時候 a, b 連通」這種離線題
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 👥 生活例子：朋友圈
+
+
+假設有 5 個人：A、B、C、D、E。  
+告訴你：  
+- A 和 B 是朋友  
+- B 和 C 是朋友  
+- D 和 E 是朋友  
+
+
+問：A 和 C 是不是朋友？（是，因為 A-B-C 連在一起）  
+A 和 D 是不是朋友？（不是）  
+
+
+這個問題要怎麼寫程式？  
+- 可以用「集合」記錄每個人屬於哪個群組  
+- 每次合併兩個群組（朋友的朋友）  
+- **並查集就是專門做這件事的資料結構**。
+
 `,example:`
 # Union-Find 算連通分量
 n = 6
@@ -2192,6 +2919,22 @@ def starts_with(prefix):
 | 找出 p 在 t 出現的所有位置 | KMP |
 | 自動補完、字典查詢 | Trie |
 | 最長公共前綴 | Trie 或 hash |
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 🔢 字串 hash 的白話文
+
+
+我們想把字串變成一個數字，這樣比較兩個字串時只要比較數字（很快）。  
+但不同字串可能算出相同數字嗎？有可能（碰撞），所以我們用很大的質數當 MOD 來減少碰撞。
+
+
+例如：「abc」→ (97*131^2 + 98*131^1 + 99) mod 大數。  
+只要 MOD 夠大，碰撞機率極低。
+
 `,example:`
 # Trie 範例
 trie = {}
@@ -2273,6 +3016,28 @@ print(loaded["scores"])
 \`\`\`
 
 > 💡 **本章練習用 stdin/stdout 模擬**（瀏覽器沙箱不能寫真正檔案）。回到本機再用 \`open()\`。
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 為什麼要用 \`with\` 語句？
+
+
+\`\`\`python
+# 一般寫法（容易忘記關檔）
+f = open("data.txt")
+data = f.read()
+f.close()   # 如果忘記，可能佔用資源
+
+
+# with 寫法（離開縮排自動關閉，即使發生錯誤也會關）
+with open("data.txt") as f:
+    data = f.read()
+# 離開 with 區塊後，檔案已自動關閉
+\`\`\`
+
 `,example:`
 # 模擬「讀檔內容、算平均」
 # 把 stdin 當成檔案內容
@@ -2357,6 +3122,31 @@ python -m venv .venv
 source .venv/bin/activate    # mac/linux
 .venv\\\\Scripts\\\\activate     # windows
 \`\`\`
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## \`if __name__ == "__main__"\` 的作用
+
+
+\`\`\`python
+# tool.py
+def add(a, b):
+    return a + b
+
+
+def main():
+    print(add(3, 5))
+
+
+if __name__ == "__main__":
+    # 只有「直接執行 python tool.py」時才會跑 main()
+    # 如果是被別人 import，就不會自動執行
+    main()
+\`\`\`
+
 `,example:`
 # 用 math 模組
 import math
@@ -2442,6 +3232,55 @@ print(p)    # Point(4, 6)
 - 只有兩三個函式 → 別 class，浪費精力
 - 純算法解題 → 也別 class
 - 資料 + 行為的組合多次出現 → 開始考慮 class
+
+
+---
+
+## 📝 補充說明（改進版）
+
+## 29.1 為什麼要用 class？從 dict 到 class 的重構
+
+
+**問題：要記錄多個學生的姓名、分數、及格判斷**
+
+
+**方法1：用 dict（簡單但有缺點）**
+\`\`\`python
+alice = {"name": "Alice", "score": 85}
+bob   = {"name": "Bob",   "score": 60}
+
+
+def is_pass(student):
+    return student["score"] >= 60
+
+
+print(is_pass(alice))  # True
+\`\`\`
+缺點：每次都要寫 \`student["name"]\`，而且新增欄位容易打錯字。
+
+
+**方法2：用 class（把資料和相關方法包在一起）**
+\`\`\`python
+class Student:
+    def __init__(self, name, score):
+        # __init__ 是建立物件時自動執行的初始化函式
+        # self 代表「這個物件自己」
+        self.name = name
+        self.score = score
+
+
+    def is_pass(self):
+        return self.score >= 60
+
+
+alice = Student("Alice", 85)
+bob   = Student("Bob", 60)
+
+
+print(alice.is_pass())   # True
+print(alice.name)        # 直接存取屬性
+\`\`\`
+
 `,example:`
 # Student class 範例
 class Student:
@@ -8782,6 +9621,52 @@ Of course \`max(nums)\` is faster, but understanding the loop logic is important
 
 
 ## 5.6 Try It
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## 5.2 Iterating with index (unpacking explained)
+
+
+**Manual index tracking:**
+\`\`\`python
+my_list = [10, 20, 30]
+i = 0
+for x in my_list:
+    print(i, x)
+    i = i + 1
+\`\`\`
+
+
+**Using \`enumerate\` (simpler):**
+\`\`\`python
+for i, x in enumerate(my_list):
+    print(i, x)
+\`\`\`
+\`enumerate\` produces pairs: first pair is (0, 10), second (1, 20), etc.  
+Python allows putting the two values directly into \`i\` and \`x\` – this is called **unpacking**.
+
+
+**You can also get the whole pair first:**
+\`\`\`python
+for pair in enumerate(my_list):
+    i = pair[0]
+    x = pair[1]
+    print(i, x)
+\`\`\`
+
+
+## 🎯 The \`stop\` value in \`range(start, stop)\` is **excluded**
+
+
+\`\`\`python
+# range(3)  → 0, 1, 2   (no 3)
+# range(1, 5) → 1, 2, 3, 4 (no 5)
+\`\`\`
+**Memory trick**: \`range(a, b)\` produces a, a+1, ..., b-1 – it stops **before** b.
+
 `,
 example:`# Print multiplication table (3-5)
 for i in range(3, 6):
@@ -8846,6 +9731,45 @@ print(abs(A - B))
 
 
 ## 6.5 Try It
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## 6.2 Slicing – from manual reversal to slice magic
+
+
+**Manual reversal with a loop:**
+\`\`\`python
+s = "ABCDE"
+reversed_str = ""
+for ch in s:
+    reversed_str = ch + reversed_str   # prepend each character
+print(reversed_str)   # "EDCBA"
+\`\`\`
+
+
+**Python slice notation:**
+\`\`\`python
+s = "ABCDE"
+print(s[1:4])    # "BCD"  (indices 1 to 3)
+print(s[::2])    # "ACE"  (step 2)
+print(s[::-1])   # "EDCBA" (step -1 → go backwards, reverse)
+\`\`\`
+Slice format: \`[start:stop:step]\`
+- start omitted → from beginning
+- stop omitted → until the end
+- step positive → move right; negative → move left
+
+
+> 🚫 **Important**: strings are **immutable** – you cannot change a character in place.  
+> \`\`\`python
+> s = "hello"
+> s[0] = "H"   # ❌ TypeError
+> \`\`\`
+> To modify, you must create a new string: \`s = "H" + s[1:]\`.
+
 `,
 example:`s = "Hello APCS Python"
 print("Length:", len(s))
@@ -8916,6 +9840,46 @@ print(min(passed) if passed else "worst case")
 
 
 ## 7.5 Try It
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## 7.4 Three ways to print a list
+
+
+\`\`\`python
+scores = [30, 55, 60, 88]
+
+
+# Method 1: loop, add spaces manually
+for s in scores:
+    print(s, end=" ")
+print()   # newline
+
+
+# Method 2: print(scores) gives [30, 55, 60, 88] with brackets and commas
+
+
+# Method 3: use * unpacking – splits the list into separate arguments
+print(*scores)   # same as print(30, 55, 60, 88)
+
+
+# You can also set a custom separator
+print(*scores, sep=", ")   # 30, 55, 60, 88
+\`\`\`
+
+
+## 📊 Comparison: string vs list
+
+
+| Feature | string (str) | list |
+|---------|--------------|------|
+| Can modify elements? | ❌ No | ✅ Yes |
+| Slice returns | new string | new list |
+| Common methods | \`split\`, \`replace\`, \`find\` | \`append\`, \`pop\`, \`sort\` |
+
 `,
 example:`nums = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3]
 print("Original:", nums)
@@ -8994,6 +9958,35 @@ for d in range(4):
 
 
 ## 8.6 Try It
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## ❌ Wrong way (never do this)
+
+
+\`\`\`python
+grid = [[0]*3] * 2   # appears to be 2 rows, 3 columns
+grid[0][0] = 1
+print(grid)  # prints [[1, 0, 0], [1, 0, 0]]  ← second row also changed!
+\`\`\`
+
+
+**Why?**  
+\`[[0]*3]\` creates one list; \`*2\` duplicates the **reference** to that same list. Both rows point to the same memory location.
+
+
+## ✅ Correct way
+
+
+\`\`\`python
+grid = [[0]*3 for _ in range(2)]  # list comprehension creates independent rows
+grid[0][0] = 1
+print(grid)  # [[1, 0, 0], [0, 0, 0]]  ← correct
+\`\`\`
+
 `,
 example:`# Print a chessboard pattern
 n = 5
@@ -9081,6 +10074,56 @@ print(fact(5))   # 120
 
 
 ## 9.7 Try It
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## 9.5 APCS Example: Prime check (with math explanation)
+
+
+\`\`\`python
+def is_prime(n):
+    if n < 2:
+        return False
+
+
+    # We only need to check up to the square root of n.
+    # Why? If n = a * b, one factor is always ≤ √n.
+    # Example: 36 = 6*6, check up to 6; 36 = 4*9, 4 ≤ 6.
+    limit = int(n ** 0.5)   # e.g. n=37, √37≈6.08, int=6
+    # range(2, limit+1) includes 2,3,4,5,6
+    for i in range(2, limit + 1):
+        if n % i == 0:
+            return False
+    return True
+
+
+print(is_prime(37))   # True
+print(is_prime(36))   # False
+\`\`\`
+
+
+## Multiple return values and unpacking
+
+
+\`\`\`python
+def min_max(lst):
+    return min(lst), max(lst)
+
+
+# Beginner friendly
+result = min_max([3,1,4])
+small = result[0]   # 3
+large = result[1]   # 4
+
+
+# Pythonic unpacking
+small, large = min_max([3,1,4])
+# Number of variables on the left must match the number of returned values
+\`\`\`
+
 `,
 example:`def is_prime(n):
     if n < 2: return False
@@ -9159,6 +10202,43 @@ print(best[1])
 
 
 ## 10.5 Try It
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## 10.2 Counting: from manual to \`get\` to \`Counter\`
+
+
+\`\`\`python
+s = "ABBCAAB"
+
+
+# ---------- Method 1: manual key existence check ----------
+cnt = {}
+for c in s:
+    if c in cnt:
+        cnt[c] = cnt[c] + 1
+    else:
+        cnt[c] = 1
+print(cnt)   # {'A': 3, 'B': 3, 'C': 1}
+
+
+# ---------- Method 2: using dict.get() for conciseness ----------
+# dict.get(key, default) returns default if key does not exist
+cnt = {}
+for c in s:
+    cnt[c] = cnt.get(c, 0) + 1
+print(cnt)
+
+
+# ---------- Method 3: collections.Counter (easiest) ----------
+from collections import Counter
+cnt = Counter(s)
+print(cnt)   # Counter({'A':3, 'B':3, 'C':1})
+\`\`\`
+
 `,
 example:`from collections import Counter
 
@@ -9281,6 +10361,99 @@ def kadane(a):
 
 
 ## 11.8 Try It
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## 11.4 Prefix Sum (from brute force to fast)
+
+
+\`\`\`python
+# Problem: often need the sum of a subarray from L to R
+a = [3, 1, 4, 1, 5, 9, 2, 6]
+
+
+# ---------- Method 1: compute each time (slow, O(n) per query) ----------
+def range_sum_slow(L, R):
+    total = 0
+    for i in range(L, R+1):
+        total += a[i]
+    return total
+print(range_sum_slow(2, 5))   # 4+1+5+9 = 19
+
+
+# ---------- Method 2: prefix sum (precompute, O(1) per query) ----------
+# ps[i] = sum of a[0] + a[1] + ... + a[i-1]
+ps = [0]  # ps[0] = 0
+for x in a:
+    ps.append(ps[-1] + x)
+# ps = [0, 3, 4, 8, 9, 14, 23, 25, 31]
+
+
+def range_sum_fast(L, R):
+    return ps[R+1] - ps[L]
+
+
+print(range_sum_fast(2, 5))   # 19
+\`\`\`
+
+
+## 11.7 Kadane – Maximum Subarray Sum (full derivation)
+
+
+**Problem**: Find a contiguous subarray with the largest sum.  
+Example: \`[-2, 1, -3, 4, -1, 2, 1, -5, 4]\` → answer 6 (subarray \`[4,-1,2,1]\`).
+
+
+**Method 1: Brute force (O(n²))**
+\`\`\`python
+a = [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+n = len(a)
+best = a[0]
+for i in range(n):
+    total = 0
+    for j in range(i, n):
+        total += a[j]
+        if total > best:
+            best = total
+print("Brute force answer:", best)   # 6
+\`\`\`
+
+
+**Method 2: Kadane’s algorithm (O(n))**  
+Key insight: at each position i, you can either:
+- start a new subarray at i (take only a[i])
+- extend the previous subarray (previous max + a[i])  
+Take the larger one – that is the maximum subarray sum ending at i.
+
+
+\`\`\`python
+cur = a[0]      # maximum sum ending at current position
+best = a[0]     # overall best seen
+for x in a[1:]:
+    cur = max(x, cur + x)   # either restart or extend
+    best = max(best, cur)
+print("Kadane answer:", best)   # 6
+\`\`\`
+
+
+**Manual trace table**
+
+
+| i | a[i] | cur = max(a[i], prev_cur + a[i]) | best |
+|---|------|----------------------------------|------|
+| 0 | -2   | -2                               | -2   |
+| 1 | 1    | max(1, -2+1= -1) = 1             | 1    |
+| 2 | -3   | max(-3, 1-3= -2) = -2            | 1    |
+| 3 | 4    | max(4, -2+4=2) = 4               | 4    |
+| 4 | -1   | max(-1, 4-1=3) = 3               | 4    |
+| 5 | 2    | max(2, 3+2=5) = 5                | 5    |
+| 6 | 1    | max(1, 5+1=6) = 6                | 6    |
+| 7 | -5   | max(-5, 6-5=1) = 1               | 6    |
+| 8 | 4    | max(4, 1+4=5) = 5                | 6    |
+
 `,
 example:`# Prefix sum application: count number of subarrays with sum = K
 a = [1, 2, 3, 4, 5, 2, 1, 3]
@@ -9350,6 +10523,45 @@ O(n³), only for n ≤ 200.
 
 
 ## 12.5 Try It
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## 12.2 Trace table example: transpose a matrix
+
+
+Transpose a 3x4 matrix to 4x3:
+
+
+\`\`\`python
+matrix = [
+    [1, 2, 3, 4],
+    [5, 6, 7, 8],
+    [9, 10, 11, 12]
+]
+
+
+transpose = []
+for j in range(4):          # outer loop over columns of original
+    new_row = []
+    for i in range(3):      # inner loop over rows of original
+        new_row.append(matrix[i][j])
+    transpose.append(new_row)
+\`\`\`
+
+
+**Manual trace:**
+
+
+| j | inner i values | new_row content | transpose after |
+|---|----------------|----------------|-----------------|
+| 0 | 0,1,2          | [1,5,9]        | [[1,5,9]] |
+| 1 | 0,1,2          | [2,6,10]       | [[1,5,9], [2,6,10]] |
+| 2 | 0,1,2          | [3,7,11]       | ... |
+| 3 | 0,1,2          | [4,8,12]       | ... |
+
 `,
 example:`# Print Pascal's triangle
 n = 7
@@ -9418,6 +10630,48 @@ g = [list(map(int, input().split())) for _ in range(n)]
 
 
 ## 13.8 Try It
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## 13.1 Basic form: from loop to comprehension
+
+
+**Goal: produce squares of 0..9**
+
+
+\`\`\`python
+# Method 1: loop
+squares = []
+for x in range(10):
+    squares.append(x * x)
+
+
+# Method 2: list comprehension (read: "x*x for x in range(10)")
+squares = [x * x for x in range(10)]
+\`\`\`
+
+
+## 13.2 With condition: keep only even squares
+
+
+\`\`\`python
+# Method 1: loop
+evens_sq = []
+for x in range(10):
+    if x % 2 == 0:
+        evens_sq.append(x * x)
+
+
+# Method 2: comprehension (read: "x*x for x in range(10) if x is even")
+evens_sq = [x * x for x in range(10) if x % 2 == 0]
+\`\`\`
+
+
+**Syntax order:** \`[expression for variable in iterable if condition]\`
+
 `,
 example:`# Find positions in the multiplication table where the product is prime
 def is_prime(n):
@@ -9491,6 +10745,41 @@ for i, (name, score) in enumerate(data, 1):
 
 
 ## 14.6 Try It
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## 15.2 lambda – from normal function to anonymous function
+
+
+**Problem: sort words by their length**
+
+
+\`\`\`python
+words = ["apple", "kiwi", "banana"]
+
+
+# ---------- Method 1: define a normal function ----------
+def my_len(word):
+    return len(word)
+
+
+words.sort(key=my_len)
+print(words)   # ['kiwi', 'apple', 'banana']
+
+
+# ---------- Method 2: lambda (no separate function definition) ----------
+words.sort(key=lambda word: len(word))
+# lambda parameters: return_value
+
+
+# Common example: sort students by score descending, then name ascending
+students = [("Alice", 90), ("Bob", 85), ("Cara", 90)]
+students.sort(key=lambda s: (-s[1], s[0]))  # minus sign for descending
+\`\`\`
+
 `,
 example:`students = [
     ("Alice", 85, 17),
@@ -9576,6 +10865,32 @@ perms([1,2,3], [])
 
 
 ## 15.7 Try It
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## 16.1 Visualising recursion with indentation
+
+
+\`\`\`python
+def recite(n, depth=0):
+    print("  " * depth + f"enter recite({n})")
+    if n <= 0:
+        print("  " * depth + f"  base case, return 1")
+        return 1
+    result = n * recite(n-1, depth+1)
+    print("  " * depth + f"exit recite({n}), return {result}")
+    return result
+
+
+recite(3)
+\`\`\`
+
+
+The output clearly shows the depth of each call and the return order.
+
 `,
 example:`# 8 Queens count
 def queens(n):
@@ -9664,6 +10979,40 @@ print(x, y)
 
 
 ## 16.7 Try It
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## 17.4 Bitmask enumeration of subsets (plain English)
+
+
+\`\`\`python
+# Assume 3 items: A, B, C
+# The binary representation of mask indicates which items are selected: 1 = select, 0 = not
+
+
+for mask in range(1 << 3):   # 1<<3 = 8, mask from 0 to 7
+    items = []
+    if mask & 1:   # check lowest bit (represents A)
+        items.append("A")
+    if mask & 2:   # check second bit (represents B)
+        items.append("B")
+    if mask & 4:   # check third bit (represents C)
+        items.append("C")
+    print(f"{mask:3} ({mask:03b}) → {items}")
+# Output:
+#   0 (000) → []
+#   1 (001) → ['A']
+#   2 (010) → ['B']
+#   3 (011) → ['A', 'B']
+#   4 (100) → ['C']
+#   5 (101) → ['A', 'C']
+#   6 (110) → ['B', 'C']
+#   7 (111) → ['A', 'B', 'C']
+\`\`\`
+
 `,
 example:`# Enumerate all subsets and compute sums
 nums = [3, 1, 4, 1, 5]
@@ -9759,6 +11108,28 @@ def bfs(start, grid):
 
 
 ## 17.6 Try It
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## Why BFS uses \`deque\`
+
+
+BFS needs to **pop from the left** (\`popleft\`). Using \`list.pop(0)\` is O(n) (slow).  
+\`deque\` (double‑ended queue) is designed for O(1) operations at both ends.
+
+
+\`\`\`python
+from collections import deque
+
+
+queue = deque([1, 2, 3])
+queue.append(4)      # add to right
+queue.popleft()      # remove from left → now 2,3,4
+\`\`\`
+
 `,
 example:`# Find top 3 largest using heap
 import heapq
@@ -9835,6 +11206,37 @@ print(g)
 
 
 ## 18.8 Try It: Find the Bug
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## 📖 How to read Python error messages
+
+
+When your program crashes, you see red text like:
+
+
+\`\`\`
+Traceback (most recent call last):
+  File "mycode.py", line 5, in <module>
+    print(1/0)
+ZeroDivisionError: division by zero
+\`\`\`
+
+
+**What to look for:**
+- Last line: **error type** (ZeroDivisionError) and **brief description** (division by zero)
+- Go up to \`File "..."\` → tells you which file and line number (line 5)
+- The line above that shows the actual code at that line
+
+
+> 🎯 **SOP**:
+> 1. Look at the last line – what kind of error?
+> 2. Find the first \`File\` line to locate the file and line number.
+> 3. Fix that line of code.
+
 `,
 example:`# This program wants to compute 1+2+3+...+n but has a bug
 # Try to fix it
@@ -9925,6 +11327,31 @@ print(min(passed) if passed else "worst case")
 
 
 ## 19.3 Try It: Full Workflow
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## 🧠 Standard problem‑solving workflow (fill‑in practice)
+
+
+1. **What does the problem ask me to output?**  
+   → _________________________________
+
+
+2. **What are the input constraints (range of n)?**  
+   → _________________________________
+
+
+3. **If n is large, which approach cannot be used?**  
+   → _________________________________
+
+
+4. **Manually compute a small example (e.g., n=3):**  
+   Input: _______  
+   Expected output: _______
+
 `,
 example:`# Try: Maximum Subarray Sum (Kadane’s algorithm)
 # Input: 9 integers -2 1 -3 4 -1 2 1 -5 4
@@ -10042,6 +11469,22 @@ print(f"{x:.2f}")
 
 
 ## 20.6 Try It: Comprehensive Practice
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## ⏱️ Everyday analogies for complexity
+
+
+| Complexity | Analogy |
+|------------|---------|
+| O(1) | Take the 3rd book directly from the shelf |
+| O(n) | Look through every book from first to last to find one |
+| O(n²) | Compare every pair of books (e.g., find duplicate titles) |
+| O(log n) | Find a word in a dictionary by repeatedly halving the search range |
+
 `,
 example:`# APCS style comprehensive drill: Score Indicator
 # Input: 10 / 0 11 22 33 55 66 77 99 88 44
@@ -10131,6 +11574,21 @@ This is the prototype of "tree DP": compute children first, then parent.
 
 - **Recursion depth**: Python defaults to 1000; for deep trees use \`sys.setrecursionlimit(10**6)\`
 - **Avoid revisiting parent**: use the \`par\` parameter
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## 🌳 Where do trees appear in real life?
+
+
+- **Computer folders**: a folder contains files and subfolders, subfolders contain more files… that is a tree structure.
+- **Company hierarchy**: CEO → department heads → employees – also a tree.
+
+
+Each node can have many children, but there are no cycles (no situation where A is B’s boss and B is also A’s boss).
+
 `,example:`
 # Subtree size example
 import sys
@@ -10234,6 +11692,21 @@ for d in range(4):
     if 0<=ni<R and 0<=nj<C and grid[ni][nj]=='.':
         ...
 \`\`\`
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## Comparison: Tree vs Graph
+
+
+| Feature | Tree | Graph |
+|---------|------|-------|
+| Cycles? | No | May have cycles |
+| Connectivity | Always connected | May be disconnected |
+| Traversal caution | Avoid going back to parent (use parent parameter) | Must track visited set |
+
 `,example:`
 # Number of connected components
 n, m = 6, 4
@@ -10336,6 +11809,35 @@ while q:
 | Non‑negative weights | Dijkstra | O((n+m)log n) |
 | Negative weights | Bellman‑Ford | O(nm) |
 | All‑pairs | Floyd‑Warshall | O(n³) |
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## Unweighted shortest path: BFS (learn this first)
+
+
+\`\`\`python
+from collections import deque
+
+
+def bfs_shortest(graph, start, target):
+    dist = {start: 0}
+    q = deque([start])
+    while q:
+        u = q.popleft()
+        if u == target: return dist[u]
+        for v in graph[u]:
+            if v not in dist:
+                dist[v] = dist[u] + 1
+                q.append(v)
+    return -1
+\`\`\`
+
+
+**When edges have different weights, BFS no longer works – you need Dijkstra.**
+
 `,example:`
 # Dijkstra example
 import heapq
@@ -10524,6 +12026,45 @@ print(matrix_chain([30, 35, 15, 5, 10, 20, 25]))     # 15125
 
 
 **All interval DP shares this skeleton**: outer loop by length, inner by left, innermost by split point. When you see "merge adjacent, find optimal cost", think interval DP.
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## From recursion to DP: Fibonacci as an example
+
+
+\`\`\`python
+# Problem: nth Fibonacci number
+
+
+# ---------- Method 1: pure recursion (slow, O(2^n)) ----------
+def fib_rec(n):
+    if n <= 1: return n
+    return fib_rec(n-1) + fib_rec(n-2)
+
+
+# ---------- Method 2: recursion + memoization ----------
+memo = {}
+def fib_memo(n):
+    if n in memo: return memo[n]
+    if n <= 1: return n
+    memo[n] = fib_memo(n-1) + fib_memo(n-2)
+    return memo[n]
+
+
+# ---------- Method 3: iterative DP (bottom‑up, O(n)) ----------
+def fib_dp(n):
+    if n <= 1: return n
+    dp = [0] * (n+1)
+    dp[1] = 1
+    for i in range(2, n+1):
+        dp[i] = dp[i-1] + dp[i-2]
+    return dp[n]
+# This is the essence of dynamic programming: solve small subproblems first, then combine them.
+\`\`\`
+
 `,example:`
 # 0/1 knapsack example
 weights = [2, 3, 4, 5]
@@ -10611,6 +12152,31 @@ def union(x, y):
 - Kruskal’s minimum spanning tree
 - Dynamic connectivity (adding edges)
 - "Earliest time when a and b become connected" (offline)
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## 👥 Real‑life example: friend circles
+
+
+Suppose we have 5 people: A, B, C, D, E.  
+Given:
+- A and B are friends
+- B and C are friends
+- D and E are friends
+
+
+Questions: Are A and C friends? (Yes, through A‑B‑C)  
+Are A and D friends? (No)
+
+
+How do we write a program to answer such questions efficiently?  
+- We can maintain which set each person belongs to.
+- When two people become friends (or we learn they are connected), we merge their sets.  
+- **Union‑Find** is the data structure designed exactly for this.
+
 `,example:`
 # Union-Find to count connected components
 n = 6
@@ -10725,6 +12291,22 @@ Each operation O(L), L = length of string.
 | Find all occurrences of p in t | KMP |
 | Autocomplete, dictionary queries | Trie |
 | Longest common prefix | Trie or hash |
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## 🔢 String hash in plain words
+
+
+We want to turn a string into a number, so comparing two strings becomes comparing two numbers (fast).  
+But different strings may produce the same number – that’s a **collision**. To reduce collisions, we use a large prime as the modulus.
+
+
+Example: \`"abc"\` → (97*131² + 98*131¹ + 99) mod (a big prime).  
+As long as the modulus is large enough, collisions are extremely unlikely.
+
 `,example:`
 # Trie example
 trie = {}
@@ -10823,6 +12405,28 @@ print(loaded["scores"])
 
 
 > 💡 **This chapter’s exercises simulate files via stdin/stdout** (browser sandbox cannot write real files). Use \`open()\` when running locally.
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## Why use the \`with\` statement?
+
+
+\`\`\`python
+# Old way (easy to forget to close)
+f = open("data.txt")
+data = f.read()
+f.close()   # if you forget, resources may be wasted
+
+
+# \`with\` way (automatically closes when leaving the block, even if an error occurs)
+with open("data.txt") as f:
+    data = f.read()
+# After the \`with\` block, the file is already closed.
+\`\`\`
+
 `,example:`
 # Simulate "read file content, compute average"
 # treat stdin as file content
@@ -10928,6 +12532,31 @@ python -m venv .venv
 source .venv/bin/activate    # mac/linux
 .venv\\\\Scripts\\\\activate     # windows
 \`\`\`
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## What \`if __name__ == "__main__"\` does
+
+
+\`\`\`python
+# tool.py
+def add(a, b):
+    return a + b
+
+
+def main():
+    print(add(3, 5))
+
+
+if __name__ == "__main__":
+    # This block runs only when you execute \`python tool.py\` directly.
+    # If this file is imported by another script, the block is NOT executed.
+    main()
+\`\`\`
+
 `,example:`
 # Using the math module
 import math
@@ -11034,6 +12663,59 @@ print(p)    # Point(4, 6)
 - Only two or three functions → don’t bother
 - Pure algorithmic problem solving → also no class
 - Repeatedly needing data + behavior together → start considering class
+
+
+---
+
+## 📝 Additional Notes (Improved)
+
+## 29.1 Why use a class? Refactor from dict to class
+
+
+**Problem**: store multiple students with name, score, and a method to check pass/fail.
+
+
+**Method 1: using dict (simple but has drawbacks)**
+\`\`\`python
+alice = {"name": "Alice", "score": 85}
+bob   = {"name": "Bob",   "score": 60}
+
+
+def is_pass(student):
+    return student["score"] >= 60
+
+
+print(is_pass(alice))  # True
+\`\`\`
+Drawbacks: you must always write \`student["name"]\`, and typos in keys are easy.
+
+
+**Method 2: using a class (bundle data + behavior together)**
+\`\`\`python
+class Student:
+    def __init__(self, name, score):
+        # __init__ is called automatically when a new object is created
+        # self refers to "this object"
+        self.name = name
+        self.score = score
+
+
+    def is_pass(self):
+        return self.score >= 60
+
+
+alice = Student("Alice", 85)
+bob   = Student("Bob", 60)
+
+
+print(alice.is_pass())   # True
+print(alice.name)        # direct attribute access
+\`\`\`
+
+
+================================================================================
+End of Chapter 0–29 revision templates (English version)
+
 `,example:`
 # Student class example
 class Student:
