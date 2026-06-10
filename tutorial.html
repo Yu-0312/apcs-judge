@@ -32849,75 +32849,74 @@ public class Main {
 },
 
 71:{
-cpp:`
-# Chapter 36: STL Complete Version - Containers and Iterators
+cpp:`# Chapter 36: STL Complete Edition — Containers and Iterators
 
-STL (Standard Template Library) is the biggest weapon of C++. Learn the complete set = double your combat power.
+STL (Standard Template Library) is C++'s greatest weapon. Mastering the full set = doubling your power.
 
-## 36.1 Container classification
+## 36.1 Container Categories
 
-| Category | Represents container | Properties |
-|------|---------|------|
-| **Sequence** | \`vector\`, \`deque\`, \`list\` | Sequential, repeatable |
-| **Association** | \`map\`, \`set\` | Automatic sorting, O(log n) |
-| **Unordered association** | \`unordered_map\`, \`unordered_set\` | hash table, average O(1) |
-| **Container Adapter** | \`stack\`, \`queue\`, \`priority_queue\` | Restricted interface, wrapped outside other containers |
+| Category | Representative Containers | Characteristics |
+|----------|--------------------------|-----------------|
+| **Sequence** | \`vector\`, \`deque\`, \`list\` | Ordered, allows duplicates |
+| **Associative** | \`map\`, \`set\` | Auto-sorted, O(log n) |
+| **Unordered Associative** | \`unordered_map\`, \`unordered_set\` | Hash table, average O(1) |
+| **Container Adapters** | \`stack\`, \`queue\`, \`priority_queue\` | Restricted interface, wrapping other containers |
 
-## 36.2 vector — most commonly used
+## 36.2 vector — Most Commonly Used
 
 \`\`\`cpp
 #include <vector>
 vector<int> v = {1, 2, 3};
-v.push_back(4);        // 尾端加
-v.pop_back();          // 尾端刪
-v.size();              // 數量
-v[0];                  // 索引（不檢查）
-v.at(0);               // 索引（檢查越界）
-v.front(); v.back();   // 頭尾
-v.clear();             // 清空
+v.push_back(4);        // add to end
+v.pop_back();          // remove from end
+v.size();              // count
+v[0];                  // index (no bounds check)
+v.at(0);               // index (with bounds check)
+v.front(); v.back();   // head and tail
+v.clear();             // clear all
 \`\`\`
 
-**Dynamic expansion**: Automatically ×2 when there is insufficient space, amortized \`push_back\` is still O(1).
+**Dynamic resizing**: Automatically ×2 when space is insufficient; amortized \`push_back\` is still O(1).
 
-## 36.3 deque — Double-ended queue
+## 36.3 deque — Double-Ended Queue
 
 \`\`\`cpp
 deque<int> dq;
-dq.push_front(1);      // 頭加（vector 沒有！）
+dq.push_front(1);      // add to front (vector doesn't have this!)
 dq.push_back(2);
 dq.pop_front();
 \`\`\`
 
-> APCS sliding window maximum value is commonly used to store index \`deque<int>\`.
+> APCS sliding window maximum often uses \`deque<int>\` to store indices.
 
-## 36.4 map / set — automatic sorting
+## 36.4 map / set — Auto-Sorted
 
 \`\`\`cpp
 #include <map>
 #include <set>
 
 map<string, int> cnt;
-cnt["apple"]++;        // 自動建立 key
+cnt["apple"]++;        // automatically creates key
 cnt["apple"]++;
 for (auto& [k, v] : cnt) cout << k << " " << v << "\\n";
 
-set<int> s = {3, 1, 4, 1, 5};   // 自動去重 + 排序
+set<int> s = {3, 1, 4, 1, 5};   // auto dedup + sort
 s.insert(2);
 s.erase(3);
-if (s.count(4)) cout << "有 4";
+if (s.count(4)) cout << "has 4";
 \`\`\`
 
-The underlying red-black tree → operations are all O(log n).
+Underlying red-black tree → all operations are O(log n).
 
-## 36.5 unordered_map / unordered_set — hash table
+## 36.5 unordered_map / unordered_set — Hash Table
 
 \`\`\`cpp
 #include <unordered_map>
 unordered_map<string, int> h;
-h["apple"] = 5;        // 平均 O(1)，最壞 O(n)
+h["apple"] = 5;        // average O(1), worst case O(n)
 \`\`\`
 
-> Don’t use it directly in competitions! Will be blown away by specially organized test materials. To add a custom hash:
+> Don't use directly in competitive programming! It can be destroyed by specially crafted test cases. Add a custom hash:
 \`\`\`cpp
 struct CustomHash {
     size_t operator()(int x) const {
@@ -32933,41 +32932,41 @@ unordered_map<int, int, CustomHash> safe;
 
 \`\`\`cpp
 #include <queue>
-priority_queue<int> pq;              // 預設大根堆
+priority_queue<int> pq;              // default max-heap
 pq.push(3); pq.push(1); pq.push(2);
 cout << pq.top();   // 3
 pq.pop();
 
-priority_queue<int, vector<int>, greater<int>> minpq;  // 小根堆
+priority_queue<int, vector<int>, greater<int>> minpq;  // min-heap
 \`\`\`
 
-> Dijkstra essential, essential for merging k ordered sequences.
+> Essential for Dijkstra, essential for merging k sorted lists.
 
-## 36.7 Iterator
+## 36.7 Iterators
 
 \`\`\`cpp
 for (auto it = v.begin(); it != v.end(); ++it) cout << *it;
-for (auto& x : v) cout << x;                        // 範圍 for，現代寫法
+for (auto& x : v) cout << x;                        // range-for, modern style
 for (int i = 0; i < (int)v.size(); ++i) cout << v[i];
 \`\`\`
 
-> **\`.size()\` is unsigned**! \`for(int i=0; i<v.size()-1; i++)\` When v is empty, \`v.size()-1\` will become a positive integer and run infinitely. Cast to int or use \`(int)v.size()-1 >= 0\` to prevent foolproofing.
+> **\`.size()\` is unsigned**! \`for(int i=0; i<v.size()-1; i++)\` when v is empty, \`v.size()-1\` becomes a large positive integer and loops infinitely. Cast to int or use \`(int)v.size()-1 >= 0\` as a guard.
 
-## 36.8 Container Selection Cheat Sheet
+## 36.8 Container Selection Quick Reference
 
-| What you want to do | Use this | Why |
-|----------|--------|------|
-| Dynamic Array | \`vector\` | Default preferred, cache friendly |
-| Both ends push/pop | \`deque\` | Sliding window, monotonous queue |
-| Key-value pairs + sorting | \`map\` | Red-black tree O(log n) |
-| key-value pairs + speed | \`unordered_map\` | hash average O(1) |
-| Take top k | \`priority_queue\` | Dijkstra / Huffman |
+| What you want to do | Use this | Reason |
+|---------------------|----------|--------|
+| Dynamic array | \`vector\` | Default first choice, cache-friendly |
+| Push/pop both ends | \`deque\` | Sliding window, monotonic queue |
+| Key-value + sorted | \`map\` | Red-black tree O(log n) |
+| Key-value + speed | \`unordered_map\` | Hash average O(1) |
+| Get top k | \`priority_queue\` | Dijkstra / Huffman |
 | Set operations | \`set\` | union/intersect with STL algorithm |
-| Fixed size cache | \`array\` | Determined at compile time, zero overhead |
+| Fixed-size cache | \`array\` | Compile-time determined, zero overhead |
 
-## 36.9 APCS Practical Combat: Maximum Sliding Window
+## 36.9 APCS Practice: Sliding Window Maximum
 
-deque stores index and monotonically decreases to maintain the maximum value O(n):
+deque stores index, monotonically decreasing to maintain maximum in O(n):
 
 \`\`\`cpp
 deque<int> dq;
@@ -32979,42 +32978,33 @@ for (int i = 0; i < n; i++) {
 }
 \`\`\`
 
-## 36.10 Try it
+## 36.10 Try It
 
-Exercise below: Use \`map\` to count the number of occurrences of each letter in the number string and output it in alphabetical order.
-`,
-
-c:`
-
-`,
-
-java:`
-
-`,
-
+Exercise below: use \`map\` to count occurrences of each letter in a string, output in alphabetical order.`,
+c:``,
+java:``
 },
 
 72:{
-cpp:`
-# Chapter 37: Template template and auto derivation
+cpp:`# Chapter 37: Templates and auto Type Deduction
 
-Templates let you write **one code for multiple types**. STL's vector and sort are done by templates.
+Templates let you write **one piece of code that works with multiple types**. STL's vector and sort are built with templates.
 
-## 37.1 Function template
+## 37.1 Function Templates
 
 \`\`\`cpp
 template<typename T>
 T myMax(T a, T b) {
     return a > b ? a : b;
 }
-cout << myMax(3, 5);        // T 自動推為 int → 5
-cout << myMax(1.5, 2.7);    // T 自動推為 double → 2.7
-cout << myMax(string("a"), string("b"));   // T 自動推為 string
+cout << myMax(3, 5);        // T auto-deduced as int → 5
+cout << myMax(1.5, 2.7);    // T auto-deduced as double → 2.7
+cout << myMax(string("a"), string("b"));   // T auto-deduced as string
 \`\`\`
 
-> If you don’t write a template, you need to write a function for each type. Template = a source code, the compiler automatically generates the required version.
+> Without templates, you'd need to write a function for each type. Template = one source, compiler auto-generates needed versions.
 
-## 37.2 Category templates
+## 37.2 Class Templates
 
 \`\`\`cpp
 template<typename T>
@@ -33028,21 +33018,21 @@ Box<int> b1(42);
 Box<string> b2("hello");
 \`\`\`
 
-\`vector<int>\` and \`map<string, int>\` are class templates, and \`<...>\` is filled with types.
+\`vector<int>\`, \`map<string, int>\` are class templates; fill in the type inside \`<...>\`.
 
-## 37.3 auto keyword (since C++11)
+## 37.3 The auto Keyword (Since C++11)
 
 \`\`\`cpp
-auto x = 42;            // x 是 int
-auto y = 3.14;          // y 是 double
+auto x = 42;            // x is int
+auto y = 3.14;          // y is double
 auto v = vector<int>{1,2,3};
-for (auto& e : v) e *= 2;       // 範圍 for
-auto it = v.begin();    // 比 vector<int>::iterator 短多了
+for (auto& e : v) e *= 2;       // range-for
+auto it = v.begin();    // much shorter than vector<int>::iterator
 \`\`\`
 
-**auto is not a "dynamic type"** — the type is determined at compile time.
+**auto is not "dynamic typing"** — the type is determined at compile time.
 
-## 37.4 Structured binding (C++17)
+## 37.4 Structured Bindings (C++17)
 
 \`\`\`cpp
 map<string, int> cnt = {{"a", 1}, {"b", 2}};
@@ -33053,13 +33043,13 @@ auto [x, y] = p;
 
 > Python's \`for k, v in cnt.items():\` corresponds to this syntax in C++17.
 
-## 37.5 Compile time explosion
+## 37.5 Compilation Time Explosion
 
-Templates are **all expanded at compile time** — the more templates used, the slower the compilation and the longer the error message. STL template error messages often span hundreds of lines.
+Templates **fully expand at compile time** — the more templates you use, the slower compilation and the longer error messages. STL template error messages are often hundreds of lines.
 
-## 37.6 SFINAE / if constexpr — template branch
+## 37.6 SFINAE / if constexpr — Template Branching
 
-C++17 \`if constexpr\` can branch during compilation and eliminate paths that should not be compiled:
+C++17 \`if constexpr\` can branch at compile time, eliminating paths that shouldn't be compiled:
 
 \`\`\`cpp
 template<typename T>
@@ -33070,135 +33060,117 @@ void print(T x) {
 }
 \`\`\`
 
-In the old version, you need to use SFINAE \`enable_if\` to write super long - \`if constexpr\` can be solved in one line.
+The old way required writing very long SFINAE \`enable_if\` — \`if constexpr\` solves it in one line.
 
-## 37.7 Comparison with C++ and Java/Python generics
+## 37.7 Comparison: C++ vs Java/Python Generics
 
 | | C++ template | Java generics | Python duck typing |
-|---|--------------|---------------|--------------------|
-| When to check | Compilation time, one copy of each type is generated | Compilation time, execution time erasure | Execution time |
-| Speed | Fastest (no dynamic delivery) | Medium | Slowest |
-| Error message | Nightmare | OK | Explodes during execution |
+|---|--------------|---------------|---------------------|
+| When checked | Compile time, one copy per type | Compile time, erased at runtime | Runtime |
+| Speed | Fastest (no dynamic dispatch) | Medium | Slowest |
+| Error messages | Nightmare | Acceptable | Explodes at runtime |
 
-## 37.8 Try it
-`,
-
-c:`
-
-`,
-
-java:`
-
-`,
-
+## 37.8 Try It`,
+c:``,
+java:``
 },
 
 73:{
-cpp:`
-# Chapter 38: Smart Indicators & RAII
+cpp:`# Chapter 38: Smart Pointers & RAII
 
-The secret weapon of C++: tie resource management to the object life cycle — no need to free, no need to remember to close.
+C++'s secret weapon: binding resource management to **object lifetimes** — no need for free, no need to remember close.
 
 ## 38.1 What is RAII
 
-**R**esource **A**cquisition **I**s **I**initialization: The constructor obtains resources and the deconstructor releases resources. Objects are automatically cleaned up when they leave scope.
+**R**esource **A**cquisition **I**s **I**nitialization: constructor acquires resource, destructor releases resource. Objects are automatically cleaned up when they leave scope.
 
 \`\`\`cpp
 {
-    vector<int> v(1000000);   // 建構：配 1MB
-    // 用 v
-}   // 離開大括號：v 解構，記憶體自動還
+    vector<int> v(1000000);   // constructor: allocate 1MB
+    // use v
+}   // leaving the braces: v destructs, memory automatically returned
 \`\`\`
 
-> Compare C: \`int* p = malloc(...); ... free(p);\` — If you miss writing free, it will leak; if you write too much, it will crash.
+> Compare with C: \`int* p = malloc(...); ... free(p);\` — forgetting free leaks, calling free twice crashes.
 
-## 38.2 unique_ptr — Exclusively owned
+## 38.2 unique_ptr — Exclusive Ownership
 
 \`\`\`cpp
 #include <memory>
 unique_ptr<int> p = make_unique<int>(42);
 cout << *p;     // 42
-// 不用 delete，p 離開作用域自動釋放
+// no need to delete, p auto-releases when leaving scope
 
-// 不能複製，只能 move
-unique_ptr<int> q = move(p);    // p 變空，q 接管
+// cannot copy, only move
+unique_ptr<int> q = move(p);    // p becomes null, q takes over
 \`\`\`
 
-## 38.3 shared_ptr — Shared ownership
+## 38.3 shared_ptr — Shared Ownership
 
 \`\`\`cpp
 shared_ptr<int> a = make_shared<int>(42);
-shared_ptr<int> b = a;          // 引用計數 +1
+shared_ptr<int> b = a;          // reference count +1
 cout << a.use_count();          // 2
-// 兩個都離開作用域才釋放
+// only released when both go out of scope
 \`\`\`
 
-The bottom layer uses reference counting. Note that **circular references leak** — the solution is to use \`weak_ptr\` to break the cycle.
+Internally uses reference counting. Watch out for **circular references causing leaks** — use \`weak_ptr\` to break the cycle.
 
-## 38.4 Why not use raw pointer?
+## 38.4 Why Not Use Raw Pointers?
 
 \`\`\`cpp
 int* p = new int(42);
-// ... 中間發生例外
-delete p;        // 永遠不會執行 → 洩漏！
+// ... exception occurs in the middle
+delete p;        // will never execute → leak!
 \`\`\`
 
-unique_ptr/shared_ptr **Guaranteed** destructuring execution (exception-safe).
+unique_ptr / shared_ptr **guarantee** destructor runs (exception-safe).
 
-## 38.5 RAII is not just for memory
+## 38.5 RAII Is Not Just for Memory
 
 \`\`\`cpp
-ifstream f("data.txt");    // 建構：開檔
-// 用 f
-// 離開作用域：f 解構，自動關檔（不用 close）
+ifstream f("data.txt");    // constructor: open file
+// use f
+// leaving scope: f destructs, file auto-closed (no need for close)
 
-lock_guard<mutex> lk(m);   // 建構：上鎖
-// 用共享資源
-// 離開作用域：自動解鎖
+lock_guard<mutex> lk(m);   // constructor: lock
+// use shared resource
+// leaving scope: auto-unlock
 \`\`\`
 
-> ifstream, lock_guard, unique_ptr are all RAII designs - the essence of C++ philosophy.
+> ifstream, lock_guard, unique_ptr are all RAII designs — the essence of C++ philosophy.
 
-## 38.6 weak_ptr resolves circular references
+## 38.6 weak_ptr to Break Circular References
 
 \`\`\`cpp
 struct Node {
     shared_ptr<Node> next;
-    weak_ptr<Node> parent;   // 不增加引用計數
+    weak_ptr<Node> parent;   // doesn't increase reference count
 };
 \`\`\`
 
-Bidirectional structure (parent ↔ child) if both parties share_ptr, the reference count will always be ≥1 → leak. weak_ptr does not count, \`p.lock()\` is upgraded to shared_ptr when needed.
+In bidirectional structures (parent ↔ child), if both use shared_ptr, reference count stays ≥1 → leak. weak_ptr doesn't count toward references; use \`p.lock()\` to upgrade to shared_ptr when needed.
 
-## 38.7 Custom deleter
+## 38.7 Custom Deleter
 
 \`\`\`cpp
 unique_ptr<FILE, decltype(&fclose)> f(fopen("a.txt", "r"), &fclose);
-// 離開作用域自動 fclose
+// auto fclose when leaving scope
 \`\`\`
 
-Wrap any "acquire / release" pair into RAII. Sockets, handles, and mutex are all applicable.
+Wrap any "paired acquire/release" into RAII. Works for sockets, handles, mutexes.
 
-## 38.8 Try it
-`,
-
-c:`
-
-`,
-
-java:`
-
-`,
-
+## 38.8 Try It`,
+c:``,
+java:``
 },
 
 74:{
-cpp:`
-# Chapter 39: Move semantics and rvalue reference
+cpp:`# Chapter 39: Move Semantics and Rvalue References
 
-The most important new features of C++11. Understand this = really understand modern C++.
+The most important new feature in C++11. Understanding this = truly understanding modern C++.
 
-## 39.1 Why move is needed
+## 39.1 Why We Need Move
 
 Consider:
 \`\`\`cpp
@@ -33206,26 +33178,26 @@ vector<int> makeBig() { vector<int> v(1000000); return v; }
 vector<int> w = makeBig();
 \`\`\`
 
-C++03 era: 1M elements to be copied → slow.
-After C++11: **move** — move the internal pointer directly → 1000 times faster.
+In C++03: must **copy** 1M elements when returning → slow.
+After C++11: **move** — directly transfer internal pointer → 1000× faster.
 
 ## 39.2 lvalue vs rvalue
 
-- **lvalue** = Something with a name, available address: \`x\` in \`int x = 5;\`
-- **rvalue** = Nameless, short-lived things: \`5\`, \`x + 3\`, function return value
+- **lvalue** = named thing, addressable: \`x\` in \`int x = 5;\`
+- **rvalue** = unnamed, short-lived: \`5\`, \`x + 3\`, function return value
 
-\`int& a = x;\` ← lvalue reference
-\`int&& a = 5;\` ← rvalue reference (&&)
+\`int& a = x;\`     ← lvalue reference
+\`int&& a = 5;\`    ← rvalue reference (&&)
 
-## 39.3 std::move — Convert lvalue to rvalue
+## 39.3 std::move — Cast lvalue to rvalue
 
 \`\`\`cpp
 vector<int> v = {1, 2, 3};
-vector<int> w = move(v);    // 搬空 v 給 w
-// v.size() 現在是 0，內容歸 w
+vector<int> w = move(v);    // move v's content to w
+// v.size() is now 0, content belongs to w
 \`\`\`
 
-> \`move\` doesn't actually move — it just makes \`static_cast\` an rvalue reference, letting subsequent calls to the move constructor take over.
+> \`move\` doesn't actually move — it's just a \`static_cast\` to rvalue reference, letting the move constructor take over.
 
 ## 39.4 Move Constructor
 
@@ -33233,19 +33205,19 @@ vector<int> w = move(v);    // 搬空 v 給 w
 class MyBuf {
     int* data; int n;
 public:
-    // 移動建構子（注意 &&）
+    // move constructor (note &&)
     MyBuf(MyBuf&& other) : data(other.data), n(other.n) {
-        other.data = nullptr;     // 原來的 other 變空
+        other.data = nullptr;     // original other becomes empty
         other.n = 0;
     }
 };
 \`\`\`
 
-Key: "Steal the indicator + clear the original object".
+Key: "steal the pointer + empty the original object".
 
-## 39.5 Rule of five
+## 39.5 Rule of Five
 
-If you customize one of **Destructor**, **Copy Constructor**, **Copy Assignment**, **Move Constructor**, **Move Assignment**, you usually need to write all five.
+If you define any of: **destructor**, **copy constructor**, **copy assignment**, **move constructor**, **move assignment** — usually you need to write all five.
 
 \`\`\`cpp
 class MyBuf {
@@ -33257,11 +33229,11 @@ class MyBuf {
 };
 \`\`\`
 
-Or specify it explicitly with \`= default\` / \`= delete\`.
+Or explicitly specify with \`= default\` / \`= delete\`.
 
-## 39.6 perfect forwarding
+## 39.6 Perfect Forwarding
 
-When writing a generic factory function:
+When writing generic factory functions:
 
 \`\`\`cpp
 template<typename T, typename... Args>
@@ -33270,73 +33242,64 @@ unique_ptr<T> make_my(Args&&... args) {
 }
 \`\`\`
 
-\`std::forward\` Preserves the lvalue/rvalue attributes - lvalue comes out as lvalue, rvalue comes out as rvalue. \`make_unique\` is written like this internally.
+\`std::forward\` preserves lvalue/rvalue attributes — lvalue in stays lvalue, rvalue in stays rvalue. \`make_unique\` is implemented this way internally.
 
-## 39.7 When to use move and when not to
+## 39.7 When to Use Move, When Not To
 
-| Situation | Writing method |
-|------|------|
-| return local variable | direct return (compiler automatically move/RVO) |
-| return std::move(x) | ❌ Suppress RVO, but slow down |
-| Put parameters into the container | \`v.push_back(move(x))\` ✅ |
-| Want to use x again after using it | Don't move |
+| Situation | Usage |
+|-----------|-------|
+| Return local variable | Just return (compiler auto move/RVO) |
+| return std::move(x) | ❌ Suppresses RVO, actually slower |
+| Pushing parameter into container | \`v.push_back(move(x))\` ✅ |
+| Want to use x again after | Don't move |
 
-## 39.8 Try it
-`,
-
-c:`
-
-`,
-
-java:`
-
-`,
-
+## 39.8 Try It`,
+c:``,
+java:``
 },
 
 75:{
-cpp:`
-# Chapter 40: Lambda and Function Objects
+cpp:`# Chapter 40: Lambdas and Function Objects
 
-Lambda = small function written in a statement. A good partner for STL algorithms.
+Lambda = small function written inline in a statement. Great companion for STL algorithms.
 
-## 40.1 Basic syntax
+## 40.1 Basic Syntax
 
 \`\`\`cpp
 auto add = [](int a, int b) { return a + b; };
 cout << add(3, 5);     // 8
 \`\`\`
 
-Format: \`[capture-list](params) { body }\`
+Format: \`[capture list](parameters) { body }\`
 
-## 40.2 Paired with sort
+## 40.2 Used with sort
 
 \`\`\`cpp
 vector<int> v = {3, 1, 4, 1, 5, 9, 2};
 sort(v.begin(), v.end(), [](int a, int b) {
-    return a > b;       // 由大到小
+    return a > b;       // descending order
 });
 \`\`\`
 
-There is no need to open a separate function for a one-time comparison function.
+No need to define a separate function for a one-time comparison.
 
 ## 40.3 Capture
 
-Lambda can "catch" external variables:
+Lambdas can "capture" variables from the outer scope:
 
 \`\`\`cpp
 int n = 10;
-auto f = [n](int x) { return x + n; };       // 值捕獲
-auto g = [&n](int x) { return x + n; };      // 參考捕獲
-auto h = [=](int x) { return x + n; };       // 全部值捕獲
-auto k = [&](int x) { return x + n; };       // 全部參考捕獲
+auto f = [n](int x) { return x + n; };       // capture by value
+auto g = [&n](int x) { return x + n; };      // capture by reference
+auto h = [=](int x) { return x + n; };       // capture all by value
+auto k = [&](int x) { return x + n; };       // capture all by reference
 \`\`\`
 
-> ⚠️ **Refer to captured area variables**: If the variable is dead when lambda is running, it is undefined! Be careful when using STL algorithms and lambda for callbacks.
+> ⚠️ **Capturing local variables by reference**: if the lambda runs after the variable is gone, it's undefined behavior! Be careful with STL algorithms and callbacks.
 
-## 40.4 Function object functor
+## 40.4 Functor — Function Object
 
-The bottom layer of Lambda is "an object with \`operator()\`":
+A lambda is fundamentally "an object with \`operator()\`":
 
 \`\`\`cpp
 struct Adder {
@@ -33348,93 +33311,84 @@ Adder add5(5);
 cout << add5(10);    // 15
 \`\`\`
 
-\`priority_queue\` Use functor or lambda for custom comparison.
+Custom comparators for \`priority_queue\` use functors or lambdas.
 
-## 40.5 std::function — universal function container
+## 40.5 std::function — Universal Function Container
 
 \`\`\`cpp
 #include <functional>
 function<int(int, int)> f = [](int a, int b) { return a + b; };
-// 可以裝下任何「兩個 int 回傳 int」的東西
+// can hold anything that takes two ints and returns int
 \`\`\`
 
-> std::function has a virtual function call inside, which is slower than calling lambda directly - not recommended for competition.
+> std::function has internal virtual function calls, slower than calling lambda directly — not recommended for competitive programming.
 
-## 40.6 Recursive lambdas (since C++14)
+## 40.6 Recursive Lambda (Since C++14)
 
-Lambda has no name. There are two ways to return it:
+Lambda has no name; two ways to recurse:
 
 \`\`\`cpp
-// 1. function 包起來（慢）
+// 1. Wrap in function (slow)
 function<int(int)> fact = [&](int n){ return n<=1 ? 1 : n*fact(n-1); };
 
-// 2. 把自己當參數傳（快、推薦）
+// 2. Pass self as parameter (fast, recommended)
 auto fact = [](auto self, int n) -> int {
     return n <= 1 ? 1 : n * self(self, n-1);
 };
 fact(fact, 5);
 
-// 3. C++23 起：deducing this，更乾淨
+// 3. Since C++23: deducing this, even cleaner
 \`\`\`
 
-DFS / recursive utilities are written in lambda, so there is no need to open a separate global function for one-time recursion.
+Write DFS/recursive utilities as lambdas, no need for a separate global function.
 
-## 40.7 mutable lambda
+## 40.7 mutable Lambda
 
 \`\`\`cpp
 auto counter = [n=0]() mutable { return ++n; };
 counter(); counter();   // 1, 2
 \`\`\`
 
-The default value capture is const, add \`mutable\` to change your own copy.
+Value capture is const by default; add \`mutable\` to modify your own copy.
 
-## 40.8 Try it
-`,
-
-c:`
-
-`,
-
-java:`
-
-`,
-
+## 40.8 Try It`,
+c:``,
+java:``
 },
 
 76:{
-cpp:`
-# Chapter 41: <algorithm> algorithm library
+cpp:`# Chapter 41: The <algorithm> Library
 
-C++ has a lot of built-in **general algorithms** - you don't need to write sort, binary_search, min/max yourself.
+C++ has a large set of **general-purpose algorithms** built in — no need to implement sort, binary_search, min/max yourself.
 
 ## 41.1 Sorting
 
 \`\`\`cpp
 #include <algorithm>
 vector<int> v = {3, 1, 4, 1, 5};
-sort(v.begin(), v.end());                  // 預設由小到大
-sort(v.rbegin(), v.rend());                // 由大到小（反向 iterator）
-sort(v.begin(), v.end(), greater<int>());  // 同上
+sort(v.begin(), v.end());                  // default ascending
+sort(v.rbegin(), v.rend());                // descending (reverse iterator)
+sort(v.begin(), v.end(), greater<int>());  // same as above
 sort(v.begin(), v.end(), [](int a, int b){ return a > b; });  // lambda
 \`\`\`
 
-> STL sort is introsort (quicksort + heapsort + insertion) — O(n log n) at worst.
+> STL sort is introsort (quicksort + heapsort + insertion) — O(n log n) worst case.
 
-## 41.2 Binary search (sorting required first)
+## 41.2 Binary Search (Must Sort First)
 
 \`\`\`cpp
-binary_search(v.begin(), v.end(), 4);   // 回 true/false
-lower_bound(v.begin(), v.end(), 4);     // 第一個 >= 4 的 iterator
-upper_bound(v.begin(), v.end(), 4);     // 第一個 > 4 的 iterator
+binary_search(v.begin(), v.end(), 4);   // returns true/false
+lower_bound(v.begin(), v.end(), 4);     // iterator to first element >= 4
+upper_bound(v.begin(), v.end(), 4);     // iterator to first element > 4
 \`\`\`
 
-> lower_bound / upper_bound are the core of APCS advanced questions - simpler and faster than hand-carving two points.
+> lower_bound / upper_bound are core to advanced APCS problems — simpler and faster than writing binary search by hand.
 
-## 41.3 min/max/minmax
+## 41.3 min / max / minmax
 
 \`\`\`cpp
 min(3, 5);                              // 3
-min({1, 2, 3, 0, 5});                   // 0（initializer_list）
+min({1, 2, 3, 0, 5});                   // 0 (initializer_list)
 auto m = *min_element(v.begin(), v.end());
 auto [mn, mx] = minmax_element(v.begin(), v.end());
 \`\`\`
@@ -33443,11 +33397,11 @@ auto [mn, mx] = minmax_element(v.begin(), v.end());
 
 \`\`\`cpp
 sort(v.begin(), v.end());
-auto last = unique(v.begin(), v.end());     // 把連續重複移到後面
-v.erase(last, v.end());                     // 真的刪掉
+auto last = unique(v.begin(), v.end());     // move consecutive duplicates to end
+v.erase(last, v.end());                     // actually erase them
 
 reverse(v.begin(), v.end());
-rotate(v.begin(), v.begin() + 2, v.end());  // 把前 2 個搬到後面
+rotate(v.begin(), v.begin() + 2, v.end());  // move first 2 elements to the end
 \`\`\`
 
 ## 41.5 accumulate / count / find
@@ -33465,71 +33419,62 @@ if (it != v.end()) cout << "found at " << (it - v.begin());
 \`\`\`cpp
 sort(v.begin(), v.end());
 do {
-    // 處理當前排列
+    // process current permutation
 } while (next_permutation(v.begin(), v.end()));
 \`\`\`
 
-Enumerate all permutations — n!
+Enumerate all permutations — n! of them.
 
-## 41.7 partial_sort / nth_element — Partial sorting
+## 41.7 partial_sort / nth_element — Partial Sorting
 
-As long as the first k is the largest, or the kth is the largest, there is no need for the entire row:
+When you only need the top k or the k-th largest, no need to sort everything:
 
 \`\`\`cpp
-// 把最小的 3 個放到前面（其餘亂序）
+// put the 3 smallest elements at the front (rest in random order)
 partial_sort(v.begin(), v.begin()+3, v.end());
 
-// 把第 k 名放到位置 k（左邊 <=、右邊 >=，但都不一定排序）
+// put the k-th element at position k (left <= right >=, but neither sorted)
 nth_element(v.begin(), v.begin()+k, v.end());
-cout << v[k];   // 第 k+1 小
+cout << v[k];   // (k+1)-th smallest
 \`\`\`
 
-\`nth_element\` is O(n) on average, faster than sort's O(n log n) — the median artifact.
+\`nth_element\` is O(n) average, faster than sort's O(n log n) — great for finding median.
 
 ## 41.8 set_union / set_intersection
 
-Do set operations on two **sorted** sequences:
+Set operations on two **sorted** sequences:
 
 \`\`\`cpp
 vector<int> r;
 set_intersection(a.begin(), a.end(), b.begin(), b.end(), back_inserter(r));
 \`\`\`
 
-## 41.9 Try it
-`,
-
-c:`
-
-`,
-
-java:`
-
-`,
-
+## 41.9 Try It`,
+c:``,
+java:``
 },
 
 77:{
-cpp:`
-# Chapter 42: string_view and string advancement
+cpp:`# Chapter 42: string_view and Advanced Strings
 
-C++17 adds \`string_view\` — a "window" that does not copy strings.
+C++17 adds \`string_view\` — a "window" into a string without copying.
 
-## 42.1 string common operations
+## 42.1 Common string Operations
 
 \`\`\`cpp
 string s = "hello world";
 s.size();              // 11
 s.substr(6, 5);        // "world"
-s.find("world");       // 6（找不到回 string::npos）
+s.find("world");       // 6 (returns string::npos if not found)
 s.replace(6, 5, "C++");// "hello C++"
-s + " !";              // 串接
+s + " !";              // concatenation
 s += "!";
-s[0] = 'H';            // 可改
+s[0] = 'H';            // can modify
 \`\`\`
 
-## 42.2 split — C++ has no built-in!
+## 42.2 split — Not Built Into C++!
 
-To engrave yourself:
+Must implement manually:
 
 \`\`\`cpp
 vector<string> split(const string& s, char delim) {
@@ -33541,20 +33486,20 @@ vector<string> split(const string& s, char delim) {
 }
 \`\`\`
 
-> Python's \`s.split()\` is a real pain in C++.
+> Python's \`s.split()\` is genuinely painful in C++.
 
-## 42.3 string_view — avoid copying
+## 42.3 string_view — Avoid Copying
 
 \`\`\`cpp
 #include <string_view>
-void print(string_view sv) {        // 接受 string 或 char*
+void print(string_view sv) {        // accepts string or char*
     cout << sv << "\\n";
 }
 print("hello");
 print(string("world"));
 \`\`\`
 
-\`string_view\` only stores the index + length, and does not copy the string. When passing large strings to functions, you should use \`string_view\`, not \`const string&\` or \`const char*\`.
+\`string_view\` only stores pointer + length, no copying. When passing large strings to functions, use \`string_view\` instead of \`const string&\` or \`const char*\`.
 
 ## 42.4 Pitfalls of string_view
 
@@ -33562,14 +33507,14 @@ print(string("world"));
 string_view sv;
 {
     string s = "hello";
-    sv = s;             // 指向 s
+    sv = s;             // points to s
 }
-cout << sv;             // ❌ s 已死，sv 是 dangling
+cout << sv;             // ❌ s is dead, sv is a dangling reference
 \`\`\`
 
-> string_view is just a "window" - if the original string dies, the window is broken.
+> string_view is just a "window" — if the original string dies, the window is broken.
 
-## 42.5 Number ↔ String
+## 42.5 Number ↔ String Conversion
 
 \`\`\`cpp
 int n = stoi("42");
@@ -33577,17 +33522,17 @@ double d = stod("3.14");
 string s = to_string(42);
 \`\`\`
 
-## 42.6 String comparison related
+## 42.6 String Matching Reference
 
 | Function | Purpose |
-|------|------|
-| \`s.find\` | Substring search (O(nm) simple implementation) |
-| \`<regex>\` | Regular expressions (C++ slow, rarely used) |
-| \`std::hash<string>{}(s)\` | String hash |
+|----------|---------|
+| \`s.find\` | Substring search (O(nm) naive implementation) |
+| \`<regex>\` | Regular expressions (slow in C++, use sparingly) |
+| \`std::hash<string>{}(s)\` | String hashing |
 
-## 42.7 KMP / Z-function template
+## 42.7 KMP / Z-function Template
 
-APCS string question: \`s.find\` is O(nm), n=10⁶ will TLE. Hand engraved KMP:
+For APCS string problems: \`s.find\` is O(nm), n=10^6 will TLE. Implement KMP by hand:
 
 \`\`\`cpp
 vector<int> kmp(const string& s) {
@@ -33602,38 +33547,29 @@ vector<int> kmp(const string& s) {
 }
 \`\`\`
 
-Preprocessing O(n), pairing O(n+m).
+Preprocessing O(n), matching O(n+m).
 
-## 42.8 char vs string thunder
+## 42.8 Traps with char vs string
 
 \`\`\`cpp
 string s = "hello";
-s[100];        // 不會炸，但 undefined（讀到隨機 byte）
-s.at(100);     // 丟 out_of_range exception
+s[100];        // won't crash, but undefined (reads random byte)
+s.at(100);     // throws out_of_range exception
 s + 'a';       // OK
-s + 65;        // ⚠️ 把 65 當 ptrdiff，不是接 "A"！要 s + char(65)
+s + 65;        // ⚠️ treats 65 as ptrdiff, not appending "A"! Use s + char(65)
 \`\`\`
 
-## 42.9 Try it
-`,
-
-c:`
-
-`,
-
-java:`
-
-`,
-
+## 42.9 Try It`,
+c:``,
+java:``
 },
 
 78:{
-cpp:`
-# Chapter 43: Getting Started with Concurrency std::thread
+cpp:`# Chapter 43: Introduction to Concurrency with std::thread
 
-C++11 has built-in multi-threading support.
+C++11 introduced built-in multithreading support.
 
-## 43.1 Start thread
+## 43.1 Launching a Thread
 
 \`\`\`cpp
 #include <thread>
@@ -33647,14 +33583,14 @@ void work(int id) {
 int main() {
     thread t1(work, 1);
     thread t2(work, 2);
-    t1.join();           // 等 t1 結束
+    t1.join();           // wait for t1 to finish
     t2.join();
 }
 \`\`\`
 
-> ⚠️ **Must join or detach**. Otherwise, the thread is still alive when the program ends → terminate directly.
+> ⚠️ **Must join or detach**. Otherwise when the program ends and the thread is still alive → direct terminate.
 
-## 43.2 Shared data = race condition
+## 43.2 Shared Data = Race Conditions
 
 \`\`\`cpp
 int counter = 0;
@@ -33663,12 +33599,12 @@ void inc() {
 }
 thread t1(inc), t2(inc);
 t1.join(); t2.join();
-cout << counter;    // 可能是 100000、200000 或任意值！
+cout << counter;    // could be 100000, 200000, or any value!
 \`\`\`
 
-\`counter++\` is not an atomic operation (read→modify→write), and it will break if two threads are interleaved.
+\`counter++\` is not atomic (read→modify→write); interleaved threads cause corruption.
 
-## 43.3 mutex mutex lock
+## 43.3 mutex — Mutual Exclusion Lock
 
 \`\`\`cpp
 #include <mutex>
@@ -33677,288 +33613,267 @@ int counter = 0;
 
 void inc() {
     for (int i = 0; i < 100000; i++) {
-        lock_guard<mutex> lk(m);    // RAII 自動解鎖
+        lock_guard<mutex> lk(m);    // RAII auto-unlock
         counter++;
     }
 }
 \`\`\`
 
-\`lock_guard\` is RAII - automatically unlocks when leaving the scope and will not be forgotten.
+\`lock_guard\` is RAII — auto-unlocks when leaving scope, you can't forget.
 
-## 43.4 atomic — Atomic operations
+## 43.4 atomic — Atomic Operations
 
 \`\`\`cpp
 #include <atomic>
 atomic<int> counter = 0;
 void inc() {
-    for (int i = 0; i < 100000; i++) counter++;     // 安全！
+    for (int i = 0; i < 100000; i++) counter++;     // safe!
 }
 \`\`\`
 
 For basic type operations, \`atomic\` is much faster than mutex.
 
-## 43.5 async / future — get the returned value
+## 43.5 async / future — Getting Return Values
 
 \`\`\`cpp
 #include <future>
 future<int> f = async([] { return 42; });
-cout << f.get();     // 42（會阻塞等結果）
+cout << f.get();     // 42 (blocks waiting for result)
 \`\`\`
 
-## 43.6 Deadlock avoidance
+## 43.6 Avoiding Deadlocks
 
-Both threads lock the sequence A→B, but one of them locks B→A → and both are equal. **Use \`scoped_lock\` to lock multiple locks at once**:
+Two threads both lock A→B, but one locks B→A → both wait on each other. **Use \`scoped_lock\` to lock multiple at once**:
 
 \`\`\`cpp
-scoped_lock lk(m1, m2);     // C++17，原子地鎖兩個
+scoped_lock lk(m1, m2);     // C++17, atomically locks both
 \`\`\`
 
-## 43.7 condition_variable — thread notification
+## 43.7 condition_variable — Thread Notification
 
-The producer notifies the consumer that "it's in stock":
+Producer notifies consumer that "there's goods":
 
 \`\`\`cpp
 mutex m;
 condition_variable cv;
 queue<int> q;
 
-// 消費者
+// consumer
 unique_lock<mutex> lk(m);
 cv.wait(lk, []{ return !q.empty(); });
 int x = q.front(); q.pop();
 
-// 生產者
+// producer
 { lock_guard<mutex> lk(m); q.push(42); }
 cv.notify_one();
 \`\`\`
 
-## 43.8 Comparison with other languages
+## 43.8 Comparison with Other Languages
 
 | | C++ | Python | Java |
 |---|---|---|---|
-| True Parallel | ✅ | ❌ GIL | ✅ |
-| Startup Cost | High (~50μs) | High | High |
-| Synchronization primitives | mutex/atomic/cv | threading.Lock | synchronized/Lock |
+| True parallelism | ✅ | ❌ GIL | ✅ |
+| Startup cost | High (~50μs) | High | High |
+| Sync primitives | mutex/atomic/cv | threading.Lock | synchronized/Lock |
 | Recommended pool | std::async | concurrent.futures | ExecutorService |
 
-CPU-intensive tasks are truly parallel in C++ and Java; Python must use multiprocessing to bypass the GIL.
+CPU-intensive tasks have true parallelism in C++ and Java; Python must use multiprocessing to bypass the GIL.
 
-## 43.9 Try it
-`,
-
-c:`
-
-`,
-
-java:`
-
-`,
-
+## 43.9 Try It`,
+c:``,
+java:``
 },
 
 79:{
-cpp:`
+cpp:``,
+c:`# Chapter 36: Pointers — From Basics to Deep Understanding
 
-`,
+Pointers are the soul of C. Understanding pointers = truly knowing C.
 
-c:`
-# Chapter 36: Metrics – From Getting Started to Deeper
+## 36.1 What Are Pointers
 
-Metrics are the soul of the C language. Understanding metrics = really knowing C.
-
-## 36.1 What are indicators?
-
-\`int x = 42;\` — x is a box containing 42.
-\`int *p = &x;\` — p is a box containing the address of "where x is".
+\`int x = 42;\` — x is a box holding 42.
+\`int *p = &x;\` — p is a box holding **"where x is" — the address**.
 
 \`\`\`c
 int x = 42;
 int *p = &x;
 printf("%d\\n", x);    // 42
-printf("%p\\n", p);    // 0x7ffe... (x 的地址)
-printf("%d\\n", *p);   // 42 (取 p 指向的值)
-*p = 100;             // 改 p 指的東西
+printf("%p\\n", p);    // 0x7ffe... (address of x)
+printf("%d\\n", *p);   // 42 (dereference p)
+*p = 100;             // modify what p points to
 printf("%d\\n", x);    // 100
 \`\`\`
 
 | Symbol | Meaning |
-|------|------|
-| \`&x\` | Get the address of x |
-| \`*p\` | Get the content pointed to by p (solution reference) |
-| \`int *p\` | Declare: p is a "pointer to int" |
+|--------|---------|
+| \`&x\` | Take the address of x |
+| \`*p\` | Dereference p (access what p points to) |
+| \`int *p\` | Declaration: p is a "pointer to int" |
 
-## 36.2 Why use indicators?
+## 36.2 Why Use Pointers
 
-**1. The function wants to change external variables**:
+**1. Function wants to modify an outside variable**:
 \`\`\`c
 void swap(int *a, int *b) {
     int t = *a; *a = *b; *b = t;
 }
 int x = 1, y = 2;
-swap(&x, &y);          // 傳地址進去
+swap(&x, &y);          // pass address in
 \`\`\`
 
-> C does not have "pass by reference" - only pointers can be passed.
+> C has no "pass by reference" — can only pass pointers.
 
-**2. Do not copy large structures**: The function parameter is \`struct Big b\` → copy the entire b; change \`struct Big *b\` → only pass the 8 byte address.
+**2. Avoid copying large structures**: function parameter \`struct Big b\` → copies entire b; change to \`struct Big *b\` → only passes 8-byte address.
 
-## 36.3 Arrays are indicators
+## 36.3 Arrays Are Pointers
 
 \`\`\`c
 int a[5] = {1, 2, 3, 4, 5};
-int *p = a;        // p 指向 a[0]
+int *p = a;        // p points to a[0]
 printf("%d\\n", a[2]);     // 3
-printf("%d\\n", *(p + 2)); // 3，一樣
-printf("%d\\n", p[2]);     // 3，也一樣
+printf("%d\\n", *(p + 2)); // 3, same
+printf("%d\\n", p[2]);     // 3, also same
 \`\`\`
 
-\`a\` is \`&a[0]\` in the expression, so arrays and indicators are basically interchangeable.
+In expressions, \`a\` **is** \`&a[0]\`, so arrays and pointers are essentially interchangeable.
 
-## 36.4 NULL and segfault
+## 36.4 NULL and Segfault
 
 \`\`\`c
 int *p = NULL;
-*p = 42;          // ❌ Segmentation fault：寫到 0 號地址
+*p = 42;          // ❌ Segmentation fault: writing to address 0
 \`\`\`
 
-C does not check whether the indicator is valid - writes a bad address and crashes directly. **Good habit: Check NULL before using**.
+C doesn't check if pointers are valid — writing to a bad address crashes immediately. **Good habit: check for NULL before using**.
 
 ## 36.5 const pointer
 
 \`\`\`c
-const int *p;        // 不能改 *p（指的東西是常數）
-int * const p;       // 不能改 p （指標本身是常數）
-const int * const p; // 都不能改
+const int *p;        // cannot modify *p (what it points to is constant)
+int * const p;       // cannot modify p (the pointer itself is constant)
+const int * const p; // cannot modify either
 \`\`\`
 
-**Reading**: From right to left — "p is a const pointer to const int".
+**Reading rule**: read right-to-left — "p is a const pointer to const int".
 
-## 36.6 Function indicator vs indicator to function
+## 36.6 Function Pointer vs Pointer to Function
 
 \`\`\`c
-int (*f)(int);        // f 是「指向接收 int 回 int 的函式」的指標
-int *g(int);          // g 是「接收 int 回 int*」的函式
+int (*f)(int);        // f is a "pointer to a function taking int and returning int"
+int *g(int);          // g is a "function taking int and returning int*"
 \`\`\`
 
-Parentheses are important - without them it would be something else entirely.
+Parentheses matter — without them it becomes completely different.
 
-## 36.7 Indicator Advanced: void* and type conversion
+## 36.7 Advanced Pointers: void* and Type Casting
 
 \`\`\`c
-void *p;              // 萬用指標，不知道指向什麼型別
+void *p;              // universal pointer, unknown type
 int x = 42;
 p = &x;
-int *ip = (int*)p;    // 用之前要 cast 回正確型別
+int *ip = (int*)p;    // cast back to correct type before use
 printf("%d", *ip);
 \`\`\`
 
-\`malloc\` returns \`void*\` That’s it — I don’t know what you want to use it for, you cast it. The parameters of \`memcpy\` / \`qsort\` are also void*.
+\`malloc\` returns \`void*\` for this reason — it doesn't know what you'll store. \`memcpy\` / \`qsort\` parameters are also void*.
 
-## 36.8 Try it
-`,
-
-java:`
-
-`,
-
+## 36.8 Try It`,
+java:``
 },
 
 80:{
-cpp:`
+cpp:``,
+c:`# Chapter 37: Dynamic Memory — malloc / free
 
-`,
+When you don't know the data size, or need to decide size at runtime, use \`malloc\` to request memory from the system.
 
-c:`
-# Chapter 37: Dynamic memory malloc / free
-
-When the amount of data is unknown, or the size must be determined during execution, use \`malloc\` to ask the system for memory.
-
-## 37.1 malloc / free basic
+## 37.1 malloc / free Basics
 
 \`\`\`c
 #include <stdlib.h>
 
 int *arr = malloc(n * sizeof(int));
-if (arr == NULL) { /* 配置失敗 */ exit(1); }
+if (arr == NULL) { /* allocation failed */ exit(1); }
 
 for (int i = 0; i < n; i++) arr[i] = i;
 
-free(arr);            // 用完一定要還
-arr = NULL;           // 防止後續誤用
+free(arr);            // always return when done
+arr = NULL;           // prevent subsequent misuse
 \`\`\`
 
-> \`sizeof(int)\` is usually 4. \`malloc(n)\` takes n bytes; if you want n ints, use \`n * sizeof(int)\`.
+> \`sizeof(int)\` is usually 4. \`malloc(n)\` gets n bytes; for n ints use \`n * sizeof(int)\`.
 
-## 37.2 calloc — allocate + clear
+## 37.2 calloc — Allocate + Zero-Initialize
 
 \`\`\`c
-int *arr = calloc(n, sizeof(int));     // 自動初始化為 0
+int *arr = calloc(n, sizeof(int));     // auto-initialized to 0
 \`\`\`
 
-The contents of \`malloc\` are garbage values, and \`calloc\` is guaranteed to be 0.
+\`malloc\` content is garbage values; \`calloc\` guarantees 0.
 
-## 37.3 realloc — change size
+## 37.3 realloc — Resize
 
 \`\`\`c
 arr = realloc(arr, new_n * sizeof(int));
 \`\`\`
 
-Possibly moved to a new location — the original \`arr\` indicator is invalid and needs to be updated with the return value.
+May move to a new location — original \`arr\` pointer is invalid; use the return value to update.
 
-## 37.4 Two-dimensional array: array of arrays
+## 37.4 2D Arrays: Array of Arrays
 
 \`\`\`c
 int **grid = malloc(rows * sizeof(int *));
 for (int i = 0; i < rows; i++) {
     grid[i] = malloc(cols * sizeof(int));
 }
-// 用完一個一個 free
+// free one by one when done
 for (int i = 0; i < rows; i++) free(grid[i]);
 free(grid);
 \`\`\`
 
-> 10 times more cumbersome than Python's \`[[0]*cols for _ in range(rows)]\` — but flexible.
+> 10× more painful than Python's \`[[0]*cols for _ in range(rows)]\` — but flexible.
 
 ## 37.5 Common Mistakes
 
-| Error | Consequences |
-|------|------|
+| Mistake | Consequence |
+|---------|-------------|
 | Forgot \`free\` | Memory leak |
 | \`free\` twice | Program crash or corrupt heap |
-| Indicator after using \`free\` | undefined (dangling pointer) |
-| Write beyond \`malloc\` range | heap overflow, may not be an error immediately |
-| \`free(p+1)\` | undefined, can only free the indicator originally returned by malloc |
+| Using pointer after \`free\` | Undefined (dangling pointer) |
+| Writing beyond \`malloc\` range | Heap overflow, may not fail immediately |
+| \`free(p+1)\` | Undefined, can only free the original pointer returned by malloc |
 
-**The most common pain point**: Forgetting \`free\` after function \`malloc\` → The longer the program runs, the fatter it becomes (leaks).
+**Most common pain point**: function \`malloc\`s but forgets to \`free\` → program grows larger over time (leak).
 
-## 37.6 valgrind — A leak-catching tool
+## 37.6 valgrind — Leak Detection Tool
 
 \`\`\`bash
 valgrind --leak-check=full ./prog
 \`\`\`
 
-Each malloc that does not correspond to free will be listed and pointed out on which line it is.
+Every malloc without a corresponding free is listed, pointing to the exact line.
 
-## 37.7 stack vs heap
+## 37.7 Stack vs Heap
 
 | | stack | heap |
 |---|---|---|
-| Configuration | Automatic (locale variable) | \`malloc\` |
-| Release | Automatic (leave function) | \`free\` |
-| Speed | Extremely fast | Slow |
-| Size | Small (typically ~8MB) | Large (GB level) |
+| Allocation | Automatic (local variables) | \`malloc\` |
+| Release | Automatic (leaving function) | \`free\` |
+| Speed | Very fast | Slow |
+| Size | Small (usually ~8MB) | Large (GB scale) |
 | Failure | StackOverflow | malloc returns NULL |
 
 \`\`\`c
-int big[10000000];   // ❌ stack overflow（超過 stack 大小）
-int *big = malloc(10000000 * sizeof(int));   // ✅ heap 沒問題
+int big[10000000];   // ❌ stack overflow (exceeds stack size)
+int *big = malloc(10000000 * sizeof(int));   // ✅ heap is fine
 \`\`\`
 
-> APCS questions are open to 10⁶ or above. Use global or malloc for large arrays. Do not put local variables in functions.
+> For APCS problems, arrays of 10^6 or more should be global or use malloc, not local variables inside functions.
 
-## 37.8 Customized simple memory pool
+## 37.8 Custom Simple Memory Pool
 
-Malloc/free in the hot loop is very slow - add one big piece at a time and cut it yourself:
+malloc/free in hot loops is slow — allocate one large block and manage it yourself:
 
 \`\`\`c
 char pool[1<<20];
@@ -33970,26 +33885,17 @@ void* my_alloc(size_t n){
 }
 \`\`\`
 
-OI competes with common techniques for writing Trie/line segment trees, which are several times faster than dynamic malloc.
+Common technique in OI competitions for Trie/segment trees, several times faster than dynamic malloc.
 
-## 37.9 Try it
-`,
-
-java:`
-
-`,
-
+## 37.9 Try It`,
+java:``
 },
 
 81:{
-cpp:`
+cpp:``,
+c:`# Chapter 38: Advanced struct and union
 
-`,
-
-c:`
-# Chapter 38: Advanced struct and union
-
-## 38.1 struct basic
+## 38.1 struct Basics
 
 \`\`\`c
 struct Point { int x, y; };
@@ -33997,21 +33903,21 @@ struct Point p = {3, 4};
 printf("%d %d\\n", p.x, p.y);
 \`\`\`
 
-Or omit it with \`typedef\`:
+Or use \`typedef\` to simplify:
 \`\`\`c
 typedef struct { int x, y; } Point;
 Point p = {3, 4};
 \`\`\`
 
-## 38.2 Specified field initialization (C99+)
+## 38.2 Designated Field Initialization (C99+)
 
 \`\`\`c
 Point p = {.x = 3, .y = 4};
 \`\`\`
 
-The order does not matter, unwritten fields are automatically set to 0.
+Order doesn't matter; unspecified fields default to 0.
 
-## 38.3 Nested struct
+## 38.3 Nested structs
 
 \`\`\`c
 typedef struct {
@@ -34022,18 +33928,18 @@ Rect r = {{0, 0}, {10, 5}};
 printf("%d\\n", r.top_left.x);
 \`\`\`
 
-## 38.4 struct size and padding
+## 38.4 struct Size and Padding
 
 \`\`\`c
 struct A { char c; int i; };
-printf("%zu\\n", sizeof(struct A));   // 多半是 8，不是 5
+printf("%zu\\n", sizeof(struct A));   // usually 8, not 5
 \`\`\`
 
-CPU alignment rules: int usually starts from a multiple of 4. So 3 byte padding will be inserted after char.
+CPU alignment rules: int usually starts at multiples of 4. So 3 bytes of padding are inserted after char.
 
-> **Arrange the columns in order** (put the larger ones in front) to save space.
+> **Ordering fields wisely** (large ones first) can save space.
 
-## 38.5 union — share a memory
+## 38.5 union — Sharing Memory
 
 \`\`\`c
 union Data {
@@ -34043,12 +33949,12 @@ union Data {
 };
 union Data d;
 d.i = 0x41424344;
-printf("%s\\n", d.s);     // "DCBA" 或 "ABCD"（看 endian）
+printf("%s\\n", d.s);     // "DCBA" or "ABCD" (depends on endianness)
 \`\`\`
 
-All fields share the same memory; size = size of the largest field. Commonly used: type conversion hack, variant.
+All fields share the same memory block; size = size of the largest field. Common use: type-punning hack, variants.
 
-## 38.6 Union with tag (tag union)
+## 38.6 Tagged union
 
 \`\`\`c
 typedef struct {
@@ -34060,11 +33966,11 @@ typedef struct {
 } Variant;
 \`\`\`
 
-Simulate "dynamic typing" - Python's variables can hold anything, C needs to be hand-coded like this.
+Simulating "dynamic typing" — Python variables can hold anything; in C you do it this way by hand.
 
-## 38.7 bit field — bit field
+## 38.7 Bit Fields — Packed struct
 
-Memory-saving compression struct:
+Memory-efficient compressed struct:
 
 \`\`\`c
 struct Flags {
@@ -34072,12 +33978,12 @@ struct Flags {
     unsigned int is_dirty : 1;
     unsigned int level    : 4;   // 0..15
     unsigned int type     : 2;   // 0..3
-};   // 一個 struct 共 8 bit = 1 byte（編譯器決定 padding）
+};   // entire struct is 8 bits = 1 byte (compiler decides padding)
 \`\`\`
 
-Drivers and network packet parsing are common.
+Common in device drivers and network packet parsing.
 
-## 38.8 anonymous struct/union (C11)
+## 38.8 Anonymous struct/union (C11)
 
 \`\`\`c
 struct {
@@ -34085,57 +33991,48 @@ struct {
     union {
         int i;
         char *s;
-    };   // 不用名字！
+    };   // no name needed!
 } x;
 x.kind = 1;
-x.i = 42;       // 直接寫，不用 x.data.i
+x.i = 42;       // write directly, no need for x.data.i
 \`\`\`
 
-Makes tagged union cleaner to use.
+Makes tagged unions cleaner to use.
 
-## 38.9 Try it
-`,
-
-java:`
-
-`,
-
+## 38.9 Try It`,
+java:``
 },
 
 82:{
-cpp:`
+cpp:``,
+c:`# Chapter 39: Function Pointers and Callbacks
 
-`,
+C has no lambdas, no closures — function abstraction relies on **function pointers**.
 
-c:`
-# Chapter 39: Function Pointers and Callbacks
-
-C has no lambdas, no closures — function abstraction relies on function pointers.
-
-## 39.1 Function pointer declaration
+## 39.1 Function Pointer Declaration
 
 \`\`\`c
 int add(int a, int b) { return a + b; }
 
 int main(void) {
-    int (*f)(int, int) = add;    // f 是「指向接收兩 int、回傳 int 的函式」
+    int (*f)(int, int) = add;    // f is a "pointer to a function taking two ints and returning int"
     printf("%d\\n", f(3, 5));     // 8
     return 0;
 }
 \`\`\`
 
-**Reading**: Frame the name — \`(*f)\` = f is the pointer, \`(int, int)\` = points to the two-argument function, \`int\` = returns an int.
+**Reading rule**: frame the name — \`(*f)\` = f is a pointer, \`(int, int)\` = points to two-parameter function, \`int\` = returns int.
 
-## 39.2 typedef makes declarations easier to read
+## 39.2 typedef Makes Declarations Readable
 
 \`\`\`c
 typedef int (*BinOp)(int, int);
 BinOp f = add;
 \`\`\`
 
-\`BinOp\` is the type of "function pointer that connects two ints back to int".
+\`BinOp\` is the type "function pointer taking two ints and returning int".
 
-## 39.3 qsort uses function indicators
+## 39.3 qsort Uses Function Pointers
 
 \`\`\`c
 #include <stdlib.h>
@@ -34146,13 +34043,13 @@ int cmp(const void *a, const void *b) {
 
 int main(void) {
     int arr[] = {3, 1, 4, 1, 5};
-    qsort(arr, 5, sizeof(int), cmp);   // 第 4 參數是函式指標
+    qsort(arr, 5, sizeof(int), cmp);   // 4th argument is function pointer
 }
 \`\`\`
 
-qsort doesn't know what's in your array → it calls the cmp you gave it to compare.
+qsort doesn't know what's in your array → it calls your provided cmp to compare.
 
-## 39.4 Callback mode (callback)
+## 39.4 Callback Pattern
 
 \`\`\`c
 void forEach(int *arr, int n, void (*action)(int)) {
@@ -34162,11 +34059,11 @@ void print_it(int x) { printf("%d\\n", x); }
 forEach(arr, n, print_it);
 \`\`\`
 
-Like Python's \`map(f, list)\` - C is much more verbose to write.
+Like Python's \`map(f, list)\` — much more verbose in C.
 
-## 39.5 No closure
+## 39.5 No Closures
 
-C function pointers **cannot capture external variables**. If you need "status", you need to rely on global or pass an additional \`void *context\`:
+C function pointers **cannot capture outer variables**. To have "state", use globals or pass an extra \`void *context\`:
 
 \`\`\`c
 void forEach(int *arr, int n, void (*action)(int, void*), void *ctx) {
@@ -34174,11 +34071,11 @@ void forEach(int *arr, int n, void (*action)(int, void*), void *ctx) {
 }
 \`\`\`
 
-\`pthread_create\` / \`qsort_r\` are all the same - standard functions receive void* context.
+\`pthread_create\` / \`qsort_r\` all follow this pattern — standard functions accept void* context.
 
-## 39.6 Function indicator array: dispatch table
+## 39.6 Function Pointer Arrays: Dispatch Table
 
-Replace switch with a lookup table:
+Replace switch with table lookup:
 
 \`\`\`c
 int add(int a, int b){ return a+b; }
@@ -34192,73 +34089,64 @@ int op = 1;
 printf("%s = %d\\n", names[op], ops[op](10, 3));   // sub = 7
 \`\`\`
 
-Interpreters, state machines, and virtual machines all rely on this method to dispatch instructions.
+Interpreters, state machines, and virtual machines all use this technique to dispatch instructions.
 
-## 39.7 Try it
-`,
-
-java:`
-
-`,
-
+## 39.7 Try It`,
+java:``
 },
 
 83:{
-cpp:`
-
-`,
-
-c:`
-# Chapter 40: String processing strcpy / strtok
+cpp:``,
+c:`# Chapter 40: String Handling — strcpy / strtok
 
 C has no string type — \`char []\` + trailing \`'\\0'\`. All "string operations" are functions.
 
-## 40.1 Must-memorize string.h
+## 40.1 Essential string.h Functions
 
 \`\`\`c
 #include <string.h>
 
-strlen(s);             // 長度（不含 \\0）
-strcpy(dst, src);      // 複製
-strncpy(dst, src, n);  // 複製最多 n 個 char
-strcat(dst, src);      // 接在 dst 後面
-strcmp(a, b);          // 比較：0=相等、<0=a<b、>0=a>b
-strstr(s, sub);        // 找子字串，回指標或 NULL
+strlen(s);             // length (not including \\0)
+strcpy(dst, src);      // copy
+strncpy(dst, src, n);  // copy at most n chars
+strcat(dst, src);      // append to dst
+strcmp(a, b);          // compare: 0=equal, <0=a<b, >0=a>b
+strstr(s, sub);        // find substring, returns pointer or NULL
 \`\`\`
 
-## 40.2 strcpy thunder
+## 40.2 strcpy Pitfall
 
 \`\`\`c
 char dst[5];
-strcpy(dst, "hello world");   // ❌ 寫超出 5 byte，buffer overflow
+strcpy(dst, "hello world");   // ❌ writes past 5 bytes, buffer overflow
 \`\`\`
 
-Use \`strncpy\` or check the length yourself. **Buffer overflow is the largest source of C security vulnerabilities**.
+Use \`strncpy\` or check length yourself. **Buffer overflow is the biggest source of C security vulnerabilities**.
 
-## 40.3 strtok cut string
+## 40.3 strtok — Split String
 
 \`\`\`c
 char s[] = "apple,banana,cherry";
 char *tok = strtok(s, ",");
 while (tok != NULL) {
     printf("%s\\n", tok);
-    tok = strtok(NULL, ",");   // 第二次開始第一參數是 NULL
+    tok = strtok(NULL, ",");   // first argument is NULL for subsequent calls
 }
 \`\`\`
 
-> ⚠️ **strtok will change s** (change the delimiter to \`\\0\`) - cannot be used for string constants.
-> ⚠️ **strtok is not thread-safe** (use global state) - multi-threading requires \`strtok_r\`.
+> ⚠️ **strtok modifies s** (replaces delimiter with \`\\0\`) — cannot use on string literals.
+> ⚠️ **strtok is not thread-safe** (uses global state) — use \`strtok_r\` in multithreaded code.
 
-## 40.4 sprintf — Format to string
+## 40.4 sprintf — Format to String
 
 \`\`\`c
 char buf[100];
 sprintf(buf, "%d + %d = %d", 1, 2, 3);   // buf = "1 + 2 = 3"
 \`\`\`
 
-Safer version: \`snprintf(buf, sizeof(buf), "...", ...)\` — will not write beyond.
+Safer version: \`snprintf(buf, sizeof(buf), "...", ...)\` — won't write past bounds.
 
-## 40.5 string ↔ number
+## 40.5 String ↔ Number Conversion
 
 \`\`\`c
 int n = atoi("42");
@@ -34266,18 +34154,18 @@ double d = atof("3.14");
 sprintf(buf, "%d", n);     // int → string
 \`\`\`
 
-> \`atoi\` returns 0 on failure. It is impossible to distinguish between "real 0" and "failure". Need to strictly use \`strtol\` with errno.
+> \`atoi\` returns 0 on failure, can't distinguish "real 0" from "failure". For strict usage, use \`strtol\` with errno.
 
-## 40.6 Common errors in string comparison
+## 40.6 Common String Comparison Mistake
 
 \`\`\`c
-if (s == "hello") { ... }    // ❌ 比指標
-if (strcmp(s, "hello") == 0) { ... }   // ✅ 比內容
+if (s == "hello") { ... }    // ❌ compares pointers
+if (strcmp(s, "hello") == 0) { ... }   // ✅ compares content
 \`\`\`
 
-## 40.7 Dynamic strings: hand-engraved string builder
+## 40.7 Dynamic Strings: Roll Your Own String Builder
 
-If you want to group a large number of tokens but are afraid of overflow, you need to manage the buffer yourself:
+When concatenating many tokens and worried about overflow, manage the buffer yourself:
 
 \`\`\`c
 typedef struct { char *buf; size_t len, cap; } Str;
@@ -34293,9 +34181,9 @@ void str_append(Str *s, const char *t) {
 }
 \`\`\`
 
-C++'s \`string\` does roughly this under the hood; in C you have to do it all over again.
+C++'s \`string\` works roughly this way underneath; in C you start from scratch.
 
-## 40.8 String Hash (APCS Advanced)
+## 40.8 String Hashing (Advanced APCS)
 
 \`\`\`c
 unsigned long hash(const char *s){
@@ -34306,28 +34194,19 @@ unsigned long hash(const char *s){
 }
 \`\`\`
 
-djb2 is the best-known fast string hash. A must for self-made hash maps.
+djb2 is the most well-known fast string hash. Essential for making your own hash maps.
 
-## 40.9 Try it
-`,
-
-java:`
-
-`,
-
+## 40.9 Try It`,
+java:``
 },
 
 84:{
-cpp:`
+cpp:``,
+c:`# Chapter 41: Advanced Macros: Conditional Compilation and Variadic Macros
 
-`,
+\`#define\` is C's metaprogramming — the preprocessor does **textual substitution** before the compiler sees it.
 
-c:`
-# Chapter 41: Macro Advanced: Conditional Compilation and Variable Parameters
-
-\`#define\` is a C metaprogram - the preprocessor replaces macro literals before entering the compiler.
-
-## 41.1 Constant Macro
+## 41.1 Constant Macros
 
 \`\`\`c
 #define MAX 1000005
@@ -34335,26 +34214,26 @@ c:`
 int arr[MAX];
 \`\`\`
 
-> Modern C works with \`const int MAX = 1000005;\` — but macros work with array sizes (const variables don't work with some compilers).
+> Modern C can use \`const int MAX = 1000005;\` — but macros can be used for array sizes (const variables don't work in some compilers).
 
-## 41.2 Functional macro
+## 41.2 Function-like Macros
 
 \`\`\`c
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 \`\`\`
 
-**Each argument must be bracketed** — otherwise \`MIN(x+1, y)\` will do weird things when expanded.
+**Every parameter needs parentheses** — otherwise \`MIN(x+1, y)\` expands oddly.
 
-## 41.3 Thunder of the Macro: Side Effects
+## 41.3 Macro Pitfall: Side Effects
 
 \`\`\`c
 int i = 5;
-int m = MIN(i++, 10);   // i 變成 7（被算兩次）
+int m = MIN(i++, 10);   // i becomes 7 (evaluated twice)
 \`\`\`
 
-The macro is text replacement, and \`i++\` is actually expanded twice. **It is safer to use the inline function \`static inline\`**.
+Macros are textual substitution; \`i++\` is really expanded twice. **Using \`static inline\` functions is safer**.
 
-## 41.4 Conditional compilation
+## 41.4 Conditional Compilation
 
 \`\`\`c
 #ifdef DEBUG
@@ -34362,47 +34241,47 @@ The macro is text replacement, and \`i++\` is actually expanded twice. **It is s
 #endif
 
 #if defined(__linux__)
-    // linux 專屬程式碼
+    // linux-specific code
 #elif defined(_WIN32)
-    // windows 專屬
+    // windows-specific code
 #endif
 \`\`\`
 
-\`gcc -DDEBUG ...\` will bring in debugging information when compiling. The official version does not add → the entire section disappears, zero overhead.
+Compiling with \`gcc -DDEBUG ...\` includes debug messages. Without it → entire section disappears, zero overhead.
 
-## 41.5 Variable parameter macro (C99+)
+## 41.5 Variadic Macros (C99+)
 
 \`\`\`c
 #define LOG(fmt, ...) fprintf(stderr, "[log] " fmt "\\n", __VA_ARGS__)
 LOG("x = %d, y = %d", 1, 2);
 \`\`\`
 
-\`...\` accepts any number of arguments and \`__VA_ARGS__\` expands them.
+\`...\` accepts any number of arguments, \`__VA_ARGS__\` expands them.
 
-## 41.6 Stringization and concatenation
+## 41.6 Stringification and Concatenation
 
 \`\`\`c
 #define STR(x) #x
 #define CAT(a, b) a##b
 
 STR(hello)      // "hello"
-CAT(my, var)    // myvar (識別子)
+CAT(my, var)    // myvar (identifier)
 \`\`\`
 
-## 41.7 header guard standard writing method
+## 41.7 Standard Header Guard
 
 \`\`\`c
 #ifndef MYHEADER_H
 #define MYHEADER_H
-// 標頭內容
+// header content
 #endif
 \`\`\`
 
-Prevent the same .h from being included twice causing duplicate declarations.
+Prevents duplicate declarations from including the same .h file twice.
 
-## 41.8 X-Macro Paradigm
+## 41.8 X-Macro Pattern
 
-One data generates multiple codes at the same time:
+Generate multiple types of code from a single data source:
 
 \`\`\`c
 #define COLORS \\
@@ -34410,14 +34289,14 @@ One data generates multiple codes at the same time:
     X(GREEN, 0x00FF00) \\
     X(BLUE,  0x0000FF)
 
-// 1) 產生 enum
+// 1) Generate enum
 enum Color {
 #define X(name, val) name,
     COLORS
 #undef X
 };
 
-// 2) 產生 name 字串表
+// 2) Generate name string table
 const char *color_name[] = {
 #define X(name, val) #name,
     COLORS
@@ -34425,48 +34304,39 @@ const char *color_name[] = {
 };
 \`\`\`
 
-Added \`YELLOW\` As long as the COLORS line is changed, the enum and the string table will be automatically synchronized.
+Adding \`YELLOW\` only requires changing the COLORS line; enum and string table sync automatically.
 
-## 41.9 Comparison with C++ template
+## 41.9 Comparison with C++ Templates
 
 | | C macro | C++ template |
 |---|---|---|
-| Phase | Preprocessing (text replacement) | Compile time (type safety) |
-| Error message | Expanded Book of Heaven | Template Book of Heaven |
-| Safe Side Effects | ❌ | ✅ |
-| Cross-type | ✅ (rough) | ✅ (type parameterization) |
+| Phase | Preprocessor (textual substitution) | Compile time (type-safe) |
+| Error messages | Expanded gibberish | Template gibberish |
+| Side effect safety | ❌ | ✅ |
+| Works across types | ✅ (crude) | ✅ (type parameterized) |
 
-New projects give priority to \`static inline\`/template; historical C code will continue to use macros.
+For new projects, prefer \`static inline\` / templates; only use macros for legacy C code.
 
-## 41.10 Try it
-`,
-
-java:`
-
-`,
-
+## 41.10 Try It`,
+java:``
 },
 
 85:{
-cpp:`
+cpp:``,
+c:`# Chapter 42: Introduction to System Calls — read / write / fork
 
-`,
+C is the language for writing **operating systems, embedded systems, and drivers**. Talking directly to the OS requires system calls.
 
-c:`
-# Chapter 42: Getting Started with System Calls read / write / fork
+> ⚠️ This chapter applies only to Linux/macOS; Windows requires the Win32 API.
 
-C is the language for writing operating systems, embedded systems, and drivers. To talk directly to the OS, rely on system calls.
+## 42.1 Standard I/O vs System Calls
 
-> ⚠️ This chapter is only applicable to Linux/macOS, Windows must use Win32 API instead.
-
-## 42.1 Standard I/O and system calls
-
-| | Standard I/O | System call |
+| | Standard I/O | System calls |
 |---|---|---|
-| Function | \`fopen / fread / fwrite\` | \`open / read / write\` |
-| Header | \`<stdio.h>\` | \`<unistd.h> <fcntl.h>\` |
-| object | \`FILE *\` | integer file descriptor (fd) |
-| Buffering | Yes (lib layer) | No (directly sent to kernel) |
+| Functions | \`fopen / fread / fwrite\` | \`open / read / write\` |
+| Headers | \`<stdio.h>\` | \`<unistd.h> <fcntl.h>\` |
+| Object | \`FILE *\` | Integer file descriptor (fd) |
+| Buffering | Yes (library level) | No (direct to kernel) |
 
 ## 42.2 open / read / write
 
@@ -34477,64 +34347,64 @@ C is the language for writing operating systems, embedded systems, and drivers. 
 int fd = open("data.txt", O_RDONLY);
 if (fd < 0) { perror("open"); return 1; }
 char buf[1024];
-ssize_t n = read(fd, buf, sizeof(buf));   // 回讀到的 byte 數
+ssize_t n = read(fd, buf, sizeof(buf));   // returns number of bytes read
 write(STDOUT_FILENO, buf, n);             // STDOUT_FILENO = 1
 close(fd);
 \`\`\`
 
 - 0 = stdin, 1 = stdout, 2 = stderr
-- read returns 0 indicating EOF
-- write may not finish writing, you need to loop until it is finished.
+- read returns 0 to indicate EOF
+- write may not write everything; loop until fully written
 
-## 42.3 fork — start a journey
+## 42.3 fork — Create a Process
 
 \`\`\`c
 #include <sys/wait.h>
 pid_t pid = fork();
 if (pid == 0) {
-    // 子行程
+    // child process
     printf("I'm child\\n");
     _exit(0);
 } else if (pid > 0) {
-    // 父行程
+    // parent process
     int status;
     waitpid(pid, &status, 0);
     printf("Child done\\n");
 }
 \`\`\`
 
-\`fork\` Make a complete copy of the current itinerary, and the father and son will continue running from the same line.
+\`fork\` makes a complete copy of the current process; parent and child continue from the same line.
 
-## 42.4 exec series — replace yourself
+## 42.4 exec Family — Replace Yourself
 
 \`\`\`c
 execl("/bin/ls", "ls", "-l", NULL);
-// 上一行成功的話，不會回來
+// if successful, never returns
 \`\`\`
 
-Usually \`fork\` + subroutine \`exec\` — this is how the shell runs commands.
+Usually \`fork\` + child \`exec\` — this is how shells run commands.
 
-## 42.5 pipe — communication between two processes
+## 42.5 pipe — Communication Between Two Processes
 
 \`\`\`c
 int fd[2];
-pipe(fd);             // fd[0] 讀端、fd[1] 寫端
-// fork 後，父用 fd[1] 寫、子用 fd[0] 讀
+pipe(fd);             // fd[0] read end, fd[1] write end
+// after fork, parent writes to fd[1], child reads from fd[0]
 \`\`\`
 
-## 42.6 errno — error code
+## 42.6 errno — Error Codes
 
 \`\`\`c
 #include <errno.h>
 #include <string.h>
 if (open(...) < 0) {
-    printf("錯誤: %s\\n", strerror(errno));
+    printf("Error: %s\\n", strerror(errno));
 }
 \`\`\`
 
-Set errno on every system call failure; \`strerror\` turns it into human speech.
+Every failing system call sets errno; \`strerror\` converts it to human-readable text.
 
-## 42.7 signal — receive signal
+## 42.7 signal — Receive Signals
 
 \`\`\`c
 #include <signal.h>
@@ -34542,42 +34412,33 @@ void handler(int sig) {
     write(1, "got SIGINT\\n", 11);
     _exit(0);
 }
-signal(SIGINT, handler);   // Ctrl+C 觸發
+signal(SIGINT, handler);   // triggered by Ctrl+C
 \`\`\`
 
-> ⚠️ The signal handler can only call the **async-signal-safe** function (write is OK, printf is not).
+> ⚠️ Signal handlers can only call **async-signal-safe** functions (write is OK, printf is not).
 
-## 42.8 mmap — Use files as memory
+## 42.8 mmap — Use Files as Memory
 
 \`\`\`c
 #include <sys/mman.h>
 int fd = open("big.bin", O_RDONLY);
 struct stat st; fstat(fd, &st);
 char *p = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-// p 像普通陣列一樣讀
+// p is read like a normal array
 munmap(p, st.st_size);
 \`\`\`
 
-There is no need to read into the buffer when processing large files - the kernel paging on demand is super fast.
+No need to read large files into a buffer — kernel pages on demand, extremely fast.
 
-## 42.9 Try it
-`,
-
-java:`
-
-`,
-
+## 42.9 Try It`,
+java:``
 },
 
 86:{
-cpp:`
+cpp:``,
+c:`# Chapter 43: Makefile and Multi-File Compilation
 
-`,
-
-c:`
-# Chapter 43: Makefile and multi-file compilation
-
-C When writing multi-file projects, typing \`gcc a.c b.c c.c -o prog\` by hand every time is too annoying. Makefile automation.
+For C projects with multiple files, typing \`gcc a.c b.c c.c -o prog\` every time is tedious. Makefile automates it.
 
 ## 43.1 Simple Makefile
 
@@ -34595,20 +34456,20 @@ clean:
 	rm -f *.o prog
 \`\`\`
 
-> ⚠️ Indentation must use Tab**, not 4 spaces! This is the most common problem with Makefiles.
+> ⚠️ Indentation **must use Tab**, not 4 spaces! This is the most common Makefile pitfall.
 
-## 43.2 Rule format
+## 43.2 Rule Format
 
 \`\`\`
 target: dependencies
 	command
 \`\`\`
 
-- target = the file you want to create
+- target = the file you want to produce
 - dependencies = files that target depends on
-- command = How to make target (will run when dependencies are updated)
+- command = how to produce target (runs when dependencies are updated)
 
-Executing \`make prog\` will check whether prog needs to be rebuilt.
+Running \`make prog\` checks if prog needs rebuilding.
 
 ## 43.3 Variables
 
@@ -34617,18 +34478,18 @@ CC = gcc
 CFLAGS = -Wall -O2 -g
 OBJS = main.o utils.o
 
-prog: \\$(OBJS)
-	\\$(CC) -o prog \\$(OBJS)
+prog: $(OBJS)
+	$(CC) -o prog $(OBJS)
 
 %.o: %.c
-	\\$(CC) \\$(CFLAGS) -c \\$<
+	$(CC) $(CFLAGS) -c $<
 \`\`\`
 
-- \`\\$<\` = first dependency
-- \`\\$@\` = current target
-- \`%.o: %.c\` = General rule (any .c compiles to .o with the same name)
+- \`$<\` = first dependency
+- \`$@\` = current target
+- \`%.o: %.c\` = pattern rule (any .c compiles to same-named .o)
 
-## 43.4 Fake target .PHONY
+## 43.4 Phony Targets .PHONY
 
 \`\`\`make
 .PHONY: clean all
@@ -34637,28 +34498,28 @@ clean:
 	rm -f *.o prog
 \`\`\`
 
-\`clean\` is not a real file → mark it as .PHONY to prevent someone from just creating a file called clean and then it gets corrupted.
+\`clean\` is not a real file → mark as .PHONY, prevents breakage if someone creates a file named "clean".
 
-## 43.5 Automatic dependencies
+## 43.5 Automatic Dependencies
 
-In practice, \`gcc -M\` will be used to automatically generate dependency graphs to avoid manual maintenance of lines such as \`main.o: main.c utils.h\`.
+In practice, \`gcc -M\` is used to auto-generate dependency graphs, avoiding manually maintaining \`main.o: main.c utils.h\`.
 
-## 43.6 The era without Makefile
+## 43.6 The Post-Makefile Era
 
-Modern C/C++ projects mostly use **CMake** (cross-platform, generate Makefile / Ninja / VS projects) or **Meson**. But understanding Makefile is still an introduction to engineering.
+Modern C/C++ projects often use **CMake** (cross-platform, generates Makefile/Ninja/VS projects) or **Meson**. But understanding Makefile is still foundational engineering knowledge.
 
-## 43.7 How to write headers and implementation binning
+## 43.7 Separating Header and Implementation Files
 
 \`\`\`c
 // utils.h
 #ifndef UTILS_H
 #define UTILS_H
-int gcd(int a, int b);   // 只宣告
+int gcd(int a, int b);   // declaration only
 #endif
 
 // utils.c
 #include "utils.h"
-int gcd(int a, int b){ return b ? gcd(b, a%b) : a; }   // 實作
+int gcd(int a, int b){ return b ? gcd(b, a%b) : a; }   // implementation
 
 // main.c
 #include "utils.h"
@@ -34666,55 +34527,43 @@ int main(){ gcd(12, 18); }
 \`\`\`
 
 Rules:
-- .h only puts **declaration** (function prototype, struct definition, macro)
-- .c puts **implementation** (function body)
-- .c that uses a certain declaration needs \`#include\` to correspond to .h
+- .h contains only **declarations** (function prototypes, struct definitions, macros)
+- .c contains **implementations** (function bodies)
+- Any .c using a declaration must \`#include\` the corresponding .h
 
-## 43.8 Compilation flag quick check
+## 43.8 Compiler Flags Quick Reference
 
 | Flag | Purpose |
-|------|------|
-| \`-Wall -Wextra\` | Turn on all warnings |
-| \`-O2\` | Official version optimization |
-| \`-g\` | with debug symbol |
-| \`-fsanitize=address\` | AddressSanitizer catches buffer overflow |
-| \`-fsanitize=undefined\` | UBSan catch undefined behavior |
-| \`-std=c11\` | Specifies the C standard version |
+|------|---------|
+| \`-Wall -Wextra\` | Enable all warnings |
+| \`-O2\` | Production optimization |
+| \`-g\` | Include debug symbols |
+| \`-fsanitize=address\` | AddressSanitizer to catch buffer overflow |
+| \`-fsanitize=undefined\` | UBSan to catch undefined behavior |
+| \`-std=c11\` | Specify C standard version |
 
-When developing \`-Wall -Wextra -g -fsanitize=address\`, 90% of C bugs are caught in the compilation/execution stage.
+During development, use \`-Wall -Wextra -g -fsanitize=address\`; 90% of C bugs are caught at compile/runtime.
 
-## 43.9 Try it
-`,
-
-java:`
-
-`,
-
+## 43.9 Try It`,
+java:``
 },
 
 87:{
-cpp:`
+cpp:``,
+c:``,
+java:`# Chapter 36: Collections Framework
 
-`,
+Java's \`java.util.*\` is more organized than C++ STL — everything is designed around interfaces.
 
-c:`
-
-`,
-
-java:`
-# Chapter 36: Collections Collection Framework
-
-Java's \`java.util.*\` is more organized than the C++ STL — all designed around interfaces.
-
-## 36.1 Three main interfaces
+## 36.1 Three Main Interfaces
 
 \`\`\`
 Collection
-├── List   有順序、可重複  → ArrayList, LinkedList
-├── Set    不可重複        → HashSet, TreeSet, LinkedHashSet
-└── Queue  排隊            → ArrayDeque, PriorityQueue
+├── List   ordered, allows duplicates  → ArrayList, LinkedList
+├── Set    no duplicates               → HashSet, TreeSet, LinkedHashSet
+└── Queue  queue                       → ArrayDeque, PriorityQueue
 
-Map<K,V>   鍵值對          → HashMap, TreeMap, LinkedHashMap
+Map<K,V>   key-value pairs             → HashMap, TreeMap, LinkedHashMap
 \`\`\`
 
 ## 36.2 List
@@ -34724,24 +34573,24 @@ import java.util.*;
 List<Integer> list = new ArrayList<>();
 list.add(1); list.add(2); list.add(3);
 list.get(0);           // 1
-list.set(0, 10);       // 改第 0 個
+list.set(0, 10);       // modify at index 0
 list.size();           // 3
-list.remove(0);        // 刪第 0 個（O(n)）
+list.remove(0);        // remove at index 0 (O(n))
 for (int x : list) System.out.println(x);
 \`\`\`
 
 **ArrayList vs LinkedList**:
-- ArrayList — random access O(1), tail addition O(1) amortization, middle insertion O(n)
-- LinkedList — Add O(1) to both ends, random access O(n)
+- ArrayList — random access O(1), amortized O(1) append to end, O(n) insert in middle
+- LinkedList — O(1) add at both ends, O(n) random access
 
-In fact, **99% of the time just use ArrayList** - LinkedList is almost always slower than ArrayList on modern hardware (cache miss).
+In practice, **use ArrayList 99% of the time** — LinkedList is almost always slower on modern hardware (cache misses).
 
 ## 36.3 Map
 
 \`\`\`java
 Map<String, Integer> map = new HashMap<>();
 map.put("apple", 1);
-map.put("apple", 2);              // 覆蓋
+map.put("apple", 2);              // overwrites
 map.get("apple");                 // 2
 map.getOrDefault("nope", 0);      // 0
 map.containsKey("apple");         // true
@@ -34751,19 +34600,19 @@ for (Map.Entry<String, Integer> e : map.entrySet()) {
 \`\`\`
 
 - **HashMap** — average O(1), unordered
-- **TreeMap** — O(log n), key automatic sorting
-- **LinkedHashMap** — O(1), retain **insertion order**
+- **TreeMap** — O(log n), keys auto-sorted
+- **LinkedHashMap** — O(1), preserves **insertion order**
 
 ## 36.4 Set
 
 \`\`\`java
 Set<Integer> s = new HashSet<>();
-s.add(1); s.add(2); s.add(1);     // 自動去重
+s.add(1); s.add(2); s.add(1);     // auto-dedup
 s.contains(1);                    // true
 s.size();                         // 2
 \`\`\`
 
-## 36.5 Queue/Deque
+## 36.5 Queue / Deque
 
 \`\`\`java
 Deque<Integer> dq = new ArrayDeque<>();
@@ -34771,12 +34620,12 @@ dq.offerFirst(1); dq.offerLast(2);
 dq.pollFirst(); dq.pollLast();
 \`\`\`
 
-Java recommends using **ArrayDeque** as stack/queue (faster than \`Stack\` and \`LinkedList\`).
+Java recommends **ArrayDeque** as stack/queue (faster than both \`Stack\` and \`LinkedList\`).
 
-## 36.6 PriorityQueue(heap)
+## 36.6 PriorityQueue (heap)
 
 \`\`\`java
-PriorityQueue<Integer> pq = new PriorityQueue<>();   // 小根堆預設
+PriorityQueue<Integer> pq = new PriorityQueue<>();   // min-heap by default
 pq.offer(3); pq.offer(1); pq.offer(2);
 pq.poll();                          // 1
 
@@ -34787,72 +34636,63 @@ PriorityQueue<Integer> maxPq = new PriorityQueue<>(Comparator.reverseOrder());
 
 \`\`\`java
 List<int[]> pairs = ...;
-pairs.sort((a, b) -> a[0] - b[0]);                  // 第一欄升冪
+pairs.sort((a, b) -> a[0] - b[0]);                  // ascending by first column
 pairs.sort(Comparator.comparingInt(a -> a[0])
-    .thenComparingInt(a -> -a[1]));                  // 多鍵
+    .thenComparingInt(a -> -a[1]));                  // multi-key
 \`\`\`
 
-> ⚠️ \`a[0] - b[0]\` will overflow in large numbers! It is safer to change it to \`Integer.compare(a[0], b[0])\`.
+> ⚠️ \`a[0] - b[0]\` can overflow with large numbers! Use \`Integer.compare(a[0], b[0])\` for safety.
 
 ## 36.8 Immutable Collections (Java 9+)
 
 \`\`\`java
-List<Integer> immut = List.of(1, 2, 3);     // 不能改、不接受 null
+List<Integer> immut = List.of(1, 2, 3);     // immutable, doesn't accept null
 Map<String,Integer> m = Map.of("a", 1, "b", 2);
 \`\`\`
 
-Adding it will throw UnsupportedOperationException. It is very convenient to use as a constant table.
+Modification throws UnsupportedOperationException. Very convenient as constant tables.
 
 ## 36.9 Comparison with C++ STL
 
-| Function | C++ | Java |
-|------|-----|------|
-| dynamic array | vector | ArrayList |
+| Feature | C++ | Java |
+|---------|-----|------|
+| Dynamic array | vector | ArrayList |
 | Hash table | unordered_map | HashMap |
-| red-black tree map | map | TreeMap |
+| Red-black tree map | map | TreeMap |
 | Heap | priority_queue | PriorityQueue |
-| double-ended | deque | ArrayDeque |
-| iterator | iterator / range for | Iterator / for-each |
+| Double-ended | deque | ArrayDeque |
+| Iteration | iterator / range for | Iterator / for-each |
 
-The semantics are almost the same, the names are just different.
+Almost one-to-one semantics, just different names.
 
-## 36.10 Try it
-`,
-
+## 36.10 Try It`
 },
 
 88:{
-cpp:`
+cpp:``,
+c:``,
+java:`# Chapter 37: Generics
 
-`,
+Generics let you write **type-parameterized** classes/methods — type safety guaranteed at compile time.
 
-c:`
+## 37.1 Why Generics Are Needed
 
-`,
-
-java:`
-# Chapter 37: Generics
-
-Generics lets you write type-parameterized classes/methods — ensuring type safety at compile time.
-
-## 37.1 Why are generics needed?
-
-The era before generics (before Java 5):
+Before generics (pre-Java 5):
 \`\`\`java
 List list = new ArrayList();
 list.add("hello");
-String s = (String) list.get(0);    // 要強制轉型，可能爆 ClassCastException
+String s = (String) list.get(0);    // requires cast, may throw ClassCastException
 \`\`\`
 
-There are generics:
+With generics:
 \`\`\`java
 List<String> list = new ArrayList<>();
 list.add("hello");
-String s = list.get(0);             // 編譯器知道是 String
-list.add(42);                       // 編譯錯誤
+String s = list.get(0);             // compiler knows it's a String
+list.add(42);                       // compile error
 \`\`\`
 
-## 37.2 Generic methods
+## 37.2 Generic Methods
 
 \`\`\`java
 public static <T> T myMax(T a, T b, Comparator<T> cmp) {
@@ -34860,9 +34700,9 @@ public static <T> T myMax(T a, T b, Comparator<T> cmp) {
 }
 \`\`\`
 
-\`<T>\` is written before the return type, and T is automatically deduced.
+\`<T>\` before the return type; T is auto-inferred.
 
-## 37.3 Generic class
+## 37.3 Generic Classes
 
 \`\`\`java
 class Box<T> {
@@ -34874,21 +34714,21 @@ Box<Integer> bi = new Box<>(42);
 Box<String> bs = new Box<>("hello");
 \`\`\`
 
-## 37.4 Wildcard \`?\`
+## 37.4 Wildcards \`?\`
 
 \`\`\`java
-void print(List<?> list) { ... }            // 任意型別的 List
-void sum(List<? extends Number> list) { ... } // Number 或其子類
-void add(List<? super Integer> list) { ... }  // Integer 或其父類
+void print(List<?> list) { ... }            // List of any type
+void sum(List<? extends Number> list) { ... } // Number or subclasses
+void add(List<? super Integer> list) { ... }  // Integer or parent classes
 \`\`\`
 
-**PECS Principle**: **P**roducer **E**xtends, **C**onsumer **S**uper.
-- Want to **read** something from list → \`? extends T\`
-- Want to **write** something to list → \`? super T\`
+**PECS principle**: **P**roducer **E**xtends, **C**onsumer **S**uper.
+- Want to **read** from list → \`? extends T\`
+- Want to **write** to list → \`? super T\`
 
-## 37.5 Type erasure
+## 37.5 Type Erasure
 
-Java generics only exist at compile time. During execution, \`List<Integer>\` and \`List<String>\` are the same class.
+Java generics **only exist at compile time**. At runtime \`List<Integer>\` and \`List<String>\` are the same class.
 
 \`\`\`java
 List<Integer> a = new ArrayList<>();
@@ -34896,18 +34736,18 @@ List<String> b = new ArrayList<>();
 System.out.println(a.getClass() == b.getClass());    // true!
 \`\`\`
 
-> This is not the same as C++ template (C++ really generates a different class for each type).
+> This is different from C++ templates (C++ truly generates different classes for each type).
 
 ## 37.6 Limitations
 
 Cannot:
 \`\`\`java
-T t = new T();                    // ❌ 不能 new 泛型
-T[] arr = new T[10];              // ❌ 不能 new 泛型陣列
-if (x instanceof List<String>)    // ❌ 不能 instanceof 泛型
+T t = new T();                    // ❌ cannot new a generic type
+T[] arr = new T[10];              // ❌ cannot new a generic array
+if (x instanceof List<String>)    // ❌ cannot instanceof with generics
 \`\`\`
 
-## 37.7 Multiple parameters + restrictions
+## 37.7 Multiple Parameters + Constraints
 
 \`\`\`java
 class Pair<K extends Comparable<K>, V> {
@@ -34916,77 +34756,68 @@ class Pair<K extends Comparable<K>, V> {
 }
 \`\`\`
 
-\`<K extends Comparable<K>>\` Forces K to be comparable.
+\`<K extends Comparable<K>>\` forces K to be comparable.
 
-## 37.8 Comparison with C++ template
+## 37.8 Comparison with C++ Templates
 
 | | Java generics | C++ template |
 |---|---|---|
-| Compilation output | One copy (erased) | One copy per type |
-| Execution-viewable types | ❌ | ❌ (unless RTTI) |
-| primitive support | ❌(need to be packaged) | ✅ |
-| Compilation speed | Fast | Slow |
-| Error Message | Normal | Nightmare |
+| Compiled output | One copy (erased) | One copy per type |
+| Runtime type visible | ❌ | ❌ (unless RTTI) |
+| Primitive support | ❌ (requires boxing) | ✅ |
+| Compile speed | Fast | Slow |
+| Error messages | Normal | Nightmare |
 
-Java cannot do \`List<int>\` — only \`List<Integer>\`, each element is boxed → slow and memory intensive. APCS just use \`int[]\` to array directly.
+Java can't do \`List<int>\` — only \`List<Integer>\`, each element is boxed → slow and memory-heavy. For APCS, just use \`int[]\` arrays directly.
 
-## 37.9 Try it
-`,
-
+## 37.9 Try It`
 },
 
 89:{
-cpp:`
+cpp:``,
+c:``,
+java:`# Chapter 38: Stream API
 
-`,
+Introduced in Java 8 — functional-style collection processing. Similar to Python's list comprehensions.
 
-c:`
-
-`,
-
-java:`
-# Chapter 38: Stream API
-
-Introduced in Java 8 — Functional style handling of collections. Similar to Python's list comprehension.
-
-## 38.1 Three steps: source → intermediate operation → terminal operation
+## 38.1 Three Steps: Source → Intermediate Operations → Terminal Operation
 
 \`\`\`java
 import java.util.stream.*;
 
 List<Integer> nums = List.of(1, 2, 3, 4, 5);
 int sumOfSquares = nums.stream()
-    .filter(n -> n % 2 == 0)        // 中間：留偶數
-    .mapToInt(n -> n * n)           // 中間：平方
-    .sum();                          // 終端：加總
+    .filter(n -> n % 2 == 0)        // intermediate: keep even numbers
+    .mapToInt(n -> n * n)           // intermediate: square
+    .sum();                          // terminal: sum up
 System.out.println(sumOfSquares);   // 4 + 16 = 20
 \`\`\`
 
-## 38.2 Common intermediate operations
+## 38.2 Common Intermediate Operations
 
 \`\`\`java
 nums.stream()
-    .filter(n -> n > 0)           // 篩選
-    .map(n -> n * 2)              // 轉換
-    .distinct()                   // 去重
-    .sorted()                     // 排序
-    .limit(10)                    // 取前 10 個
-    .skip(5);                     // 跳過前 5 個
+    .filter(n -> n > 0)           // filter
+    .map(n -> n * 2)              // transform
+    .distinct()                   // remove duplicates
+    .sorted()                     // sort
+    .limit(10)                    // take first 10
+    .skip(5);                     // skip first 5
 \`\`\`
 
-## 38.3 Common terminal operations
+## 38.3 Common Terminal Operations
 
 \`\`\`java
-.count()                          // 個數
-.sum() / .max() / .min()          // 數值統計
-.collect(Collectors.toList())     // 收集成 List
+.count()                          // count
+.sum() / .max() / .min()          // numeric statistics
+.collect(Collectors.toList())     // collect into List
 .collect(Collectors.toSet())
 .collect(Collectors.toMap(...))
-.forEach(System.out::println)     // 對每個元素
-.reduce(0, Integer::sum)          // 自訂歸納
+.forEach(System.out::println)     // for each element
+.reduce(0, Integer::sum)          // custom reduction
 \`\`\`
 
-## 38.4 groupingBy — Java’s groupby
+## 38.4 groupingBy — Java's groupby
 
 \`\`\`java
 Map<String, List<Person>> byCity = people.stream()
@@ -34996,40 +34827,40 @@ Map<String, Long> cntByCity = people.stream()
     .collect(Collectors.groupingBy(Person::getCity, Collectors.counting()));
 \`\`\`
 
-## 38.5 Method reference \`::\`
+## 38.5 Method Reference \`::\`
 
 \`\`\`java
-list.forEach(System.out::println);          // 等同 x -> System.out.println(x)
-list.stream().map(String::toUpperCase);     // 等同 s -> s.toUpperCase()
+list.forEach(System.out::println);          // same as x -> System.out.println(x)
+list.stream().map(String::toUpperCase);     // same as s -> s.toUpperCase()
 list.stream().map(Person::new);             // constructor reference
 \`\`\`
 
-## 38.6 Note
+## 38.6 Notes
 
-- Stream **can only be consumed once** — throw it away after use, and re-use it if you want to use it again.stream()
+- Stream **can only be consumed once** — after use it's spent; create a new .stream() to use again
 - Stream **does not modify the original collection**
-- The intermediate operation is **lazy execution** - it will not run without a terminal operation
+- Intermediate operations are **lazily evaluated** — won't run without a terminal operation
 
-## 38.7 Parallel streams
+## 38.7 Parallel Stream
 
 \`\`\`java
 nums.parallelStream().filter(...).sum();
 \`\`\`
 
-Help you enable multi-thread processing. Note: **The data must have no shared status**, otherwise it will be damaged.
+Opens multiple threads to process. Note: **data must have no shared state**, otherwise it breaks.
 
-## 38.8 Collectors Advanced
+## 38.8 Advanced Collectors
 
 \`\`\`java
-// partitioningBy: 二分群
+// partitioningBy: split into two groups
 Map<Boolean, List<Integer>> oddEven = nums.stream()
     .collect(Collectors.partitioningBy(n -> n % 2 == 1));
 
-// toMap: 轉成 Map
+// toMap: convert to Map
 Map<String, Integer> lens = words.stream()
     .collect(Collectors.toMap(w -> w, String::length));
 
-// summarizingInt: 一次得 count/sum/min/max/avg
+// summarizingInt: get count/sum/min/max/avg in one call
 IntSummaryStatistics stat = nums.stream()
     .collect(Collectors.summarizingInt(Integer::intValue));
 System.out.println(stat.getAverage());
@@ -35044,36 +34875,27 @@ System.out.println(stat.getAverage());
 | \`max(xs, key=f)\` | \`xs.stream().max(comparingInt(f::apply))\` |
 | \`{k: list(g) for k,g in groupby(xs, key)}\` | \`xs.stream().collect(groupingBy(key))\` |
 
-Python list comprehension is short to write; Java Stream chain call is long but **cold compiled as fast as hand-written for**, and supports \`.parallelStream()\` to be automatically distributed to multiple cores.
+Python list comprehensions are shorter; Java Stream chaining is longer but **after JIT compilation is as fast as hand-written for loops**, and supports \`.parallelStream()\` to automatically distribute across cores.
 
-## 38.10 Try it
-`,
-
+## 38.10 Try It`
 },
 
 90:{
-cpp:`
+cpp:``,
+c:``,
+java:`# Chapter 39: Optional and Null Safety
 
-`,
-
-c:`
-
-`,
-
-java:`
-# Chapter 39: Optional and null safety
-
-Tony Hoare said null reference was his "billion dollar mistake". Java 8 adds \`Optional\` mitigation.
+Tony Hoare called null references his "billion-dollar mistake". Java 8 added \`Optional\` to mitigate this.
 
 ## 39.1 The Pain of NullPointerException
 
 \`\`\`java
 User user = findUser(id);
-String name = user.getName();    // 若 user 是 null → 炸
+String name = user.getName();    // if user is null → crash
 String upper = name.toUpperCase();
 \`\`\`
 
-To write a series of null checks:
+Requires a chain of null checks:
 \`\`\`java
 if (user != null) {
     String name = user.getName();
@@ -35084,12 +34906,12 @@ if (user != null) {
 }
 \`\`\`
 
-## 39.2 Optional expresses "maybe not"
+## 39.2 Optional Expresses "Might Not Exist"
 
 \`\`\`java
 import java.util.Optional;
 
-Optional<User> userOpt = findUser(id);     // 函式回傳 Optional
+Optional<User> userOpt = findUser(id);     // function returns Optional
 userOpt.ifPresent(u -> System.out.println(u.getName()));
 String name = userOpt.map(User::getName).orElse("Unknown");
 \`\`\`
@@ -35097,17 +34919,17 @@ String name = userOpt.map(User::getName).orElse("Unknown");
 ## 39.3 Creating Optional
 
 \`\`\`java
-Optional<String> a = Optional.of("hello");        // 不能裝 null
-Optional<String> b = Optional.ofNullable(maybeNull); // 接受 null
+Optional<String> a = Optional.of("hello");        // cannot hold null
+Optional<String> b = Optional.ofNullable(maybeNull); // accepts null
 Optional<String> c = Optional.empty();
 \`\`\`
 
-## 39.4 Value
+## 39.4 Getting Values
 
 \`\`\`java
-opt.get();                       // 沒值會丟 NoSuchElementException — 別用！
+opt.get();                       // throws NoSuchElementException if empty — don't use!
 opt.orElse("default");
-opt.orElseGet(() -> compute());  // 只在沒值時才算
+opt.orElseGet(() -> compute());  // only computes when empty
 opt.orElseThrow(() -> new ...);
 opt.ifPresent(v -> ...);
 opt.isPresent();
@@ -35118,21 +34940,21 @@ opt.isEmpty();                   // Java 11+
 
 \`\`\`java
 Optional<Integer> length = findUser(id)
-    .map(User::getName)              // 抓 name（仍是 Optional）
+    .map(User::getName)              // get name (still Optional)
     .map(String::length);
 
 Optional<User> result = findUser(id)
-    .flatMap(this::findManager)      // findManager 也回 Optional
+    .flatMap(this::findManager)      // findManager also returns Optional
     .filter(u -> u.getAge() > 18);
 \`\`\`
 
-## 39.6 How not to use Optional
+## 39.6 How NOT to Use Optional
 
-❌ When the class field (serialization will explode)
-❌ When function parameters (it is better to pass null or overload directly)
-❌ Package basic types (use OptionalInt / OptionalLong / OptionalDouble)
+❌ As class fields (breaks serialization)
+❌ As function parameters (better to pass null directly or use overloading)
+❌ Wrapping primitive types (use OptionalInt / OptionalLong / OptionalDouble)
 
-✅ The function returns a value (clearly stating "may not be")
+✅ As function return values (clearly indicates "might not exist")
 
 ## 39.7 Chained Optional Example
 
@@ -35144,93 +34966,84 @@ String city = Optional.ofNullable(user)
     .orElse("UNKNOWN");
 \`\`\`
 
-Any intermediate link is null → the result is "UNKNOWN", no NPE. Equivalent to Kotlin’s \`user?.address?.city?.uppercase() ?: "UNKNOWN"\`.
+If any link in the chain is null → result is "UNKNOWN", no NPE. Equivalent to Kotlin's \`user?.address?.city?.uppercase() ?: "UNKNOWN"\`.
 
 ## 39.8 Optional vs null vs Exception
 
-| Situation | Suggestions |
-|------|------|
-| Function may not find result | \`Optional<T>\` |
-| Internal fields have not been initialized yet | null + private |
-| Error that should not occur | throw RuntimeException |
-| Expected error (file does not exist) | checked exception |
+| Situation | Recommendation |
+|-----------|---------------|
+| Function might not find a result | \`Optional<T>\` |
+| Internal field not yet initialized | null + private |
+| Should never happen error | throw RuntimeException |
+| Expected error (file not found) | checked exception |
 
-Don’t use Optional as a cure-all for all nulls — overusing it can make your code long and cluttered.
+Don't use Optional as a cure-all for every null — overuse makes code long and messy.
 
-## 39.9 Try it
-`,
-
+## 39.9 Try It`
 },
 
 91:{
-cpp:`
+cpp:``,
+c:``,
+java:`# Chapter 40: Multithreading — Thread / Runnable
 
-`,
+Java has supported multithreading from day one.
 
-c:`
-
-`,
-
-java:`
-# Chapter 40: Multithreading Thread / Runnable
-
-Java has supported multi-threading from day one.
-
-## 40.1 Two startup methods
+## 40.1 Two Ways to Start
 
 \`\`\`java
-// 1. 實作 Runnable
+// 1. Implement Runnable
 Runnable task = () -> System.out.println("hello from " + Thread.currentThread().getName());
 Thread t1 = new Thread(task);
-t1.start();          // 啟動，t1.run() 在另一個 thread 跑
+t1.start();          // start; t1.run() runs in another thread
 
-// 2. 繼承 Thread（不建議 — 只能繼承一個 class）
+// 2. Extend Thread (not recommended — can only extend one class)
 class MyThread extends Thread {
     public void run() { System.out.println("running"); }
 }
 new MyThread().start();
 \`\`\`
 
-> ⚠️ **\`start()\` vs \`run()\`**: start() really opens a new thread; run() is just a normal function call, running in the current thread.
+> ⚠️ **\`start()\` vs \`run()\`**: start() truly creates a new thread; run() is just a normal function call in the current thread.
 
-## 40.2 Wait for thread to end
+## 40.2 Waiting for Thread to Finish
 
 \`\`\`java
 Thread t = new Thread(task);
 t.start();
-t.join();           // 阻塞直到 t 結束
+t.join();           // blocks until t finishes
 \`\`\`
 
-## 40.3 Problems with sharing data
+## 40.3 The Problem with Shared Data
 
 \`\`\`java
 class Counter {
     int n = 0;
-    void inc() { n++; }      // 不是原子的！
+    void inc() { n++; }      // not atomic!
 }
 Counter c = new Counter();
 Runnable task = () -> { for (int i = 0; i < 100000; i++) c.inc(); };
 Thread t1 = new Thread(task), t2 = new Thread(task);
 t1.start(); t2.start(); t1.join(); t2.join();
-System.out.println(c.n);     // 可能不是 200000
+System.out.println(c.n);     // might not be 200000
 \`\`\`
 
-## 40.4 synchronized solution
+## 40.4 synchronized Solves It
 
 \`\`\`java
 synchronized void inc() { n++; }
 \`\`\`
 
-or block form:
+Or block form:
 \`\`\`java
 void inc() {
     synchronized(this) { n++; }
 }
 \`\`\`
 
-> synchronized is a built-in Java keyword that automatically manages locks — safer than the mutex API.
+> synchronized is a Java built-in keyword that auto-manages locks — safer than a mutex API.
 
-## 40.5 ExecutorService — Don’t worry about the thread yourself
+## 40.5 ExecutorService — Don't Manage Threads Yourself
 
 \`\`\`java
 import java.util.concurrent.*;
@@ -35244,25 +35057,25 @@ pool.shutdown();
 pool.awaitTermination(1, TimeUnit.MINUTES);
 \`\`\`
 
-**Modern Java uses pool to write concurrent program code, not new Thread directly**.
+**Modern Java concurrent code uses pools, not direct new Thread**.
 
-## 40.6 Future — Get the returned value
+## 40.6 Future — Getting Return Values
 
 \`\`\`java
 Future<Integer> future = pool.submit(() -> {
     Thread.sleep(1000);
     return 42;
 });
-Integer result = future.get();   // 阻塞等結果
+Integer result = future.get();   // blocks waiting for result
 \`\`\`
 
 ## 40.7 volatile and Memory Model
 
 \`\`\`java
-volatile boolean stop = false;   // 別的 thread 改後立刻看得到
+volatile boolean stop = false;   // changes by other threads are immediately visible
 \`\`\`
 
-Without \`volatile\`, the compiler/CPU may optimize \`while(!stop)\` into a read-once cache. \`volatile\` forces reading from main memory every time.
+Without \`volatile\`, the compiler/CPU may optimize \`while(!stop)\` to read once and cache. \`volatile\` forces reading from main memory every time.
 
 > volatile only guarantees **visibility**, not **atomicity**! For atomic operations use AtomicInteger.
 
@@ -35276,7 +35089,7 @@ ThreadLocal<SimpleDateFormat> fmt = ThreadLocal.withInitial(
 String s = fmt.get().format(new Date());
 \`\`\`
 
-SimpleDateFormat is not thread-safe → Use ThreadLocal per thread to avoid sharing issues.
+SimpleDateFormat is not thread-safe → use ThreadLocal to give each thread its own copy, avoiding sharing issues.
 
 ## 40.9 Virtual Threads (Java 21+)
 
@@ -35284,26 +35097,17 @@ SimpleDateFormat is not thread-safe → Use ThreadLocal per thread to avoid shar
 Thread.startVirtualThread(() -> System.out.println("virtual"));
 \`\`\`
 
-It’s okay to have millions of virtual threads — corresponding to Go’s goroutines. Game changer for I/O intensive tasks.
+A million virtual threads is no problem — corresponds to Go's goroutines. A game changer for I/O-intensive tasks.
 
-## 40.10 Try it
-`,
-
+## 40.10 Try It`
 },
 
 92:{
-cpp:`
+cpp:``,
+c:``,
+java:`# Chapter 41: Concurrency Tools — Lock / Atomic
 
-`,
-
-c:`
-
-`,
-
-java:`
-# Chapter 41: Concurrency Tools Lock / Atomic
-
-\`java.util.concurrent\` provides more flexible parallel facilities than synchronized.
+\`java.util.concurrent\` provides more flexible concurrency tools than synchronized.
 
 ## 41.1 ReentrantLock
 
@@ -35318,26 +35122,26 @@ void inc() {
     try {
         n++;
     } finally {
-        lock.unlock();       // 一定要在 finally 解鎖
+        lock.unlock();       // must unlock in finally
     }
 }
 \`\`\`
 
 Features:
-- \`tryLock()\` — Try to acquire the lock, do not block if failed
+- \`tryLock()\` — try to acquire lock, doesn't block on failure
 - \`tryLock(1, TimeUnit.SECONDS)\` — wait 1 second
-- \`lockInterruptibly()\` — interruptible
+- \`lockInterruptibly()\` — can be interrupted
 
 ## 41.2 ReadWriteLock
 
-When reading more and writing less:
+When reads far outnumber writes:
 \`\`\`java
 ReadWriteLock rwLock = new ReentrantReadWriteLock();
 Lock readLock = rwLock.readLock();
 Lock writeLock = rwLock.writeLock();
 \`\`\`
 
-Multiple reading threads can take read locks at the same time and write locks exclusively.
+Multiple reader threads can hold read lock simultaneously; write lock is exclusive.
 
 ## 41.3 AtomicInteger / AtomicReference
 
@@ -35345,8 +35149,8 @@ Multiple reading threads can take read locks at the same time and write locks ex
 import java.util.concurrent.atomic.*;
 
 AtomicInteger counter = new AtomicInteger(0);
-counter.incrementAndGet();          // 原子的 ++
-counter.compareAndSet(5, 10);       // 如果是 5 就改成 10（CAS）
+counter.incrementAndGet();          // atomic ++
+counter.compareAndSet(5, 10);       // if value is 5, set to 10 (CAS)
 \`\`\`
 
 > Implemented with CAS — much faster than synchronized.
@@ -35356,47 +35160,47 @@ counter.compareAndSet(5, 10);       // 如果是 5 就改成 10（CAS）
 \`\`\`java
 ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>();
 map.put("a", 1);
-map.compute("a", (k, v) -> v + 1);       // 原子 update
-map.merge("b", 1, Integer::sum);         // 不存在就放 1，存在就 +1
+map.compute("a", (k, v) -> v + 1);       // atomic update
+map.merge("b", 1, Integer::sum);         // if absent put 1, else add 1
 \`\`\`
 
-Replaces HashMap in parallel — internal segmentation lock.
+Replaces HashMap under concurrency — uses segment locking internally.
 
-## 41.5 CountDownLatch — Wait for multiple threads to complete
+## 41.5 CountDownLatch — Wait for Multiple Threads
 
 \`\`\`java
 CountDownLatch latch = new CountDownLatch(3);
 for (int i = 0; i < 3; i++) {
     new Thread(() -> {
-        // 做事
+        // do work
         latch.countDown();
     }).start();
 }
-latch.await();        // 等 3 個都 countDown 才繼續
+latch.await();        // waits until all 3 have called countDown
 \`\`\`
 
-## 41.6 Semaphore — Limit the number of parallelisms
+## 41.6 Semaphore — Limit Concurrency
 
 \`\`\`java
-Semaphore sem = new Semaphore(5);     // 最多 5 個同時跑
+Semaphore sem = new Semaphore(5);     // at most 5 running simultaneously
 sem.acquire();
-try { /* 受限資源 */ }
+try { /* restricted resource */ }
 finally { sem.release(); }
 \`\`\`
 
-## 41.7 BlockingQueue — Producer Consumer
+## 41.7 BlockingQueue — Producer-Consumer
 
 \`\`\`java
 BlockingQueue<Integer> q = new LinkedBlockingQueue<>();
-// 生產者
+// producer
 new Thread(() -> { q.put(42); }).start();
-// 消費者
+// consumer
 new Thread(() -> { Integer x = q.take(); }).start();
 \`\`\`
 
-q \`take()\` blocks when empty and \`put()\` blocks when full.
+\`take()\` blocks when queue is empty; \`put()\` blocks when full.
 
-## 41.8 CompletableFuture — chained asynchronous
+## 41.8 CompletableFuture — Chained Async
 
 \`\`\`java
 CompletableFuture
@@ -35406,52 +35210,43 @@ CompletableFuture
     .exceptionally(e -> { e.printStackTrace(); return null; });
 \`\`\`
 
-Similar to JavaScript Promise — does not block the main thread. Commonly used in microservices and I/O pipelines.
+Similar to JavaScript Promise — doesn't block the main thread. Common in microservices and I/O pipelines.
 
-## 41.9 Concurrency Tool Quick Check
+## 41.9 Concurrency Tools Quick Reference
 
-| Want to do | Use |
+| Goal | Use |
 |------|-----|
 | Mutual exclusion | synchronized / ReentrantLock |
 | Counter | AtomicInteger / LongAdder |
 | Wait for multiple threads | CountDownLatch / Phaser |
-| Current Limitation | Semaphore |
-| Producer-Consumer | BlockingQueue |
-| Asynchronous results | Future / CompletableFuture |
+| Rate limiting | Semaphore |
+| Producer-consumer | BlockingQueue |
+| Async result | Future / CompletableFuture |
 | Thread-safe Map | ConcurrentHashMap |
-| Shared Boolean | AtomicBoolean / volatile |
+| Shared boolean | AtomicBoolean / volatile |
 
-## 41.10 Try it
-`,
-
+## 41.10 Try It`
 },
 
 93:{
-cpp:`
+cpp:``,
+c:``,
+java:`# Chapter 42: Annotations and Reflection
 
-`,
+Java's two main metaprogramming tools: annotations + reflection.
 
-c:`
-
-`,
-
-java:`
-# Chapter 42: Annotation and Reflection
-
-Java’s two main weapons for metaprogramming: annotations + reflection.
-
-## 42.1 Built-in annotations
+## 42.1 Built-in Annotations
 
 \`\`\`java
-@Override               // 告知編譯器：這是覆寫父類
-@Deprecated             // 標記為棄用
-@SuppressWarnings("unchecked")    // 抑制特定警告
-@FunctionalInterface    // 標記只有一個抽象方法的 interface
+@Override               // tells compiler: this overrides parent class
+@Deprecated             // marks as deprecated
+@SuppressWarnings("unchecked")    // suppress specific warnings
+@FunctionalInterface    // marks interface with exactly one abstract method
 \`\`\`
 
-\`@Override\` will still run without writing the program, but if the name is typed incorrectly and is not overwritten - the compiler will help you catch it.
+Not writing \`@Override\` still runs, but if you misspell the name and don't actually override — the compiler catches it for you.
 
-## 42.2 Reflection: runtime obtains type information
+## 42.2 Reflection: Get Type Info at Runtime
 
 \`\`\`java
 Class<?> cls = obj.getClass();
@@ -35459,24 +35254,24 @@ String name = cls.getName();
 Field[] fields = cls.getDeclaredFields();
 Method[] methods = cls.getDeclaredMethods();
 
-// 動態呼叫
+// Dynamic invocation
 Method m = cls.getMethod("hello", String.class);
 m.invoke(obj, "world");
 
-// 動態建立
+// Dynamic instantiation
 Constructor<?> ctor = cls.getConstructor();
 Object inst = ctor.newInstance();
 \`\`\`
 
-> Reflection is slow, bypasses compile-time checks — but heavily used by frameworks (Spring, JUnit).
+> Reflection is slow and bypasses compile-time checks — but frameworks (Spring, JUnit) use it extensively.
 
-## 42.3 Custom annotations
+## 42.3 Custom Annotations
 
 \`\`\`java
 import java.lang.annotation.*;
 
-@Retention(RetentionPolicy.RUNTIME)    // 執行期可見
-@Target(ElementType.METHOD)             // 只能標方法
+@Retention(RetentionPolicy.RUNTIME)    // visible at runtime
+@Target(ElementType.METHOD)             // only for methods
 @interface Test {
     String name() default "";
 }
@@ -35487,7 +35282,7 @@ class Demo {
 }
 \`\`\`
 
-## 42.4 Processing annotations with reflection
+## 42.4 Processing Annotations with Reflection
 
 \`\`\`java
 for (Method m : Demo.class.getDeclaredMethods()) {
@@ -35499,24 +35294,24 @@ for (Method m : Demo.class.getDeclaredMethods()) {
 }
 \`\`\`
 
-This is roughly how JUnit works - use \`@Test\` to mark methods and automatically find them for execution.
+JUnit works roughly this way — finds methods marked with \`@Test\` and executes them automatically.
 
-## 42.5 Common uses of reflection
+## 42.5 Common Uses of Reflection
 
-- **DI Container** (Spring): Inject objects according to \`@Autowired\`
-- **ORM** (Hibernate): Map database according to \`@Entity\` \`@Column\`
-- **Serialization** (Jackson, Gson): Based on field name and type JSON ↔ Object
-- **Testing Framework** (JUnit): Find the \`@Test\` target method
+- **DI containers** (Spring): inject objects based on \`@Autowired\`
+- **ORM** (Hibernate): map database based on \`@Entity\` \`@Column\`
+- **Serialization** (Jackson, Gson): convert JSON ↔ Object based on field names and types
+- **Test frameworks** (JUnit): find methods marked with \`@Test\`
 
-## 42.6 Price
+## 42.6 The Cost
 
-- 10–100 times slower than normal calls
-- Compilation-time errors become execution-time errors
-- It is not easy for IDE to track call relationships
+- 10–100× slower than normal calls
+- Compile-time errors become runtime errors
+- IDE struggles to trace call relationships
 
-> Don’t use reflection for business logic; the framework layer is a good tool if used properly.
+> Business logic **should not** use reflection; it's a good tool when used appropriately at the framework layer.
 
-## 42.7 Dynamic proxy Proxy
+## 42.7 Dynamic Proxy
 
 \`\`\`java
 import java.lang.reflect.*;
@@ -35527,138 +35322,125 @@ InvocationHandler h = (proxy, method, args) -> {
 };
 Runnable r = (Runnable) Proxy.newProxyInstance(
     cl.getClassLoader(), new Class[]{Runnable.class}, h);
-r.run();   // 印 "calling run"
+r.run();   // prints "calling run"
 \`\`\`
 
-Spring AOP and Mockito both rely on this interception method call.
+Spring AOP and Mockito both use this to intercept method calls.
 
-## 42.8 Reflection efficiency countermeasures
+## 42.8 Reflection Performance Tips
 
-- **Cache** \`Method\` objects — don't \`getMethod\` each time
-- Uses \`MethodHandle\` (Java 7+) - 5-10 times faster than reflection
-- JIT's reflection on repeated calls will be inline, so the hot path is not as bad as expected
+- **Cache** \`Method\` objects — don't call \`getMethod\` every time
+- Use \`MethodHandle\` (Java 7+) — 5–10× faster than reflection
+- JIT inlines repeated reflection calls on hot paths, so it's not as bad as you'd think
 
-## 42.9 Try it
-`,
-
+## 42.9 Try It`
 },
 
 94:{
-cpp:`
+cpp:``,
+c:``,
+java:`# Chapter 43: JVM and GC Fundamentals
 
-`,
+Understanding the JVM is key to writing high-performance Java.
 
-c:`
-
-`,
-
-java:`
-# Chapter 43: JVM and GC Basics
-
-Only by understanding the JVM can you write efficient Java.
-
-## 43.1 From .java to execution
+## 43.1 From .java to Execution
 
 \`\`\`
-.java  --javac-->  .class (bytecode)  --java-->  JVM 解譯/JIT 編譯  -->  CPU
+.java  --javac-->  .class (bytecode)  --java-->  JVM interpret/JIT compile  -->  CPU
 \`\`\`
 
-1. \`javac\` compiles the source code into bytecode (cross-platform intermediate code)
-2. \`java\` command starts JVM and loads .class
-3. JVM interprets bytecode; the hot path is compiled into machine code using JIT
+1. \`javac\` compiles source code into bytecode (cross-platform intermediate code)
+2. \`java\` command starts the JVM, loads .class
+3. JVM interprets bytecode; hot paths are JIT-compiled to machine code
 
-## 43.2 Memory area
+## 43.2 Memory Regions
 
-| Region | Content | On Failure |
-|------|------|--------|
-| **Heap** | Object (from \`new\`) | OutOfMemoryError |
+| Region | Contents | On failure |
+|--------|----------|------------|
+| **Heap** | Objects (created with \`new\`) | OutOfMemoryError |
 | **Stack** | Local variables, function calls | StackOverflowError |
-| **Metaspace** | Category, method metadata | OutOfMemoryError |
-| **PC Register** | Current execution location | - |
+| **Metaspace** | Class and method metadata | OutOfMemoryError |
+| **PC Register** | Current execution position | - |
 
-\`-Xms512m -Xmx2g\` = heap initial size 512MB, maximum 2GB.
+\`-Xms512m -Xmx2g\` = heap starts at 512MB, maximum 2GB.
 
-## 43.3 Object life cycle
+## 43.3 Object Lifecycle
 
 \`\`\`java
-String s = new String("hello");   // 在 heap
+String s = new String("hello");   // on heap
 \`\`\`
 
-When no one references it → **garbage**, waiting for GC collection.
+When nothing references it → **garbage**, waiting to be collected by GC.
 
-> The biggest difference between Java and C/C++: **No need to manually free**. But the price is GC pauses.
+> The biggest difference between Java and C/C++: **no need to free manually**. But the cost is GC pauses.
 
-## 43.4 How GC works
+## 43.4 How GC Works
 
-Mainstream: **Generational GC** (Generational)
+Mainstream: **Generational GC**
 - **Young Generation** (Eden + 2 Survivors): newly created objects
-- **Old Generation**: Objects that live for a long time
+- **Old Generation**: long-lived objects
 
-**New objects die quickly** → Young GC frequent but fast (copy algorithm)
-**Survived** → Promoted to Old → Full GC less but slower
+**New objects die quickly** → Young GC is frequent but fast (copy algorithm)
+**Survivors** → promoted to Old → Full GC less frequent but slow
 
-## 43.5 GC algorithm
+## 43.5 GC Algorithms
 
-| GC | Features |
-|----|------|
-| **Serial** | Single thread, stop the world |
-| **Parallel** | Multi-threading, throughput-oriented |
-| **G1** | Partitioning, predictable pauses (Java 9+ default) |
-| **ZGC/Shenandoah** | Pause <10ms, suitable for large heaps |
+| GC | Characteristics |
+|----|----------------|
+| **Serial** | Single-threaded, stop-the-world |
+| **Parallel** | Multi-threaded, throughput-oriented |
+| **G1** | Region-based, predictable pauses (default since Java 9) |
+| **ZGC / Shenandoah** | Pauses <10ms, suitable for large heaps |
 
-## 43.6 FAQ
+## 43.6 Common Issues
 
 **OutOfMemoryError**:
-- Heap is not enough → add \`-Xmx\`, find memory leak
+- Not enough heap → increase \`-Xmx\`, find memory leak
 - Not enough Metaspace → too many dynamically loaded classes
 
-**Long GC pause**:
-- Look at GC log: \`-Xlog:gc*\`
-- Change to G1 or ZGC
+**Long GC pauses**:
+- Check GC log: \`-Xlog:gc*\`
+- Switch to G1 or ZGC
 - Reduce object allocation (pool reuse)
 
-**Memory Leak in GC language**:
-Static collections, unclosed resources, and unremoved listeners will all cause objects to "live even when they shouldn't."
+**Memory Leak in a GC Language**:
+Static collections, unclosed resources, listeners not removed — all keep objects alive when they shouldn't be.
 
 ## 43.7 Comparison with Python
 
 | | Python | Java |
 |---|---|---|
-| Compile | bytecode (.pyc) | bytecode (.class) |
-| Execution | CPython literal translation | JVM literal translation + JIT |
+| Compilation | bytecode (.pyc) | bytecode (.class) |
+| Execution | CPython interpretation | JVM interpretation + JIT |
 | GC | reference counting + GC | pure GC |
 | Startup speed | Fast | Slow (JVM warm-up) |
-| Long execution | Not much optimization | JIT runs faster and faster |
+| Long-running | Not much optimization | JIT gets faster over time |
 
-## 43.8 Tools for observing the JVM
+## 43.8 Tools for Observing the JVM
 
-| Tools | Purpose |
-|------|------|
+| Tool | Purpose |
+|------|---------|
 | \`jps\` | List JVM processes |
-| \`jstack <pid>\` | dump thread stack (find deadlock) |
-| \`jmap -heap <pid>\` | heap usage status |
-| \`jhsdb jmap --histo --pid <pid>\` | Histogram of the number of objects (find leaks) |
-| \`jfr\` (Java Flight Recorder) | low-overhead profiler |
-| VisualVM/JConsole | Graphical monitoring |
-| \`-verbose:gc\` | Each time GC prints log |
+| \`jstack <pid>\` | Dump thread stack (find deadlocks) |
+| \`jmap -heap <pid>\` | Heap usage status |
+| \`jhsdb jmap --histo --pid <pid>\` | Object count histogram (find leaks) |
+| \`jfr\` (Java Flight Recorder) | Low-overhead profiler |
+| VisualVM / JConsole | Graphical monitoring |
+| \`-verbose:gc\` | Print log on each GC |
 
-## 43.9 OutOfMemoryError troubleshooting SOP
+## 43.9 OutOfMemoryError Investigation SOP
 
-1. \`-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./dump.hprof\` capture dump
-2. Use **MAT** (Eclipse Memory Analyzer) to open the dump and find the largest object in the retained heap.
-3. Reverse who holds it (dominator tree)
-4. Repair: Dereference, move to weak reference (WeakHashMap), limit collection size
+1. \`-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./dump.hprof\` to capture dump
+2. Open dump with **MAT** (Eclipse Memory Analyzer) to find objects with largest retained heap
+3. Trace back who holds them (dominator tree)
+4. Fix: release references, move to weak references (WeakHashMap), limit collection size
 
-## 43.10 Tips for writing efficient Java
+## 43.10 Tips for Writing High-Performance Java
 
-- **Less configuration** — Object pool, StringBuilder reuse
-- **avoid boxing** — \`int\` is 5× faster than \`Integer\`
-- **Small function** — Give JIT the opportunity to inline
-- **profile re-optimization** — don’t change it based on your feelings
-
-## 43.11 Try it
-`,
-
+- **Allocate less** — object pools, reuse StringBuilder
+- **Avoid boxing** — \`int\` is 5× faster than \`Integer\`
+- **Small functions** — give JIT opportunities to inline
+- **Profile before optimizing** — don't optimize by gut feeling`
 },
 
 };
