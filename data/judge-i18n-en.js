@@ -1,4 +1,4 @@
-// 題庫英文對照（自譯者提供的英文版.txt 產生；目前 85/300 題，缺的欄位前端會 fallback 中文）
+// 題庫英文對照（譯者提供；含 169 補全英文版中已驗證收錄的 64 題；缺的欄位前端會 fallback 中文）
 // 由 index.html 於切換 EN 時動態載入
 const PROBLEMS_EN = {
  "b964": {
@@ -675,5 +675,517 @@ const PROBLEMS_EN = {
  },
  "j_gem_pick": {
   "title": "Collect Gems (Non-adjacent)"
+ },
+ "src283_joi_15_inheritance": {
+  "title": "2015 - Inheritance",
+  "topic": "Binary Search, MST",
+  "desc": "On a 1D axis, there are N hay bales, the i-th hay bale is at position x_i (integer, may repeat). Then there are Q queries, each query gives an interval [L, R], output the number of hay bales whose coordinates fall in [L, R] (inclusive).",
+  "input_desc": "First line: two integers N, Q.\nSecond line: N integers x_1, x_2, ..., x_N, positions of hay bales.\nNext Q lines: each line two integers L, R, representing a query.\nConstraints: 1 ≤ N, Q ≤ 2×10^5, -10^9 ≤ x_i, L, R ≤ 10^9.",
+  "output_desc": "For each query, output an integer: the number of hay bales in the interval.",
+  "hint": "Sort all hay bale positions, then for each query use binary search to find the first index ≥ L and the first index > R, the difference gives the count. Time complexity O((N+Q) log N)."
+ },
+ "src182_201902P3": {
+  "title": "Evaluate Function Expression",
+  "topic": "APCS implementation",
+  "desc": "Given an expression containing positive integers, operators '+' and '*', and parentheses, compute its value. Operator precedence: parentheses > multiplication > addition. Digits 0-9, expression length ≤ 1000.",
+  "input_desc": "A single line string representing the expression.",
+  "output_desc": "Output an integer result (fits in 32-bit signed integer).",
+  "hint": "Use two stacks (values and operators) to parse infix expression, respecting precedence. Time O(len(expr))."
+ },
+ "src184_202010P3": {
+  "title": "Hero Training",
+  "topic": "APCS implementation",
+  "desc": "In an N×M grid, each cell has an integer value. A hero starts at (1,1) and wants to reach (N,M), moving only right or down. The total value is the sum of values of visited cells (including start and end). Find the maximum total value.",
+  "input_desc": "First line: N, M (1 ≤ N, M ≤ 1000).\nNext N lines: each M integers (value, -10^9 ≤ value ≤ 10^9).",
+  "output_desc": "Output the maximum total value.",
+  "hint": "Basic DP: dp[i][j] = max(dp[i-1][j], dp[i][j-1]) + grid[i][j]. Time O(NM)."
+ },
+ "src188_202109P3": {
+  "title": "Lucky Number",
+  "topic": "APCS implementation",
+  "desc": "Given a sequence A of length N and an integer K, count the number of subarrays whose median equals K. Median definition: for length L, the floor((L+1)/2)-th smallest element (1-indexed). Values can repeat.",
+  "input_desc": "First line: N, K (1 ≤ N ≤ 2×10^5).\nSecond line: N integers A_i (1 ≤ A_i ≤ 2×10^5).",
+  "output_desc": "Output the count.",
+  "hint": "Transform: map numbers >= K to 1, < K to -1. A subarray has median >= K iff its sum > 0. To get median exactly K, compute number of subarrays with median >= K minus those with median >= K+1. Use prefix sums and a data structure to count prefix sums with value less than current. Time O(N log N)."
+ },
+ "src191_202201P3": {
+  "title": "Digital Divination",
+  "topic": "APCS implementation",
+  "desc": "The digital root of a number is the repeated sum of its digits until a single digit. Given interval [L, R] (1 ≤ L ≤ R ≤ 10^18) and K (1 ≤ K ≤ 9), count how many numbers in the interval have digital root equal to K.",
+  "input_desc": "One line: L, R, K.",
+  "output_desc": "Output the count.",
+  "hint": "Digital root cycles every 9 numbers. Compute count in [1,x] using integer division and remainder. Time O(1)."
+ },
+ "src192_201703P3": {
+  "title": "Number Tornado",
+  "topic": "APCS implementation",
+  "desc": "Given an N×N matrix (N odd), start from the center and output all elements in a clockwise spiral order.",
+  "input_desc": "First line: odd N (1 ≤ N ≤ 99).\nNext N lines: N integers each.",
+  "output_desc": "Output all integers in spiral order, space-separated.",
+  "hint": "Simulate spiral walk: start at center, go left, down, right, up, increasing step length every two directions."
+ },
+ "src193_202111P3": {
+  "title": "Production Line",
+  "topic": "APCS implementation",
+  "desc": "There are N jobs to process on a single machine. Each job has processing time t_i and weight w_i. The machine can process one job at a time but can preempt (pause and resume). Find the minimum total weighted completion time Σ w_i * C_i.",
+  "input_desc": "First line: N (1 ≤ N ≤ 10^5).\nNext N lines: t_i, w_i (1 ≤ t_i, w_i ≤ 10^4).",
+  "output_desc": "Output the minimum total weighted completion time.",
+  "hint": "With preemption, the optimal schedule is by highest ratio w_i/t_i (Smith's rule). Sort descending by value per unit time, then process. Time O(N log N)."
+ },
+ "src195_202306P3": {
+  "title": "Magnetic Track Movement Sequence",
+  "topic": "APCS implementation",
+  "desc": "Given a string S consisting of 'L' and 'R', start at position 0. For each character, if 'L' then x -= 1, if 'R' then x += 1. After each step, record the position. Count the number of distinct integer positions visited.",
+  "input_desc": "One line: string S (length ≤ 10^6).",
+  "output_desc": "Output the count.",
+  "hint": "Simulate, use a set to record positions. Time O(|S|)."
+ },
+ "src197_202406P3": {
+  "title": "Missing Letters",
+  "topic": "APCS implementation",
+  "desc": "Given two strings A and B of length N. You can change any character in A to any lowercase letter at cost 1. Find the minimum number of changes so that A becomes a subsequence of B.",
+  "input_desc": "First line: N (1 ≤ N ≤ 2000).\nSecond line: string A.\nThird line: string B.",
+  "output_desc": "Output the minimum changes.",
+  "hint": "We need to keep the longest common subsequence unchanged; the rest must be changed. So answer = N - LCS. Time O(N^2)."
+ },
+ "src202_202501P3": {
+  "title": "Rearrangement Problem",
+  "topic": "APCS implementation",
+  "desc": "Given two sequences A and B of length N. You can rearrange A arbitrarily. Is there a permutation such that A[i] + B[i] is constant for all i? If yes, output that constant; else -1.",
+  "input_desc": "First line: N (1 ≤ N ≤ 2×10^5).\nSecond line: N integers A_i.\nThird line: N integers B_i.",
+  "output_desc": "Output constant or -1.",
+  "hint": "Sort A ascending, B descending, check if all pairwise sums equal. This is necessary and sufficient. Time O(N log N)."
+ },
+ "src238_cf_472D": {
+  "title": "Design Tutorial: Inverse the Problem",
+  "topic": "MST",
+  "desc": "Given an N×N distance matrix D, where D[i][j] is the shortest distance between nodes i and j (direct edge weight). Determine whether there exists a tree (connected acyclic graph) such that the shortest path distances on the tree equal the given matrix. If yes, output any such tree (list of edges), else -1.",
+  "input_desc": "First line: N (1 ≤ N ≤ 2000).\nNext N lines: N integers D[i][j], with D[i][i]=0, D[i][j]=D[j][i].",
+  "output_desc": "If exists, output N-1 lines each with two integers u,v (1-indexed); else -1.",
+  "hint": "If the matrix comes from a tree, the MST of the complete graph with edge weights = D[i][j] must be that tree. Compute MST, then verify all-pairs distances match D (e.g., using BFS from each node). If matches, output MST edges."
+ },
+ "src292_cf_1513D": {
+  "title": "GCD and MST",
+  "topic": "MST, Math",
+  "desc": "Given an array a[1..N] and an integer k. Consider a complete graph where edge (i,j) has weight:\n- if |i-j| = 1, weight = min(a[i], a[j]).\n- otherwise, weight = min(a[i], a[j], ..., a[k])? Actually the original problem: if gcd(a[i..j]) = min(a[i..j]), then there is an edge with weight = min(a[i..j]). Find the MST total weight.\nSimplified version: N nodes, edges between neighbors with weight min(a[i],a[i+1]), and extra edges when gcd of interval equals min, with weight = min. Compute MST weight.",
+  "input_desc": "First line: N, k (1 ≤ N ≤ 2×10^5, 1 ≤ k ≤ 10^9).\nSecond line: N integers a_i.",
+  "output_desc": "Output MST weight.",
+  "hint": "Use MST approach with DSU, sort edges (neighbor edges and special gcd edges). For each index i, expand left and right while gcd condition holds, add edges with weight = min. Complexity O(N log N)."
+ },
+ "src293_usaco_946": {
+  "title": "I Would Walk 500 Miles",
+  "topic": "MST",
+  "desc": "There are N cows, each with coordinates (x_i, y_i). The distance between two cows is (x_i-x_j)^2 + (y_i-y_j)^2. We need to partition the cows into two groups such that the maximum intra-group distance (maximum distance between any two cows in the same group) is minimized. Output that minimized maximum distance.",
+  "input_desc": "First line: N (2 ≤ N ≤ 500).\nNext N lines: x_i, y_i (0 ≤ x_i,y_i ≤ 10^6).",
+  "output_desc": "Output the minimized maximum distance.",
+  "hint": "Binary search on answer D. Build graph where edges with distance > D must be between different groups. Check if graph is bipartite. Time O(N^2 log D)."
+ },
+ "src230_sapo_15_SpaceJazz": {
+  "title": "2015 - Space Jazz",
+  "topic": "Range DP",
+  "desc": "Given a sequence of N colors. You can remove a contiguous segment of at least 2 if all colors in the segment are the same, and gain the square of its length. After removal, the left and right parts join. Find the maximum total score.",
+  "input_desc": "First line: N (1 ≤ N ≤ 500).\nSecond line: N integers representing colors.",
+  "output_desc": "Output the maximum score.",
+  "hint": "Interval DP: dp[l][r] = max score for fully removing subarray [l,r]. Transition: either remove the whole block if all same color, or split into two. Time O(N^3)."
+ },
+ "src244_cses_1195": {
+  "title": "Flight Discount",
+  "topic": "SP",
+  "desc": "There are N cities, M flights (directed) with cost. You may use at most one discount that halves the cost of a single flight (integer division). Find the minimum cost from city 1 to city N.",
+  "input_desc": "First line: N, M (1 ≤ N ≤ 10^5, 1 ≤ M ≤ 2×10^5).\nNext M lines: u, v, c (1 ≤ c ≤ 10^9).",
+  "output_desc": "Output the minimum cost.",
+  "hint": "State Dijkstra: (node, used_discount). Transition with or without discount. Time O(M log N)."
+ },
+ "src252_usaco_969": {
+  "title": "Milk Pumping",
+  "topic": "SP",
+  "desc": "There are N nodes, M edges. Each edge has two attributes: flow f and cost c. Find a path from 1 to N that maximizes min(f) / sum(c). Output floor( max_ratio * 10^6 ).",
+  "input_desc": "First line: N, M (2 ≤ N ≤ 1000, 1 ≤ M ≤ 1000).\nNext M lines: u, v, f, c.",
+  "output_desc": "Output the integer result.",
+  "hint": "Classic problem: maximize min(f)/sum(c). Could binary search λ, transform to checking existence of path with sum(c) - λ*min(f) ≤ 0. Alternatively, enumerate possible min flow values (up to M), delete edges with lower flow, compute shortest cost path."
+ },
+ "src294_cses_1202": {
+  "title": "Investigation",
+  "topic": "SP",
+  "desc": "Given a directed weighted graph. Find from node 1 to node N:\n- shortest distance\n- number of shortest paths (mod 1e9+7)\n- minimum number of edges in a shortest path\n- maximum number of edges in a shortest path",
+  "input_desc": "First line: N, M (1 ≤ N ≤ 10^5, 1 ≤ M ≤ 2×10^5).\nNext M lines: u, v, c.",
+  "output_desc": "Output four integers: distance, count, min edges, max edges.",
+  "hint": "Dijkstra while maintaining additional info: number of shortest paths, min/max edges on shortest path. When relaxing, update accordingly."
+ },
+ "src263_ys_StaticRMQ": {
+  "title": "Static RMQ",
+  "topic": "tree-euler",
+  "desc": "Given an array A of length N, and Q queries (l, r), output the minimum value in [l, r] (0-indexed).",
+  "input_desc": "First line: N, Q (1 ≤ N,Q ≤ 2×10^5).\nSecond line: N integers A_i.\nNext Q lines: l, r.",
+  "output_desc": "For each query, output the minimum.",
+  "hint": "Sparse Table preprocessing O(N log N), query O(1). Also possible with segment tree."
+ },
+ "src147_f314": {
+  "title": "Hero Training",
+  "topic": "DP",
+  "desc": "In an N×M grid, each cell has a score. Start from (1,1) to (N,M), move only right or down. The total score is the sum of visited cells. Find the maximum total score.",
+  "input_desc": "First line: N, M (1 ≤ N,M ≤ 1000).\nNext N lines: M integers (|score| ≤ 10^4).",
+  "output_desc": "Output the maximum total score.",
+  "hint": "Same as src184, classic DP."
+ },
+ "src149_g278": {
+  "title": "Food Expo",
+  "topic": "DP Variation",
+  "desc": "There are N booths, each with tastiness a_i. Choose a contiguous segment where all tastiness values are distinct. Find the maximum length of such a segment.",
+  "input_desc": "First line: N (1 ≤ N ≤ 2×10^5).\nSecond line: N integers a_i (1 ≤ a_i ≤ 10^9).",
+  "output_desc": "Output the maximum length.",
+  "hint": "Sliding window with dictionary to track last occurrence. Time O(N)."
+ },
+ "src246_ac_frog1": {
+  "title": "Frog 1",
+  "topic": "DP",
+  "desc": "There are N stones with heights h_i. A frog starts at stone 1 and wants to reach stone N. It can jump 1 or 2 stones, cost = |h_i - h_j|. Find the minimum total cost.",
+  "input_desc": "First line: N (2 ≤ N ≤ 10^5).\nSecond line: N integers h_i.",
+  "output_desc": "Output the minimum cost.",
+  "hint": "Simple DP: dp[i] = min(dp[i-1]+|h[i]-h[i-1]|, dp[i-2]+|h[i]-h[i-2]|)."
+ },
+ "src248_usaco_694": {
+  "title": "Hoof Paper Scissors",
+  "topic": "DP",
+  "desc": "In N rounds, Farmer John shows a gesture (H, P, S). You can pre-choose a sequence of gestures, but you can change at most K times (so at most K+1 segments). Find the maximum number of rounds you can win.",
+  "input_desc": "First line: N, K (1 ≤ N ≤ 10^5, 0 ≤ K ≤ 20).\nNext N lines: each a character (H/P/S).",
+  "output_desc": "Output the maximum wins.",
+  "hint": "DP state: (round, current gesture, changes used). Transition to next gesture, add win if beats opponent, increment change if different gesture. Time O(N*3*3*K)."
+ },
+ "src249_cf_1082E": {
+  "title": "Increasing Frequency",
+  "topic": "DP",
+  "desc": "Given an array A of length N and a target number c. You can choose one subarray [l, r] and change all its elements to some integer x (any). After the operation, what is the maximum possible number of times c appears in the whole array? You can perform at most one operation.",
+  "input_desc": "First line: N, c (1 ≤ N ≤ 5×10^5).\nSecond line: N integers A_i.",
+  "output_desc": "Output the maximum count.",
+  "hint": "For each value v != c, consider subarray that maximizes (#v - #c). This is a maximum subarray sum problem on transformed array. Keep running sum for each v. Time O(N)."
+ },
+ "src253_usaco_1114": {
+  "title": "Modern Art 3",
+  "topic": "Range DP",
+  "desc": "Given a target color sequence of length N. Each operation: choose a contiguous segment and paint it with a single color (overwrites). Find the minimum number of operations to achieve the target sequence.",
+  "input_desc": "First line: N (1 ≤ N ≤ 300).\nSecond line: N integers (colors).",
+  "output_desc": "Output the minimum operations.",
+  "hint": "Interval DP: dp[l][r] = min operations to paint [l,r]. Consider first operation covering l, and split at positions where same color as l."
+ },
+ "src277_baltic_09_candy": {
+  "title": "2009 - Candy",
+  "topic": "DP, Geometry",
+  "desc": "There are N candies, each with sweetness a_i and price b_i. Choose some candies such that total sweetness ≥ S and total price minimized. Output the minimum price, or -1 if impossible.",
+  "input_desc": "First line: N, S (1 ≤ N ≤ 1000, 1 ≤ S ≤ 10^5).\nNext N lines: a_i, b_i.",
+  "output_desc": "Output the minimum price.",
+  "hint": "0/1 knapsack with capacity S (treat excess as S). Time O(N*S)."
+ },
+ "src284_usaco_647": {
+  "title": "248",
+  "topic": "Range DP",
+  "desc": "Given a sequence of N integers (each 1..40). In each operation, choose two adjacent equal numbers x and merge them into x+1. Find the maximum number achievable after any sequence of merges.",
+  "input_desc": "First line: N (2 ≤ N ≤ 248).\nSecond line: N integers.",
+  "output_desc": "Output the maximum possible number.",
+  "hint": "Interval DP: dp[l][r] = the number that the interval [l,r] can be merged into (0 if not fully mergable). Transition: if left and right halves can merge into same number, then merge to one higher."
+ },
+ "src287_usaco_496": {
+  "title": "Cow Jog",
+  "topic": "DP",
+  "desc": "There are N cows, each starting at position p_i with speed v_i. They all run in the positive direction on an infinite line. If a faster cow catches up to a slower one, they merge into a group with the slower speed. How many groups will remain at the end?",
+  "input_desc": "First line: N (1 ≤ N ≤ 10^5).\nNext N lines: p_i, v_i.",
+  "output_desc": "Output the number of groups.",
+  "hint": "Sort by position. Scan from right to left, keep minimum speed seen. If current cow's speed ≤ min_speed, it becomes a new group."
+ },
+ "src289_cses_1080": {
+  "title": "Empty String",
+  "topic": "Range DP",
+  "desc": "Given a string S consisting of lowercase letters. In one operation, you can delete two adjacent equal letters. Determine whether the whole string can be completely deleted.",
+  "input_desc": "A single line string S (length ≤ 500).",
+  "output_desc": "Output YES or NO.",
+  "hint": "Interval DP: dp[l][r] = true if substring [l,r] can be fully deleted. Transition: either two ends match and inner is deletable, or split into two deletable parts."
+ },
+ "src297_cf_10D": {
+  "title": "LCIS",
+  "topic": "DP, LIS",
+  "desc": "Given two sequences A and B. Find the longest common increasing subsequence (LCIS). Output its length and any one such subsequence.",
+  "input_desc": "First line: N, then N integers A_i.\nSecond line: M, then M integers B_i.",
+  "output_desc": "First line: length. Second line: the subsequence (space-separated).",
+  "hint": "Classic LCIS DP: dp[j] = length of LCIS ending with B[j]. Maintain current best for A[i]. Time O(N*M)."
+ },
+ "src298_cfgym_102951C": {
+  "title": "LCS on Permutations",
+  "topic": "DP, LIS",
+  "desc": "Given two permutations P and Q of 1..N. Find the length of their longest common subsequence (LCS). Since they are permutations, LCS can be reduced to LIS.",
+  "input_desc": "First line: N (1 ≤ N ≤ 10^5).\nSecond line: N integers P.\nThird line: N integers Q.",
+  "output_desc": "Output the LCS length.",
+  "hint": "Map each element in P to its index in Q, then the LCS length equals the length of LIS of that sequence. Time O(N log N)."
+ },
+ "src132_c462": {
+  "title": "Alternating String",
+  "topic": "String Manipulation",
+  "desc": "Given a string, check if it is an \"alternating string\": it consists of equal counts of two distinct letters in alternating order, e.g., \"ABABAB\" or \"BABA\".",
+  "input_desc": "One line string, length ≤ 1000.",
+  "output_desc": "Output YES or NO.",
+  "hint": "Length must be even, and odd positions all same letter, even positions all the other letter."
+ },
+ "src133_i400": {
+  "title": "String Decoding",
+  "topic": "String Processing, Character Operations",
+  "desc": "Given an encoded string where each fragment is a digit (1-9) followed by a letter, meaning repeat the letter that many times. Example: \"3a2b1c\" decodes to \"aaabbc\". Output the decoded string.",
+  "input_desc": "One line encoded string, length ≤ 1000.",
+  "output_desc": "Output the decoded string.",
+  "hint": "Parse every two characters: digit and letter, then repeat."
+ },
+ "src134_h027": {
+  "title": "Matrix Sum",
+  "topic": "Prefix Sum",
+  "desc": "Given an N×M matrix, and Q queries. Each query gives top-left and bottom-right coordinates of a submatrix, output its sum.",
+  "input_desc": "First line: N, M, Q (1 ≤ N,M ≤ 1000, 1 ≤ Q ≤ 10^5).\nNext N lines: M integers.\nNext Q lines: x1, y1, x2, y2 (1-indexed).",
+  "output_desc": "For each query, output the sum.",
+  "hint": "2D prefix sum, O(1) per query."
+ },
+ "src137_f640": {
+  "title": "Evaluate Function Expression",
+  "topic": "Function",
+  "desc": "Same as src182, evaluate arithmetic expression with +, *, parentheses.",
+  "input_desc": "One line expression.",
+  "output_desc": "Integer result.",
+  "hint": "Use eval for simplicity; actual solution would implement parser."
+ },
+ "src154_201610P2": {
+  "title": "Maximum Sum",
+  "topic": "APCS implementation",
+  "desc": "Given an integer sequence, find the maximum subarray sum.",
+  "input_desc": "First line: N (1 ≤ N ≤ 10^5).\nSecond line: N integers.",
+  "output_desc": "Output the maximum sum.",
+  "hint": "Kadane's algorithm."
+ },
+ "src157_202310P2": {
+  "title": "Card Game",
+  "topic": "APCS implementation",
+  "desc": "There are N cards, each with a number. Two players take turns taking either the leftmost or rightmost card, aiming to maximize their own sum. Both play optimally. Find the maximum sum the first player can achieve.",
+  "input_desc": "First line: N (1 ≤ N ≤ 5000).\nSecond line: N integers.",
+  "output_desc": "Output the maximum sum.",
+  "hint": "Classic interval DP for optimal play."
+ },
+ "src158_201810P2": {
+  "title": "Subset Sum",
+  "topic": "APCS implementation",
+  "desc": "Given an array of integers, determine if there exists a non-empty subset whose sum is exactly S.",
+  "input_desc": "First line: N, S (1 ≤ N ≤ 20, 1 ≤ S ≤ 10^9).\nSecond line: N integers.",
+  "output_desc": "Output YES or NO.",
+  "hint": "N ≤ 20, brute force enumeration."
+ },
+ "src160_202206P2": {
+  "title": "String Decoding",
+  "topic": "APCS implementation",
+  "desc": "Similar to src133, but numbers can have multiple digits. Decode the string.",
+  "input_desc": "One line encoded string.",
+  "output_desc": "Output decoded string.",
+  "hint": "Parse multi-digit numbers and following letter."
+ },
+ "src162_201703P2": {
+  "title": "Small Groups",
+  "topic": "APCS implementation",
+  "desc": "There are N people, each points to their best friend (given array f). A \"small group\" is a pair (i, j) such that i's best friend is j and j's best friend is i. Count the number of such pairs.",
+  "input_desc": "First line: N (1 ≤ N ≤ 1000).\nSecond line: N integers f[1..N].",
+  "output_desc": "Output the number of pairs.",
+  "hint": "Check mutual pointing, each pair counted twice."
+ },
+ "src166_202306P2": {
+  "title": "Special Positions",
+  "topic": "APCS implementation",
+  "desc": "Given an N×M grid of heights, a cell is \"special\" if it is strictly higher than all its four adjacent cells (up, down, left, right). Count the number of special cells.",
+  "input_desc": "First line: N, M (1 ≤ N,M ≤ 1000).\nNext N lines: M integers.",
+  "output_desc": "Output the count.",
+  "hint": "Check all four directions."
+ },
+ "src170_202410P2": {
+  "title": "Collecting Gems",
+  "topic": "APCS implementation",
+  "desc": "On a 1D number line, there are N gems at positions p_i with value v_i. Start at 0, each move costs 1 per unit distance. You have a budget K. Maximize total value of gems you can collect (each gem at most once).",
+  "input_desc": "First line: N, K (1 ≤ N ≤ 2000, 1 ≤ K ≤ 10^5).\nNext N lines: p_i, v_i (|p_i| ≤ 10^5, v_i ≤ 10^4).",
+  "output_desc": "Output the maximum total value.",
+  "hint": "Split gems into left and right of origin, enumerate how many to take from each side, compute minimal travel route (go to farther side once)."
+ },
+ "src171_202401P2": {
+  "title": "Bee Observation",
+  "topic": "APCS implementation",
+  "desc": "On an N×N board, a bee starts at (1,1) and moves only right or down. Each cell has honey amount. The bee records the honey values along its path. Among all paths, find the minimum possible median value (the middle value when the sequence is sorted). Output that median.",
+  "input_desc": "First line: N (1 ≤ N ≤ 100).\nNext N lines: N integers.",
+  "output_desc": "Output the minimum median.",
+  "hint": "Binary search median, check if exists path with at least half numbers ≤ mid."
+ },
+ "src172_202201P2": {
+  "title": "Winner Prediction",
+  "topic": "APCS implementation",
+  "desc": "There are N players with skill values. In a tournament, each match randomly pairs two players, the higher skill wins (ties random). Who is most likely to be the champion? Output the player number (1-indexed) with the highest skill.",
+  "input_desc": "First line: N (1 ≤ N ≤ 1000).\nSecond line: N skill values.",
+  "output_desc": "Output the champion number.",
+  "hint": "The player with maximum skill always wins."
+ },
+ "src173_202301P2": {
+  "title": "Character Generation",
+  "topic": "APCS implementation",
+  "desc": "Given strings S and T. You can change any character in S to another letter at cost 1. Find the minimum changes to make S a subsequence of T.",
+  "input_desc": "Two strings S and T (length ≤ 1000).",
+  "output_desc": "Output the minimum changes.",
+  "hint": "Same as src197."
+ },
+ "src176_202007P2": {
+  "title": "Dice",
+  "topic": "APCS implementation",
+  "desc": "A die initially shows up=1, down=6, north=2, south=5, west=3, east=4. Given a sequence of moves: 'L', 'R', 'U', 'D' (left, right, up, down). Output the final top face.",
+  "input_desc": "One line string of moves.",
+  "output_desc": "Output the top number.",
+  "hint": "Simulate dice rotations."
+ },
+ "src259_cses_1676": {
+  "title": "Road Construction",
+  "topic": "DSU",
+  "desc": "There are N cities, initially no roads. M roads are built one by one. After each road, output the size of the largest connected component.",
+  "input_desc": "First line: N, M (1 ≤ N,M ≤ 2×10^5).\nNext M lines: u, v.",
+  "output_desc": "After each road, output the maximum component size.",
+  "hint": "DSU with size tracking."
+ },
+ "src138_P_3_2": {
+  "title": "Bracket Matching",
+  "topic": "Stack Application",
+  "desc": "Given a string of '(' and ')', check if it is a valid bracket sequence.",
+  "input_desc": "One line string, length ≤ 10^5.",
+  "output_desc": "Output YES or NO.",
+  "hint": "Use stack."
+ },
+ "src141_APCSOnline_C2_permutation": {
+  "title": "Permutation Generation",
+  "topic": "Backtracking",
+  "desc": "Given N, generate all permutations of 1..N in lexicographic order.",
+  "input_desc": "Single integer N (1 ≤ N ≤ 8).",
+  "output_desc": "Each permutation on its own line.",
+  "hint": "Use itertools.permutations or backtrack."
+ },
+ "src145_b967": {
+  "title": "Bloodline",
+  "topic": "Tree/Graph Traversal",
+  "desc": "Given a tree, find its diameter (number of edges in longest path).",
+  "input_desc": "First line: N (1 ≤ N ≤ 10^5).\nNext N-1 lines: u, v.",
+  "output_desc": "Output the diameter.",
+  "hint": "Two BFS to find diameter."
+ },
+ "src150_h084": {
+  "title": "Optimization Problem",
+  "topic": "Greedy",
+  "desc": "There are N intervals [s_i, t_i]. Find the maximum number of non-overlapping intervals.",
+  "input_desc": "First line: N (1 ≤ N ≤ 10^5).\nNext N lines: s, t.",
+  "output_desc": "Output the maximum number.",
+  "hint": "Greedy by earliest end time."
+ },
+ "src204_202010P4": {
+  "title": "Lowland Distance",
+  "topic": "APCS implementation",
+  "desc": "Given N points in the plane, find the closest pair distance (Euclidean).",
+  "input_desc": "First line: N (2 ≤ N ≤ 10^5).\nNext N lines: x, y.",
+  "output_desc": "Output the minimum distance with 4 decimal places.",
+  "hint": "Divide and conquer closest pair."
+ },
+ "src205_202206P4": {
+  "title": "Dot Product",
+  "topic": "APCS implementation",
+  "desc": "Given two vectors A and B of length N, you can rearrange B arbitrarily. Find the maximum possible dot product.",
+  "input_desc": "First line: N (1 ≤ N ≤ 10^5).\nSecond line: N integers A_i.\nThird line: N integers B_i.",
+  "output_desc": "Output the maximum dot product.",
+  "hint": "Sort A ascending, B descending, then dot product."
+ },
+ "src206_202406P4": {
+  "title": "Best Choice",
+  "topic": "APCS implementation",
+  "desc": "Given an array, find the maximum average of any contiguous subarray. Output that average with 3 decimal places.",
+  "input_desc": "First line: N (1 ≤ N ≤ 10^5).\nSecond line: N integers.",
+  "output_desc": "Output the maximum average.",
+  "hint": "Maximum average is the maximum element (subarray length 1)."
+ },
+ "src209_201806P4": {
+  "title": "Number of Inversions",
+  "topic": "APCS implementation",
+  "desc": "Count the number of inversions in an array (i<j and a[i] > a[j]).",
+  "input_desc": "First line: N (1 ≤ N ≤ 10^5).\nSecond line: N integers.",
+  "output_desc": "Output the count.",
+  "hint": "Fenwick tree or merge sort."
+ },
+ "src210_202401P4": {
+  "title": "Merge Cost",
+  "topic": "APCS implementation",
+  "desc": "Given N numbers, each operation merges two adjacent numbers x and y, cost = x+y, and replaces them with x+y. Repeat until one number remains. Find the minimum total cost.",
+  "input_desc": "First line: N (1 ≤ N ≤ 5000).\nSecond line: N integers.",
+  "output_desc": "Output the minimum cost.",
+  "hint": "Classic stone merging interval DP."
+ },
+ "src211_201703P4": {
+  "title": "Base Station",
+  "topic": "APCS implementation",
+  "desc": "There are N villages on a line at given positions. Build K base stations, each covers radius R. Find the minimum R such that all villages are covered.",
+  "input_desc": "First line: N, K (1 ≤ N ≤ 10^5, 1 ≤ K ≤ N).\nSecond line: N integer positions.",
+  "output_desc": "Output the minimum R.",
+  "hint": "Binary search R, greedy placement."
+ },
+ "src216_202301P4": {
+  "title": "Machine Rental",
+  "topic": "APCS implementation",
+  "desc": "Given intervals (start, end) for tasks, each machine can handle one task at a time. Find the minimum number of machines needed.",
+  "input_desc": "First line: N (1 ≤ N ≤ 10^5).\nNext N lines: s, t.",
+  "output_desc": "Output the minimum number of machines.",
+  "hint": "Sweep line: maximum overlap."
+ },
+ "src223_201906P4": {
+  "title": "Beautiful Ribbon",
+  "topic": "APCS implementation",
+  "desc": "Given a ribbon of N colors, find the longest contiguous subarray where every color appears an even number of times.",
+  "input_desc": "First line: N (1 ≤ N ≤ 10^5).\nSecond line: N integers (colors).",
+  "output_desc": "Output the longest length.",
+  "hint": "Assign random 64-bit values to each color, XOR prefix, find equal prefix."
+ },
+ "src229_202101P4": {
+  "title": "Soaring to Success",
+  "topic": "APCS implementation",
+  "desc": "Find the length of the longest increasing subsequence (LIS) of an array.",
+  "input_desc": "First line: N (1 ≤ N ≤ 10^5).\nSecond line: N integers.",
+  "output_desc": "Output the length.",
+  "hint": "Patience sorting O(N log N)."
+ },
+ "src231_cses_1158": {
+  "title": "Book Shop",
+  "topic": "Knapsack",
+  "desc": "There are N books, each with price and pages. You have budget X. Find the maximum number of pages you can buy.",
+  "input_desc": "First line: N, X (1 ≤ N ≤ 1000, 1 ≤ X ≤ 10^5).\nSecond line: N integers price.\nThird line: N integers pages.",
+  "output_desc": "Output the maximum pages.",
+  "hint": "0/1 knapsack."
+ },
+ "src234_cses_1636": {
+  "title": "Coin Combinations II (Ordered)",
+  "topic": "Knapsack",
+  "desc": "Same as src233 but order matters (permutations). Count number of sequences.",
+  "input_desc": "Same as src233.",
+  "output_desc": "Output the number of ways.",
+  "hint": "Outer loop on amount, inner on coins (ordered)."
+ },
+ "src273_cses_1093": {
+  "title": "Two Sets II",
+  "topic": "Knapsack",
+  "desc": "Split numbers 1..N into two sets with equal sum. Count the number of ways (order of sets doesn't matter). Output modulo 1e9+7.",
+  "input_desc": "Single integer N (1 ≤ N ≤ 500).",
+  "output_desc": "Output the number of ways.",
+  "hint": "0/1 knapsack to count subsets summing to target, then divide by 2."
+ },
+ "src281_baltic_10_pcb": {
+  "title": "2010 - PCB",
+  "topic": "lis",
+  "desc": "There are two rows of points, top row and bottom row, each with N points. Top point i is connected to bottom point p_i. Find the maximum number of non-intersecting segments (wires). Equivalent to LIS of p.",
+  "input_desc": "First line: N (1 ≤ N ≤ 10^5).\nSecond line: N integers p_i.",
+  "output_desc": "Output the maximum number.",
+  "hint": "LIS."
+ },
+ "src245_cf_510C": {
+  "title": "Fox and Names",
+  "topic": "TopoSort",
+  "desc": "Given N names in lexicographic order according to some unknown alphabet order (permutation of 26 letters). Find any such alphabet order, or output \"Impossible\".",
+  "input_desc": "First line: N (1 ≤ N ≤ 100).\nNext N lines: strings (lowercase).",
+  "output_desc": "Output a string of 26 letters (a permutation), or \"Impossible\".",
+  "hint": "Compare adjacent words to derive constraints between letters, then topological sort."
  }
 };
