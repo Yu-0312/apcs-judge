@@ -272,26 +272,43 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
   <button id="mnav-code" onclick="setMobileView('code')"><span class="ic">💻</span><span id="mnav-code-t">程式</span></button>
 </nav>
 
-<!-- 教材資料（拆檔以利快取與協作；順序不拘，僅需先於主程式） -->
+<!-- 教材資料（拆檔以利快取與協作；順序不拘，僅需先於主程式）。
+     英文版兩檔共 443KB，改為切換到 EN 時才動態載入（見 ensureEnData） -->
 <script src="data/tutorial-chapters-zh.js"></script>
-<script src="data/tutorial-chapters-en.js"></script>
 <script src="data/tutorial-chapter-meta.js"></script>
 <script src="data/tutorial-lang-content-zh.js"></script>
-<script src="data/tutorial-lang-content-en.js"></script>
 <script src="data/tutorial-multi-examples.js"></script>
 <script>
 // CHAPTERS 已抽出至 data/tutorial-chapters-zh.js
 
-// CHAPTERS_EN_RAW 已抽出至 data/tutorial-chapters-en.js
-const CHAPTERS_EN_MAP = Object.fromEntries(CHAPTERS_EN_RAW.map(c=>[c.id,c]));
+// CHAPTERS_EN_RAW 已抽出至 data/tutorial-chapters-en.js（切到 EN 時才載入）
+// LANG_CONTENT_EN 已抽出至 data/tutorial-lang-content-en.js（切到 EN 時才載入）
+let CHAPTERS_EN_MAP = null;
+let _enDataLoading = null;
+function ensureEnData(){
+  if (CHAPTERS_EN_MAP) return Promise.resolve();
+  if (_enDataLoading) return _enDataLoading;
+  _enDataLoading = Promise.all(['data/tutorial-chapters-en.js', 'data/tutorial-lang-content-en.js'].map(src =>
+    new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = res;
+      s.onerror = () => { s.remove(); rej(new Error('load failed: ' + src)); };
+      document.head.appendChild(s);
+    })
+  )).then(() => {
+    CHAPTERS_EN_MAP = Object.fromEntries(CHAPTERS_EN_RAW.map(c=>[c.id,c]));
+  }).catch(e => { _enDataLoading = null; throw e; });
+  return _enDataLoading;
+}
 
 let pyodide = null;
 let cm = null;
 let currentChap = null;
 let currentLang = 'py';
 let uiLang = (localStorage.getItem('apcs_ui_lang') || 'zh'); // 'zh' | 'en'
-function chEN(chap){ return CHAPTERS_EN_MAP[chap.id]; }
-function hasEN(chap){ return uiLang === 'en' && !!CHAPTERS_EN_MAP[chap.id]; }
+function chEN(chap){ return CHAPTERS_EN_MAP ? CHAPTERS_EN_MAP[chap.id] : undefined; }
+function hasEN(chap){ return uiLang === 'en' && !!chEN(chap); }
 const UI_STR = {
   zh: {
     logo:'📚 程式教學 × APCS 練習', subtitle1:'章 · 程式教學 + APCS 考試準備 + 分級練習 + 程式識讀',
@@ -390,8 +407,20 @@ function applyUiLang(){
   setText('mnav-code-t', t.mnavCode);
   if(typeof updateProgress === 'function') updateProgress();
 }
-function toggleUiLang(){
-  uiLang = (uiLang === 'zh') ? 'en' : 'zh';
+async function toggleUiLang(){
+  const next = (uiLang === 'zh') ? 'en' : 'zh';
+  if(next === 'en'){
+    const btn = document.getElementById('ui-lang-btn');
+    if(btn) btn.disabled = true;
+    try { await ensureEnData(); }
+    catch(e){
+      alert('英文內容載入失敗，請確認網路後再試 / Failed to load English content, please check your network');
+      return;
+    } finally {
+      if(btn) btn.disabled = false;
+    }
+  }
+  uiLang = next;
   localStorage.setItem('apcs_ui_lang', uiLang);
   applyUiLang();
 }
@@ -553,7 +582,12 @@ function translateError(raw){
 
 // ── 進度與新手模式 ────────────────────────────────────────────────────────
 let beginnerMode = (localStorage.getItem('tut_beginner') ?? '1') === '1';
-let completed = new Set(JSON.parse(localStorage.getItem('tut_done') || '[]'));
+// 損壞的 localStorage 不能讓整頁掛掉：解析失敗就當作沒有進度
+let completed = new Set();
+try {
+  const _done = JSON.parse(localStorage.getItem('tut_done') || '[]');
+  if (Array.isArray(_done)) completed = new Set(_done.filter(Number.isInteger));
+} catch(e) {}
 function saveState(){
   localStorage.setItem('tut_beginner', beginnerMode ? '1' : '0');
   localStorage.setItem('tut_done', JSON.stringify([...completed]));
@@ -698,7 +732,7 @@ function getContent(chap){
     if(hasEN(chap)) return chEN(chap).content || chap.content;
     return chap.content;
   }
-  const src = (uiLang === 'en') ? LANG_CONTENT_EN : LANG_CONTENT;
+  const src = (uiLang === 'en' && typeof LANG_CONTENT_EN !== 'undefined') ? LANG_CONTENT_EN : LANG_CONTENT;
   const block = pickLangBlock(src[chap.id], currentLang);
   if(block) return block;
   if(uiLang === 'en' && hasEN(chap)) return chEN(chap).content;
@@ -945,6 +979,17 @@ applyUiLang();
 loadPyodide_();
 updateProgress();
 selectChap(0);
+// 上次使用英文介面：背景載入英文資料，到位後重繪（未動過編輯器才換英文範例）
+if (uiLang === 'en') {
+  const _zhExample = cm.getValue();
+  ensureEnData().then(() => {
+    applyUiLang();
+    if (currentChap && cm.getValue() === _zhExample) {
+      cm.setValue(getExample(currentChap));
+      document.getElementById('stdin-input').value = getStdin(currentChap);
+    }
+  }).catch(() => {});
+}
 </script>
 </body>
 </html>

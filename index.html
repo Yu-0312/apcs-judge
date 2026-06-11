@@ -211,9 +211,8 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
   </div>
 </div>
 
-<!-- 題目與解答資料（拆檔以利快取與協作） -->
+<!-- 題目資料（拆檔以利快取與協作）；解答 680KB 改為按「載入解答」時才動態載入 -->
 <script src="data/judge-problems.js"></script>
-<script src="data/judge-solutions.js"></script>
 <script>
 // ── Problem data (language-independent) ──────────────────────────────────────
 // PROBLEMS 已抽出至 data/judge-problems.js
@@ -664,8 +663,29 @@ function renderResults(results, passed, total) {
 
 function clearEditor() { editor.setValue(''); editor.focus(); }
 
-function loadSample() {
+// 解答資料 680KB，首次按「載入解答」時才動態載入（data/judge-solutions.js 宣告 const SOLUTIONS）
+let _solutionsLoading = null;
+function ensureSolutions() {
+  if (typeof SOLUTIONS !== 'undefined') return Promise.resolve();
+  if (_solutionsLoading) return _solutionsLoading;
+  _solutionsLoading = new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'data/judge-solutions.js';
+    s.onload = res;
+    s.onerror = () => { _solutionsLoading = null; s.remove(); rej(new Error('load failed')); };
+    document.head.appendChild(s);
+  });
+  return _solutionsLoading;
+}
+
+async function loadSample() {
   if (!currentProblem || !currentLang) { alert('請先選擇語言和題目'); return; }
+  try {
+    await ensureSolutions();
+  } catch (e) {
+    alert('解答資料載入失敗，請確認網路後再試');
+    return;
+  }
   const sol = SOLUTIONS[currentLang][currentProblem.id];
   if (!sol) { alert('此題目目前沒有參考解答'); return; }
   if (editor.getValue().trim() && !confirm('確定要載入參考解答？（會同時顯示解題思路）')) return;
