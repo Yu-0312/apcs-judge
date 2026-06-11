@@ -46,6 +46,14 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .sidebar{background:var(--sidebar-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
 .sidebar-header{padding:10px 14px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
 .problem-list{overflow-y:auto;flex:1;padding:8px 0;}
+.list-tools{padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:6px;}
+.list-tools input[type=search]{width:100%;background:var(--panel-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:6px 8px;outline:none;}
+.list-tools input[type=search]:focus{border-color:var(--lang-color,#58a6ff);}
+.filter-row{display:flex;align-items:center;gap:8px;}
+.filter-row select{flex:1;background:var(--panel-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:11px;padding:5px 6px;outline:none;}
+.filter-chk{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);cursor:pointer;white-space:nowrap;}
+.filter-chk input{accent-color:var(--green);}
+.list-empty{padding:20px 14px;font-size:12px;color:var(--text-muted);text-align:center;}
 .problem-group{padding-bottom:8px;border-bottom:1px solid rgba(48,54,61,.45);}
 .level-header{position:relative;margin:0 8px 6px;padding:13px 12px 14px 16px;border-radius:7px;background:linear-gradient(135deg,var(--level-bg),rgba(22,27,34,.94));border:1px solid var(--level-border);border-left:4px solid var(--level-color);box-shadow:0 8px 18px rgba(0,0,0,.12);}
 .level-title-row{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:750;color:var(--text);}
@@ -143,6 +151,19 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
     <div class="sidebar-header">
       <span>題目列表（<span id="problem-list-total">0</span> 題）</span>
       <span id="solved-count" style="color:var(--green);font-size:11px;">0 / 0</span>
+    </div>
+    <div class="list-tools">
+      <input type="search" id="prob-search" placeholder="🔍 搜尋題名 / 主題 / 編號" oninput="onFilterChange()">
+      <div class="filter-row">
+        <select id="filter-diff" onchange="onFilterChange()">
+          <option value="">全部難度</option>
+          <option value="easy">⭐ 初級</option>
+          <option value="medium">⭐⭐ 中級</option>
+          <option value="midhigh">⭐⭐⭐ 中高級</option>
+          <option value="hard">⭐⭐⭐⭐ 高級</option>
+        </select>
+        <label class="filter-chk"><input type="checkbox" id="filter-unsolved" onchange="onFilterChange()">只看未 AC</label>
+      </div>
     </div>
     <div class="problem-list" id="problem-list"></div>
   </aside>
@@ -4704,7 +4725,20 @@ let currentProblem = null;
 let editor = null;
 let pyodide = null;
 let pyodideLoading = false;
-let scores = {}; // { 'py_b964': {passed,total}, 'cpp_b964': ... }
+const SCORES_KEY = 'apcs_judge_scores_v1';
+let scores = loadScores(); // { 'py_b964': {passed,total}, 'cpp_b964': ... }
+
+function loadScores() {
+  try {
+    const raw = localStorage.getItem(SCORES_KEY);
+    const obj = raw ? JSON.parse(raw) : {};
+    return (obj && typeof obj === 'object') ? obj : {};
+  } catch(e) { return {}; }
+}
+
+function saveScores() {
+  try { localStorage.setItem(SCORES_KEY, JSON.stringify(scores)); } catch(e) {}
+}
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
@@ -4829,12 +4863,36 @@ function difficultyBadge(diff) {
   return `<span class="badge" style="color:${d.color};background:${d.bg};border-color:${d.border};">${d.stars} ${d.label}</span>`;
 }
 
+function onFilterChange() { renderProblemList(); }
+
+function problemFilter() {
+  const q = (document.getElementById('prob-search')?.value || '').trim().toLowerCase();
+  const diff = document.getElementById('filter-diff')?.value || '';
+  const unsolved = document.getElementById('filter-unsolved')?.checked || false;
+  return ({ p }) => {
+    if (diff && (p.diff || 'easy') !== diff) return false;
+    if (unsolved) {
+      const s = scores[currentLang + '_' + p.id];
+      if (s && s.passed === s.total) return false;
+    }
+    if (q) {
+      const hay = `${p.title} ${p.topic || ''} ${p.id} ${p.source || ''}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  };
+}
+
 function renderProblemList() {
   const list = document.getElementById('problem-list');
-  const indexedProblems = PROBLEMS.map((p, i) => ({ p, i }));
+  const indexedProblems = PROBLEMS.map((p, i) => ({ p, i })).filter(problemFilter());
+  if (!indexedProblems.length) {
+    list.innerHTML = '<div class="list-empty">沒有符合條件的題目</div>';
+  } else {
   list.innerHTML = LEVEL_SECTIONS.map(section => {
     const d = difficultyInfo(section.diff);
     const items = indexedProblems.filter(({ p }) => (p.diff || 'easy') === section.diff);
+    if (!items.length) return '';
     return `<div class="problem-group">
       <div class="level-header" style="--level-color:${d.color};--level-bg:${d.bg};--level-border:${d.border};">
         <div class="level-title-row"><span>${escH(section.icon)}</span><span>${escH(d.label)}練習</span><span class="count">${items.length} 題</span></div>
@@ -4843,6 +4901,7 @@ function renderProblemList() {
       ${items.map(({ p, i }) => renderProblemItem(p, i, d)).join('')}
     </div>`;
   }).join('');
+  }
 
   // Solved count for current language
   const solved = PROBLEMS.filter(p => {
@@ -4939,8 +4998,39 @@ async function runCode() {
   const passed = results.filter(r => r.pass).length;
   const total = results.length;
   scores[currentLang + '_' + currentProblem.id] = { passed, total };
+  saveScores();
   renderProblemList();
   renderResults(results, passed, total);
+}
+
+const JUDGE0_LANG = { cpp: 54, c: 50, java: 62 };
+
+// 送交 Judge0；429（速率限制）與 5xx／網路錯誤時自動退避重試，共 3 次
+async function judge0Submit(code, stdin) {
+  const delays = [0, 1500, 4000];
+  let lastErr = null;
+  for (let attempt = 0; attempt < delays.length; attempt++) {
+    if (delays[attempt]) await new Promise(r => setTimeout(r, delays[attempt]));
+    let res;
+    try {
+      res = await fetch('https://ce.judge0.com/submissions?base64_encoded=false&wait=true', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          language_id: JUDGE0_LANG[currentLang],
+          source_code: code,
+          stdin: stdin || ''
+        })
+      });
+    } catch(e) {
+      lastErr = '🌐 無法連線到雲端評測服務，請確認網路後再試';
+      continue;
+    }
+    if (res.status === 429) { lastErr = '🚦 雲端評測服務忙碌中（請求過於頻繁），請等幾秒再執行'; continue; }
+    if (res.status >= 500) { lastErr = '⚠️ 雲端評測服務暫時異常（HTTP ' + res.status + '），請稍後再試'; continue; }
+    if (!res.ok) throw new Error('評測服務回應異常（HTTP ' + res.status + '）');
+    return await res.json();
+  }
+  throw new Error(lastErr || '評測服務無回應');
 }
 
 async function runSingle(code, stdin, expectedRaw) {
@@ -4970,18 +5060,15 @@ finally:
 _out`);
     } else {
       // C / C++ / Java 走 Judge0 CE（Piston 公開 API 自 2026/02/15 起白名單）
-      const JUDGE0_LANG = { cpp: 54, c: 50, java: 62 };
-      const res = await fetch('https://ce.judge0.com/submissions?base64_encoded=false&wait=true', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          language_id: JUDGE0_LANG[currentLang],
-          source_code: code,
-          stdin: stdin || ''
-        })
-      });
-      const data = await res.json();
+      const data = await judge0Submit(code, stdin);
+      // Judge0 status：3=AC/正常結束, 5=TLE, 6=編譯錯誤, 7~12=執行期錯誤, 13/14=服務內部錯誤
+      const sid = data.status && data.status.id;
+      if (sid === 5) return { pass: false, got: '', expected, error: '⏱ 執行逾時（TLE）：程式超過時間限制，請檢查迴圈或演算法複雜度' };
+      if (sid === 6) return { pass: false, got: '', expected, error: '🛠 編譯錯誤：\n' + String(data.compile_output || '').split('\n').slice(0, 4).join('\n') };
+      if (sid >= 13) return { pass: false, got: '', expected, error: '⚠️ 評測服務暫時異常（' + (data.status.description || sid) + '），請稍後再試' };
       const stdout = data.stdout || '';
       const stderr = data.stderr || data.compile_output || '';
+      if (sid >= 7 && sid <= 12) return { pass: false, got: stdout, expected, error: '💥 執行期錯誤（' + (data.status.description || 'Runtime Error') + '）：\n' + String(stderr).split('\n').slice(0, 4).join('\n') };
       if (stderr && !stdout) return { pass: false, got: '', expected, error: stderr.split('\n').slice(0, 4).join('\n') };
       output = stdout;
     }
