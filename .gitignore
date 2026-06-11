@@ -1,0 +1,12 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# 工作快取（gen-lang-content-en.py 的翻譯快取，重跑時可省成本）
+scripts/.lang-content-en-cache.json
+
+# 備份與系統檔
+*.bak
+*.bak[0-9]
+.DS_Store
