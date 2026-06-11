@@ -9,6 +9,12 @@
 
 [繁體中文](#繁體中文) · [English](#english)
 
+| 教學（桌面版） | 教學（手機版） |
+|:---:|:---:|
+| ![教學頁桌面版截圖](assets/tutorial-desktop.png) | <img src="assets/tutorial-mobile.png" alt="教學頁手機版截圖" width="220"> |
+
+![題庫頁截圖](assets/judge-desktop.png)
+
 ---
 
 ## 繁體中文
@@ -32,6 +38,7 @@
 - **🧠 設計動機**：十個關鍵章節附「為什麼要這樣設計」深度解析（EAFP、HTTP 無狀態、pandas 向量化、async、delta time、模運算同餘、RAII、值語意、型別擦除、JIT）
 - **雙語介面**：右上角一鍵切換繁中 / English，教材內容同步切換
 - **手機可用**：行動版以底部導覽列切換「章節 / 教學 / 程式」三個面板
+- **進度可攜**：完成進度與刷題紀錄存瀏覽器（localStorage），並可一鍵匯出 / 匯入 JSON 帶到其他裝置
 - **鍵盤操作**：`Ctrl/Cmd + Enter` 直接執行程式；分頁與章節列表支援 Tab + Enter
 
 ### 🗺️ 課程地圖（95 章）
@@ -99,7 +106,7 @@ python3 -m http.server 8000
 | **CodeMirror 5** | 語法高亮編輯器 |
 | **marked.js** | Markdown 教材與題目渲染 |
 
-單一 HTML 檔、所有依賴走 CDN——無 npm、無 build step、無後端。
+純靜態網站（HTML + `data/*.js` 資料檔）、所有依賴走 CDN——無 npm、無 build step、無後端。教材與題目資料拆檔存於 `data/`，改內容不必動主程式；`node scripts/check-data.js` 可在本地驗證資料一致性（CI 亦會自動跑）。
 
 ### 🤝 貢獻
 
@@ -135,6 +142,7 @@ This project is a complete learning path made of two pages:
 - **🧠 Design Motivation** sections in ten key chapters explain *why* things are designed the way they are (EAFP, stateless HTTP, pandas vectorization, async, delta time, modular arithmetic, RAII, value semantics, type erasure, JIT)
 - **Bilingual UI**: one-click Traditional Chinese / English toggle, lesson content included
 - **Mobile-friendly**: bottom navigation switches between chapters / lesson / code panels
+- **Portable progress**: stored in localStorage, with one-click JSON export / import across devices
 - **Keyboard**: `Ctrl/Cmd + Enter` to run; tabs and chapter list are keyboard-accessible
 
 ### Curriculum map (95 chapters)
@@ -168,7 +176,7 @@ python3 -m http.server 8000
 # open http://localhost:8000/tutorial.html
 ```
 
-Single HTML files, all dependencies from CDN — no npm, no build step, no backend (Pyodide, Judge0 CE, CodeMirror 5, marked.js).
+Pure static site (HTML + `data/*.js` data files), all dependencies from CDN — no npm, no build step, no backend (Pyodide, Judge0 CE, CodeMirror 5, marked.js). Lessons and problems live in `data/`; run `node scripts/check-data.js` to validate data consistency (also enforced in CI).
 
 ### License
 
