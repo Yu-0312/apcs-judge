@@ -6,7 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APCS 初級 Python 教學</title>
+<title>程式教學 × APCS 練習｜Python · C++ · C · Java 互動教室</title>
+<meta name="description" content="從零開始的互動式程式教學：Python、C++、C、Java 四語言 95 章課程，瀏覽器內直接執行程式碼，搭配 APCS 考試準備與分級練習。">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
@@ -149,6 +150,42 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .intro-card{background:linear-gradient(135deg,rgba(63,185,80,.08),rgba(121,192,255,.06));border:1px solid rgba(63,185,80,.3);padding:16px 18px;border-radius:8px;margin:14px 0}
 .intro-card h3{margin-top:0;color:var(--py)}
 .intro-card p{font-size:13.5px;margin:6px 0}
+
+/* === focus / keyboard accessibility === */
+.lang-tab:focus-visible,.chap:focus-visible,.btn:focus-visible,.quiz-opt:focus-visible,.cq-btn:focus-visible{outline:2px solid var(--lang-color);outline-offset:-2px}
+
+/* === responsive: tablet === */
+@media (min-width:961px) and (max-width:1180px){
+  .layout{grid-template-columns:220px 1fr 1fr}
+}
+
+/* === responsive: mobile === */
+#mobile-nav{display:none}
+@media (max-width:960px){
+  :root{--mnav-h:54px}
+  header{padding:0 12px;gap:8px}
+  header .sub{display:none}
+  .logo{font-size:15px;white-space:nowrap}
+  .hright{gap:8px}
+  .hright a{padding:4px 8px;white-space:nowrap}
+  #status-text{display:none}
+  .lang-tabs{overflow-x:auto}
+  .lang-tab{padding:0 12px;font-size:11.5px;white-space:nowrap}
+  #lang-note{display:none}
+  .layout{display:flex;flex-direction:column;height:calc(100vh - var(--header-h) - var(--tab-h) - var(--mnav-h));height:calc(100dvh - var(--header-h) - var(--tab-h) - var(--mnav-h))}
+  .sidebar,.lesson-panel,.editor-panel{display:none;width:100%;height:100%;border-right:none}
+  .layout[data-mview="chap"] .sidebar{display:flex}
+  .layout[data-mview="lesson"] .lesson-panel{display:flex}
+  .layout[data-mview="code"] .editor-panel{display:flex}
+  .lesson-body{padding:14px 16px}
+  .lesson-body table{display:block;overflow-x:auto;max-width:100%}
+  .cq-row{flex-direction:column}
+  .output-panel{height:150px}
+  #mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;height:var(--mnav-h);background:var(--sidebar-bg);border-top:1px solid var(--border);z-index:50;padding-bottom:env(safe-area-inset-bottom)}
+  #mobile-nav button{flex:1;background:transparent;border:none;color:var(--text-muted);font-size:11px;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-top:2px solid transparent;transition:color .15s}
+  #mobile-nav button.on{color:var(--lang-color);border-top-color:var(--lang-color)}
+  #mobile-nav button .ic{font-size:16px}
+}
 </style>
 </head>
 <body>
@@ -169,7 +206,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
   <span style="margin-left:auto;padding:0 16px;font-size:11px;color:var(--text-muted);display:flex;align-items:center;" id="lang-note">Pyodide 本地執行</span>
 </div>
 
-<div class="layout">
+<div class="layout" data-mview="lesson">
   <aside class="sidebar">
     <div class="sidebar-hdr">學習進度</div>
     <div class="progress-wrap">
@@ -183,7 +220,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
     <div class="lesson-body" id="lesson-body">
       <div style="text-align:center;padding:60px 20px;color:var(--text-muted)">
         <div style="font-size:48px;margin-bottom:14px">📖</div>
-        <p>歡迎來到 APCS 初級 Python 教學！</p>
+        <p>歡迎來到互動程式教室！Python · C++ · C · Java 四語言一站學習。</p>
         <p style="margin-top:8px;font-size:12px">左側選擇章節，右側即可執行範例程式。</p>
       </div>
     </div>
@@ -194,7 +231,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
       <button class="btn btn-sec" onclick="clearEditor()">清空</button>
       <button class="btn btn-sec" onclick="resetExample()">↺ 還原範例</button>
       <span style="flex:1"></span>
-      <span style="font-size:11px;color:var(--text-muted)">Python 3.12</span>
+      <span style="font-size:11px;color:var(--text-muted)" id="lang-ver">Python 3.12</span>
     </div>
     <div class="editor-wrap"><textarea id="code-editor"></textarea></div>
     <div class="input-area">
@@ -207,6 +244,12 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
     </div>
   </div>
 </div>
+
+<nav id="mobile-nav" aria-label="行動版面板切換">
+  <button id="mnav-chap" onclick="setMobileView('chap')"><span class="ic">📚</span><span id="mnav-chap-t">章節</span></button>
+  <button id="mnav-lesson" class="on" onclick="setMobileView('lesson')"><span class="ic">📖</span><span id="mnav-lesson-t">教學</span></button>
+  <button id="mnav-code" onclick="setMobileView('code')"><span class="ic">💻</span><span id="mnav-code-t">程式</span></button>
+</nav>
 
 <script>
 const CHAPTERS = [
@@ -20274,37 +20317,61 @@ function chEN(chap){ return CHAPTERS_EN_MAP[chap.id]; }
 function hasEN(chap){ return uiLang === 'en' && !!CHAPTERS_EN_MAP[chap.id]; }
 const UI_STR = {
   zh: {
-    logo:'📚 APCS 多語言教學', subtitle1:'章 · APCS 考試準備 + 新制分級 + 程式識讀 + 專項教學',
+    logo:'📚 程式教學 × APCS 練習', subtitle1:'章 · 程式教學 + APCS 考試準備 + 分級練習 + 程式識讀',
+    docTitle:'程式教學 × APCS 練習｜Python · C++ · C · Java 互動教室',
     gotoJudge:'🎯 前往題庫', sidebarHdr:'學習進度', chapUnit:'章',
-    lessonPlaceholder:'選擇章節開始學習', welcomeP1:'歡迎來到 APCS 初級 Python 教學！',
+    lessonPlaceholder:'選擇章節開始學習', welcomeP1:'歡迎來到互動程式教室！Python · C++ · C · Java 四語言一站學習。',
     welcomeP2:'左側選擇章節，右側即可執行範例程式。',
     btnRun:'▶ 執行', btnClear:'清空', btnReset:'↺ 還原範例',
     stdinLabel:'stdin:', stdinPh:'若程式需要 input()，在此填入',
     outHdr:'📤 輸出', outPlaceholder:'點擊上方「執行」測試程式',
     chapPrefix:n=>`第 ${n} 章`, chapPrefixFull:(n,t)=>`第 ${n} 章：${t}`,
-    langToggleTitle:'切換為英文 / Switch to English'
+    langToggleTitle:'切換為英文 / Switch to English',
+    statusLoading:'Pyodide 載入中...', statusReady:'Pyodide 已就緒',
+    running:'執行中...', noOutput:'(無輸出)',
+    metaLearn:'🎯 這章你會學到', metaTry:'✋ 動手試試（改右邊程式碼）',
+    metaQuiz:'📝 程式練習（在右邊編輯器寫程式碼，按下方按鈕檢查）',
+    cqStdin:'標準輸入', cqExpect:'預期輸出', cqNone:'（無輸入）',
+    cqCheck:'▶ 執行並檢查答案', cqRunning:'執行中...',
+    cqPass:'🎉 通過！繼續下一章吧', cqPassLast:'🎉 通過！你已經完成全部教學！',
+    cqFail:'❌ 輸出不符。你的輸出：', cqFix:'修一修再按一次。',
+    cqPyHint:'💡 本章程式練習以 Python 為基準（涉及檔案 / 模組 / OOP / API 等 Python 慣用法）。請先切到 Python 嘗試，或直接讀左邊教材的概念。',
+    mnavChap:'章節', mnavLesson:'教學', mnavCode:'程式'
   },
   en: {
-    logo:'📚 APCS Multi-Language Tutorial', subtitle1:'chapters · APCS prep + new tier system + code literacy + specialized topics',
+    logo:'📚 Coding Tutorial × APCS Practice', subtitle1:'chapters · coding tutorial + APCS prep + tiered practice + code literacy',
+    docTitle:'Coding Tutorial × APCS Practice | Python · C++ · C · Java Interactive Classroom',
     gotoJudge:'🎯 Go to Judge', sidebarHdr:'Progress', chapUnit:'ch',
-    lessonPlaceholder:'Select a chapter to begin', welcomeP1:'Welcome to the APCS Python tutorial!',
+    lessonPlaceholder:'Select a chapter to begin', welcomeP1:'Welcome to the interactive classroom! Learn Python, C++, C and Java in one place.',
     welcomeP2:'Choose a chapter on the left; run example code on the right.',
     btnRun:'▶ Run', btnClear:'Clear', btnReset:'↺ Reset example',
     stdinLabel:'stdin:', stdinPh:'If the program uses input(), put data here',
     outHdr:'📤 Output', outPlaceholder:'Press "Run" above to test the code',
     chapPrefix:n=>`Chapter ${n}`, chapPrefixFull:(n,t)=>`Chapter ${n}: ${t}`,
-    langToggleTitle:'切換為中文 / Switch to Chinese'
+    langToggleTitle:'切換為中文 / Switch to Chinese',
+    statusLoading:'Loading Pyodide...', statusReady:'Pyodide ready',
+    running:'Running...', noOutput:'(no output)',
+    metaLearn:'🎯 What you will learn', metaTry:'✋ Try it (edit the code on the right)',
+    metaQuiz:'📝 Coding exercise (write code in the editor, then press the button below)',
+    cqStdin:'Stdin', cqExpect:'Expected output', cqNone:'(no input)',
+    cqCheck:'▶ Run & check answer', cqRunning:'Running...',
+    cqPass:'🎉 Passed! On to the next chapter', cqPassLast:'🎉 Passed! You have finished the whole tutorial!',
+    cqFail:'❌ Output mismatch. Your output:', cqFix:'Fix it and try again.',
+    cqPyHint:'💡 This exercise is Python-based (it uses files / modules / OOP / API idioms). Switch to Python to try it, or just read the lesson concepts on the left.',
+    mnavChap:'Chapters', mnavLesson:'Lesson', mnavCode:'Code'
   }
 };
 function T(){ return UI_STR[uiLang]; }
 function applyUiLang(){
   const t = T();
   const setText = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
+  document.title = t.docTitle;
+  document.documentElement.lang = (uiLang === 'en') ? 'en' : 'zh-TW';
   setText('logo', t.logo);
   const sub = document.querySelector('header .sub');
   if(sub){
-    const total = document.getElementById('chapter-total')?.textContent || '71';
-    sub.innerHTML = `<span id="chapter-total">${total}</span> ${t.chapUnit} · ${t.subtitle1}`;
+    const total = document.getElementById('chapter-total')?.textContent || '95';
+    sub.innerHTML = `<span id="chapter-total">${total}</span> ${t.subtitle1}`;
   }
   const gotoLink = document.querySelector('header a[href="index.html"]');
   if(gotoLink) gotoLink.textContent = t.gotoJudge;
@@ -20332,6 +20399,11 @@ function applyUiLang(){
   if(btn){ btn.textContent = uiLang==='zh' ? '🌐 EN' : '🌐 中文'; btn.title = t.langToggleTitle; }
   const cfg = LANG_CFG[currentLang];
   if(cfg) document.getElementById('lang-note').textContent = uiLang === 'en' ? cfg.noteEn : cfg.note;
+  setText('status-text', pyodide ? t.statusReady : t.statusLoading);
+  setText('mnav-chap-t', t.mnavChap);
+  setText('mnav-lesson-t', t.mnavLesson);
+  setText('mnav-code-t', t.mnavCode);
+  if(typeof updateProgress === 'function') updateProgress();
 }
 function toggleUiLang(){
   uiLang = (uiLang === 'zh') ? 'en' : 'zh';
@@ -20340,23 +20412,24 @@ function toggleUiLang(){
 }
 
 const LANG_CFG = {
-  py:   { name:'Python', mode:'python',          color:'#3fb950', note:'Pyodide 本地執行', noteEn:'Pyodide runs locally' },
-  cpp:  { name:'C++',    mode:'text/x-c++src',   color:'#79c0ff', note:'線上 g++ (Judge0)', noteEn:'Online g++ (Judge0)' },
-  c:    { name:'C',      mode:'text/x-csrc',     color:'#ffa657', note:'線上 gcc (Judge0)', noteEn:'Online gcc (Judge0)' },
-  java: { name:'Java',   mode:'text/x-java',     color:'#d2a8ff', note:'Judge0 雲端執行（需網路）', noteEn:'Judge0 cloud run (network required)' }
+  py:   { name:'Python', mode:'python',          color:'#3fb950', ver:'Python 3.12',        note:'Pyodide 本地執行', noteEn:'Pyodide runs locally' },
+  cpp:  { name:'C++',    mode:'text/x-c++src',   color:'#79c0ff', ver:'g++ (GCC 9.2)',      note:'線上 g++ (Judge0)', noteEn:'Online g++ (Judge0)' },
+  c:    { name:'C',      mode:'text/x-csrc',     color:'#ffa657', ver:'gcc (GCC 9.2)',      note:'線上 gcc (Judge0)', noteEn:'Online gcc (Judge0)' },
+  java: { name:'Java',   mode:'text/x-java',     color:'#d2a8ff', ver:'Java (OpenJDK 13)',  note:'Judge0 雲端執行（需網路）', noteEn:'Judge0 cloud run (network required)' }
 };
 
 async function loadPyodide_() {
   pyodide = await loadPyodide({indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"});
   document.getElementById('status-dot').classList.add('ready');
-  document.getElementById('status-text').textContent = 'Pyodide 已就緒';
+  document.getElementById('status-text').textContent = T().statusReady;
   document.getElementById('run-btn').disabled = false;
 }
 
 function initEditor() {
   cm = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
     mode:'python', theme:'dracula', lineNumbers:true, indentUnit:4,
-    tabSize:4, indentWithTabs:false, lineWrapping:true
+    tabSize:4, indentWithTabs:false, lineWrapping:true,
+    extraKeys:{'Ctrl-Enter':()=>runCode(), 'Cmd-Enter':()=>runCode()}
   });
   cm.setValue('# 從左側選一個章節開始\nprint("Hello APCS!")\n');
 }
@@ -20410,8 +20483,11 @@ function switchLang(lang){
     document.getElementById('ltab-'+l).className = 'lang-tab' + (l===lang ? ' active-'+l : '');
   });
   document.getElementById('lang-note').textContent = uiLang === 'en' ? cfg.noteEn : cfg.note;
+  const verEl = document.getElementById('lang-ver');
+  if(verEl) verEl.textContent = cfg.ver;
   cm.setOption('mode', cfg.mode);
   if(typeof renderChapList === 'function') renderChapList();
+  if(typeof updateProgress === 'function') updateProgress();
   // 若當前章節在新語言下不可見，跳到最近的可見章節
   if(currentChap && !isChapAvailable(currentChap.id, lang)){
     const visible = CHAPTERS.filter(c => isChapAvailable(c.id, lang));
@@ -20830,11 +20906,14 @@ function markDone(id){
   }
 }
 function updateProgress(){
-  const total = CHAPTERS.length;
-  const done = [...completed].filter(x => x >= 0 && x < total).length;
-  const pct = Math.round(done / total * 100);
+  // 以「當前語言可見的章節」計算進度，避免分母永遠是全部章節數
+  const visible = (typeof getOrderedVisibleChapters === 'function')
+    ? getOrderedVisibleChapters(currentLang) : CHAPTERS;
+  const total = visible.length;
+  const done = visible.filter(c => completed.has(c.id)).length;
+  const pct = total ? Math.round(done / total * 100) : 0;
   document.getElementById('prog-fill').style.width = pct + '%';
-  document.getElementById('prog-count').textContent = `${done} / ${total} 章`;
+  document.getElementById('prog-count').textContent = `${done} / ${total} ${T().chapUnit}`;
   document.getElementById('prog-pct').textContent = pct + '%';
 }
 function updateStaticCounts(){
@@ -20848,30 +20927,31 @@ let codeQuizState = {}; // {chapId: {status:'pass'|'fail', got:string}}
 function renderMeta(chap){
   const meta = CHAPTER_META[chap.id];
   if(!meta) return '';
+  const t = T();
   let html = '';
   if(meta.learn?.length){
-    html += `<div class="learn-box"><div class="lh">🎯 這章你會學到</div><ul>${meta.learn.map(x=>`<li>${x}</li>`).join('')}</ul></div>`;
+    html += `<div class="learn-box"><div class="lh">${t.metaLearn}</div><ul>${meta.learn.map(x=>`<li>${x}</li>`).join('')}</ul></div>`;
   }
   if(meta.try?.length){
-    html += `<div class="try-box"><div class="lh">✋ 動手試試（改右邊程式碼）</div><ol>${meta.try.map(x=>`<li>${x}</li>`).join('')}</ol></div>`;
+    html += `<div class="try-box"><div class="lh">${t.metaTry}</div><ol>${meta.try.map(x=>`<li>${x}</li>`).join('')}</ol></div>`;
   }
   if(meta.code){
     const st = codeQuizState[chap.id];
-    const stdinDisp = meta.code.stdin ? `<pre class="cq-io">${escapeHtml(meta.code.stdin)}</pre>` : '<i class="cq-none">（無輸入）</i>';
+    const stdinDisp = meta.code.stdin ? `<pre class="cq-io">${escapeHtml(meta.code.stdin)}</pre>` : `<i class="cq-none">${t.cqNone}</i>`;
     const pyOnly = chap.id >= 27;
-    html += `<div class="quiz-box"><div class="lh">📝 程式練習（在右邊編輯器寫程式碼，按下方按鈕檢查）</div>`;
+    html += `<div class="quiz-box"><div class="lh">${t.metaQuiz}</div>`;
     if(pyOnly && currentLang !== 'py'){
-      html += `<div class="cq-pyhint">💡 本章程式練習以 Python 為基準（涉及檔案 / 模組 / OOP / API 等 Python 慣用法）。請先切到 Python 嘗試，或直接讀左邊教材的概念。</div>`;
+      html += `<div class="cq-pyhint">${t.cqPyHint}</div>`;
     }
     html += `<div class="cq-task">${meta.code.task}</div>`;
-    html += `<div class="cq-row"><div class="cq-col"><div class="cq-label">標準輸入</div>${stdinDisp}</div>`;
-    html += `<div class="cq-col"><div class="cq-label">預期輸出</div><pre class="cq-io">${escapeHtml(meta.code.expect)}</pre></div></div>`;
-    html += `<button class="cq-btn" id="check-btn-${chap.id}" onclick="checkAnswer(${chap.id})">▶ 執行並檢查答案</button>`;
+    html += `<div class="cq-row"><div class="cq-col"><div class="cq-label">${t.cqStdin}</div>${stdinDisp}</div>`;
+    html += `<div class="cq-col"><div class="cq-label">${t.cqExpect}</div><pre class="cq-io">${escapeHtml(meta.code.expect)}</pre></div></div>`;
+    html += `<button class="cq-btn" id="check-btn-${chap.id}" onclick="checkAnswer(${chap.id})">${t.cqCheck}</button>`;
     if(st){
       if(st.status === 'pass'){
-        html += `<div class="quiz-status pass">🎉 通過！${chap.id < CHAPTERS.length-1 ? '繼續下一章吧' : '你已經完成全部教學！'}</div>`;
+        html += `<div class="quiz-status pass">${chap.id < CHAPTERS.length-1 ? t.cqPass : t.cqPassLast}</div>`;
       } else {
-        html += `<div class="quiz-status fail">❌ 輸出不符。你的輸出：<pre class="cq-io">${escapeHtml(st.got)}</pre>修一修再按一次。</div>`;
+        html += `<div class="quiz-status fail">${t.cqFail}<pre class="cq-io">${escapeHtml(st.got)}</pre>${t.cqFix}</div>`;
       }
     }
     html += `</div>`;
@@ -36155,6 +36235,8 @@ function renderChapList() {
     div.className = 'chap' + (done ? ' done' : '');
     div.onclick = () => selectChap(c.id);
     div.id = 'chap-' + c.id;
+    div.tabIndex = 0;
+    div.setAttribute('role', 'button');
     const _en = hasEN(c) ? chEN(c) : null;
     const _t = _en ? _en.title : c.title;
     const _g = _en ? _en.tag   : c.tag;
@@ -36190,7 +36272,25 @@ function selectChap(id, opts) {
   } else {
     body.scrollTop = 0;
   }
+  // 手機版：從章節列表點選後自動切到教學面板（重繪保留位置時不切）
+  if(!opts.preserveEditor && isMobileView() &&
+     document.querySelector('.layout')?.dataset.mview === 'chap'){
+    setMobileView('lesson');
+  }
   _prevChapId = id;
+}
+
+// ── 手機版面板切換 ────────────────────────────────────────────────────────
+function isMobileView(){ return window.matchMedia('(max-width:960px)').matches; }
+function setMobileView(v){
+  const layout = document.querySelector('.layout');
+  if(!layout) return;
+  layout.dataset.mview = v;
+  ['chap','lesson','code'].forEach(k=>{
+    const b = document.getElementById('mnav-'+k);
+    if(b) b.classList.toggle('on', k===v);
+  });
+  if(v === 'code' && cm) setTimeout(()=>cm.refresh(), 0);
 }
 
 function clearEditor() { cm.setValue(''); }
@@ -36252,10 +36352,10 @@ async function runCode() {
   const code = cm.getValue();
   const stdin = document.getElementById('stdin-input').value;
   const out = document.getElementById('output-body');
-  out.textContent = '執行中...';
+  out.textContent = T().running;
   try {
     const {raw} = await executeCode(code, stdin, currentLang);
-    const result = raw || '(無輸出)';
+    const result = raw || T().noOutput;
     const hint = currentLang === 'py' ? translateError(result) : '';
     if(hint){
       out.innerHTML = '';
@@ -36281,7 +36381,7 @@ async function checkAnswer(chapId){
   const meta = CHAPTER_META[chapId];
   if(!meta || !meta.code) return;
   const btn = document.getElementById('check-btn-'+chapId);
-  if(btn){ btn.disabled = true; btn.textContent = '執行中...'; }
+  if(btn){ btn.disabled = true; btn.textContent = T().cqRunning; }
   const code = cm.getValue();
   let result;
   try {
@@ -36292,10 +36392,24 @@ async function checkAnswer(chapId){
   const got = normalizeOutput(result.raw);
   const want = normalizeOutput(meta.code.expect);
   const passed = !result.stderr && got === want;
-  codeQuizState[chapId] = {status: passed ? 'pass' : 'fail', got: result.raw || '(無輸出)'};
+  codeQuizState[chapId] = {status: passed ? 'pass' : 'fail', got: result.raw || T().noOutput};
   if(passed && !completed.has(chapId)) markDone(chapId);
   if(currentChap && currentChap.id === chapId) selectChap(chapId, {preserveEditor:true});
 }
+
+// 鍵盤可及性：語言分頁與章節列表支援 Tab + Enter/Space
+document.querySelectorAll('.lang-tab').forEach(el=>{
+  el.setAttribute('tabindex','0');
+  el.setAttribute('role','button');
+  el.addEventListener('keydown', e=>{
+    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); el.click(); }
+  });
+});
+document.getElementById('chap-list').addEventListener('keydown', e=>{
+  if((e.key==='Enter' || e.key===' ') && e.target.classList.contains('chap')){
+    e.preventDefault(); e.target.click();
+  }
+});
 
 updateStaticCounts();
 initEditor();
