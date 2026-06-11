@@ -3387,6 +3387,32 @@ if key in d:
 else:
     return 0
 \`\`\`
+
+## 30.7 🧠 設計動機：為什麼 Python 偏好 EAFP？
+
+在 C 語言時代，函式用回傳值（-1、NULL）表示錯誤，呼叫者必須每次手動檢查。這導致程式碼充滿 \`if (result == NULL) { ... }\` 的防禦性檢查，正常邏輯被淹沒。
+
+Python 採用「例外（exception）」機制：讓正常路徑保持乾淨，把錯誤處理集中在 except 區塊。這是 Guido van Rossum 刻意的設計，背後的哲學是「可讀性優先」。
+
+EAFP 還有一個效能理由：「先問再做（LBYL）」在多執行緒環境中有 TOCTOU（Time-of-check to time-of-use）競態條件問題——你在 if 檢查之後、實際使用之前，另一條執行緒可能已改變狀態。直接嘗試 + 捕獲例外則沒有這個問題。
+
+\`\`\`python
+# TOCTOU 問題示範
+import os
+
+# LBYL — 有競態條件
+if os.path.exists("data.txt"):
+    # 另一個執行緒可能在這裡刪掉了檔案
+    with open("data.txt") as f:  # 仍可能失敗
+        data = f.read()
+
+# EAFP — 沒有競態條件
+try:
+    with open("data.txt") as f:
+        data = f.read()
+except FileNotFoundError:
+    data = ""
+\`\`\`
 `,example:`
 # 安全除法示範
 inputs = ["10", "0", "abc", "5"]
@@ -4014,6 +4040,26 @@ Content-Length: 1234
 > - **Java**：標準庫 \`java.net.http.HttpClient\`（Java 11+）或 \`Jsoup\`
 > - **JavaScript**：\`fetch()\` API
 > 但這個主題以 Python 為主——\`requests\` + \`BeautifulSoup\` 是業界最流行的爬蟲組合。
+
+## 36.6 🧠 設計動機：HTTP 為什麼是「無狀態」的？
+
+HTTP 的每一個 request 都是獨立的——伺服器不記得你上一秒發過什麼請求。這是 Tim Berners-Lee 在 1989 年設計 Web 時的刻意選擇：
+
+**好處**：伺服器不需要維護每個連線的狀態，可以輕鬆擴展到百萬用戶。你今天向 Google 發送的 request 可以由全球任意一台伺服器處理。
+
+**壞處**：無狀態表示「伺服器不知道你是誰」。所以才需要 Cookie（瀏覽器帶著「識別資訊」一起送出）和 Session（伺服器用 Session ID 查表找到你的狀態）。
+
+對爬蟲的影響：需要登入的網站要先模擬登入、保存 Cookie，之後每個 request 都帶上 Cookie，才能維持「已登入」狀態。\`requests.Session()\` 就是為了解決這個問題而存在的。
+
+\`\`\`python
+import requests
+
+# Session 自動幫你保存和帶上 Cookie
+session = requests.Session()
+session.post("https://example.com/login", data={"user": "me", "pass": "1234"})
+# 之後的 request 自動帶上登入後的 Cookie
+resp = session.get("https://example.com/dashboard")
+\`\`\`
 `,
 example:`# 模擬一個 HTTP response（真實情境是從 socket 讀到的字串）
 response = (
@@ -5127,6 +5173,37 @@ Pyodide 沒預載 pandas，下方範例用 stdlib \`statistics\` 模擬。本機
 > - **R**：data.frame / dplyr / tidyverse — pandas 的靈感來源
 > - **SQL**：很多 pandas 操作 (groupby, merge) 就是 SQL 概念
 > - **C++/Java**：沒有對應的「即用即丟」資料分析語法，要動手寫
+
+## 44.7 🧠 設計動機：pandas 為什麼比 Python 迴圈快？
+
+這是最常見的疑問。答案在於 pandas 的底層是 **NumPy**，而 NumPy 的運算是用 C 語言寫的，並大量使用**向量化（vectorization）**。
+
+Python 迴圈的問題：每次迭代都要進行物件查找、型別檢查、動態分派，Python 的 GIL 也讓多核無法直接加速。
+
+pandas/NumPy 的做法：把一整欄資料存成連續的記憶體區塊（C array），用單一的 C 函式呼叫一次處理整欄，完全跳過 Python 的物件系統。
+
+這也解釋了兩個重要推論：
+1. **不要在 DataFrame 上寫迴圈**——\`for row in df.iterrows()\` 把快的變慢，應該用向量化操作（\`df["col"] * 2\`）。
+2. **dtype 很重要**——如果一欄本來是整數卻被讀成 object（字串），向量化就失效了，效能會暴跌。
+
+\`\`\`python
+import pandas as pd
+import time
+
+data = list(range(1_000_000))
+df = pd.DataFrame({"val": data})
+
+# 方法 1：Python 迴圈
+t = time.time()
+result = [x * 2 for x in df["val"]]
+print(f"Python loop:   {time.time()-t:.3f}s")
+
+# 方法 2：向量化
+t = time.time()
+result = df["val"] * 2
+print(f"Vectorized:    {time.time()-t:.3f}s")
+# 向量化通常快 10–100 倍
+\`\`\`
 `,
 example:`# 模擬：用 stdlib 做最基本的「DataFrame」操作
 import statistics
@@ -6196,6 +6273,35 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 
 > **跨語言對應**：JavaScript (\`discord.js\`) 也是業界主流，Java 有 \`JDA\`。
 > 不同語言，但事件迴圈 + 處理器註冊的模式都一樣。
+
+## 52.7 🧠 設計動機：為什麼 Bot 用 async，而不是多執行緒？
+
+Bot 的工作大多是「等待」：等訊息、等 API 回應、等資料庫查詢。這種任務叫做 **I/O 密集型（I/O-bound）**，和消耗 CPU 的任務完全不同。
+
+**多執行緒方案**：每個等待任務開一條執行緒。缺點是開 1000 條執行緒要消耗大量記憶體，且執行緒切換本身有開銷。
+
+**async/await 方案**：只用一條執行緒，但在「等待期間」切換去做別的事。這就是**協程（coroutine）**——主動讓出 CPU，等事件完成再回來。
+
+打個比方：多執行緒是「雇 1000 個服務生各等一桌客人」，async 是「一個服務生在等某桌點餐時，去幫其他桌倒水」。
+
+這解釋了為什麼：
+- \`await\` 前面的函式必須是 \`async def\`（協程函式）
+- 不能在 async 函式裡用 \`time.sleep()\`——要用 \`await asyncio.sleep()\`
+- \`requests\` 在 bot 裡會阻塞整個事件循環——要用 \`aiohttp\`
+
+\`\`\`python
+import asyncio
+
+# ❌ 錯誤：time.sleep 會凍結整個 bot
+# async def bad_handler(message):
+#     time.sleep(5)     # 這 5 秒內 bot 無法回應任何訊息
+#     await message.reply("done")
+
+# ✅ 正確：await 讓出控制權，其他事件仍可處理
+async def good_handler(message):
+    await asyncio.sleep(5)    # bot 在這 5 秒仍可回應其他訊息
+    await message.reply("done")
+\`\`\`
 `,
 example:`# 模擬迷你 Bot 框架：事件分派器
 # 真實的 discord.py / line-bot-sdk 內部就是這個結構
@@ -7664,6 +7770,36 @@ Pyodide 沒裝 pygame，範例用 ASCII 模擬一個「會動的點」game loop 
 > - **Java**：libGDX
 > - **Unity (C#)** / **Godot (GDScript)**：大型遊戲引擎
 > 都是相同的 game loop 結構，只是 API 不同。
+
+## 60.9 🧠 設計動機：為什麼物理移動要乘以 delta time？
+
+\`clock.tick(60)\` 嘗試把遊戲鎖在 60 FPS，但這並不保證每一幀剛好花 1/60 秒。當電腦很忙或渲染複雜時，一幀可能花了 1/30 秒。
+
+如果你的移動是 \`x += 5\`（每幀固定移動 5 像素），
+- 60 FPS 電腦：每秒移動 300 像素
+- 30 FPS 電腦：每秒只移動 150 像素
+
+→ **同一個遊戲，在不同電腦上速度不同**，這是嚴重的 bug。
+
+解法是 **delta time（dt）**：每幀實際花了多少秒，乘進去：\`x += speed * dt\`（speed 單位是「像素/秒」而非「像素/幀」）。
+
+這樣不管 FPS 多少，每秒移動的距離都一樣。
+
+\`\`\`python
+clock = pygame.time.Clock()
+speed = 300  # 300 像素/秒
+x = 0
+
+while running:
+    # dt 單位是秒（0.016 ≈ 1/60 秒）
+    dt = clock.tick(60) / 1000.0
+
+    # ❌ 幀率相依
+    # x += 5
+
+    # ✅ 幀率無關
+    x += speed * dt
+\`\`\`
 `,
 example:`# 模擬 game loop：印出每一幀的狀態
 import time
@@ -9059,6 +9195,28 @@ inv = pow(a, MOD-2, MOD)        # a 在模 MOD 下的反元素
 - \`n = 0\` 時答案是 1（注意 \`0^0\` 慣例為 1）
 
 ## 69.9 試試看
+
+## 69.10 🧠 設計動機：為什麼可以「邊算邊取模」？
+
+很多人看到 \`result = result * a % mod\` 會直覺覺得「這樣算出來的不是最終結果取模，應該會錯吧？」這個直覺是錯的，原因是模運算的同餘性質：
+
+\`(a × b) mod m = ((a mod m) × (b mod m)) mod m\`
+
+白話：兩數相乘後取模，等於「各自先取模再相乘再取模」。所以在每一步都取模，最終結果和最後才取模完全相同。
+
+**為什麼要邊算邊取模？**
+
+不是為了正確性（兩種做法答案一樣），而是為了防止整數溢位。2^(10^9) 是一個天文數字，Python 的大整數雖然不溢位，但中間值會越來越龐大，乘法會越來越慢。C/C++/Java 則直接整數溢位。每步取模讓數字永遠不超過 mod²，保持在可操作的範圍內。
+
+\`\`\`python
+MOD = 10**9 + 7
+
+# 示範同餘性質
+a, b = 123456789, 987654321
+print((a * b) % MOD)                   # 方法 1：最後才取模
+print((a % MOD) * (b % MOD) % MOD)    # 方法 2：各自先取模
+# 兩個結果完全相同
+\`\`\`
 `,example:`# 比較三種寫法的速度
 import time
 
@@ -12873,6 +13031,32 @@ if key in d:
 else:
     return 0
 \`\`\`
+
+## 30.7 🧠 Design Motivation: Why Does Python Prefer EAFP?
+
+In the C era, functions returned error codes (-1, NULL), and callers had to manually check every single time. This led to code flooded with defensive \`if (result == NULL) { ... }\` checks, drowning out the actual logic.
+
+Python adopted exceptions: keep the happy path clean, and centralize error handling in except blocks. This was a deliberate design choice by Guido van Rossum, rooted in the philosophy of "readability first."
+
+EAFP also has a performance rationale: "look before you leap (LBYL)" has a TOCTOU (Time-of-check to time-of-use) race condition problem in multithreaded environments — between the if-check and the actual use, another thread may have changed the state. Try-then-catch has no such issue.
+
+\`\`\`python
+# TOCTOU problem demo
+import os
+
+# LBYL — has race condition
+if os.path.exists("data.txt"):
+    # another thread may delete the file here
+    with open("data.txt") as f:  # may still fail
+        data = f.read()
+
+# EAFP — no race condition
+try:
+    with open("data.txt") as f:
+        data = f.read()
+except FileNotFoundError:
+    data = ""
+\`\`\`
 `,example:`
 # Safe division demo
 inputs = ["10", "0", "abc", "5"]
@@ -13637,6 +13821,26 @@ The example on the right **constructs an HTTP response string** and extracts sta
 > - **Java**: standard \`java.net.http.HttpClient\` (Java 11+) or \`Jsoup\`
 > - **JavaScript**: \`fetch()\` API
 > But this topic focuses on Python — \`requests\` + \`BeautifulSoup\` is the most popular scraper stack.
+
+## 36.6 🧠 Design Motivation: Why is HTTP "Stateless"?
+
+Every HTTP request is independent — the server doesn't remember what you sent a second ago. This was a deliberate choice by Tim Berners-Lee when designing the Web in 1989:
+
+**Benefit**: Servers don't need to maintain state for every connection, making it easy to scale to millions of users. A request you send to Google today can be handled by any server anywhere in the world.
+
+**Drawback**: Stateless means "the server doesn't know who you are." That's why Cookies (browsers send "identity info" with each request) and Sessions (server uses Session ID to look up your state) were invented.
+
+**Impact on scraping**: For sites that require login, you must simulate login first, save the cookies, and then send those cookies with every subsequent request to maintain the "logged in" state. \`requests.Session()\` exists specifically to solve this problem.
+
+\`\`\`python
+import requests
+
+# Session automatically saves and sends cookies for you
+session = requests.Session()
+session.post("https://example.com/login", data={"user": "me", "pass": "1234"})
+# Subsequent requests automatically carry the login cookie
+resp = session.get("https://example.com/dashboard")
+\`\`\`
 `,
 example:`# Simulate an HTTP response (in reality, a string read from a socket)
 response = (
@@ -14985,6 +15189,37 @@ Pyodide doesn’t have pandas pre‑installed. The example below uses stdlib \`s
 > - **R**: data.frame / dplyr / tidyverse — pandas was inspired by them
 > - **SQL**: many pandas operations (groupby, merge) are SQL concepts
 > - **C++/Java**: no equivalent “scriptable data analysis” syntax; you’d have to write low‑level loops
+
+## 44.7 🧠 Design Motivation: Why Is pandas Faster Than Python Loops?
+
+This is the most common question. The answer is that pandas is built on **NumPy**, and NumPy's operations are written in C, making heavy use of **vectorization**.
+
+The problem with Python loops: each iteration involves object lookups, type checks, and dynamic dispatch. Python's GIL also prevents true multi-core acceleration.
+
+What pandas/NumPy does instead: stores an entire column as a contiguous block of memory (a C array), then processes the entire column with a single C function call, completely bypassing Python's object system.
+
+This also explains two important corollaries:
+1. **Don't write loops over DataFrames** — \`for row in df.iterrows()\` turns something fast into something slow. Use vectorized operations (\`df["col"] * 2\`) instead.
+2. **dtypes matter** — if a column of integers gets read as object (string), vectorization breaks down and performance collapses.
+
+\`\`\`python
+import pandas as pd
+import time
+
+data = list(range(1_000_000))
+df = pd.DataFrame({"val": data})
+
+# Method 1: Python loop
+t = time.time()
+result = [x * 2 for x in df["val"]]
+print(f"Python loop:   {time.time()-t:.3f}s")
+
+# Method 2: Vectorized
+t = time.time()
+result = df["val"] * 2
+print(f"Vectorized:    {time.time()-t:.3f}s")
+# Vectorized is typically 10–100x faster
+\`\`\`
 `,
 example:`# Simulate basic “DataFrame” operations using stdlib
 import statistics
@@ -16283,6 +16518,35 @@ The example implements a miniature “event loop + handler registration” syste
 
 
 > **Cross‑language note**: JavaScript (\`discord.js\`) is also mainstream; Java has \`JDA\`. Different languages, but the event‑loop + handler pattern is the same.
+
+## 52.7 🧠 Design Motivation: Why Does a Bot Use async, Not Multithreading?
+
+A bot's work is mostly "waiting": waiting for messages, API responses, database queries. This type of task is called **I/O-bound**, completely different from CPU-heavy work.
+
+**Multithreading approach**: spin up a thread for each waiting task. The downside: 1000 threads consume a lot of memory, and thread switching itself has overhead.
+
+**async/await approach**: use only one thread, but switch to other work "while waiting." This is a **coroutine** — voluntarily yield the CPU, then resume when the event completes.
+
+Analogy: multithreading is "hire 1000 waiters, each waiting at one table," while async is "one waiter takes another table's order while waiting for one table to decide."
+
+This explains why:
+- Any function before \`await\` must be \`async def\` (a coroutine function)
+- You can't use \`time.sleep()\` inside an async function — use \`await asyncio.sleep()\` instead
+- \`requests\` blocks the entire event loop inside a bot — use \`aiohttp\`
+
+\`\`\`python
+import asyncio
+
+# ❌ Wrong: time.sleep freezes the entire bot
+# async def bad_handler(message):
+#     time.sleep(5)
+#     await message.reply("done")
+
+# ✅ Correct: await yields control, other events can still be processed
+async def good_handler(message):
+    await asyncio.sleep(5)
+    await message.reply("done")
+\`\`\`
 `,
 example:`# Simulate a mini bot framework: event dispatcher
 # The real discord.py / line-bot-sdk have this structure internally
@@ -18065,6 +18329,36 @@ Pyodide doesn’t have pygame installed. The example uses ASCII to simulate a �
 > - **Java**: libGDX
 > - **Unity (C#)** / **Godot (GDScript)**: large game engines
 > All share the same game loop structure, just different APIs.
+
+## 60.9 🧠 Design Motivation: Why Multiply Movement by Delta Time?
+
+\`clock.tick(60)\` tries to lock the game at 60 FPS, but this doesn't guarantee each frame takes exactly 1/60 second. When the computer is busy or rendering is complex, a frame might take 1/30 second.
+
+If your movement is \`x += 5\` (fixed 5 pixels per frame):
+- 60 FPS machine: moves 300 pixels per second
+- 30 FPS machine: moves only 150 pixels per second
+
+→ **The same game runs at different speeds on different computers** — a serious bug.
+
+The solution is **delta time (dt)**: multiply by how many seconds this frame actually took: \`x += speed * dt\` (speed is now "pixels/second" not "pixels/frame").
+
+This way, no matter what the FPS, the distance traveled per second is always the same.
+
+\`\`\`python
+clock = pygame.time.Clock()
+speed = 300  # 300 pixels per second
+x = 0
+
+while running:
+    # dt is in seconds (0.016 ≈ 1/60 second)
+    dt = clock.tick(60) / 1000.0
+
+    # ❌ Frame-rate dependent
+    # x += 5
+
+    # ✅ Frame-rate independent
+    x += speed * dt
+\`\`\`
 `,
 example:`# Simulate game loop: print state each frame
 import time
@@ -19758,6 +20052,28 @@ Combined with matrix fast exponentiation → compute the nth Fibonacci in O(log 
 
 
 ## 69.9 Try it
+
+## 69.10 🧠 Design Motivation: Why Can We "Apply Mod at Every Step"?
+
+Many people see \`result = result * a % mod\` and intuitively think "this computes a different thing than taking mod at the end — shouldn't it be wrong?" This intuition is incorrect, because of the congruence property of modular arithmetic:
+
+\`(a × b) mod m = ((a mod m) × (b mod m)) mod m\`
+
+In plain language: multiplying two numbers and then taking mod equals "take mod of each, multiply, then take mod again." So taking mod at every step gives exactly the same final result as taking mod only at the very end.
+
+**Why take mod at every step?**
+
+Not for correctness (both approaches give the same answer), but to prevent integer overflow. 2^(10^9) is an astronomically large number. Python's big integers won't overflow, but intermediate values keep growing, making multiplication increasingly slow. C/C++/Java will simply overflow. Taking mod at each step keeps numbers permanently below mod², within a manageable range.
+
+\`\`\`python
+MOD = 10**9 + 7
+
+# Demonstrating the congruence property
+a, b = 123456789, 987654321
+print((a * b) % MOD)                   # Method 1: mod at end
+print((a % MOD) * (b % MOD) % MOD)    # Method 2: mod each first
+# Both results are identical
+\`\`\`
 `,example:`# Compare three implementation speeds
 import time
 
@@ -25635,6 +25951,21 @@ unique_ptr<FILE, decltype(&fclose)> f(fopen("a.txt", "r"), &fclose);
 把任何「成對的 acquire / release」包成 RAII。socket、handle、mutex 都適用。
 
 ## 38.8 試試看
+
+
+## 🧠 設計動機：C++ 為什麼不用垃圾回收？
+
+這不是技術限制，是刻意選擇。垃圾回收（GC）有兩個根本問題：
+
+1. **不確定性暫停（Stop-the-world）**：GC 執行時需要暫停程式。Java 的 GC 暫停可達數毫秒到數百毫秒。對即時系統（心臟監視器、自動駕駛、遊戲引擎）這是無法接受的。
+
+2. **資源管理不只有記憶體**：GC 只管記憶體，不管檔案、Socket、資料庫連線、Mutex 等資源。你仍然需要手動 close/unlock。Java 的 \`finally\` 和 Python 的 \`with\` 都是在補這個漏洞。
+
+RAII 同時解決了這兩個問題：
+- 物件離開作用域立刻執行解構子，**確定性**地釋放所有資源
+- 記憶體、檔案、Socket、Mutex 全部用同一套機制管理
+
+代價是「程式設計師要理解物件生命週期」。這也是 C++ 學習曲線陡峭的真正原因：不是語法複雜，而是需要建立「資源與生命週期綁定」的思維。
 `,
 c:``,
 java:``
@@ -25729,6 +26060,22 @@ unique_ptr<T> make_my(Args&&... args) {
 | 用過 x 後還想再用 | 不要 move |
 
 ## 39.8 試試看
+
+
+## 🧠 設計動機：C++ 為什麼選擇「值語意」？
+
+Java 的物件預設是「參考語意」：\`List b = a;\` 讓 b 和 a 指向同一個物件。修改 b 會影響 a。這讓物件傳遞很輕量，但也帶來了混淆。
+
+C++ 的哲學相反：預設複製整個物件（值語意）。\`vector<int> w = v;\` 會產生一個完全獨立的副本。修改 w 不影響 v。
+
+**值語意的優點**：
+- 程式行為更可預測：函式收到的是你的副本，不會偷改你的資料
+- 不需要垃圾回收器：物件離開作用域就確定性地銷毀
+- 更符合數學直覺：\`x = y\` 就是「x 的值等於 y」
+
+**值語意的代價**：複製大型物件（100 萬個元素的 vector）很慢。
+
+**Move 語意是什麼？** 就是「值語意的效能補丁」。既保留「物件是獨立的」的語意，又允許在特定情況下用「搬移」取代「複製」，完全消除不必要的複製開銷。
 `,
 c:``,
 java:``
@@ -27264,6 +27611,19 @@ class Pair<K extends Comparable<K>, V> {
 Java 不能 \`List<int>\` — 只能 \`List<Integer>\`，每個元素都裝箱（boxing）→ 慢且耗記憶體。APCS 用 \`int[]\` 直接陣列就好。
 
 ## 37.9 試試看
+
+
+## 🧠 設計動機：Java 為什麼選擇型別擦除？
+
+Java 泛型在 2004 年（Java 5）才加入，比 C++ template（1991 年）晚了 13 年。當時已經有大量的 Java 程式在執行，\`ArrayList\`（沒有泛型）已經被廣泛使用。
+
+如果 Java 採用 C++ 的方式（每個型別都產生不同的類別），\`ArrayList<Integer>\` 和 \`ArrayList<String>\` 就是完全不同的類別，所有舊程式碼都會無法與新泛型程式碼互動，造成災難性的不相容。
+
+型別擦除是一個**向後相容的妥協**：泛型只在編譯期存在（提供型別安全），執行期還是用同一個 \`ArrayList\` 類別。舊程式碼和新程式碼可以共存。
+
+**代價** 是那一串限制：\`new T()\`、\`T[]\`、\`instanceof List<String>\` 全部不行。所有這些限制都源自「執行期型別資訊已被擦除」這個根本事實。
+
+Go 語言選擇了類似策略（泛型到 Go 1.18 才加入，也考慮了相容性）。Kotlin 的 \`reified\` 型別參數透過 inline 函式部分解決了這個問題。
 `
 },
 89:{
@@ -27942,6 +28302,22 @@ String s = new String("hello");   // 在 heap
 - **profile 再優化** — 不要憑感覺改
 
 ## 43.11 試試看
+
+
+## 🧠 設計動機：JVM 為什麼「越跑越快」？
+
+C/C++ 在編譯期就把程式碼轉成機器碼，之後直接跑，速度快但不靈活。Python 每次執行時逐行解譯，靈活但慢。
+
+JVM 採取了第三條路：**先解譯，熱路徑再 JIT 編譯**。
+
+啟動時，JVM 用解譯器逐步執行 bytecode，同時用 profiler 監控：哪些方法被呼叫超過門檻次數（通常是 10,000 次）？這些「熱路徑」被即時編譯（JIT）成機器碼，而且是**針對當前執行模式優化過的**機器碼——比 C++ 在編譯期能做的優化還激進。
+
+例如：JIT 可以觀察到某個 \`virtual\` 方法呼叫實際上永遠只呼叫同一個子類，於是把它內聯（inline）。C++ 在編譯期不知道這件事。
+
+**實際含義**：
+- 短命程式（CLI 工具、腳本）：JVM 永遠跑不到熱，C/Python 都更合適
+- 長期運行的服務（Web 伺服器、資料庫）：JVM 有優勢，幾分鐘後就達到巔峰效能
+- 這也是為什麼 Spring Boot 的第一個 request 慢，之後就很快
 `
 }
 };
@@ -33160,7 +33536,22 @@ unique_ptr<FILE, decltype(&fclose)> f(fopen("a.txt", "r"), &fclose);
 
 Wrap any "paired acquire/release" into RAII. Works for sockets, handles, mutexes.
 
-## 38.8 Try It`,
+## 38.8 Try It
+
+## 🧠 Design Motivation: Why Doesn't C++ Use Garbage Collection?
+
+This is not a technical limitation — it's a deliberate choice. Garbage collection (GC) has two fundamental problems:
+
+1. **Non-deterministic pauses (Stop-the-world)**: GC needs to pause the program while it runs. Java's GC pauses can reach milliseconds to hundreds of milliseconds. For real-time systems (heart monitors, self-driving cars, game engines), this is unacceptable.
+
+2. **Resource management isn't just memory**: GC only manages memory, not files, sockets, database connections, mutexes, etc. You still need to manually close/unlock these. Java's \`finally\` and Python's \`with\` are both patching this gap.
+
+RAII solves both problems simultaneously:
+- Objects immediately run their destructor when leaving scope, **deterministically** releasing all resources
+- Memory, files, sockets, mutexes — all managed by the same mechanism
+
+The cost is "programmers must understand object lifetimes." This is the real reason C++ has a steep learning curve: not syntactic complexity, but the need to build a mental model of "resources bound to lifetimes."
+`,
 c:``,
 java:``
 },
@@ -33253,7 +33644,23 @@ unique_ptr<T> make_my(Args&&... args) {
 | Pushing parameter into container | \`v.push_back(move(x))\` ✅ |
 | Want to use x again after | Don't move |
 
-## 39.8 Try It`,
+## 39.8 Try It
+
+## 🧠 Design Motivation: Why Did C++ Choose "Value Semantics"?
+
+In Java, objects default to "reference semantics": \`List b = a;\` makes b and a point to the same object. Modifying b affects a. This makes passing objects lightweight, but can cause confusion.
+
+C++'s philosophy is the opposite: copy the entire object by default (value semantics). \`vector<int> w = v;\` creates a completely independent copy. Modifying w doesn't affect v.
+
+**Advantages of value semantics**:
+- More predictable behavior: a function receives a copy of your data and can't secretly modify yours
+- No garbage collector needed: objects are deterministically destroyed when they leave scope
+- More aligned with mathematical intuition: \`x = y\` means "x's value equals y"
+
+**The cost of value semantics**: copying large objects (a vector with 1 million elements) is slow.
+
+**What is Move semantics?** It is a "performance patch for value semantics." It preserves the semantic of "objects are independent," while allowing "moving" instead of "copying" in specific situations — completely eliminating unnecessary copy overhead.
+`,
 c:``,
 java:``
 },
@@ -34770,7 +35177,20 @@ class Pair<K extends Comparable<K>, V> {
 
 Java can't do \`List<int>\` — only \`List<Integer>\`, each element is boxed → slow and memory-heavy. For APCS, just use \`int[]\` arrays directly.
 
-## 37.9 Try It`
+## 37.9 Try It
+
+## 🧠 Design Motivation: Why Did Java Choose Type Erasure?
+
+Java generics weren't added until 2004 (Java 5), 13 years after C++ templates (1991). By then, a huge amount of Java code was already running, and \`ArrayList\` (without generics) was widely used.
+
+If Java had adopted the C++ approach (generating a different class for each type), \`ArrayList<Integer>\` and \`ArrayList<String>\` would be completely different classes, and all old code would be incompatible with new generic code — a catastrophic incompatibility.
+
+Type erasure was a **backwards-compatible compromise**: generics only exist at compile time (providing type safety), while at runtime it's still the same \`ArrayList\` class. Old and new code can coexist.
+
+The **cost** is that long list of limitations: \`new T()\`, \`T[]\`, \`instanceof List<String>\` — all forbidden. All these restrictions flow from the single fundamental fact that "runtime type information has been erased."
+
+Go made a similar choice (generics weren't added until Go 1.18, also with compatibility in mind). Kotlin's \`reified\` type parameters partially solve this problem through inline functions.
+`
 },
 
 89:{
@@ -35440,7 +35860,23 @@ Static collections, unclosed resources, listeners not removed — all keep objec
 - **Allocate less** — object pools, reuse StringBuilder
 - **Avoid boxing** — \`int\` is 5× faster than \`Integer\`
 - **Small functions** — give JIT opportunities to inline
-- **Profile before optimizing** — don't optimize by gut feeling`
+- **Profile before optimizing** — don't optimize by gut feeling
+
+## 🧠 Design Motivation: Why Does the JVM "Get Faster Over Time"?
+
+C/C++ converts code to machine code at compile time — fast but inflexible. Python interprets line by line at runtime — flexible but slow.
+
+The JVM took a third path: **interpret first, JIT-compile hot paths later**.
+
+At startup, the JVM uses an interpreter to execute bytecode step by step, while a profiler watches which methods are called more than a threshold (typically 10,000 times). These "hot paths" are JIT-compiled to machine code — optimized specifically for the **observed runtime behavior** — even more aggressively than what C++ can do at compile time.
+
+For example: the JIT can observe that a \`virtual\` method call always dispatches to the same subclass, and inline it. C++ at compile time can't know this.
+
+**Practical implications**:
+- Short-lived programs (CLI tools, scripts): JVM never gets hot, C/Python are more suitable
+- Long-running services (web servers, databases): JVM has an advantage, reaching peak performance after a few minutes
+- This is also why Spring Boot's first request is slow but subsequent ones are fast
+`
 },
 
 };
