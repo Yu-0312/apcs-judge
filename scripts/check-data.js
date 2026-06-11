@@ -135,6 +135,22 @@ for (const lang of ['py', 'cpp', 'c', 'java']) {
   else ok(`${lang} 解答齊全`);
 }
 
+// 題庫英文對照：id 必須存在、欄位名必須合法；未翻完前列警告（前端逐欄位 fallback 中文）
+const PROBLEMS_EN = loadData('judge-i18n-en.js', 'PROBLEMS_EN');
+const EN_FIELDS = ['title', 'topic', 'desc', 'input_desc', 'output_desc', 'hint'];
+let enPartial = 0;
+for (const [id, f] of Object.entries(PROBLEMS_EN)) {
+  if (!pids.has(id)) { err(`PROBLEMS_EN 含不存在的題目 id ${id}`); continue; }
+  for (const k of Object.keys(f)) {
+    if (!EN_FIELDS.includes(k)) err(`PROBLEMS_EN[${id}] 未知欄位 ${k}`);
+    else if (typeof f[k] !== 'string' || !f[k].trim()) err(`PROBLEMS_EN[${id}].${k} 不是非空字串`);
+  }
+  if (EN_FIELDS.some(k => !f[k])) enPartial++;
+}
+const enMissing = [...pids].filter(id => !PROBLEMS_EN[id]).length;
+ok(`PROBLEMS_EN：${Object.keys(PROBLEMS_EN).length} 題有英文對照`);
+if (enMissing || enPartial) warn(`英文對照未完成：${enMissing} 題未翻譯、${enPartial} 題欄位不全（前端會 fallback 中文）`);
+
 // 已知問題（169 題佔位測資）：列為警告，資料修復後改成錯誤
 const byS = new Map();
 for (const p of PROBLEMS) {
