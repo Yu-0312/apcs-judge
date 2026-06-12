@@ -1187,5 +1187,133 @@ const PROBLEMS_EN = {
   "input_desc": "First line: N (1 ≤ N ≤ 100).\nNext N lines: strings (lowercase).",
   "output_desc": "Output a string of 26 letters (a permutation), or \"Impossible\".",
   "hint": "Compare adjacent words to derive constraints between letters, then topological sort."
+ },
+ "src167_202001P2": {
+  "title": "Matrix Sum",
+  "topic": "APCS implementation",
+  "desc": "Given an N×M integer matrix and Q queries. Each query gives a rectangle (r1,c1) to (r2,c2). Output the sum of all numbers in that rectangle. Coordinates are 1‑based.",
+  "input_desc": "First line: three integers N, M, Q (1 ≤ N,M ≤ 1000, 1 ≤ Q ≤ 10^5).\nNext N lines: M integers each.\nNext Q lines: four integers r1,c1,r2,c2.",
+  "output_desc": "For each query, output one integer.",
+  "hint": "2D prefix sum, O(1) per query."
+ },
+ "src151_j608": {
+  "title": "Machine Rental",
+  "topic": "Greedy",
+  "desc": "There are N orders, each needs one machine. There are M machine types; type i has cnt_i machines, and each machine has value i (small to large). Each order has a minimum required type r_j: it can use any machine with type ≥ r_j. Each machine can serve at most one order. Maximize the number of satisfied orders.",
+  "input_desc": "First line: two integers N, M (1 ≤ N,M ≤ 10^5).\nSecond line: M integers – counts for each type.\nNext N lines: each an integer r_j.",
+  "output_desc": "Maximum number of satisfied orders.",
+  "hint": "Sort both, greedy two‑pointer: assign the smallest machine that satisfies each order."
+ },
+ "src207_202501P4": {
+  "title": "Group Meeting",
+  "topic": "APCS implementation",
+  "desc": "N people, each with a skill value. Divide them into groups, each group must have at least 2 people, and the difference between max and min skill in a group cannot exceed K. Each person belongs to exactly one group. Maximize the number of groups.",
+  "input_desc": "First line: two integers N, K (1 ≤ N ≤ 10^5).\nSecond line: N integers – skill values.",
+  "output_desc": "Maximum number of groups.",
+  "hint": "Sort, then greedy: take the longest segment with max-min ≤ K and at least 2 elements as a group."
+ },
+ "src208_201910P4": {
+  "title": "Delete Boundary",
+  "topic": "APCS implementation",
+  "desc": "Given a 2D grid with '#' (obstacle) and '.' (empty). In each operation, delete all empty cells that are connected to the boundary (BFS from boundary). Repeat until no empty cells remain. Find the number of operations.",
+  "input_desc": "First line: two integers N, M (1 ≤ N,M ≤ 1000).\nNext N lines: M characters each.",
+  "output_desc": "Number of operations.",
+  "hint": "Multi‑source BFS from boundary empties; number of layers is the answer."
+ },
+ "src219_202007P4": {
+  "title": "Virus Evolution",
+  "topic": "APCS implementation",
+  "desc": "Given a tree, each node has a virus type (integer). The virus spreads along edges only if adjacent nodes have the same type. Find the size of the largest connected component of the same type.",
+  "input_desc": "First line: N (1 ≤ N ≤ 10^5).\nNext N-1 lines: each two integers u, v (1‑indexed).\nThird line: N integers – virus types.",
+  "output_desc": "Largest component size.",
+  "hint": "DFS on each unvisited node, only following same‑color neighbors."
+ },
+ "src220_202111P4": {
+  "title": "Fake Subgraph",
+  "topic": "APCS implementation",
+  "desc": "Given a directed graph, determine if there exists a subgraph where every node has indegree = 1 and outdegree = 1 (i.e., a disjoint union of directed cycles covering all nodes). Output YES or NO.",
+  "input_desc": "First line: two integers N, M (1 ≤ N ≤ 10^5, 1 ≤ M ≤ 2×10^5).\nNext M lines: each u, v (1‑indexed) – directed edge u→v.",
+  "output_desc": "YES or NO.",
+  "hint": "Every node must have indegree = outdegree = 1."
+ },
+ "src221_201810P4": {
+  "title": "Locker Rental",
+  "topic": "APCS implementation",
+  "desc": "There are N lockers, each with capacity c_i and rent r_i. Choose some lockers so that total capacity is at least S and total rent is minimized. Output the minimum rent.",
+  "input_desc": "First line: two integers N, S (1 ≤ N ≤ 1000, 1 ≤ S ≤ 10^5).\nNext N lines: each two integers c_i, r_i (1 ≤ c_i ≤ 10^5, 1 ≤ r_i ≤ 10^9).",
+  "output_desc": "Minimum rent.",
+  "hint": "0/1 knapsack, capacity capped at S."
+ },
+ "src222_202109P4": {
+  "title": "Food Expo",
+  "topic": "APCS implementation",
+  "desc": "Given an integer array, find the length of the longest contiguous subarray with all distinct elements.",
+  "input_desc": "First line: N (1 ≤ N ≤ 2×10^5).\nSecond line: N integers.",
+  "output_desc": "Length.",
+  "hint": "Sliding window with dictionary."
+ },
+ "src225_201603P4": {
+  "title": "Kinship",
+  "topic": "APCS implementation",
+  "desc": "Given a tree, find its diameter (number of edges on the longest path between any two nodes).",
+  "input_desc": "First line: N (1 ≤ N ≤ 10^5).\nNext N-1 lines: each two integers u, v (1‑indexed).",
+  "output_desc": "Diameter length.",
+  "hint": "Two BFS/DFS to find diameter."
+ },
+ "src235_cses_1688": {
+  "title": "Company Queries II",
+  "topic": "LCA",
+  "desc": "Given a tree, answer Q queries: lowest common ancestor (LCA) of two nodes. Nodes are numbered 1..N.",
+  "input_desc": "First line: two integers N, Q (1 ≤ N,Q ≤ 2×10^5).\nNext N-1 lines: each u, v.\nNext Q lines: each a, b.",
+  "output_desc": "For each query, output the LCA node number.",
+  "hint": "Binary lifting LCA."
+ },
+ "src250_cses_1145": {
+  "title": "Increasing Subsequence",
+  "topic": "lis",
+  "desc": "Find the length of the longest strictly increasing subsequence of a given sequence.",
+  "input_desc": "First line: N (1 ≤ N ≤ 2×10^5).\nSecond line: N integers.",
+  "output_desc": "Length.",
+  "hint": "Classic LIS greedy + binary search."
+ },
+ "src295_noi_18_knapsack": {
+  "title": "Knapsack",
+  "topic": "DP, Knapsack",
+  "desc": "0/1 knapsack: N items, each with weight w_i and value v_i, capacity W. Maximize total value.",
+  "input_desc": "First line: N, W (1 ≤ N ≤ 500, 1 ≤ W ≤ 10^5).\nNext N lines: each w_i, v_i.",
+  "output_desc": "Maximum value.",
+  "hint": "Standard 0/1 knapsack DP."
+ },
+ "src247_cses_1681": {
+  "title": "Game Routes",
+  "topic": "TopoSort",
+  "desc": "Given a directed acyclic graph, find the number of distinct paths from node 1 to node N. Modulo 10^9+7.",
+  "input_desc": "First line: N, M (1 ≤ N ≤ 10^5, 1 ≤ M ≤ 2×10^5).\nNext M lines: each u, v (1‑indexed).",
+  "output_desc": "Number of paths.",
+  "hint": "Topological DP."
+ },
+ "src251_cses_1680": {
+  "title": "Longest Flight Route",
+  "topic": "toposort",
+  "desc": "Given a directed acyclic graph, find the longest path (by number of nodes) from node 1 to node N, and output the path. If no path, output \"IMPOSSIBLE\".",
+  "input_desc": "First line: N, M (1 ≤ N ≤ 10^5, 1 ≤ M ≤ 2×10^5).\nNext M lines: each u, v.",
+  "output_desc": "First line: length (number of nodes). Second line: node sequence. If impossible, output IMPOSSIBLE.",
+  "hint": "Topological DP for longest path, record predecessor."
+ },
+ "src265_cf_919D": {
+  "title": "Substring",
+  "topic": "TopoSort",
+  "desc": "Given a directed graph, each node has a lowercase letter. For any path (possibly infinite), define the maximum frequency of a letter along the path. If there is a cycle, output -1. Otherwise output the maximum possible frequency over all paths.",
+  "input_desc": "First line: N, M (1 ≤ N ≤ 3×10^5, 0 ≤ M ≤ 3×10^5).\nSecond line: a string of length N (lowercase letters).\nNext M lines: each u, v.",
+  "output_desc": "Maximum frequency or -1.",
+  "hint": "Topological DP, maintain maximum count of each letter along any path ending at node."
+ },
+ "src270_usaco_1017": {
+  "title": "Timeline",
+  "topic": "TopoSort",
+  "desc": "There are N events, each has an earliest start time S_i. There are M constraints: event b must occur at least x days after event a. Find the earliest possible start time for each event.",
+  "input_desc": "First line: N, M (1 ≤ N ≤ 10^5, 1 ≤ M ≤ 2×10^5).\nSecond line: N integers S_i.\nNext M lines: each a, b, x (1‑indexed).",
+  "output_desc": "N lines – earliest start time for each event.",
+  "hint": "Topological DP, propagate maximum start times.\n\n\n##### Class B: Self‑contradictory (65 problems) → Fixed"
  }
 };

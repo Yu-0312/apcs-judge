@@ -1477,21 +1477,30 @@ src150_h084:`def solve():
 
 if __name__ == "__main__":
     solve()`,
-src151_j608:`import sys
+src151_j608:`def solve():
+    N, M = map(int, input().split())
+    machines = list(map(int, input().split()))  # 每種型號數量
+    orders = [int(input()) for _ in range(N)]
+    orders.sort()
+    # 貪心：為每個訂單分配滿足要求的最小型號機器
+    # 將機器按型號展開
+    machine_list = []
+    for i, cnt in enumerate(machines, start=1):
+        machine_list.extend([i]*cnt)
+    machine_list.sort()
+    i = j = 0
+    cnt = 0
+    while i < len(machine_list) and j < N:
+        if machine_list[i] >= orders[j]:
+            cnt += 1
+            i += 1
+            j += 1
+        else:
+            i += 1
+    print(cnt)
 
-data = list(map(int, sys.stdin.read().split()))
-it = iter(data)
-n = next(it)
-W = next(it)
-dp = [0] * (W + 1)
-
-for _ in range(n):
-    w = next(it)
-    v = next(it)
-    for cap in range(W, w - 1, -1):
-        dp[cap] = max(dp[cap], dp[cap - w] + v)
-
-print(dp[W])`,
+if __name__ == "__main__":
+    solve()`,
 src152_201710P2:`import sys
 
 data = list(map(int, sys.stdin.read().split()))
@@ -1758,25 +1767,24 @@ src166_202306P2:`def solve():
 
 if __name__ == "__main__":
     solve()`,
-src167_202001P2:`import sys
+src167_202001P2:`def solve():
+    import sys
+    input = sys.stdin.readline
+    N, M, Q = map(int, input().split())
+    grid = [list(map(int, input().split())) for _ in range(N)]
+    prefix = [[0]*(M+1) for _ in range(N+1)]
+    for i in range(1,N+1):
+        for j in range(1,M+1):
+            prefix[i][j] = grid[i-1][j-1] + prefix[i-1][j] + prefix[i][j-1] - prefix[i-1][j-1]
+    out = []
+    for _ in range(Q):
+        r1,c1,r2,c2 = map(int, input().split())
+        res = prefix[r2][c2] - prefix[r1-1][c2] - prefix[r2][c1-1] + prefix[r1-1][c1-1]
+        out.append(str(res))
+    sys.stdout.write("\\n".join(out))
 
-data = list(map(int, sys.stdin.read().split()))
-it = iter(data)
-n = next(it)
-q = next(it)
-a = [next(it) for _ in range(n)]
-
-ps = [0] * (n + 1)
-for i, x in enumerate(a, 1):
-    ps[i] = ps[i - 1] + x
-
-out = []
-for _ in range(q):
-    l = next(it)
-    r = next(it)
-    out.append(str(ps[r] - ps[l - 1]))
-
-print("\\n".join(out))`,
+if __name__ == "__main__":
+    solve()`,
 src168_201603P2:`import sys
 
 data = list(map(int, sys.stdin.read().split()))
@@ -2559,36 +2567,50 @@ src206_202406P4:`def solve():
 
 if __name__ == "__main__":
     solve()`,
-src207_202501P4:`import sys
+src207_202501P4:`def solve():
+    N, K = map(int, input().split())
+    arr = list(map(int, input().split()))
+    arr.sort()
+    cnt = 0
+    i = 0
+    while i < N:
+        j = i
+        while j+1 < N and arr[j+1] - arr[i] <= K:
+            j += 1
+        if j - i + 1 >= 2:
+            cnt += 1
+            i = j + 1
+        else:
+            i += 1
+    print(cnt)
 
-data = list(map(int, sys.stdin.read().split()))
-it = iter(data)
-n = next(it)
-W = next(it)
-dp = [0] * (W + 1)
+if __name__ == "__main__":
+    solve()`,
+src208_201910P4:`from collections import deque
+def solve():
+    N, M = map(int, input().split())
+    grid = [list(input().strip()) for _ in range(N)]
+    q = deque()
+    for i in range(N):
+        for j in range(M):
+            if (i==0 or i==N-1 or j==0 or j==M-1) and grid[i][j]=='.':
+                q.append((i,j))
+                grid[i][j]='V'
+    step = 0
+    while q:
+        size = len(q)
+        step += 1
+        for _ in range(size):
+            x,y = q.popleft()
+            for dx,dy in [(1,0),(-1,0),(0,1),(0,-1)]:
+                nx,ny = x+dx, y+dy
+                if 0<=nx<N and 0<=ny<M and grid[nx][ny]=='.':
+                    grid[nx][ny]='V'
+                    q.append((nx,ny))
+    print(step)
 
-for _ in range(n):
-    w = next(it)
-    v = next(it)
-    for cap in range(W, w - 1, -1):
-        dp[cap] = max(dp[cap], dp[cap - w] + v)
-
-print(dp[W])`,
-src208_201910P4:`import sys
-
-data = list(map(int, sys.stdin.read().split()))
-it = iter(data)
-n = next(it)
-W = next(it)
-dp = [0] * (W + 1)
-
-for _ in range(n):
-    w = next(it)
-    v = next(it)
-    for cap in range(W, w - 1, -1):
-        dp[cap] = max(dp[cap], dp[cap - w] + v)
-
-print(dp[W])`,
+if __name__ == "__main__":
+    solve()`,
 src209_201806P4:`def solve():
     import sys
     input = sys.stdin.readline
@@ -2769,65 +2791,85 @@ for _ in range(n):
 
 print(dp[W])`,
 src219_202007P4:`import sys
+sys.setrecursionlimit(1<<25)
+def solve():
+    input = sys.stdin.readline
+    N = int(input())
+    g = [[] for _ in range(N)]
+    for _ in range(N-1):
+        u,v = map(int, input().split())
+        u-=1; v-=1
+        g[u].append(v)
+        g[v].append(u)
+    color = list(map(int, input().split()))
+    visited = [False]*N
+    def dfs(u, c):
+        stack = [u]
+        size = 0
+        while stack:
+            x = stack.pop()
+            if visited[x]: continue
+            visited[x]=True
+            size+=1
+            for v in g[x]:
+                if not visited[v] and color[v]==c:
+                    stack.append(v)
+        return size
+    ans = 0
+    for i in range(N):
+        if not visited[i]:
+            ans = max(ans, dfs(i, color[i]))
+    print(ans)
 
-data = list(map(int, sys.stdin.read().split()))
-it = iter(data)
-n = next(it)
-W = next(it)
-dp = [0] * (W + 1)
+if __name__ == "__main__":
+    solve()`,
+src220_202111P4:`def solve():
+    N, M = map(int, input().split())
+    indeg = [0]*N
+    outdeg = [0]*N
+    for _ in range(M):
+        u,v = map(int, input().split())
+        u-=1; v-=1
+        outdeg[u]+=1
+        indeg[v]+=1
+    for i in range(N):
+        if indeg[i] != 1 or outdeg[i] != 1:
+            print("NO")
+            return
+    print("YES")
 
-for _ in range(n):
-    w = next(it)
-    v = next(it)
-    for cap in range(W, w - 1, -1):
-        dp[cap] = max(dp[cap], dp[cap - w] + v)
+if __name__ == "__main__":
+    solve()`,
+src221_201810P4:`def solve():
+    N, S = map(int, input().split())
+    items = [tuple(map(int, input().split())) for _ in range(N)]
+    INF = 10**18
+    dp = [INF]*(S+1)
+    dp[0] = 0
+    for c,r in items:
+        for j in range(S, -1, -1):
+            if dp[j] != INF:
+                nj = min(S, j+c)
+                dp[nj] = min(dp[nj], dp[j]+r)
+    print(dp[S])
 
-print(dp[W])`,
-src220_202111P4:`import sys
+if __name__ == "__main__":
+    solve()`,
+src222_202109P4:`def solve():
+    N = int(input())
+    arr = list(map(int, input().split()))
+    last = {}
+    start = 0
+    ans = 0
+    for i, x in enumerate(arr):
+        if x in last and last[x] >= start:
+            start = last[x] + 1
+        last[x] = i
+        ans = max(ans, i - start + 1)
+    print(ans)
 
-data = list(map(int, sys.stdin.read().split()))
-it = iter(data)
-n = next(it)
-W = next(it)
-dp = [0] * (W + 1)
-
-for _ in range(n):
-    w = next(it)
-    v = next(it)
-    for cap in range(W, w - 1, -1):
-        dp[cap] = max(dp[cap], dp[cap - w] + v)
-
-print(dp[W])`,
-src221_201810P4:`import sys
-
-data = list(map(int, sys.stdin.read().split()))
-it = iter(data)
-n = next(it)
-W = next(it)
-dp = [0] * (W + 1)
-
-for _ in range(n):
-    w = next(it)
-    v = next(it)
-    for cap in range(W, w - 1, -1):
-        dp[cap] = max(dp[cap], dp[cap - w] + v)
-
-print(dp[W])`,
-src222_202109P4:`import sys
-
-data = list(map(int, sys.stdin.read().split()))
-it = iter(data)
-n = next(it)
-W = next(it)
-dp = [0] * (W + 1)
-
-for _ in range(n):
-    w = next(it)
-    v = next(it)
-    for cap in range(W, w - 1, -1):
-        dp[cap] = max(dp[cap], dp[cap - w] + v)
-
-print(dp[W])`,
+if __name__ == "__main__":
+    solve()`,
 src223_201906P4:`def solve():
     N = int(input())
     arr = list(map(int, input().split()))
@@ -2854,20 +2896,36 @@ for _ in range(n):
 
 print(dp[W])`,
 src225_201603P4:`import sys
+sys.setrecursionlimit(1<<25)
+def solve():
+    input = sys.stdin.readline
+    N = int(input())
+    g = [[] for _ in range(N)]
+    for _ in range(N-1):
+        u,v = map(int, input().split())
+        u-=1; v-=1
+        g[u].append(v)
+        g[v].append(u)
+    def dfs(start):
+        dist = [-1]*N
+        stack = [(start, 0)]
+        dist[start]=0
+        far_node = start
+        while stack:
+            u,d = stack.pop()
+            if d>dist[far_node]:
+                far_node = u
+            for v in g[u]:
+                if dist[v]==-1:
+                    dist[v]=d+1
+                    stack.append((v,d+1))
+        return far_node, dist[far_node]
+    a,_ = dfs(0)
+    b, diam = dfs(a)
+    print(diam)
 
-data = list(map(int, sys.stdin.read().split()))
-it = iter(data)
-n = next(it)
-W = next(it)
-dp = [0] * (W + 1)
-
-for _ in range(n):
-    w = next(it)
-    v = next(it)
-    for cap in range(W, w - 1, -1):
-        dp[cap] = max(dp[cap], dp[cap - w] + v)
-
-print(dp[W])`,
+if __name__ == "__main__":
+    solve()`,
 src226_202001P4:`import sys
 
 data = list(map(int, sys.stdin.read().split()))
@@ -3024,20 +3082,51 @@ src234_cses_1636:`def solve():
 if __name__ == "__main__":
     solve()`,
 src235_cses_1688:`import sys
+sys.setrecursionlimit(1<<25)
+def solve():
+    input = sys.stdin.readline
+    N, Q = map(int, input().split())
+    g = [[] for _ in range(N)]
+    for _ in range(N-1):
+        u,v = map(int, input().split())
+        u-=1; v-=1
+        g[u].append(v); g[v].append(u)
+    LOG = (N).bit_length()
+    parent = [[-1]*N for _ in range(LOG)]
+    depth = [0]*N
+    def dfs(u, p):
+        parent[0][u] = p
+        for v in g[u]:
+            if v != p:
+                depth[v] = depth[u]+1
+                dfs(v, u)
+    dfs(0, -1)
+    for k in range(1, LOG):
+        for i in range(N):
+            if parent[k-1][i] != -1:
+                parent[k][i] = parent[k-1][parent[k-1][i]]
+    def lca(a,b):
+        if depth[a] < depth[b]:
+            a,b = b,a
+        diff = depth[a]-depth[b]
+        for k in range(LOG-1,-1,-1):
+            if diff>>k & 1:
+                a = parent[k][a]
+        if a==b: return a
+        for k in range(LOG-1,-1,-1):
+            if parent[k][a] != parent[k][b]:
+                a = parent[k][a]
+                b = parent[k][b]
+        return parent[0][a]
+    out = []
+    for _ in range(Q):
+        a,b = map(int, input().split())
+        a-=1; b-=1
+        out.append(str(lca(a,b)+1))
+    sys.stdout.write("\\n".join(out))
 
-data = list(map(int, sys.stdin.read().split()))
-it = iter(data)
-n = next(it)
-W = next(it)
-dp = [0] * (W + 1)
-
-for _ in range(n):
-    w = next(it)
-    v = next(it)
-    for cap in range(W, w - 1, -1):
-        dp[cap] = max(dp[cap], dp[cap - w] + v)
-
-print(dp[W])`,
+if __name__ == "__main__":
+    solve()`,
 src236_cf_977F:`import sys
 
 data = list(map(int, sys.stdin.read().split()))
@@ -3303,36 +3392,33 @@ src246_ac_frog1:`def solve():
 
 if __name__ == "__main__":
     solve()`,
-src247_cses_1681:`from collections import deque
-import sys
+src247_cses_1681:`import sys
+from collections import deque
+def solve():
+    input = sys.stdin.readline
+    MOD = 10**9+7
+    N, M = map(int, input().split())
+    g = [[] for _ in range(N)]
+    indeg = [0]*N
+    for _ in range(M):
+        u,v = map(int, input().split())
+        u-=1; v-=1
+        g[u].append(v)
+        indeg[v]+=1
+    dp = [0]*N
+    dp[0]=1
+    q = deque([i for i in range(N) if indeg[i]==0])
+    while q:
+        u = q.popleft()
+        for v in g[u]:
+            dp[v] = (dp[v] + dp[u]) % MOD
+            indeg[v]-=1
+            if indeg[v]==0:
+                q.append(v)
+    print(dp[N-1])
 
-input = sys.stdin.readline
-n, m = map(int, input().split())
-g = [[] for _ in range(n + 1)]
-indeg = [0] * (n + 1)
-
-for _ in range(m):
-    a, b = map(int, input().split())
-    g[a].append(b)
-    indeg[b] += 1
-
-sem = [1] * (n + 1)
-q = deque(i for i in range(1, n + 1) if indeg[i] == 0)
-seen = 0
-ans = 1
-
-while q:
-    u = q.popleft()
-    seen += 1
-    ans = max(ans, sem[u])
-    for v in g[u]:
-        if sem[v] < sem[u] + 1:
-            sem[v] = sem[u] + 1
-        indeg[v] -= 1
-        if indeg[v] == 0:
-            q.append(v)
-
-print(ans if seen == n else "IMPOSSIBLE")`,
+if __name__ == "__main__":
+    solve()`,
 src248_usaco_694:`def solve():
     import sys
     input = sys.stdin.readline
@@ -3387,51 +3473,59 @@ src249_cf_1082E:`def solve():
 
 if __name__ == "__main__":
     solve()`,
-src250_cses_1145:`import sys
+src250_cses_1145:`import bisect
+def solve():
+    N = int(input())
+    arr = list(map(int, input().split()))
+    lis = []
+    for x in arr:
+        pos = bisect.bisect_left(lis, x)
+        if pos == len(lis):
+            lis.append(x)
+        else:
+            lis[pos] = x
+    print(len(lis))
 
-data = list(map(int, sys.stdin.read().split()))
-it = iter(data)
-n = next(it)
-W = next(it)
-dp = [0] * (W + 1)
+if __name__ == "__main__":
+    solve()`,
+src251_cses_1680:`import sys
+from collections import deque
+def solve():
+    input = sys.stdin.readline
+    N, M = map(int, input().split())
+    g = [[] for _ in range(N)]
+    indeg = [0]*N
+    for _ in range(M):
+        u,v = map(int, input().split())
+        u-=1; v-=1
+        g[u].append(v)
+        indeg[v]+=1
+    dp = [0]*N
+    parent = [-1]*N
+    q = deque([i for i in range(N) if indeg[i]==0])
+    while q:
+        u = q.popleft()
+        for v in g[u]:
+            if dp[u]+1 > dp[v]:
+                dp[v] = dp[u]+1
+                parent[v] = u
+            indeg[v]-=1
+            if indeg[v]==0:
+                q.append(v)
+    if dp[N-1]==0 and N>1:
+        print("IMPOSSIBLE")
+    else:
+        path = []
+        cur = N-1
+        while cur!=-1:
+            path.append(cur+1)
+            cur = parent[cur]
+        path.reverse()
+        print(len(path))
+        print(' '.join(map(str, path)))
 
-for _ in range(n):
-    w = next(it)
-    v = next(it)
-    for cap in range(W, w - 1, -1):
-        dp[cap] = max(dp[cap], dp[cap - w] + v)
-
-print(dp[W])`,
-src251_cses_1680:`from collections import deque
-import sys
-
-input = sys.stdin.readline
-n, m = map(int, input().split())
-g = [[] for _ in range(n + 1)]
-indeg = [0] * (n + 1)
-
-for _ in range(m):
-    a, b = map(int, input().split())
-    g[a].append(b)
-    indeg[b] += 1
-
-sem = [1] * (n + 1)
-q = deque(i for i in range(1, n + 1) if indeg[i] == 0)
-seen = 0
-ans = 1
-
-while q:
-    u = q.popleft()
-    seen += 1
-    ans = max(ans, sem[u])
-    for v in g[u]:
-        if sem[v] < sem[u] + 1:
-            sem[v] = sem[u] + 1
-        indeg[v] -= 1
-        if indeg[v] == 0:
-            q.append(v)
-
-print(ans if seen == n else "IMPOSSIBLE")`,
+if __name__ == "__main__":
+    solve()`,
 src252_usaco_969:`def solve():
     import sys
     input = sys.stdin.readline
@@ -3652,25 +3746,33 @@ for _ in range(n):
         dp[cap] = max(dp[cap], dp[cap - w] + v)
 
 print(dp[W])`,
-src262_cses_1671:`import sys
-from collections import deque
-input=sys.stdin.readline
-N,M=map(int,input().split())
-g=[list(input().rstrip()) for _ in range(N)]
-sr=sc=tr=tc=0
-for i in range(N):
-    for j in range(M):
-        if g[i][j]=='A':sr,sc=i,j
-        elif g[i][j]=='B':tr,tc=i,j
-q=deque([(sr,sc,0)]);g[sr][sc]='#';ans=-1
-while q:
-    r,c,d=q.popleft()
-    if r==tr and c==tc:ans=d;break
-    for dr,dc in[(-1,0),(1,0),(0,-1),(0,1)]:
-        nr,nc=r+dr,c+dc
-        if 0<=nr<N and 0<=nc<M and g[nr][nc]!='#':
-            g[nr][nc]='#';q.append((nr,nc,d+1))
-print(ans)`,
+src262_cses_1671:`def solve():
+    import sys, heapq
+    input = sys.stdin.readline
+    N, M = map(int, input().split())
+    graph = [[] for _ in range(N)]
+    for _ in range(M):
+        u,v,c = map(int, input().split())
+        u-=1; v-=1
+        graph[u].append((v,c))
+    INF=10**18
+    dist=[INF]*N
+    dist[0]=0
+    pq=[(0,0)]
+    while pq:
+        d,u=heapq.heappop(pq)
+        if d!=dist[u]: continue
+        for v,c in graph[u]:
+            nd=d+c
+            if nd<dist[v]:
+                dist[v]=nd
+                heapq.heappush(pq,(nd,v))
+    out=' '.join(str(dist[i] if dist[i]!=INF else -1) for i in range(N))
+    sys.stdout.write(out)
+# 輸出 "0 5 8" 而不是多行。
+
+if __name__ == "__main__":
+    solve()`,
 src263_ys_StaticRMQ:`def solve():
     import sys
     input = sys.stdin.readline
@@ -3712,36 +3814,40 @@ for _ in range(n):
         dp[cap] = max(dp[cap], dp[cap - w] + v)
 
 print(dp[W])`,
-src265_cf_919D:`from collections import deque
-import sys
+src265_cf_919D:`import sys
+from collections import deque
+def solve():
+    input = sys.stdin.readline
+    N, M = map(int, input().split())
+    s = input().strip()
+    g = [[] for _ in range(N)]
+    indeg = [0]*N
+    for _ in range(M):
+        u,v = map(int, input().split())
+        u-=1; v-=1
+        g[u].append(v)
+        indeg[v]+=1
+    q = deque([i for i in range(N) if indeg[i]==0])
+    dp = [[0]*26 for _ in range(N)]
+    cnt = 0
+    while q:
+        u = q.popleft()
+        cnt += 1
+        dp[u][ord(s[u])-97] += 1
+        for v in g[u]:
+            for c in range(26):
+                dp[v][c] = max(dp[v][c], dp[u][c])
+            indeg[v]-=1
+            if indeg[v]==0:
+                q.append(v)
+    if cnt != N:
+        print(-1)
+    else:
+        ans = max(max(row) for row in dp)
+        print(ans)
 
-input = sys.stdin.readline
-n, m = map(int, input().split())
-g = [[] for _ in range(n + 1)]
-indeg = [0] * (n + 1)
-
-for _ in range(m):
-    a, b = map(int, input().split())
-    g[a].append(b)
-    indeg[b] += 1
-
-sem = [1] * (n + 1)
-q = deque(i for i in range(1, n + 1) if indeg[i] == 0)
-seen = 0
-ans = 1
-
-while q:
-    u = q.popleft()
-    seen += 1
-    ans = max(ans, sem[u])
-    for v in g[u]:
-        if sem[v] < sem[u] + 1:
-            sem[v] = sem[u] + 1
-        indeg[v] -= 1
-        if indeg[v] == 0:
-            q.append(v)
-
-print(ans if seen == n else "IMPOSSIBLE")`,
+if __name__ == "__main__":
+    solve()`,
 src266_cses_1137:`import sys
 input=sys.stdin.readline
 N=int(input())
@@ -3791,36 +3897,33 @@ for x in range(1,X+1):
     for v in c:
         if v<=x and dp[x-v]+1<dp[x]:dp[x]=dp[x-v]+1
 print(dp[X] if dp[X]<INF else -1)`,
-src270_usaco_1017:`from collections import deque
-import sys
+src270_usaco_1017:`import sys
+from collections import deque
+def solve():
+    input = sys.stdin.readline
+    N, M = map(int, input().split())
+    S = list(map(int, input().split()))
+    g = [[] for _ in range(N)]
+    indeg = [0]*N
+    for _ in range(M):
+        a,b,x = map(int, input().split())
+        a-=1; b-=1
+        g[a].append((b,x))
+        indeg[b]+=1
+    q = deque([i for i in range(N) if indeg[i]==0])
+    dist = S[:]
+    while q:
+        u = q.popleft()
+        for v, w in g[u]:
+            dist[v] = max(dist[v], dist[u] + w)
+            indeg[v]-=1
+            if indeg[v]==0:
+                q.append(v)
+    for d in dist:
+        print(d)
 
-input = sys.stdin.readline
-n, m = map(int, input().split())
-g = [[] for _ in range(n + 1)]
-indeg = [0] * (n + 1)
-
-for _ in range(m):
-    a, b = map(int, input().split())
-    g[a].append(b)
-    indeg[b] += 1
-
-sem = [1] * (n + 1)
-q = deque(i for i in range(1, n + 1) if indeg[i] == 0)
-seen = 0
-ans = 1
-
-while q:
-    u = q.popleft()
-    seen += 1
-    ans = max(ans, sem[u])
-    for v in g[u]:
-        if sem[v] < sem[u] + 1:
-            sem[v] = sem[u] + 1
-        indeg[v] -= 1
-        if indeg[v] == 0:
-            q.append(v)
-
-print(ans if seen == n else "IMPOSSIBLE")`,
+if __name__ == "__main__":
+    solve()`,
 src271_cses_1073:`import sys
 input=sys.stdin.readline
 INF=10**9
@@ -4297,21 +4400,17 @@ src294_cses_1202:`def solve():
 
 if __name__ == "__main__":
     solve()`,
-src295_noi_18_knapsack:`import sys
+src295_noi_18_knapsack:`def solve():
+    N, W = map(int, input().split())
+    dp = [0]*(W+1)
+    for _ in range(N):
+        w,v = map(int, input().split())
+        for j in range(W, w-1, -1):
+            dp[j] = max(dp[j], dp[j-w]+v)
+    print(max(dp))
 
-data = list(map(int, sys.stdin.read().split()))
-it = iter(data)
-n = next(it)
-W = next(it)
-dp = [0] * (W + 1)
-
-for _ in range(n):
-    w = next(it)
-    v = next(it)
-    for cap in range(W, w - 1, -1):
-        dp[cap] = max(dp[cap], dp[cap - w] + v)
-
-print(dp[W])`,
+if __name__ == "__main__":
+    solve()`,
 src296_cf_1582F1:`import sys
 input=sys.stdin.readline
 INF=10**9
@@ -6414,30 +6513,6 @@ int main(){int N,X;scanf("%d %d",&N,&X);vector<int> c(N);
 for(auto&v:c)scanf("%d",&v);const int INF=1e9;vector<int> dp(X+1,INF);dp[0]=0;
 for(int x=1;x<=X;x++)for(int v:c)if(v<=x&&dp[x-v]+1<dp[x])dp[x]=dp[x-v]+1;
 printf("%d\\n",dp[X]>=INF?-1:dp[X]);return 0;}`,
-src151_j608:`#include <algorithm>
-#include <iostream>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n, W;
-    cin >> n >> W;
-    vector<long long> dp(W + 1, 0);
-
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        cin >> w >> v;
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    cout << dp[W] << '\\n';
-    return 0;
-}`,
 src152_201710P2:`#include <iostream>
 #include <vector>
 using namespace std;
@@ -6631,30 +6706,6 @@ int main() {
     return 0;
 }`,
 src165_202101P2:`#include <iostream>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n, q;
-    cin >> n >> q;
-    vector<long long> ps(n + 1, 0);
-    for (int i = 1; i <= n; i++) {
-        long long x;
-        cin >> x;
-        ps[i] = ps[i - 1] + x;
-    }
-
-    while (q--) {
-        int l, r;
-        cin >> l >> r;
-        cout << ps[r] - ps[l - 1] << '\\n';
-    }
-    return 0;
-}`,
-src167_202001P2:`#include <iostream>
 #include <vector>
 using namespace std;
 
@@ -7206,54 +7257,6 @@ int main(){scanf("%d %d",&N,&M);g.resize(N);
 for(int i=0;i<N;i++){char buf[1005];scanf("%s",buf);g[i]=buf;}
 int ans=0;for(int i=0;i<N;i++)for(int j=0;j<M;j++)if(g[i][j]=='.'){ans++;bfs(i,j);}
 printf("%d\\n",ans);return 0;}`,
-src207_202501P4:`#include <algorithm>
-#include <iostream>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n, W;
-    cin >> n >> W;
-    vector<long long> dp(W + 1, 0);
-
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        cin >> w >> v;
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    cout << dp[W] << '\\n';
-    return 0;
-}`,
-src208_201910P4:`#include <algorithm>
-#include <iostream>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n, W;
-    cin >> n >> W;
-    vector<long long> dp(W + 1, 0);
-
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        cin >> w >> v;
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    cout << dp[W] << '\\n';
-    return 0;
-}`,
 src212_201902P4:`#include <algorithm>
 #include <iostream>
 #include <vector>
@@ -7398,127 +7401,7 @@ int main() {
     cout << dp[W] << '\\n';
     return 0;
 }`,
-src219_202007P4:`#include <algorithm>
-#include <iostream>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n, W;
-    cin >> n >> W;
-    vector<long long> dp(W + 1, 0);
-
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        cin >> w >> v;
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    cout << dp[W] << '\\n';
-    return 0;
-}`,
-src220_202111P4:`#include <algorithm>
-#include <iostream>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n, W;
-    cin >> n >> W;
-    vector<long long> dp(W + 1, 0);
-
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        cin >> w >> v;
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    cout << dp[W] << '\\n';
-    return 0;
-}`,
-src221_201810P4:`#include <algorithm>
-#include <iostream>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n, W;
-    cin >> n >> W;
-    vector<long long> dp(W + 1, 0);
-
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        cin >> w >> v;
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    cout << dp[W] << '\\n';
-    return 0;
-}`,
-src222_202109P4:`#include <algorithm>
-#include <iostream>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n, W;
-    cin >> n >> W;
-    vector<long long> dp(W + 1, 0);
-
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        cin >> w >> v;
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    cout << dp[W] << '\\n';
-    return 0;
-}`,
 src224_202210P4:`#include <algorithm>
-#include <iostream>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n, W;
-    cin >> n >> W;
-    vector<long long> dp(W + 1, 0);
-
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        cin >> w >> v;
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    cout << dp[W] << '\\n';
-    return 0;
-}`,
-src225_201603P4:`#include <algorithm>
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -7662,30 +7545,6 @@ int main() {
     return 0;
 }`,
 src233_cses_1635:`#include <algorithm>
-#include <iostream>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n, W;
-    cin >> n >> W;
-    vector<long long> dp(W + 1, 0);
-
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        cin >> w >> v;
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    cout << dp[W] << '\\n';
-    return 0;
-}`,
-src235_cses_1688:`#include <algorithm>
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -7917,120 +7776,6 @@ while(!q.empty()){tuple<int,int,int> tt=q.front();q.pop();int r=get<0>(tt),c=get
  for(int k=0;k<4;k++){int nr=r+dr[k],nc=c+dc[k];
   if(nr>=0&&nr<N&&nc>=0&&nc<M&&g[nr][nc]!='#'){g[nr][nc]='#';q.push({nr,nc,d+1});}}}
 printf("%d\\n",ans);return 0;}`,
-src247_cses_1681:`#include <algorithm>
-#include <iostream>
-#include <queue>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n, m;
-    cin >> n >> m;
-    vector<vector<int>> g(n + 1);
-    vector<int> indeg(n + 1, 0), sem(n + 1, 1);
-
-    for (int i = 0; i < m; i++) {
-        int a, b;
-        cin >> a >> b;
-        g[a].push_back(b);
-        indeg[b]++;
-    }
-
-    queue<int> q;
-    for (int i = 1; i <= n; i++) {
-        if (indeg[i] == 0) q.push(i);
-    }
-
-    int seen = 0, ans = 1;
-    while (!q.empty()) {
-        int u = q.front();
-        q.pop();
-        seen++;
-        ans = max(ans, sem[u]);
-
-        for (int v : g[u]) {
-            sem[v] = max(sem[v], sem[u] + 1);
-            indeg[v]--;
-            if (indeg[v] == 0) q.push(v);
-        }
-    }
-
-    if (seen == n) cout << ans << '\\n';
-    else cout << "IMPOSSIBLE\\n";
-    return 0;
-}`,
-src250_cses_1145:`#include <algorithm>
-#include <iostream>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n, W;
-    cin >> n >> W;
-    vector<long long> dp(W + 1, 0);
-
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        cin >> w >> v;
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    cout << dp[W] << '\\n';
-    return 0;
-}`,
-src251_cses_1680:`#include <algorithm>
-#include <iostream>
-#include <queue>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n, m;
-    cin >> n >> m;
-    vector<vector<int>> g(n + 1);
-    vector<int> indeg(n + 1, 0), sem(n + 1, 1);
-
-    for (int i = 0; i < m; i++) {
-        int a, b;
-        cin >> a >> b;
-        g[a].push_back(b);
-        indeg[b]++;
-    }
-
-    queue<int> q;
-    for (int i = 1; i <= n; i++) {
-        if (indeg[i] == 0) q.push(i);
-    }
-
-    int seen = 0, ans = 1;
-    while (!q.empty()) {
-        int u = q.front();
-        q.pop();
-        seen++;
-        ans = max(ans, sem[u]);
-
-        for (int v : g[u]) {
-            sem[v] = max(sem[v], sem[u] + 1);
-            indeg[v]--;
-            if (indeg[v] == 0) q.push(v);
-        }
-    }
-
-    if (seen == n) cout << ans << '\\n';
-    else cout << "IMPOSSIBLE\\n";
-    return 0;
-}`,
 src254_cses_1745:`#include <algorithm>
 #include <iostream>
 #include <vector>
@@ -8257,31 +8002,6 @@ int main() {
     cout << dp[W] << '\\n';
     return 0;
 }`,
-src262_cses_1671:`#include <algorithm>
-#include <cstdio>
-#include <cstdlib>
-#include <iostream>
-#include <map>
-#include <numeric>
-#include <queue>
-#include <set>
-#include <string>
-#include <tuple>
-#include <unordered_map>
-#include <utility>
-#include <vector>
-using namespace std;
-int main(){int N,M;scanf("%d %d",&N,&M);vector<string> g(N);
-for(int i=0;i<N;i++){char b[1005];scanf("%s",b);g[i]=b;}
-int sr=0,sc=0,tr=0,tc=0;
-for(int i=0;i<N;i++)for(int j=0;j<M;j++){if(g[i][j]=='A'){sr=i;sc=j;}if(g[i][j]=='B'){tr=i;tc=j;}}
-queue<tuple<int,int,int>> q;q.push({sr,sc,0});g[sr][sc]='#';int ans=-1;
-int dr[]={-1,1,0,0},dc[]={0,0,-1,1};
-while(!q.empty()){tuple<int,int,int> tt=q.front();q.pop();int r=get<0>(tt),c=get<1>(tt),d=get<2>(tt);
- if(r==tr&&c==tc){ans=d;break;}
- for(int k=0;k<4;k++){int nr=r+dr[k],nc=c+dc[k];
-  if(nr>=0&&nr<N&&nc>=0&&nc<M&&g[nr][nc]!='#'){g[nr][nc]='#';q.push({nr,nc,d+1});}}}
-printf("%d\\n",ans);return 0;}`,
 src264_ac_subsetSumQueries:`#include <algorithm>
 #include <iostream>
 #include <vector>
@@ -8304,51 +8024,6 @@ int main() {
     }
 
     cout << dp[W] << '\\n';
-    return 0;
-}`,
-src265_cf_919D:`#include <algorithm>
-#include <iostream>
-#include <queue>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n, m;
-    cin >> n >> m;
-    vector<vector<int>> g(n + 1);
-    vector<int> indeg(n + 1, 0), sem(n + 1, 1);
-
-    for (int i = 0; i < m; i++) {
-        int a, b;
-        cin >> a >> b;
-        g[a].push_back(b);
-        indeg[b]++;
-    }
-
-    queue<int> q;
-    for (int i = 1; i <= n; i++) {
-        if (indeg[i] == 0) q.push(i);
-    }
-
-    int seen = 0, ans = 1;
-    while (!q.empty()) {
-        int u = q.front();
-        q.pop();
-        seen++;
-        ans = max(ans, sem[u]);
-
-        for (int v : g[u]) {
-            sem[v] = max(sem[v], sem[u] + 1);
-            indeg[v]--;
-            if (indeg[v] == 0) q.push(v);
-        }
-    }
-
-    if (seen == n) cout << ans << '\\n';
-    else cout << "IMPOSSIBLE\\n";
     return 0;
 }`,
 src266_cses_1137:`#include <algorithm>
@@ -8433,51 +8108,6 @@ int main(){int N,X;scanf("%d %d",&N,&X);vector<int> c(N);
 for(auto&v:c)scanf("%d",&v);const int INF=1e9;vector<int> dp(X+1,INF);dp[0]=0;
 for(int x=1;x<=X;x++)for(int v:c)if(v<=x&&dp[x-v]+1<dp[x])dp[x]=dp[x-v]+1;
 printf("%d\\n",dp[X]>=INF?-1:dp[X]);return 0;}`,
-src270_usaco_1017:`#include <algorithm>
-#include <iostream>
-#include <queue>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n, m;
-    cin >> n >> m;
-    vector<vector<int>> g(n + 1);
-    vector<int> indeg(n + 1, 0), sem(n + 1, 1);
-
-    for (int i = 0; i < m; i++) {
-        int a, b;
-        cin >> a >> b;
-        g[a].push_back(b);
-        indeg[b]++;
-    }
-
-    queue<int> q;
-    for (int i = 1; i <= n; i++) {
-        if (indeg[i] == 0) q.push(i);
-    }
-
-    int seen = 0, ans = 1;
-    while (!q.empty()) {
-        int u = q.front();
-        q.pop();
-        seen++;
-        ans = max(ans, sem[u]);
-
-        for (int v : g[u]) {
-            sem[v] = max(sem[v], sem[u] + 1);
-            indeg[v]--;
-            if (indeg[v] == 0) q.push(v);
-        }
-    }
-
-    if (seen == n) cout << ans << '\\n';
-    else cout << "IMPOSSIBLE\\n";
-    return 0;
-}`,
 src271_cses_1073:`#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
@@ -8879,30 +8509,6 @@ while(!q.empty()){tuple<int,int,int> tt=q.front();q.pop();int r=get<0>(tt),c=get
  for(int k=0;k<4;k++){int nr=r+dr[k],nc=c+dc[k];
   if(nr>=0&&nr<N&&nc>=0&&nc<M&&g[nr][nc]!='#'){g[nr][nc]='#';q.push({nr,nc,d+1});}}}
 printf("%d\\n",ans);return 0;}`,
-src295_noi_18_knapsack:`#include <algorithm>
-#include <iostream>
-#include <vector>
-using namespace std;
-
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n, W;
-    cin >> n >> W;
-    vector<long long> dp(W + 1, 0);
-
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        cin >> w >> v;
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    cout << dp[W] << '\\n';
-    return 0;
-}`,
 src296_cf_1582F1:`#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
@@ -10517,30 +10123,6 @@ for(int i=0;i<N;i++)scanf("%d",&c[i]);int INF=1<<29;int*dp=malloc((X+1)*sizeof(i
 dp[0]=0;for(int i=1;i<=X;i++)dp[i]=INF;
 for(int x=1;x<=X;x++)for(int i=0;i<N;i++)if(c[i]<=x&&dp[x-c[i]]+1<dp[x])dp[x]=dp[x-c[i]]+1;
 printf("%d\\n",dp[X]>=INF?-1:dp[X]);free(c);free(dp);return 0;}`,
-src151_j608:`#include <stdio.h>
-#include <stdlib.h>
-
-long long max_ll(long long a, long long b) {
-    return a > b ? a : b;
-}
-
-int main(void) {
-    int n, W;
-    scanf("%d %d", &n, &W);
-
-    long long *dp = calloc(W + 1, sizeof(long long));
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        scanf("%d %d", &w, &v);
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max_ll(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    printf("%lld\\n", dp[W]);
-    free(dp);
-    return 0;
-}`,
 src152_201710P2:`#include <stdio.h>
 #include <stdlib.h>
 
@@ -10726,29 +10308,6 @@ int main(void) {
     return 0;
 }`,
 src165_202101P2:`#include <stdio.h>
-#include <stdlib.h>
-
-int main(void) {
-    int n, q;
-    scanf("%d %d", &n, &q);
-
-    long long *ps = calloc(n + 1, sizeof(long long));
-    for (int i = 1; i <= n; i++) {
-        long long x;
-        scanf("%lld", &x);
-        ps[i] = ps[i - 1] + x;
-    }
-
-    while (q--) {
-        int l, r;
-        scanf("%d %d", &l, &r);
-        printf("%lld\\n", ps[r] - ps[l - 1]);
-    }
-
-    free(ps);
-    return 0;
-}`,
-src167_202001P2:`#include <stdio.h>
 #include <stdlib.h>
 
 int main(void) {
@@ -11073,54 +10632,6 @@ void bfs(int sr,int sc){int h=0,t=0;qr[t]=sr;qc[t++]=sc;g[sr][sc]='#';
 int main(){scanf("%d %d",&N,&M);for(int i=0;i<N;i++)scanf("%s",g[i]);
 int ans=0;for(int i=0;i<N;i++)for(int j=0;j<M;j++)if(g[i][j]=='.'){ans++;bfs(i,j);}
 printf("%d\\n",ans);return 0;}`,
-src207_202501P4:`#include <stdio.h>
-#include <stdlib.h>
-
-long long max_ll(long long a, long long b) {
-    return a > b ? a : b;
-}
-
-int main(void) {
-    int n, W;
-    scanf("%d %d", &n, &W);
-
-    long long *dp = calloc(W + 1, sizeof(long long));
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        scanf("%d %d", &w, &v);
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max_ll(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    printf("%lld\\n", dp[W]);
-    free(dp);
-    return 0;
-}`,
-src208_201910P4:`#include <stdio.h>
-#include <stdlib.h>
-
-long long max_ll(long long a, long long b) {
-    return a > b ? a : b;
-}
-
-int main(void) {
-    int n, W;
-    scanf("%d %d", &n, &W);
-
-    long long *dp = calloc(W + 1, sizeof(long long));
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        scanf("%d %d", &w, &v);
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max_ll(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    printf("%lld\\n", dp[W]);
-    free(dp);
-    return 0;
-}`,
 src212_201902P4:`#include <stdio.h>
 #include <stdlib.h>
 
@@ -11265,127 +10776,7 @@ int main(void) {
     free(dp);
     return 0;
 }`,
-src219_202007P4:`#include <stdio.h>
-#include <stdlib.h>
-
-long long max_ll(long long a, long long b) {
-    return a > b ? a : b;
-}
-
-int main(void) {
-    int n, W;
-    scanf("%d %d", &n, &W);
-
-    long long *dp = calloc(W + 1, sizeof(long long));
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        scanf("%d %d", &w, &v);
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max_ll(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    printf("%lld\\n", dp[W]);
-    free(dp);
-    return 0;
-}`,
-src220_202111P4:`#include <stdio.h>
-#include <stdlib.h>
-
-long long max_ll(long long a, long long b) {
-    return a > b ? a : b;
-}
-
-int main(void) {
-    int n, W;
-    scanf("%d %d", &n, &W);
-
-    long long *dp = calloc(W + 1, sizeof(long long));
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        scanf("%d %d", &w, &v);
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max_ll(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    printf("%lld\\n", dp[W]);
-    free(dp);
-    return 0;
-}`,
-src221_201810P4:`#include <stdio.h>
-#include <stdlib.h>
-
-long long max_ll(long long a, long long b) {
-    return a > b ? a : b;
-}
-
-int main(void) {
-    int n, W;
-    scanf("%d %d", &n, &W);
-
-    long long *dp = calloc(W + 1, sizeof(long long));
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        scanf("%d %d", &w, &v);
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max_ll(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    printf("%lld\\n", dp[W]);
-    free(dp);
-    return 0;
-}`,
-src222_202109P4:`#include <stdio.h>
-#include <stdlib.h>
-
-long long max_ll(long long a, long long b) {
-    return a > b ? a : b;
-}
-
-int main(void) {
-    int n, W;
-    scanf("%d %d", &n, &W);
-
-    long long *dp = calloc(W + 1, sizeof(long long));
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        scanf("%d %d", &w, &v);
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max_ll(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    printf("%lld\\n", dp[W]);
-    free(dp);
-    return 0;
-}`,
 src224_202210P4:`#include <stdio.h>
-#include <stdlib.h>
-
-long long max_ll(long long a, long long b) {
-    return a > b ? a : b;
-}
-
-int main(void) {
-    int n, W;
-    scanf("%d %d", &n, &W);
-
-    long long *dp = calloc(W + 1, sizeof(long long));
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        scanf("%d %d", &w, &v);
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max_ll(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    printf("%lld\\n", dp[W]);
-    free(dp);
-    return 0;
-}`,
-src225_201603P4:`#include <stdio.h>
 #include <stdlib.h>
 
 long long max_ll(long long a, long long b) {
@@ -11532,30 +10923,6 @@ int main(void) {
     return 0;
 }`,
 src233_cses_1635:`#include <stdio.h>
-#include <stdlib.h>
-
-long long max_ll(long long a, long long b) {
-    return a > b ? a : b;
-}
-
-int main(void) {
-    int n, W;
-    scanf("%d %d", &n, &W);
-
-    long long *dp = calloc(W + 1, sizeof(long long));
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        scanf("%d %d", &w, &v);
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max_ll(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    printf("%lld\\n", dp[W]);
-    free(dp);
-    return 0;
-}`,
-src235_cses_1688:`#include <stdio.h>
 #include <stdlib.h>
 
 long long max_ll(long long a, long long b) {
@@ -11797,154 +11164,6 @@ while(h<t){int r=qr[h],c=qc[h],d=qd[h];h++;
  for(int k=0;k<4;k++){int nr=r+dr[k],nc=c+dc[k];
   if(nr>=0&&nr<N&&nc>=0&&nc<M&&g[nr][nc]!='#'){g[nr][nc]='#';qr[t]=nr;qc[t]=nc;qd[t++]=d+1;}}}
 printf("%d\\n",ans);return 0;}`,
-src247_cses_1681:`#include <stdio.h>
-#include <stdlib.h>
-
-int max_int(int a, int b) {
-    return a > b ? a : b;
-}
-
-int main(void) {
-    int n, m;
-    scanf("%d %d", &n, &m);
-
-    int *head = malloc(sizeof(int) * (n + 1));
-    int *indeg = calloc(n + 1, sizeof(int));
-    int *sem = malloc(sizeof(int) * (n + 1));
-    int *to = malloc(sizeof(int) * m);
-    int *nxt = malloc(sizeof(int) * m);
-    int *queue = malloc(sizeof(int) * (n + 5));
-
-    for (int i = 1; i <= n; i++) {
-        head[i] = -1;
-        sem[i] = 1;
-    }
-
-    for (int i = 0; i < m; i++) {
-        int a, b;
-        scanf("%d %d", &a, &b);
-        to[i] = b;
-        nxt[i] = head[a];
-        head[a] = i;
-        indeg[b]++;
-    }
-
-    int front = 0, back = 0;
-    for (int i = 1; i <= n; i++) {
-        if (indeg[i] == 0) queue[back++] = i;
-    }
-
-    int seen = 0, ans = 1;
-    while (front < back) {
-        int u = queue[front++];
-        seen++;
-        ans = max_int(ans, sem[u]);
-
-        for (int e = head[u]; e != -1; e = nxt[e]) {
-            int v = to[e];
-            sem[v] = max_int(sem[v], sem[u] + 1);
-            indeg[v]--;
-            if (indeg[v] == 0) queue[back++] = v;
-        }
-    }
-
-    if (seen == n) printf("%d\\n", ans);
-    else printf("IMPOSSIBLE\\n");
-
-    free(head);
-    free(indeg);
-    free(sem);
-    free(to);
-    free(nxt);
-    free(queue);
-    return 0;
-}`,
-src250_cses_1145:`#include <stdio.h>
-#include <stdlib.h>
-
-long long max_ll(long long a, long long b) {
-    return a > b ? a : b;
-}
-
-int main(void) {
-    int n, W;
-    scanf("%d %d", &n, &W);
-
-    long long *dp = calloc(W + 1, sizeof(long long));
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        scanf("%d %d", &w, &v);
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max_ll(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    printf("%lld\\n", dp[W]);
-    free(dp);
-    return 0;
-}`,
-src251_cses_1680:`#include <stdio.h>
-#include <stdlib.h>
-
-int max_int(int a, int b) {
-    return a > b ? a : b;
-}
-
-int main(void) {
-    int n, m;
-    scanf("%d %d", &n, &m);
-
-    int *head = malloc(sizeof(int) * (n + 1));
-    int *indeg = calloc(n + 1, sizeof(int));
-    int *sem = malloc(sizeof(int) * (n + 1));
-    int *to = malloc(sizeof(int) * m);
-    int *nxt = malloc(sizeof(int) * m);
-    int *queue = malloc(sizeof(int) * (n + 5));
-
-    for (int i = 1; i <= n; i++) {
-        head[i] = -1;
-        sem[i] = 1;
-    }
-
-    for (int i = 0; i < m; i++) {
-        int a, b;
-        scanf("%d %d", &a, &b);
-        to[i] = b;
-        nxt[i] = head[a];
-        head[a] = i;
-        indeg[b]++;
-    }
-
-    int front = 0, back = 0;
-    for (int i = 1; i <= n; i++) {
-        if (indeg[i] == 0) queue[back++] = i;
-    }
-
-    int seen = 0, ans = 1;
-    while (front < back) {
-        int u = queue[front++];
-        seen++;
-        ans = max_int(ans, sem[u]);
-
-        for (int e = head[u]; e != -1; e = nxt[e]) {
-            int v = to[e];
-            sem[v] = max_int(sem[v], sem[u] + 1);
-            indeg[v]--;
-            if (indeg[v] == 0) queue[back++] = v;
-        }
-    }
-
-    if (seen == n) printf("%d\\n", ans);
-    else printf("IMPOSSIBLE\\n");
-
-    free(head);
-    free(indeg);
-    free(sem);
-    free(to);
-    free(nxt);
-    free(queue);
-    return 0;
-}`,
 src254_cses_1745:`#include <stdio.h>
 #include <stdlib.h>
 
@@ -12171,19 +11390,6 @@ int main(void) {
     free(dp);
     return 0;
 }`,
-src262_cses_1671:`#include<stdio.h>
-char g[1005][1005];
-int qr[1000005],qc[1000005],qd[1000005];
-int main(){int N,M;scanf("%d %d",&N,&M);for(int i=0;i<N;i++)scanf("%s",g[i]);
-int sr=0,sc=0,tr=0,tc=0;
-for(int i=0;i<N;i++)for(int j=0;j<M;j++){if(g[i][j]=='A'){sr=i;sc=j;}if(g[i][j]=='B'){tr=i;tc=j;}}
-int h=0,t=0;qr[t]=sr;qc[t]=sc;qd[t++]=0;g[sr][sc]='#';int ans=-1;
-int dr[]={-1,1,0,0},dc[]={0,0,-1,1};
-while(h<t){int r=qr[h],c=qc[h],d=qd[h];h++;
- if(r==tr&&c==tc){ans=d;break;}
- for(int k=0;k<4;k++){int nr=r+dr[k],nc=c+dc[k];
-  if(nr>=0&&nr<N&&nc>=0&&nc<M&&g[nr][nc]!='#'){g[nr][nc]='#';qr[t]=nr;qc[t]=nc;qd[t++]=d+1;}}}
-printf("%d\\n",ans);return 0;}`,
 src264_ac_subsetSumQueries:`#include <stdio.h>
 #include <stdlib.h>
 
@@ -12206,68 +11412,6 @@ int main(void) {
 
     printf("%lld\\n", dp[W]);
     free(dp);
-    return 0;
-}`,
-src265_cf_919D:`#include <stdio.h>
-#include <stdlib.h>
-
-int max_int(int a, int b) {
-    return a > b ? a : b;
-}
-
-int main(void) {
-    int n, m;
-    scanf("%d %d", &n, &m);
-
-    int *head = malloc(sizeof(int) * (n + 1));
-    int *indeg = calloc(n + 1, sizeof(int));
-    int *sem = malloc(sizeof(int) * (n + 1));
-    int *to = malloc(sizeof(int) * m);
-    int *nxt = malloc(sizeof(int) * m);
-    int *queue = malloc(sizeof(int) * (n + 5));
-
-    for (int i = 1; i <= n; i++) {
-        head[i] = -1;
-        sem[i] = 1;
-    }
-
-    for (int i = 0; i < m; i++) {
-        int a, b;
-        scanf("%d %d", &a, &b);
-        to[i] = b;
-        nxt[i] = head[a];
-        head[a] = i;
-        indeg[b]++;
-    }
-
-    int front = 0, back = 0;
-    for (int i = 1; i <= n; i++) {
-        if (indeg[i] == 0) queue[back++] = i;
-    }
-
-    int seen = 0, ans = 1;
-    while (front < back) {
-        int u = queue[front++];
-        seen++;
-        ans = max_int(ans, sem[u]);
-
-        for (int e = head[u]; e != -1; e = nxt[e]) {
-            int v = to[e];
-            sem[v] = max_int(sem[v], sem[u] + 1);
-            indeg[v]--;
-            if (indeg[v] == 0) queue[back++] = v;
-        }
-    }
-
-    if (seen == n) printf("%d\\n", ans);
-    else printf("IMPOSSIBLE\\n");
-
-    free(head);
-    free(indeg);
-    free(sem);
-    free(to);
-    free(nxt);
-    free(queue);
     return 0;
 }`,
 src266_cses_1137:`#include<stdio.h>
@@ -12317,68 +11461,6 @@ for(int i=0;i<N;i++)scanf("%d",&c[i]);int INF=1<<29;int*dp=malloc((X+1)*sizeof(i
 dp[0]=0;for(int i=1;i<=X;i++)dp[i]=INF;
 for(int x=1;x<=X;x++)for(int i=0;i<N;i++)if(c[i]<=x&&dp[x-c[i]]+1<dp[x])dp[x]=dp[x-c[i]]+1;
 printf("%d\\n",dp[X]>=INF?-1:dp[X]);free(c);free(dp);return 0;}`,
-src270_usaco_1017:`#include <stdio.h>
-#include <stdlib.h>
-
-int max_int(int a, int b) {
-    return a > b ? a : b;
-}
-
-int main(void) {
-    int n, m;
-    scanf("%d %d", &n, &m);
-
-    int *head = malloc(sizeof(int) * (n + 1));
-    int *indeg = calloc(n + 1, sizeof(int));
-    int *sem = malloc(sizeof(int) * (n + 1));
-    int *to = malloc(sizeof(int) * m);
-    int *nxt = malloc(sizeof(int) * m);
-    int *queue = malloc(sizeof(int) * (n + 5));
-
-    for (int i = 1; i <= n; i++) {
-        head[i] = -1;
-        sem[i] = 1;
-    }
-
-    for (int i = 0; i < m; i++) {
-        int a, b;
-        scanf("%d %d", &a, &b);
-        to[i] = b;
-        nxt[i] = head[a];
-        head[a] = i;
-        indeg[b]++;
-    }
-
-    int front = 0, back = 0;
-    for (int i = 1; i <= n; i++) {
-        if (indeg[i] == 0) queue[back++] = i;
-    }
-
-    int seen = 0, ans = 1;
-    while (front < back) {
-        int u = queue[front++];
-        seen++;
-        ans = max_int(ans, sem[u]);
-
-        for (int e = head[u]; e != -1; e = nxt[e]) {
-            int v = to[e];
-            sem[v] = max_int(sem[v], sem[u] + 1);
-            indeg[v]--;
-            if (indeg[v] == 0) queue[back++] = v;
-        }
-    }
-
-    if (seen == n) printf("%d\\n", ans);
-    else printf("IMPOSSIBLE\\n");
-
-    free(head);
-    free(indeg);
-    free(sem);
-    free(to);
-    free(nxt);
-    free(queue);
-    return 0;
-}`,
 src271_cses_1073:`#include<stdio.h>
 #include<stdlib.h>
 int main(){int N,X;scanf("%d %d",&N,&X);int*c=malloc(N*sizeof(int));
@@ -12701,30 +11783,6 @@ while(h<t){int r=qr[h],c=qc[h],d=qd[h];h++;
  for(int k=0;k<4;k++){int nr=r+dr[k],nc=c+dc[k];
   if(nr>=0&&nr<N&&nc>=0&&nc<M&&g[nr][nc]!='#'){g[nr][nc]='#';qr[t]=nr;qc[t]=nc;qd[t++]=d+1;}}}
 printf("%d\\n",ans);return 0;}`,
-src295_noi_18_knapsack:`#include <stdio.h>
-#include <stdlib.h>
-
-long long max_ll(long long a, long long b) {
-    return a > b ? a : b;
-}
-
-int main(void) {
-    int n, W;
-    scanf("%d %d", &n, &W);
-
-    long long *dp = calloc(W + 1, sizeof(long long));
-    for (int i = 0; i < n; i++) {
-        int w, v;
-        scanf("%d %d", &w, &v);
-        for (int cap = W; cap >= w; cap--) {
-            dp[cap] = max_ll(dp[cap], dp[cap - w] + v);
-        }
-    }
-
-    printf("%lld\\n", dp[W]);
-    free(dp);
-    return 0;
-}`,
 src296_cf_1582F1:`#include<stdio.h>
 #include<stdlib.h>
 int main(){int N,X;scanf("%d %d",&N,&X);int*c=malloc(N*sizeof(int));
@@ -14425,55 +13483,6 @@ src146_i401:`import java.util.*;
 public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),M=s.nextInt();char[][] g=new char[N][];for(int i=0;i<N;i++)g[i]=s.next().toCharArray();int sr=0,sc=0,tr=0,tc=0;for(int i=0;i<N;i++)for(int j=0;j<M;j++){if(g[i][j]=='A'){sr=i;sc=j;}if(g[i][j]=='B'){tr=i;tc=j;}}ArrayDeque<int[]> q=new ArrayDeque<>();q.add(new int[]{sr,sc,0});g[sr][sc]='#';int ans=-1;int[] dr={-1,1,0,0},dc={0,0,-1,1};while(!q.isEmpty()){int[] p=q.poll();if(p[0]==tr&&p[1]==tc){ans=p[2];break;}for(int k=0;k<4;k++){int nr=p[0]+dr[k],nc=p[1]+dc[k];if(nr>=0&&nr<N&&nc>=0&&nc<M&&g[nr][nc]!='#'){g[nr][nc]='#';q.add(new int[]{nr,nc,p[2]+1});}}}System.out.println(ans);}}`,
 src148_e465:`import java.util.*;
 public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),X=s.nextInt();int[] c=new int[N];for(int i=0;i<N;i++)c[i]=s.nextInt();int INF=1<<29;int[] dp=new int[X+1];Arrays.fill(dp,INF);dp[0]=0;for(int x=1;x<=X;x++)for(int v:c)if(v<=x&&dp[x-v]+1<dp[x])dp[x]=dp[x-v]+1;System.out.println(dp[X]>=INF?-1:dp[X]);}}`,
-src151_j608:`import java.io.*;
-
-public class Main {
-    static class FastScanner {
-        private final InputStream in = System.in;
-        private final byte[] buffer = new byte[1 << 16];
-        private int ptr = 0, len = 0;
-
-        private int read() throws IOException {
-            if (ptr >= len) {
-                len = in.read(buffer);
-                ptr = 0;
-                if (len <= 0) return -1;
-            }
-            return buffer[ptr++];
-        }
-
-        int nextInt() throws IOException {
-            int c, sign = 1, val = 0;
-            do { c = read(); } while (c <= ' ' && c != -1);
-            if (c == '-') {
-                sign = -1;
-                c = read();
-            }
-            while (c > ' ') {
-                val = val * 10 + (c - '0');
-                c = read();
-            }
-            return val * sign;
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        FastScanner fs = new FastScanner();
-        int n = fs.nextInt();
-        int W = fs.nextInt();
-        long[] dp = new long[W + 1];
-
-        for (int i = 0; i < n; i++) {
-            int w = fs.nextInt();
-            int v = fs.nextInt();
-            for (int cap = W; cap >= w; cap--) {
-                dp[cap] = Math.max(dp[cap], dp[cap - w] + v);
-            }
-        }
-
-        System.out.println(dp[W]);
-    }
-}`,
 src152_201710P2:`import java.io.*;
 
 public class Main {
@@ -14933,57 +13942,6 @@ public class Main {
         System.out.print(sb);
     }
 }`,
-src167_202001P2:`import java.io.*;
-
-public class Main {
-    static class FastScanner {
-        private final InputStream in = System.in;
-        private final byte[] buffer = new byte[1 << 16];
-        private int ptr = 0, len = 0;
-
-        private int read() throws IOException {
-            if (ptr >= len) {
-                len = in.read(buffer);
-                ptr = 0;
-                if (len <= 0) return -1;
-            }
-            return buffer[ptr++];
-        }
-
-        int nextInt() throws IOException {
-            int c, sign = 1, val = 0;
-            do { c = read(); } while (c <= ' ' && c != -1);
-            if (c == '-') {
-                sign = -1;
-                c = read();
-            }
-            while (c > ' ') {
-                val = val * 10 + (c - '0');
-                c = read();
-            }
-            return val * sign;
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        FastScanner fs = new FastScanner();
-        int n = fs.nextInt();
-        int q = fs.nextInt();
-        long[] ps = new long[n + 1];
-
-        for (int i = 1; i <= n; i++) {
-            ps[i] = ps[i - 1] + fs.nextInt();
-        }
-
-        StringBuilder sb = new StringBuilder();
-        while (q-- > 0) {
-            int l = fs.nextInt();
-            int r = fs.nextInt();
-            sb.append(ps[r] - ps[l - 1]).append('\\n');
-        }
-        System.out.print(sb);
-    }
-}`,
 src168_201603P2:`import java.io.*;
 
 public class Main {
@@ -15273,104 +14231,6 @@ src201_202401P3:`import java.util.*;
 public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),M=s.nextInt();char[][] g=new char[N][];for(int i=0;i<N;i++)g[i]=s.next().toCharArray();int ans=0;int[] dr={-1,1,0,0},dc={0,0,-1,1};ArrayDeque<int[]> q=new ArrayDeque<>();for(int i=0;i<N;i++)for(int j=0;j<M;j++)if(g[i][j]=='.'){ans++;g[i][j]='#';q.add(new int[]{i,j});while(!q.isEmpty()){int[] p=q.poll();for(int k=0;k<4;k++){int nr=p[0]+dr[k],nc=p[1]+dc[k];if(nr>=0&&nr<N&&nc>=0&&nc<M&&g[nr][nc]=='.'){g[nr][nc]='#';q.add(new int[]{nr,nc});}}}}System.out.println(ans);}}`,
 src203_202206P3:`import java.util.*;
 public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),M=s.nextInt();char[][] g=new char[N][];for(int i=0;i<N;i++)g[i]=s.next().toCharArray();int ans=0;int[] dr={-1,1,0,0},dc={0,0,-1,1};ArrayDeque<int[]> q=new ArrayDeque<>();for(int i=0;i<N;i++)for(int j=0;j<M;j++)if(g[i][j]=='.'){ans++;g[i][j]='#';q.add(new int[]{i,j});while(!q.isEmpty()){int[] p=q.poll();for(int k=0;k<4;k++){int nr=p[0]+dr[k],nc=p[1]+dc[k];if(nr>=0&&nr<N&&nc>=0&&nc<M&&g[nr][nc]=='.'){g[nr][nc]='#';q.add(new int[]{nr,nc});}}}}System.out.println(ans);}}`,
-src207_202501P4:`import java.io.*;
-
-public class Main {
-    static class FastScanner {
-        private final InputStream in = System.in;
-        private final byte[] buffer = new byte[1 << 16];
-        private int ptr = 0, len = 0;
-
-        private int read() throws IOException {
-            if (ptr >= len) {
-                len = in.read(buffer);
-                ptr = 0;
-                if (len <= 0) return -1;
-            }
-            return buffer[ptr++];
-        }
-
-        int nextInt() throws IOException {
-            int c, sign = 1, val = 0;
-            do { c = read(); } while (c <= ' ' && c != -1);
-            if (c == '-') {
-                sign = -1;
-                c = read();
-            }
-            while (c > ' ') {
-                val = val * 10 + (c - '0');
-                c = read();
-            }
-            return val * sign;
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        FastScanner fs = new FastScanner();
-        int n = fs.nextInt();
-        int W = fs.nextInt();
-        long[] dp = new long[W + 1];
-
-        for (int i = 0; i < n; i++) {
-            int w = fs.nextInt();
-            int v = fs.nextInt();
-            for (int cap = W; cap >= w; cap--) {
-                dp[cap] = Math.max(dp[cap], dp[cap - w] + v);
-            }
-        }
-
-        System.out.println(dp[W]);
-    }
-}`,
-src208_201910P4:`import java.io.*;
-
-public class Main {
-    static class FastScanner {
-        private final InputStream in = System.in;
-        private final byte[] buffer = new byte[1 << 16];
-        private int ptr = 0, len = 0;
-
-        private int read() throws IOException {
-            if (ptr >= len) {
-                len = in.read(buffer);
-                ptr = 0;
-                if (len <= 0) return -1;
-            }
-            return buffer[ptr++];
-        }
-
-        int nextInt() throws IOException {
-            int c, sign = 1, val = 0;
-            do { c = read(); } while (c <= ' ' && c != -1);
-            if (c == '-') {
-                sign = -1;
-                c = read();
-            }
-            while (c > ' ') {
-                val = val * 10 + (c - '0');
-                c = read();
-            }
-            return val * sign;
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        FastScanner fs = new FastScanner();
-        int n = fs.nextInt();
-        int W = fs.nextInt();
-        long[] dp = new long[W + 1];
-
-        for (int i = 0; i < n; i++) {
-            int w = fs.nextInt();
-            int v = fs.nextInt();
-            for (int cap = W; cap >= w; cap--) {
-                dp[cap] = Math.max(dp[cap], dp[cap - w] + v);
-            }
-        }
-
-        System.out.println(dp[W]);
-    }
-}`,
 src212_201902P4:`import java.io.*;
 
 public class Main {
@@ -15665,252 +14525,7 @@ public class Main {
         System.out.println(dp[W]);
     }
 }`,
-src219_202007P4:`import java.io.*;
-
-public class Main {
-    static class FastScanner {
-        private final InputStream in = System.in;
-        private final byte[] buffer = new byte[1 << 16];
-        private int ptr = 0, len = 0;
-
-        private int read() throws IOException {
-            if (ptr >= len) {
-                len = in.read(buffer);
-                ptr = 0;
-                if (len <= 0) return -1;
-            }
-            return buffer[ptr++];
-        }
-
-        int nextInt() throws IOException {
-            int c, sign = 1, val = 0;
-            do { c = read(); } while (c <= ' ' && c != -1);
-            if (c == '-') {
-                sign = -1;
-                c = read();
-            }
-            while (c > ' ') {
-                val = val * 10 + (c - '0');
-                c = read();
-            }
-            return val * sign;
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        FastScanner fs = new FastScanner();
-        int n = fs.nextInt();
-        int W = fs.nextInt();
-        long[] dp = new long[W + 1];
-
-        for (int i = 0; i < n; i++) {
-            int w = fs.nextInt();
-            int v = fs.nextInt();
-            for (int cap = W; cap >= w; cap--) {
-                dp[cap] = Math.max(dp[cap], dp[cap - w] + v);
-            }
-        }
-
-        System.out.println(dp[W]);
-    }
-}`,
-src220_202111P4:`import java.io.*;
-
-public class Main {
-    static class FastScanner {
-        private final InputStream in = System.in;
-        private final byte[] buffer = new byte[1 << 16];
-        private int ptr = 0, len = 0;
-
-        private int read() throws IOException {
-            if (ptr >= len) {
-                len = in.read(buffer);
-                ptr = 0;
-                if (len <= 0) return -1;
-            }
-            return buffer[ptr++];
-        }
-
-        int nextInt() throws IOException {
-            int c, sign = 1, val = 0;
-            do { c = read(); } while (c <= ' ' && c != -1);
-            if (c == '-') {
-                sign = -1;
-                c = read();
-            }
-            while (c > ' ') {
-                val = val * 10 + (c - '0');
-                c = read();
-            }
-            return val * sign;
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        FastScanner fs = new FastScanner();
-        int n = fs.nextInt();
-        int W = fs.nextInt();
-        long[] dp = new long[W + 1];
-
-        for (int i = 0; i < n; i++) {
-            int w = fs.nextInt();
-            int v = fs.nextInt();
-            for (int cap = W; cap >= w; cap--) {
-                dp[cap] = Math.max(dp[cap], dp[cap - w] + v);
-            }
-        }
-
-        System.out.println(dp[W]);
-    }
-}`,
-src221_201810P4:`import java.io.*;
-
-public class Main {
-    static class FastScanner {
-        private final InputStream in = System.in;
-        private final byte[] buffer = new byte[1 << 16];
-        private int ptr = 0, len = 0;
-
-        private int read() throws IOException {
-            if (ptr >= len) {
-                len = in.read(buffer);
-                ptr = 0;
-                if (len <= 0) return -1;
-            }
-            return buffer[ptr++];
-        }
-
-        int nextInt() throws IOException {
-            int c, sign = 1, val = 0;
-            do { c = read(); } while (c <= ' ' && c != -1);
-            if (c == '-') {
-                sign = -1;
-                c = read();
-            }
-            while (c > ' ') {
-                val = val * 10 + (c - '0');
-                c = read();
-            }
-            return val * sign;
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        FastScanner fs = new FastScanner();
-        int n = fs.nextInt();
-        int W = fs.nextInt();
-        long[] dp = new long[W + 1];
-
-        for (int i = 0; i < n; i++) {
-            int w = fs.nextInt();
-            int v = fs.nextInt();
-            for (int cap = W; cap >= w; cap--) {
-                dp[cap] = Math.max(dp[cap], dp[cap - w] + v);
-            }
-        }
-
-        System.out.println(dp[W]);
-    }
-}`,
-src222_202109P4:`import java.io.*;
-
-public class Main {
-    static class FastScanner {
-        private final InputStream in = System.in;
-        private final byte[] buffer = new byte[1 << 16];
-        private int ptr = 0, len = 0;
-
-        private int read() throws IOException {
-            if (ptr >= len) {
-                len = in.read(buffer);
-                ptr = 0;
-                if (len <= 0) return -1;
-            }
-            return buffer[ptr++];
-        }
-
-        int nextInt() throws IOException {
-            int c, sign = 1, val = 0;
-            do { c = read(); } while (c <= ' ' && c != -1);
-            if (c == '-') {
-                sign = -1;
-                c = read();
-            }
-            while (c > ' ') {
-                val = val * 10 + (c - '0');
-                c = read();
-            }
-            return val * sign;
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        FastScanner fs = new FastScanner();
-        int n = fs.nextInt();
-        int W = fs.nextInt();
-        long[] dp = new long[W + 1];
-
-        for (int i = 0; i < n; i++) {
-            int w = fs.nextInt();
-            int v = fs.nextInt();
-            for (int cap = W; cap >= w; cap--) {
-                dp[cap] = Math.max(dp[cap], dp[cap - w] + v);
-            }
-        }
-
-        System.out.println(dp[W]);
-    }
-}`,
 src224_202210P4:`import java.io.*;
-
-public class Main {
-    static class FastScanner {
-        private final InputStream in = System.in;
-        private final byte[] buffer = new byte[1 << 16];
-        private int ptr = 0, len = 0;
-
-        private int read() throws IOException {
-            if (ptr >= len) {
-                len = in.read(buffer);
-                ptr = 0;
-                if (len <= 0) return -1;
-            }
-            return buffer[ptr++];
-        }
-
-        int nextInt() throws IOException {
-            int c, sign = 1, val = 0;
-            do { c = read(); } while (c <= ' ' && c != -1);
-            if (c == '-') {
-                sign = -1;
-                c = read();
-            }
-            while (c > ' ') {
-                val = val * 10 + (c - '0');
-                c = read();
-            }
-            return val * sign;
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        FastScanner fs = new FastScanner();
-        int n = fs.nextInt();
-        int W = fs.nextInt();
-        long[] dp = new long[W + 1];
-
-        for (int i = 0; i < n; i++) {
-            int w = fs.nextInt();
-            int v = fs.nextInt();
-            for (int cap = W; cap >= w; cap--) {
-                dp[cap] = Math.max(dp[cap], dp[cap - w] + v);
-            }
-        }
-
-        System.out.println(dp[W]);
-    }
-}`,
-src225_201603P4:`import java.io.*;
 
 public class Main {
     static class FastScanner {
@@ -16186,55 +14801,6 @@ public class Main {
     }
 }`,
 src233_cses_1635:`import java.io.*;
-
-public class Main {
-    static class FastScanner {
-        private final InputStream in = System.in;
-        private final byte[] buffer = new byte[1 << 16];
-        private int ptr = 0, len = 0;
-
-        private int read() throws IOException {
-            if (ptr >= len) {
-                len = in.read(buffer);
-                ptr = 0;
-                if (len <= 0) return -1;
-            }
-            return buffer[ptr++];
-        }
-
-        int nextInt() throws IOException {
-            int c, sign = 1, val = 0;
-            do { c = read(); } while (c <= ' ' && c != -1);
-            if (c == '-') {
-                sign = -1;
-                c = read();
-            }
-            while (c > ' ') {
-                val = val * 10 + (c - '0');
-                c = read();
-            }
-            return val * sign;
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        FastScanner fs = new FastScanner();
-        int n = fs.nextInt();
-        int W = fs.nextInt();
-        long[] dp = new long[W + 1];
-
-        for (int i = 0; i < n; i++) {
-            int w = fs.nextInt();
-            int v = fs.nextInt();
-            for (int cap = W; cap >= w; cap--) {
-                dp[cap] = Math.max(dp[cap], dp[cap - w] + v);
-            }
-        }
-
-        System.out.println(dp[W]);
-    }
-}`,
-src235_cses_1688:`import java.io.*;
 
 public class Main {
     static class FastScanner {
@@ -16576,197 +15142,6 @@ src242_usaco_623:`import java.util.*;
 public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),M=s.nextInt();int[] p=new int[N+1];for(int i=0;i<=N;i++)p[i]=i;while(M-->0){int u=s.nextInt(),v=s.nextInt();int ru=u;while(p[ru]!=ru){p[ru]=p[p[ru]];ru=p[ru];}int rv=v;while(p[rv]!=rv){p[rv]=p[p[rv]];rv=p[rv];}if(ru!=rv)p[ru]=rv;}ArrayList<Integer> r=new ArrayList<>();for(int i=1;i<=N;i++){int x=i;while(p[x]!=x)x=p[x];if(x==i)r.add(i);}StringBuilder b=new StringBuilder();b.append(r.size()-1).append('\\n');for(int i=1;i<r.size();i++)b.append(r.get(0)).append(' ').append(r.get(i)).append('\\n');System.out.print(b);}}`,
 src243_usaco_861:`import java.util.*;
 public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),M=s.nextInt();char[][] g=new char[N][];for(int i=0;i<N;i++)g[i]=s.next().toCharArray();int sr=0,sc=0,tr=0,tc=0;for(int i=0;i<N;i++)for(int j=0;j<M;j++){if(g[i][j]=='A'){sr=i;sc=j;}if(g[i][j]=='B'){tr=i;tc=j;}}ArrayDeque<int[]> q=new ArrayDeque<>();q.add(new int[]{sr,sc,0});g[sr][sc]='#';int ans=-1;int[] dr={-1,1,0,0},dc={0,0,-1,1};while(!q.isEmpty()){int[] p=q.poll();if(p[0]==tr&&p[1]==tc){ans=p[2];break;}for(int k=0;k<4;k++){int nr=p[0]+dr[k],nc=p[1]+dc[k];if(nr>=0&&nr<N&&nc>=0&&nc<M&&g[nr][nc]!='#'){g[nr][nc]='#';q.add(new int[]{nr,nc,p[2]+1});}}}System.out.println(ans);}}`,
-src247_cses_1681:`import java.io.*;
-import java.util.*;
-
-public class Main {
-    static class FastScanner {
-        private final InputStream in = System.in;
-        private final byte[] buffer = new byte[1 << 16];
-        private int ptr = 0, len = 0;
-
-        private int read() throws IOException {
-            if (ptr >= len) {
-                len = in.read(buffer);
-                ptr = 0;
-                if (len <= 0) return -1;
-            }
-            return buffer[ptr++];
-        }
-
-        int nextInt() throws IOException {
-            int c, sign = 1, val = 0;
-            do { c = read(); } while (c <= ' ' && c != -1);
-            if (c == '-') {
-                sign = -1;
-                c = read();
-            }
-            while (c > ' ') {
-                val = val * 10 + (c - '0');
-                c = read();
-            }
-            return val * sign;
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        FastScanner fs = new FastScanner();
-        int n = fs.nextInt();
-        int m = fs.nextInt();
-        ArrayList<Integer>[] g = new ArrayList[n + 1];
-        for (int i = 1; i <= n; i++) g[i] = new ArrayList<>();
-        int[] indeg = new int[n + 1];
-        int[] sem = new int[n + 1];
-        Arrays.fill(sem, 1);
-
-        for (int i = 0; i < m; i++) {
-            int a = fs.nextInt();
-            int b = fs.nextInt();
-            g[a].add(b);
-            indeg[b]++;
-        }
-
-        ArrayDeque<Integer> q = new ArrayDeque<>();
-        for (int i = 1; i <= n; i++) {
-            if (indeg[i] == 0) q.add(i);
-        }
-
-        int seen = 0, ans = 1;
-        while (!q.isEmpty()) {
-            int u = q.poll();
-            seen++;
-            ans = Math.max(ans, sem[u]);
-
-            for (int v : g[u]) {
-                sem[v] = Math.max(sem[v], sem[u] + 1);
-                indeg[v]--;
-                if (indeg[v] == 0) q.add(v);
-            }
-        }
-
-        System.out.println(seen == n ? ans : "IMPOSSIBLE");
-    }
-}`,
-src250_cses_1145:`import java.io.*;
-
-public class Main {
-    static class FastScanner {
-        private final InputStream in = System.in;
-        private final byte[] buffer = new byte[1 << 16];
-        private int ptr = 0, len = 0;
-
-        private int read() throws IOException {
-            if (ptr >= len) {
-                len = in.read(buffer);
-                ptr = 0;
-                if (len <= 0) return -1;
-            }
-            return buffer[ptr++];
-        }
-
-        int nextInt() throws IOException {
-            int c, sign = 1, val = 0;
-            do { c = read(); } while (c <= ' ' && c != -1);
-            if (c == '-') {
-                sign = -1;
-                c = read();
-            }
-            while (c > ' ') {
-                val = val * 10 + (c - '0');
-                c = read();
-            }
-            return val * sign;
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        FastScanner fs = new FastScanner();
-        int n = fs.nextInt();
-        int W = fs.nextInt();
-        long[] dp = new long[W + 1];
-
-        for (int i = 0; i < n; i++) {
-            int w = fs.nextInt();
-            int v = fs.nextInt();
-            for (int cap = W; cap >= w; cap--) {
-                dp[cap] = Math.max(dp[cap], dp[cap - w] + v);
-            }
-        }
-
-        System.out.println(dp[W]);
-    }
-}`,
-src251_cses_1680:`import java.io.*;
-import java.util.*;
-
-public class Main {
-    static class FastScanner {
-        private final InputStream in = System.in;
-        private final byte[] buffer = new byte[1 << 16];
-        private int ptr = 0, len = 0;
-
-        private int read() throws IOException {
-            if (ptr >= len) {
-                len = in.read(buffer);
-                ptr = 0;
-                if (len <= 0) return -1;
-            }
-            return buffer[ptr++];
-        }
-
-        int nextInt() throws IOException {
-            int c, sign = 1, val = 0;
-            do { c = read(); } while (c <= ' ' && c != -1);
-            if (c == '-') {
-                sign = -1;
-                c = read();
-            }
-            while (c > ' ') {
-                val = val * 10 + (c - '0');
-                c = read();
-            }
-            return val * sign;
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        FastScanner fs = new FastScanner();
-        int n = fs.nextInt();
-        int m = fs.nextInt();
-        ArrayList<Integer>[] g = new ArrayList[n + 1];
-        for (int i = 1; i <= n; i++) g[i] = new ArrayList<>();
-        int[] indeg = new int[n + 1];
-        int[] sem = new int[n + 1];
-        Arrays.fill(sem, 1);
-
-        for (int i = 0; i < m; i++) {
-            int a = fs.nextInt();
-            int b = fs.nextInt();
-            g[a].add(b);
-            indeg[b]++;
-        }
-
-        ArrayDeque<Integer> q = new ArrayDeque<>();
-        for (int i = 1; i <= n; i++) {
-            if (indeg[i] == 0) q.add(i);
-        }
-
-        int seen = 0, ans = 1;
-        while (!q.isEmpty()) {
-            int u = q.poll();
-            seen++;
-            ans = Math.max(ans, sem[u]);
-
-            for (int v : g[u]) {
-                sem[v] = Math.max(sem[v], sem[u] + 1);
-                indeg[v]--;
-                if (indeg[v] == 0) q.add(v);
-            }
-        }
-
-        System.out.println(seen == n ? ans : "IMPOSSIBLE");
-    }
-}`,
 src254_cses_1745:`import java.io.*;
 
 public class Main {
@@ -17098,8 +15473,6 @@ public class Main {
         System.out.println(dp[W]);
     }
 }`,
-src262_cses_1671:`import java.util.*;
-public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),M=s.nextInt();char[][] g=new char[N][];for(int i=0;i<N;i++)g[i]=s.next().toCharArray();int sr=0,sc=0,tr=0,tc=0;for(int i=0;i<N;i++)for(int j=0;j<M;j++){if(g[i][j]=='A'){sr=i;sc=j;}if(g[i][j]=='B'){tr=i;tc=j;}}ArrayDeque<int[]> q=new ArrayDeque<>();q.add(new int[]{sr,sc,0});g[sr][sc]='#';int ans=-1;int[] dr={-1,1,0,0},dc={0,0,-1,1};while(!q.isEmpty()){int[] p=q.poll();if(p[0]==tr&&p[1]==tc){ans=p[2];break;}for(int k=0;k<4;k++){int nr=p[0]+dr[k],nc=p[1]+dc[k];if(nr>=0&&nr<N&&nc>=0&&nc<M&&g[nr][nc]!='#'){g[nr][nc]='#';q.add(new int[]{nr,nc,p[2]+1});}}}System.out.println(ans);}}`,
 src264_ac_subsetSumQueries:`import java.io.*;
 
 public class Main {
@@ -17147,77 +15520,6 @@ public class Main {
         }
 
         System.out.println(dp[W]);
-    }
-}`,
-src265_cf_919D:`import java.io.*;
-import java.util.*;
-
-public class Main {
-    static class FastScanner {
-        private final InputStream in = System.in;
-        private final byte[] buffer = new byte[1 << 16];
-        private int ptr = 0, len = 0;
-
-        private int read() throws IOException {
-            if (ptr >= len) {
-                len = in.read(buffer);
-                ptr = 0;
-                if (len <= 0) return -1;
-            }
-            return buffer[ptr++];
-        }
-
-        int nextInt() throws IOException {
-            int c, sign = 1, val = 0;
-            do { c = read(); } while (c <= ' ' && c != -1);
-            if (c == '-') {
-                sign = -1;
-                c = read();
-            }
-            while (c > ' ') {
-                val = val * 10 + (c - '0');
-                c = read();
-            }
-            return val * sign;
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        FastScanner fs = new FastScanner();
-        int n = fs.nextInt();
-        int m = fs.nextInt();
-        ArrayList<Integer>[] g = new ArrayList[n + 1];
-        for (int i = 1; i <= n; i++) g[i] = new ArrayList<>();
-        int[] indeg = new int[n + 1];
-        int[] sem = new int[n + 1];
-        Arrays.fill(sem, 1);
-
-        for (int i = 0; i < m; i++) {
-            int a = fs.nextInt();
-            int b = fs.nextInt();
-            g[a].add(b);
-            indeg[b]++;
-        }
-
-        ArrayDeque<Integer> q = new ArrayDeque<>();
-        for (int i = 1; i <= n; i++) {
-            if (indeg[i] == 0) q.add(i);
-        }
-
-        int seen = 0, ans = 1;
-        while (!q.isEmpty()) {
-            int u = q.poll();
-            seen++;
-            ans = Math.max(ans, sem[u]);
-
-            for (int v : g[u]) {
-                sem[v] = Math.max(sem[v], sem[u] + 1);
-                indeg[v]--;
-                if (indeg[v] == 0) q.add(v);
-            }
-        }
-
-        System.out.println(seen == n ? ans : "IMPOSSIBLE");
     }
 }`,
 src266_cses_1137:`import java.util.*;
@@ -17275,77 +15577,6 @@ public class Main {
 }`,
 src269_usaco_993:`import java.util.*;
 public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),X=s.nextInt();int[] c=new int[N];for(int i=0;i<N;i++)c[i]=s.nextInt();int INF=1<<29;int[] dp=new int[X+1];Arrays.fill(dp,INF);dp[0]=0;for(int x=1;x<=X;x++)for(int v:c)if(v<=x&&dp[x-v]+1<dp[x])dp[x]=dp[x-v]+1;System.out.println(dp[X]>=INF?-1:dp[X]);}}`,
-src270_usaco_1017:`import java.io.*;
-import java.util.*;
-
-public class Main {
-    static class FastScanner {
-        private final InputStream in = System.in;
-        private final byte[] buffer = new byte[1 << 16];
-        private int ptr = 0, len = 0;
-
-        private int read() throws IOException {
-            if (ptr >= len) {
-                len = in.read(buffer);
-                ptr = 0;
-                if (len <= 0) return -1;
-            }
-            return buffer[ptr++];
-        }
-
-        int nextInt() throws IOException {
-            int c, sign = 1, val = 0;
-            do { c = read(); } while (c <= ' ' && c != -1);
-            if (c == '-') {
-                sign = -1;
-                c = read();
-            }
-            while (c > ' ') {
-                val = val * 10 + (c - '0');
-                c = read();
-            }
-            return val * sign;
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        FastScanner fs = new FastScanner();
-        int n = fs.nextInt();
-        int m = fs.nextInt();
-        ArrayList<Integer>[] g = new ArrayList[n + 1];
-        for (int i = 1; i <= n; i++) g[i] = new ArrayList<>();
-        int[] indeg = new int[n + 1];
-        int[] sem = new int[n + 1];
-        Arrays.fill(sem, 1);
-
-        for (int i = 0; i < m; i++) {
-            int a = fs.nextInt();
-            int b = fs.nextInt();
-            g[a].add(b);
-            indeg[b]++;
-        }
-
-        ArrayDeque<Integer> q = new ArrayDeque<>();
-        for (int i = 1; i <= n; i++) {
-            if (indeg[i] == 0) q.add(i);
-        }
-
-        int seen = 0, ans = 1;
-        while (!q.isEmpty()) {
-            int u = q.poll();
-            seen++;
-            ans = Math.max(ans, sem[u]);
-
-            for (int v : g[u]) {
-                sem[v] = Math.max(sem[v], sem[u] + 1);
-                indeg[v]--;
-                if (indeg[v] == 0) q.add(v);
-            }
-        }
-
-        System.out.println(seen == n ? ans : "IMPOSSIBLE");
-    }
-}`,
 src271_cses_1073:`import java.util.*;
 public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),X=s.nextInt();int[] c=new int[N];for(int i=0;i<N;i++)c[i]=s.nextInt();int INF=1<<29;int[] dp=new int[X+1];Arrays.fill(dp,INF);dp[0]=0;for(int x=1;x<=X;x++)for(int v:c)if(v<=x&&dp[x-v]+1<dp[x])dp[x]=dp[x-v]+1;System.out.println(dp[X]>=INF?-1:dp[X]);}}`,
 src272_usaco_245:`import java.io.*;
@@ -17776,55 +16007,6 @@ public class Main {
 }`,
 src291_cses_1196:`import java.util.*;
 public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),M=s.nextInt();char[][] g=new char[N][];for(int i=0;i<N;i++)g[i]=s.next().toCharArray();int sr=0,sc=0,tr=0,tc=0;for(int i=0;i<N;i++)for(int j=0;j<M;j++){if(g[i][j]=='A'){sr=i;sc=j;}if(g[i][j]=='B'){tr=i;tc=j;}}ArrayDeque<int[]> q=new ArrayDeque<>();q.add(new int[]{sr,sc,0});g[sr][sc]='#';int ans=-1;int[] dr={-1,1,0,0},dc={0,0,-1,1};while(!q.isEmpty()){int[] p=q.poll();if(p[0]==tr&&p[1]==tc){ans=p[2];break;}for(int k=0;k<4;k++){int nr=p[0]+dr[k],nc=p[1]+dc[k];if(nr>=0&&nr<N&&nc>=0&&nc<M&&g[nr][nc]!='#'){g[nr][nc]='#';q.add(new int[]{nr,nc,p[2]+1});}}}System.out.println(ans);}}`,
-src295_noi_18_knapsack:`import java.io.*;
-
-public class Main {
-    static class FastScanner {
-        private final InputStream in = System.in;
-        private final byte[] buffer = new byte[1 << 16];
-        private int ptr = 0, len = 0;
-
-        private int read() throws IOException {
-            if (ptr >= len) {
-                len = in.read(buffer);
-                ptr = 0;
-                if (len <= 0) return -1;
-            }
-            return buffer[ptr++];
-        }
-
-        int nextInt() throws IOException {
-            int c, sign = 1, val = 0;
-            do { c = read(); } while (c <= ' ' && c != -1);
-            if (c == '-') {
-                sign = -1;
-                c = read();
-            }
-            while (c > ' ') {
-                val = val * 10 + (c - '0');
-                c = read();
-            }
-            return val * sign;
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        FastScanner fs = new FastScanner();
-        int n = fs.nextInt();
-        int W = fs.nextInt();
-        long[] dp = new long[W + 1];
-
-        for (int i = 0; i < n; i++) {
-            int w = fs.nextInt();
-            int v = fs.nextInt();
-            for (int cap = W; cap >= w; cap--) {
-                dp[cap] = Math.max(dp[cap], dp[cap - w] + v);
-            }
-        }
-
-        System.out.println(dp[W]);
-    }
-}`,
 src296_cf_1582F1:`import java.util.*;
 public class Main{public static void main(String[] a){Scanner s=new Scanner(System.in);int N=s.nextInt(),X=s.nextInt();int[] c=new int[N];for(int i=0;i<N;i++)c[i]=s.nextInt();int INF=1<<29;int[] dp=new int[X+1];Arrays.fill(dp,INF);dp[0]=0;for(int x=1;x<=X;x++)for(int v:c)if(v<=x&&dp[x-v]+1<dp[x])dp[x]=dp[x-v]+1;System.out.println(dp[X]>=INF?-1:dp[X]);}}`,
 src299_usaco_970:`import java.io.*;
