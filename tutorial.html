@@ -271,10 +271,10 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 
 <!-- 教材資料（拆檔以利快取與協作；順序不拘，僅需先於主程式）。
      英文版兩檔共 443KB，改為切換到 EN 時才動態載入（見 ensureEnData） -->
-<script src="data/tutorial-chapters-zh.js?v=20260611"></script>
-<script src="data/tutorial-chapter-meta.js?v=20260611"></script>
-<script src="data/tutorial-lang-content-zh.js?v=20260611"></script>
-<script src="data/tutorial-multi-examples.js?v=20260611"></script>
+<script src="data/tutorial-chapters-zh.js?v=20260612"></script>
+<script src="data/tutorial-chapter-meta.js?v=20260612"></script>
+<script src="data/tutorial-lang-content-zh.js?v=20260612"></script>
+<script src="data/tutorial-multi-examples.js?v=20260612"></script>
 <script>
 // CHAPTERS 已抽出至 data/tutorial-chapters-zh.js
 
@@ -285,7 +285,7 @@ let _enDataLoading = null;
 function ensureEnData(){
   if (CHAPTERS_EN_MAP) return Promise.resolve();
   if (_enDataLoading) return _enDataLoading;
-  _enDataLoading = Promise.all(['data/tutorial-chapters-en.js?v=20260611', 'data/tutorial-lang-content-en.js?v=20260611'].map(src =>
+  _enDataLoading = Promise.all(['data/tutorial-chapters-en.js?v=20260612', 'data/tutorial-lang-content-en.js?v=20260612'].map(src =>
     new Promise((res, rej) => {
       const s = document.createElement('script');
       s.src = src;
@@ -406,6 +406,7 @@ const UI_STR = {
     running:'執行中...', noOutput:'(無輸出)', errPrefix:'錯誤：\n',
     pyTimeout:'⏱ 執行逾時：程式跑太久（可能無限迴圈）。Python 環境已自動重置，請修正後再執行',
     metaLearn:'🎯 這章你會學到', metaTry:'✋ 動手試試（改右邊程式碼）',
+    metaMcq:'🧠 觀念小測驗（點選答案，立即看解析）', mcqRight:'✅ 答對了！', mcqWrong:'❌ 不對喔。',
     metaQuiz:'📝 程式練習（在右邊編輯器寫程式碼，按下方按鈕檢查）',
     cqStdin:'標準輸入', cqExpect:'預期輸出', cqNone:'（無輸入）',
     cqCheck:'▶ 執行並檢查答案', cqRunning:'執行中...',
@@ -432,6 +433,7 @@ const UI_STR = {
     running:'Running...', noOutput:'(no output)', errPrefix:'Error:\n',
     pyTimeout:'⏱ Timeout: your program ran too long (possibly an infinite loop). The Python runtime was reset — fix the code and run again',
     metaLearn:'🎯 What you will learn', metaTry:'✋ Try it (edit the code on the right)',
+    metaMcq:'🧠 Concept quiz (click an answer for instant feedback)', mcqRight:'✅ Correct!', mcqWrong:'❌ Not quite.',
     metaQuiz:'📝 Coding exercise (write code in the editor, then press the button below)',
     cqStdin:'Stdin', cqExpect:'Expected output', cqNone:'(no input)',
     cqCheck:'▶ Run & check answer', cqRunning:'Running...',
@@ -556,6 +558,9 @@ const CHAP_LANG_VISIBILITY = (() => {
   for(let i = 71; i <= 78; i++) m.set(i, new Set(['cpp']));
   for(let i = 79; i <= 86; i++) m.set(i, new Set(['c']));
   for(let i = 87; i <= 94; i++) m.set(i, new Set(['java']));
+  m.set(95, new Set(['py']));   // 物件模型（Python 專屬）
+  m.set(96, new Set(['py']));   // 函式參數進階（Python 專屬）
+  // 97 讀官方文件：所有語言可見
   return m;
 })();
 function isChapAvailable(id, lang){
@@ -766,6 +771,11 @@ function updateStaticCounts(){
 
 // ── 小測驗渲染與互動 ──────────────────────────────────────────────────────
 let codeQuizState = {}; // {chapId: {status:'pass'|'fail', got:string}}
+let mcqState = {}; // {chapId: {qIdx: pickedOptIdx}}
+function answerMcq(chapId, qi, oi){
+  (mcqState[chapId] = mcqState[chapId] || {})[qi] = oi;
+  if(currentChap && currentChap.id === chapId) selectChap(chapId, {preserveEditor:true});
+}
 function renderMeta(chap){
   const meta = CHAPTER_META[chap.id];
   if(!meta) return '';
@@ -776,6 +786,27 @@ function renderMeta(chap){
   }
   if(meta.try?.length){
     html += `<div class="try-box"><div class="lh">${t.metaTry}</div><ol>${meta.try.map(x=>`<li>${x}</li>`).join('')}</ol></div>`;
+  }
+  if(meta.quiz?.length){
+    const mst = mcqState[chap.id] || {};
+    html += `<div class="quiz-box"><div class="lh">${t.metaMcq}</div>`;
+    meta.quiz.forEach((qz, qi) => {
+      html += `<div class="quiz-q">Q${qi+1}. ${qz.q}</div>`;
+      const picked = mst[qi];
+      qz.opts.forEach((op, oi) => {
+        let cls = 'quiz-opt', click = ` onclick="answerMcq(${chap.id},${qi},${oi})"`;
+        if(picked !== undefined){
+          cls += ' locked'; click = '';
+          if(oi === qz.ans) cls += ' correct';
+          else if(oi === picked) cls += ' wrong';
+        }
+        html += `<button class="${cls}"${click}>${op}</button>`;
+      });
+      if(picked !== undefined){
+        html += `<div class="quiz-explain">${picked === qz.ans ? t.mcqRight : t.mcqWrong} ${qz.why || ''}</div>`;
+      }
+    });
+    html += `</div>`;
   }
   if(meta.code){
     const st = codeQuizState[chap.id];
@@ -864,7 +895,8 @@ function chapSection(id){
   if(id <= 70) return {key:'advanced-practice', label:'🔥 高級題訓練', desc:'快速冪、模運算、分治與逆序對'};
   if(id <= 78) return {key:'topic-cpp',  label:'⚡ 專項教學 · C++', desc:'STL / RAII / move / lambda / 演算法庫 / Concurrency'};
   if(id <= 86) return {key:'topic-c',    label:'🔧 專項教學 · C',   desc:'指標 / malloc / struct / 函式指標 / 字串 / 巨集 / 系統呼叫'};
-  return         {key:'topic-java', label:'☕ 專項教學 · Java', desc:'Collections / Generics / Stream / Optional / Threads / JVM'};
+  if(id <= 94) return {key:'topic-java', label:'☕ 專項教學 · Java', desc:'Collections / Generics / Stream / Optional / Threads / JVM'};
+  return         {key:'core-deep', label:'🧠 進階觀念', desc:'物件模型、函式參數、讀官方文件'};
 }
 function renderChapList() {
   const list = document.getElementById('chap-list');

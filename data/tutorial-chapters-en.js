@@ -75,6 +75,25 @@ See "Hello! I've taken the first step in learning to program 👋" in the output
 
 
 Now go to the quiz below. Answer correctly to unlock Chapter 1.
+## 🗺 Learning Roadmap
+
+| Track | Chapters | Contents |
+|------|------|------|
+| 📘 APCS Prep | 0–26 | syntax → algorithms → contest patterns |
+| 🛠 Practical | 27–31 | files, modules, OOP, testing |
+| 🚀 Projects | 32–35 | CLI / CSV / API / game |
+| 🕷📊🤖🎮 Specialty tracks | 36–67 | scraping / data analysis / bots / pygame (pick any) |
+| 📗🔥 New APCS & advanced | 68–70 | exam literacy, fast power, divide & conquer |
+| ⚡🔧☕ Language tracks | 71–94 | appear when you switch to C++ / C / Java mode |
+| 🧠 Core concepts | 95–97 | object model, function parameters, reading docs |
+
+Three suggested paths:
+- **APCS exam**: 0–26 in order → 68–70 → grind the judge problems
+- **Build your own project**: 0–20 → 27–35 → pick one specialty track (36–67)
+- **Second language**: finish Python basics 0–35 → switch the language tab, redo the basics in the new language + language tracks from 71
+
+> 💡 Best value: read chapters 95–97 after finishing 0–20, before starting projects.
+
 `,
 example:`# This is a "comment" – lines starting with # are ignored by the computer
 # The following line is a real instruction: print some text
@@ -10873,5 +10892,285 @@ print(f"\\nResults match: {b == f}     divide‑conquer is {t1/max(t2,1e-9):.1f}
 {id:91,title:"Threads: Runnable / Thread",tag:"Java Track",content:`# Switch to Java mode to read this chapter`,example:`// Java-only chapter`},
 {id:92,title:"Concurrency: Lock / Atomic",tag:"Java Track",content:`# Switch to Java mode to read this chapter`,example:`// Java-only chapter`},
 {id:93,title:"Annotations & Reflection",tag:"Java Track",content:`# Switch to Java mode to read this chapter`,example:`// Java-only chapter`},
-{id:94,title:"JVM & Garbage Collection",tag:"Java Track",content:`# Switch to Java mode to read this chapter`,example:`// Java-only chapter`}
+{id:94,title:"JVM & Garbage Collection",tag:"Java Track",content:`# Switch to Java mode to read this chapter`,example:`// Java-only chapter`},
+{id:95,title:"The Object Model: Name Tags vs Boxes",tag:"Core Concept",content:`
+# Chapter 95: The Object Model — Variables Are Name Tags, Not Boxes
+
+> 🧠 **Core concept**: the most misunderstood thing in Python. Understand this and half of your weird bugs disappear.
+
+## 95.1 Assignment = hanging a name tag on an object
+
+Many people imagine \`a = 3\` as "putting 3 into a box named a". **That mental model is wrong in Python.**
+
+The correct picture:
+1. An object \`3\` is created somewhere in memory
+2. \`a\` is just a **name tag** attached to that object
+
+\`\`\`python
+a = 3
+print(id(a))   # id() returns the object's "memory identity"
+b = a
+print(id(b))   # identical to a → two name tags on the same object
+\`\`\`
+
+\`b = a\` copies nothing — it just **adds another name tag**.
+
+## 95.2 \`==\` vs \`is\`: equal value vs same object
+
+| Comparison | Question it asks |
+|------|----------|
+| \`a == b\` | Do both sides have the same **content**? |
+| \`a is b\` | Are both sides the **same object**? (same id) |
+
+\`\`\`python
+x = [1, 2, 3]
+y = [1, 2, 3]
+print(x == y)   # True: same content
+print(x is y)   # False: two different list objects
+z = x
+print(x is z)   # True: two name tags, one object
+\`\`\`
+
+> ⚠️ Always use \`is\` for \`None\` checks: \`if x is None:\`. Use \`==\` for almost everything else.
+
+## 95.3 Mutable vs immutable
+
+| Immutable | Mutable |
+|--------|------|
+| \`int\`, \`float\`, \`str\`, \`tuple\`, \`bool\` | \`list\`, \`dict\`, \`set\` |
+
+"Changing" an immutable object actually **creates a new object**:
+
+\`\`\`python
+s = "abc"
+print(id(s))
+s = s + "d"     # new string; the tag moves over
+print(id(s))    # different!
+\`\`\`
+
+Mutable objects change **in place** — every name tag sees the change:
+
+\`\`\`python
+a = [1, 2, 3]
+b = a            # two tags, one list
+b.append(4)
+print(a)         # [1, 2, 3, 4] ← a "changed" too!
+\`\`\`
+
+## 95.4 The aliasing trap, and real copies
+
+\`a\` changing along with \`b\` is the **aliasing** trap. To get a real copy:
+
+\`\`\`python
+b = a[:]          # shallow copy (slice)
+b = list(a)       # shallow copy
+import copy
+b = copy.deepcopy(a)   # deep copy: nested structures too
+\`\`\`
+
+A shallow copy only copies the outer layer — after shallow-copying \`[[1,2],[3,4]]\`, the two inner lists are still shared.
+
+## 95.5 If you know C/Java
+
+- Python variables behave like C pointers that never need \`*\` to dereference
+- Java object variables work almost the same way (references); the difference is that in Python even \`int\` is an object
+- Passing arguments = passing name tags (shared object): \`lst.append(...)\` inside a function affects the caller, but \`lst = [...]\` only re-tags the local name
+`,example:`# Name-tag experiment: two tags, one list
+a = [1, 2, 3]
+b = a          # b and a are the same object
+b.append(4)
+print(a)       # a changed too!
+print(a is b)  # True
+
+c = a[:]       # a real copy
+c.append(99)
+print(a)       # unaffected
+print(a is c)  # False`},
+{id:96,title:"Advanced Parameters: *args/**kwargs",tag:"Core Concept",content:`
+# Chapter 96: Advanced Function Parameters — *args, **kwargs and the Default-Value Trap
+
+> 🧠 **Core concept**: read any library's function signature, and dodge Python's most famous parameter trap.
+
+## 96.1 Positional vs keyword arguments
+
+\`\`\`python
+def greet(name, msg):
+    print(f"{msg}, {name}!")
+
+greet("Alice", "Hello")            # positional: matched by order
+greet(msg="Hello", name="Alice")   # keyword: matched by name, any order
+\`\`\`
+
+## 96.2 The default-value trap: evaluated once, at definition time
+
+Default values are created **once** when \`def\` runs, and **shared by every call**:
+
+\`\`\`python
+def add_item(x, box=[]):     # ❌ classic landmine
+    box.append(x)
+    return box
+
+print(add_item(1))   # [1]
+print(add_item(2))   # [1, 2] ← not [2]! the old box is still there
+\`\`\`
+
+The correct idiom — use \`None\` as a sentinel:
+
+\`\`\`python
+def add_item(x, box=None):   # ✅
+    if box is None:
+        box = []             # a fresh list per call
+    box.append(x)
+    return box
+\`\`\`
+
+> Rule: **never use a mutable object** (list / dict / set) as a default value.
+
+## 96.3 *args: accept any number of positional arguments
+
+\`\`\`python
+def total(*args):        # args is a tuple
+    print(args)          # (3, 5, 2)
+    return sum(args)
+
+print(total(3, 5, 2))    # 10
+print(total())           # 0 is fine too
+\`\`\`
+
+## 96.4 **kwargs: accept any number of keyword arguments
+
+\`\`\`python
+def show(**kwargs):      # kwargs is a dict
+    for k, v in kwargs.items():
+        print(k, "=", v)
+
+show(name="Alice", age=18)
+\`\`\`
+
+Combined, they form the universal signature (decorators, argument forwarding):
+
+\`\`\`python
+def wrapper(*args, **kwargs):
+    return real_func(*args, **kwargs)
+\`\`\`
+
+## 96.5 The reverse: unpacking at the call site
+
+At the **call site**, \`*\` and \`**\` mean **unpack**:
+
+\`\`\`python
+nums = [3, 5, 2]
+print(total(*nums))      # same as total(3, 5, 2)
+
+opts = {"name": "Alice", "age": 18}
+show(**opts)             # same as show(name="Alice", age=18)
+\`\`\`
+
+## 96.6 Keyword-only parameters
+
+Parameters after \`*\` **must** be passed by keyword:
+
+\`\`\`python
+def open_file(path, *, encoding="utf-8"):
+    ...
+
+open_file("a.txt", encoding="big5")   # ✅
+open_file("a.txt", "big5")            # ❌ TypeError
+\`\`\`
+
+Much of the standard library (e.g. \`sorted(key=...)\`) is designed this way to force readable calls.
+`,example:`def total(*args):
+    print("args =", args)
+    return sum(args)
+
+print(total(3, 5, 2))
+
+nums = [10, 20, 30]
+print(total(*nums))   # unpacking call
+
+def add_item(x, box=None):   # the correct default idiom
+    if box is None:
+        box = []
+    box.append(x)
+    return box
+
+print(add_item(1))
+print(add_item(2))   # a fresh box every call`},
+{id:97,title:"How to Read Official Docs",tag:"Practical",content:`
+# Chapter 97: How to Read Official Documentation — a Survival Skill
+
+> 📖 **Practical**: no tutorial covers everything. If you can read official docs, you can teach yourself any new library.
+
+## 97.1 Why official docs?
+
+Blog posts go stale and AI can hallucinate; **the official documentation is always the final answer**. The difference: someone who can read docs finds the parameter in 10 seconds; someone who can't pastes a wrong example.
+
+## 97.2 A map of docs.python.org
+
+| Section | Contents | When to use |
+|------|------|-----------|
+| **Tutorial** | the official tutorial | systematic review |
+| **Library Reference** | every built-in module & function | **most used**: str / list / math / json... |
+| **Language Reference** | the grammar spec | advanced (dense) |
+
+> 💡 Fast entry: Google "python str split site:docs.python.org" — almost always lands right.
+
+## 97.3 Reading a function signature
+
+A docs signature is packed with information:
+
+\`\`\`text
+str.split(sep=None, maxsplit=-1)
+\`\`\`
+
+- \`sep=None\`: has a default → **optional**; splits on whitespace by default
+- \`maxsplit=-1\`: -1 means unlimited splits
+
+Another one:
+
+\`\`\`text
+sorted(iterable, /, *, key=None, reverse=False)
+\`\`\`
+
+- parameters before \`/\` are **positional-only**
+- parameters after \`*\` are **keyword-only** → \`sorted(a, key=len)\` ✅, \`sorted(a, len)\` ❌
+
+Older docs also use square brackets for optional parts: \`range([start,] stop[, step])\`.
+
+## 97.4 Docs without a browser: help() and dir()
+
+\`\`\`python
+print(dir(str))        # what methods does str have (name list)
+help(str.split)        # print split's documentation
+\`\`\`
+
+\`dir()\` to find names, \`help()\` to read usage — built-in docs in your REPL.
+
+## 97.5 Official docs for other languages
+
+| Language | Docs | Notes |
+|------|------|------|
+| C++ | **cppreference.com** | the de-facto standard; runnable examples |
+| C | cppreference.com (C section) / man pages | \`man 3 printf\` |
+| Java | **Oracle Javadoc** (docs.oracle.com) | one page per class; Method Summary first |
+
+C++ trick: search "cppreference vector push_back". Javadoc trick: scan the **Method Summary** table before drilling in.
+
+## 97.6 Hands-on
+
+The docs say \`str.split(sep=None, maxsplit=-1)\` — so what does \`maxsplit=2\` do?
+
+\`\`\`python
+print("a,b,c,d".split(",", 2))   # ['a', 'b', 'c,d']: only 2 cuts
+\`\`\`
+
+**Verifying the docs yourself** is the final — and most important — step of reading documentation.
+`,example:`# Built-in documentation tools
+help(str.split)
+
+# Verify what the docs claim: maxsplit=2 makes only 2 cuts
+print("a,b,c,d".split(",", 2))
+
+# dir() to find names
+print(dir(str)[-10:])`}
 ];

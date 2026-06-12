@@ -58,6 +58,25 @@ print("Hello,", name)
 看到輸出框出現 \`Hello! 我學會寫程式的第一步了 👋\` 了嗎？恭喜，你剛剛叫電腦做了第一件事！
 
 接下來進入下方的「小測驗」，答對就能解鎖第 1 章。
+## 🗺 全站學習路線圖
+
+| 區段 | 章節 | 內容 |
+|------|------|------|
+| 📘 APCS 考試準備 | 0–26 | 語法 → 演算法 → 競賽題型 |
+| 🛠 實用程式 | 27–31 | 檔案、模組、OOP、測試 |
+| 🚀 製作專案 | 32–35 | CLI / CSV / API / 遊戲 |
+| 🕷📊🤖🎮 專項四軌 | 36–67 | 爬蟲 / 資料分析 / Bot / pygame（任選） |
+| 📗🔥 新制與高級題 | 68–70 | 題本識讀、快速冪、分治 |
+| ⚡🔧☕ 語言專項 | 71–94 | 切到 C++ / C / Java 模式才會出現 |
+| 🧠 進階觀念 | 95–97 | 物件模型、函式參數、讀官方文件 |
+
+三條建議路線：
+- **考 APCS**：0–26 按順序 → 68–70 → 搭配題庫刷題
+- **做出自己的專案**：0–20 → 27–35 → 挑一條專項軌（36–67）
+- **學第二語言**：先完成 Python 基礎 0–35 → 切換語言分頁，從頭用新語言再走一遍 + 71 起的語言專項
+
+> 💡 95–97 的進階觀念章建議在學完 0–20 之後、開始寫專案之前讀，CP 值最高。
+
 `,
 example:`# 這是「註解」，井字號開頭的整行電腦會跳過
 # 下面這行是真正的指令：印出一段文字
@@ -9174,5 +9193,285 @@ print(f"\\n結果一致：{b == f}    分治快 {t1/max(t2,1e-9):.1f} 倍")
 {id:91,title:"多執行緒：Thread / Runnable",tag:"Java 專項",content:`# 請切換到 Java 模式以閱讀本章`,example:`// 此章節為 Java 專屬，請切到 Java 模式`},
 {id:92,title:"Concurrency 工具：Lock / Atomic",tag:"Java 專項",content:`# 請切換到 Java 模式以閱讀本章`,example:`// 此章節為 Java 專屬，請切到 Java 模式`},
 {id:93,title:"Annotation 與反射",tag:"Java 專項",content:`# 請切換到 Java 模式以閱讀本章`,example:`// 此章節為 Java 專屬，請切到 Java 模式`},
-{id:94,title:"JVM 與 GC 基礎",tag:"Java 專項",content:`# 請切換到 Java 模式以閱讀本章`,example:`// 此章節為 Java 專屬，請切到 Java 模式`}
+{id:94,title:"JVM 與 GC 基礎",tag:"Java 專項",content:`# 請切換到 Java 模式以閱讀本章`,example:`// 此章節為 Java 專屬，請切到 Java 模式`},
+{id:95,title:"物件模型：名牌與箱子",tag:"進階觀念",content:`
+# 第 95 章：物件模型 — 變數是「名牌」，不是「箱子」
+
+> 🧠 **進階觀念**：這章解釋 Python 最容易被誤解的一件事。搞懂它，一半的詭異 bug 會自動消失。
+
+## 95.1 賦值 = 把名牌掛到物件上
+
+很多人想像 \`a = 3\` 是「把 3 放進名叫 a 的箱子」。**這個想像在 Python 是錯的。**
+
+正確的圖像：
+1. 記憶體某處先誕生一個「3」這個**物件**
+2. \`a\` 只是一張**名牌**，掛到那個物件上
+
+\`\`\`python
+a = 3
+print(id(a))   # id() 回傳物件的「記憶體身分證」
+b = a
+print(id(b))   # 跟 a 一模一樣 → 兩張名牌掛在同一個物件上
+\`\`\`
+
+\`b = a\` 不會複製任何東西——只是**多掛一張名牌**。
+
+## 95.2 \`==\` vs \`is\`：同值 vs 同一
+
+| 比較 | 問的問題 |
+|------|----------|
+| \`a == b\` | 兩邊的**內容**一樣嗎？（同值） |
+| \`a is b\` | 兩邊是**同一個物件**嗎？（同一，等價於 id 相同） |
+
+\`\`\`python
+x = [1, 2, 3]
+y = [1, 2, 3]
+print(x == y)   # True：內容相同
+print(x is y)   # False：是兩個不同的 list 物件
+z = x
+print(x is z)   # True：同一個物件的兩張名牌
+\`\`\`
+
+> ⚠️ 判斷 \`None\` 永遠用 \`is\`：\`if x is None:\`。其他情況幾乎都該用 \`==\`。
+
+## 95.3 可變 (mutable) vs 不可變 (immutable)
+
+| 不可變 | 可變 |
+|--------|------|
+| \`int\`、\`float\`、\`str\`、\`tuple\`、\`bool\` | \`list\`、\`dict\`、\`set\` |
+
+不可變物件「改值」其實是**換一個新物件**：
+
+\`\`\`python
+s = "abc"
+print(id(s))
+s = s + "d"     # 產生新字串，名牌移過去
+print(id(s))    # 不一樣了！
+\`\`\`
+
+可變物件可以**原地修改**——所有名牌都會看到變化：
+
+\`\`\`python
+a = [1, 2, 3]
+b = a            # 兩張名牌、同一個 list
+b.append(4)
+print(a)         # [1, 2, 3, 4] ← a 也「變了」！
+\`\`\`
+
+## 95.4 別名陷阱與正確複製
+
+上面 \`a\` 跟著變，就是**別名 (aliasing)** 陷阱。想要「真正的副本」：
+
+\`\`\`python
+b = a[:]          # 淺複製（切片）
+b = list(a)       # 淺複製
+import copy
+b = copy.deepcopy(a)   # 深複製：巢狀結構也全複製
+\`\`\`
+
+淺複製只複製最外層——\`[[1,2],[3,4]]\` 淺複製後，內層的兩個小 list 還是共用的。
+
+## 95.5 給寫過 C/Java 的你
+
+- Python 變數比較像 C 的「永遠是指標」，但不用 \`*\` 解參考
+- Java 的物件變數行為幾乎一樣（reference）；差別是 Python 連 \`int\` 都是物件
+- 函式傳參數 = 傳名牌（共享物件），所以函式內 \`lst.append(...)\` 會影響外面，但 \`lst = [...]\` 只是換自己的名牌
+`,example:`# 名牌實驗：兩張名牌、同一個 list
+a = [1, 2, 3]
+b = a          # b 跟 a 是同一個物件
+b.append(4)
+print(a)       # a 也變了！
+print(a is b)  # True
+
+c = a[:]       # 真正的副本
+c.append(99)
+print(a)       # 不受影響
+print(a is c)  # False`},
+{id:96,title:"函式參數進階：*args/**kwargs",tag:"進階觀念",content:`
+# 第 96 章：函式參數進階 — *args、**kwargs 與預設值陷阱
+
+> 🧠 **進階觀念**：讀懂任何函式庫的簽名、避開 Python 最有名的參數陷阱。
+
+## 96.1 位置參數 vs 關鍵字參數
+
+\`\`\`python
+def greet(name, msg):
+    print(f"{msg}, {name}!")
+
+greet("Alice", "你好")            # 位置：照順序對應
+greet(msg="你好", name="Alice")   # 關鍵字：指名道姓，順序隨意
+\`\`\`
+
+## 96.2 預設值陷阱：只在「定義時」算一次
+
+預設值在 \`def\` 執行的那一刻**建立一次**，之後所有呼叫**共用同一個物件**：
+
+\`\`\`python
+def add_item(x, box=[]):     # ❌ 經典地雷
+    box.append(x)
+    return box
+
+print(add_item(1))   # [1]
+print(add_item(2))   # [1, 2] ← 不是 [2]！上次的 box 還在
+\`\`\`
+
+正確寫法——用 \`None\` 當哨兵：
+
+\`\`\`python
+def add_item(x, box=None):   # ✅
+    if box is None:
+        box = []             # 每次呼叫都建新的
+    box.append(x)
+    return box
+\`\`\`
+
+> 規則：**預設值不要用可變物件**（list / dict / set）。
+
+## 96.3 *args：吃下任意數量的位置參數
+
+\`\`\`python
+def total(*args):        # args 是 tuple
+    print(args)          # (3, 5, 2)
+    return sum(args)
+
+print(total(3, 5, 2))    # 10
+print(total())           # 0 也合法
+\`\`\`
+
+## 96.4 **kwargs：吃下任意數量的關鍵字參數
+
+\`\`\`python
+def show(**kwargs):      # kwargs 是 dict
+    for k, v in kwargs.items():
+        print(k, "=", v)
+
+show(name="Alice", age=18)
+\`\`\`
+
+兩個合體就是萬用簽名（裝飾器、轉發參數最常用）：
+
+\`\`\`python
+def wrapper(*args, **kwargs):
+    return real_func(*args, **kwargs)
+\`\`\`
+
+## 96.5 反向操作：拆包呼叫
+
+\`*\` 和 \`**\` 在「呼叫端」是**拆開**：
+
+\`\`\`python
+nums = [3, 5, 2]
+print(total(*nums))      # 等於 total(3, 5, 2)
+
+opts = {"name": "Alice", "age": 18}
+show(**opts)             # 等於 show(name="Alice", age=18)
+\`\`\`
+
+## 96.6 僅限關鍵字參數（keyword-only）
+
+\`*\` 之後的參數**必須**用關鍵字傳：
+
+\`\`\`python
+def open_file(path, *, encoding="utf-8"):
+    ...
+
+open_file("a.txt", encoding="big5")   # ✅
+open_file("a.txt", "big5")            # ❌ TypeError
+\`\`\`
+
+很多標準庫（如 \`sorted(key=...)\`）就是這樣設計，逼你寫出可讀的呼叫。
+`,example:`def total(*args):
+    print("args =", args)
+    return sum(args)
+
+print(total(3, 5, 2))
+
+nums = [10, 20, 30]
+print(total(*nums))   # 拆包呼叫
+
+def add_item(x, box=None):   # 正確的預設值寫法
+    if box is None:
+        box = []
+    box.append(x)
+    return box
+
+print(add_item(1))
+print(add_item(2))   # 每次都是新的 box`},
+{id:97,title:"如何讀官方文件",tag:"實用",content:`
+# 第 97 章：如何讀官方文件 — 離開教材後的生存技能
+
+> 📖 **實用**：教材總有教不到的地方。會查官方文件，你就能自學任何新函式庫。
+
+## 97.1 為什麼是官方文件？
+
+部落格文章可能過時、AI 可能幻覺；**官方文件永遠是最終答案**。差別在於：會讀的人 10 秒找到參數，不會讀的人複製貼上錯誤的範例。
+
+## 97.2 docs.python.org 的地圖
+
+| 區塊 | 內容 | 什麼時候看 |
+|------|------|-----------|
+| **Tutorial** | 官方教學 | 系統性複習 |
+| **Library Reference** | 所有內建模組、函式 | **最常用**：查 str / list / math / json... |
+| **Language Reference** | 語法規格書 | 進階（很硬） |
+
+> 💡 快速入口：Google 搜「python str split site:docs.python.org」幾乎一定中。
+
+## 97.3 看懂函式簽名
+
+文件裡的簽名藏著大量資訊：
+
+\`\`\`text
+str.split(sep=None, maxsplit=-1)
+\`\`\`
+
+- \`sep=None\`：有預設值 → **可以不傳**；預設用空白切
+- \`maxsplit=-1\`：-1 代表不限次數
+
+再看一個：
+
+\`\`\`text
+sorted(iterable, /, *, key=None, reverse=False)
+\`\`\`
+
+- \`/\` 之前的參數**只能用位置**傳
+- \`*\` 之後的參數**只能用關鍵字**傳 → \`sorted(a, key=len)\` ✅、\`sorted(a, len)\` ❌
+
+舊式文件還會用中括號表示可省略：\`range([start,] stop[, step])\`。
+
+## 97.4 不開瀏覽器也能查：help() 與 dir()
+
+\`\`\`python
+print(dir(str))        # str 有哪些方法（名字清單）
+help(str.split)        # 印出 split 的文件
+\`\`\`
+
+\`dir()\` 找名字、\`help()\` 看用法——REPL 裡的隨身文件。
+
+## 97.5 其他語言的官方文件
+
+| 語言 | 文件 | 備註 |
+|------|------|------|
+| C++ | **cppreference.com** | 事實上的標準；範例可直接跑 |
+| C | cppreference.com（C 區）/ man 手冊 | \`man 3 printf\` |
+| Java | **Oracle Javadoc**（docs.oracle.com） | 每個類別一頁，Method Summary 最好用 |
+
+查 C++ 的訣竅：搜「cppreference vector push_back」。Javadoc 的訣竅：先看 **Method Summary** 表格再點進細節。
+
+## 97.6 實戰練習
+
+文件說 \`str.split(sep=None, maxsplit=-1)\`——那 \`maxsplit=2\` 會發生什麼？
+
+\`\`\`python
+print("a,b,c,d".split(",", 2))   # ['a', 'b', 'c,d']：只切 2 刀
+\`\`\`
+
+**自己驗證文件的描述**，是讀文件的最後一步、也是最重要的一步。
+`,example:`# 用內建工具讀文件
+help(str.split)
+
+# 驗證文件的描述：maxsplit=2 只切 2 刀
+print("a,b,c,d".split(",", 2))
+
+# dir() 找名字
+print(dir(str)[-10:])`}
 ];
