@@ -256,7 +256,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 </nav>
 
 <!-- 題目資料（拆檔以利快取與協作）；解答與英文對照於需要時才動態載入 -->
-<script src="data/judge-problems.js?v=20260611c"></script>
+<script src="data/judge-problems.js?v=20260612a"></script>
 <script>
 // ── 資料版本（更新 data/*.js 時同步調整，避免舊快取與頁面不同步） ───────────
 const DATA_VER = '20260612a';
@@ -524,10 +524,14 @@ function flushDraft(){
   if (v.trim()) drafts[dKey()] = v; else delete drafts[dKey()];
   try { localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts)); } catch(e) {}
 }
+// 關閉/切走分頁時把防抖中的草稿立即寫入，避免最後 0.4 秒的輸入遺失
+window.addEventListener('beforeunload', flushDraft);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushDraft(); });
 
 // ── 進度匯出 / 匯入（換裝置、清快取時可帶走刷題進度） ─────────────────────
 function exportProgress() {
-  const data = { app:'apcs-judge', v:1, exportedAt:new Date().toISOString(), scores };
+  flushDraft(); // 草稿一併打包，換裝置時寫到一半的程式碼帶得走
+  const data = { app:'apcs-judge', v:1, exportedAt:new Date().toISOString(), scores, drafts };
   const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -549,6 +553,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!v || typeof v.passed !== 'number' || typeof v.total !== 'number') continue;
         const cur = scores[k];
         if (!cur || v.passed > cur.passed) scores[k] = { passed: v.passed, total: v.total };
+      }
+      // 草稿合併：只補進本機沒有的（本機現有草稿優先，不被匯入檔覆蓋）
+      if (data.drafts && typeof data.drafts === 'object' && !Array.isArray(data.drafts)) {
+        for (const [k, v] of Object.entries(data.drafts)) {
+          if (typeof v === 'string' && v.trim() && drafts[k] === undefined) drafts[k] = v;
+        }
+        try { localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts)); } catch(e) {}
+        if (currentProblem && currentLang && !editor.getValue().trim() && drafts[dKey()]) editor.setValue(drafts[dKey()]);
       }
       saveScores();
       renderProblemList();
@@ -886,10 +898,24 @@ async function runCode() {
   btn.textContent = lang === 'java' ? T().btnRunningJava : T().btnRunning;
 
   const results = [];
-  for (let i = 0; i < prob.samples.length; i++) {
-    const s = prob.samples[i];
-    const r = await runSingle(code, s.input, s.output, lang);
-    results.push({ ...r, idx: i + 1 });
+  // C/C++/Java 多筆測資優先走 Judge0 批次（一次提交全部）；不支援或失敗時退回逐筆
+  if (lang !== 'py' && prob.samples.length > 1 && _j0BatchOk) {
+    try {
+      const subs = await judge0SubmitBatch(code, prob.samples.map(s => s.input), JUDGE0_LANG[lang]);
+      subs.forEach((data, i) => {
+        results.push({ ...judge0Result(data, normOut(prob.samples[i].output)), idx: i + 1 });
+      });
+    } catch (e) {
+      if (String(e && e.message).startsWith('BATCH_UNSUPPORTED')) _j0BatchOk = false;
+      results.length = 0; // 批次失敗：退回下方逐筆模式（自帶重試）
+    }
+  }
+  if (!results.length) {
+    for (let i = 0; i < prob.samples.length; i++) {
+      const s = prob.samples[i];
+      const r = await runSingle(code, s.input, s.output, lang);
+      results.push({ ...r, idx: i + 1 });
+    }
   }
 
   running = false;
@@ -897,8 +923,13 @@ async function runCode() {
 
   const passed = results.filter(r => r.pass).length;
   const total = results.length;
-  scores[lang + '_' + prob.id] = { passed, total };
-  saveScores();
+  // 與匯入相同的「保留較佳成績」規則：斷網或失誤的一次失敗不會把既有 AC 蓋掉
+  const skey = lang + '_' + prob.id;
+  const prevScore = scores[skey];
+  if (!prevScore || passed >= prevScore.passed) {
+    scores[skey] = { passed, total };
+    saveScores();
+  }
   renderProblemList();
   if (currentProblem === prob && currentLang === lang) renderResults(results, passed, total);
   updateStatus(currentLang);
@@ -929,13 +960,45 @@ async function judge0Submit(code, stdin, languageId) {
     let data = await res.json();
     for (let p = 0; p < 12 && data.status && data.status.id <= 2 && data.token; p++) {
       await new Promise(r => setTimeout(r, 1200));
-      const r2 = await fetch('https://ce.judge0.com/submissions/' + data.token + '?base64_encoded=false');
-      if (!r2.ok) break;
-      data = await r2.json();
+      // 輪詢途中斷網不往外丟原始錯誤：中止輪詢，讓上層以 queued 狀態顯示友善訊息
+      try {
+        const r2 = await fetch('https://ce.judge0.com/submissions/' + data.token + '?base64_encoded=false');
+        if (!r2.ok) break;
+        data = await r2.json();
+      } catch (e) { break; }
     }
     return data;
   }
   throw new Error(lastErr || T().errNoResp);
+}
+
+// Judge0 批次送出：一題的全部測資一次提交（比逐筆快數倍、較不易觸發速率限制）。
+// 公開 CE 站若停用 batch（非 2xx）就丟 BATCH_UNSUPPORTED，由呼叫端永久退回逐筆模式。
+let _j0BatchOk = true;
+async function judge0SubmitBatch(code, stdins, languageId) {
+  const res = await fetch('https://ce.judge0.com/submissions/batch?base64_encoded=false', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ submissions: stdins.map(stdin => ({ language_id: languageId, source_code: code, stdin: stdin || '' })) })
+  });
+  if (!res.ok) throw new Error('BATCH_UNSUPPORTED:' + res.status);
+  const created = await res.json();
+  if (!Array.isArray(created)) throw new Error('BATCH_UNSUPPORTED:resp');
+  const tokens = created.map(s => s && s.token).filter(Boolean);
+  if (tokens.length !== stdins.length) throw new Error('BATCH_UNSUPPORTED:partial');
+  const url = 'https://ce.judge0.com/submissions/batch?tokens=' + tokens.join(',') + '&base64_encoded=false';
+  let subs = null;
+  for (let p = 0; p < 20; p++) {
+    await new Promise(r => setTimeout(r, 1200));
+    try {
+      const r2 = await fetch(url);
+      if (!r2.ok) continue;
+      const j = await r2.json();
+      if (j && Array.isArray(j.submissions)) subs = j.submissions;
+    } catch (e) { continue; }
+    if (subs && subs.length === tokens.length && subs.every(s => s && s.status && s.status.id > 2)) return subs;
+  }
+  // 輪詢逾時：把已知狀態交給上層，未完成的測資會顯示 errQueued
+  return subs || tokens.map(() => null);
 }
 
 // 輸出正規化：統一換行、去除每行行尾空白與結尾空行（行尾多一個空格不該被判 WA）
@@ -956,17 +1019,7 @@ async function runSingle(code, stdin, expectedRaw, lang) {
       output = r.out;
     } else {
       const data = await judge0Submit(code, stdin, JUDGE0_LANG[lang]);
-      // Judge0 status：3=AC/正常結束, 5=TLE, 6=編譯錯誤, 7~12=執行期錯誤, ≥13=服務內部錯誤
-      const sid = data.status && data.status.id;
-      if (sid && sid <= 2) return { pass: false, got: '', expected, error: T().errQueued };
-      if (sid === 5) return { pass: false, got: '', expected, error: T().errTLE };
-      if (sid === 6) return { pass: false, got: '', expected, error: T().errCompile + String(data.compile_output || '').split('\n').slice(0, 4).join('\n') };
-      if (sid >= 13) return { pass: false, got: '', expected, error: T().errService(data.status.description || sid) };
-      const stdout = data.stdout || '';
-      const stderr = data.stderr || data.compile_output || '';
-      if (sid >= 7 && sid <= 12) return { pass: false, got: normOut(stdout), expected, error: T().errRuntime(data.status.description || 'Runtime Error') + String(stderr).split('\n').slice(0, 4).join('\n') };
-      if (stderr && !stdout) return { pass: false, got: '', expected, error: stderr.split('\n').slice(0, 4).join('\n') };
-      output = stdout;
+      return judge0Result(data, expected);
     }
     const got = normOut(output);
     return { pass: got === expected, got, expected, error: null };
@@ -974,6 +1027,22 @@ async function runSingle(code, stdin, expectedRaw, lang) {
     if (e && e.message === 'PY_TIMEOUT') return { pass: false, got: '', expected, error: T().errPyTimeout };
     return { pass: false, got: '', expected, error: String(e.message || e).split('\n').slice(0, 3).join('\n') };
   }
+}
+
+// 把一筆 Judge0 回應轉成評測結果（逐筆與批次共用）
+// Judge0 status：3=AC/正常結束, 5=TLE, 6=編譯錯誤, 7~12=執行期錯誤, ≥13=服務內部錯誤
+function judge0Result(data, expected) {
+  const sid = data && data.status && data.status.id;
+  if (!sid || sid <= 2) return { pass: false, got: '', expected, error: T().errQueued };
+  if (sid === 5) return { pass: false, got: '', expected, error: T().errTLE };
+  if (sid === 6) return { pass: false, got: '', expected, error: T().errCompile + String(data.compile_output || '').split('\n').slice(0, 4).join('\n') };
+  if (sid >= 13) return { pass: false, got: '', expected, error: T().errService(data.status.description || sid) };
+  const stdout = data.stdout || '';
+  const stderr = data.stderr || data.compile_output || '';
+  if (sid >= 7 && sid <= 12) return { pass: false, got: normOut(stdout), expected, error: T().errRuntime(data.status.description || 'Runtime Error') + String(stderr).split('\n').slice(0, 4).join('\n') };
+  if (stderr && !stdout) return { pass: false, got: '', expected, error: stderr.split('\n').slice(0, 4).join('\n') };
+  const got = normOut(stdout);
+  return { pass: got === expected, got, expected, error: null };
 }
 
 // 失敗測資的逐行 diff：差異行紅底，附「此行預期」提示

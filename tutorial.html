@@ -405,6 +405,14 @@ const UI_STR = {
     statusLoading:'下載 Python 環境中（首次約 10–20 秒）...', statusReady:'Pyodide 已就緒', statusFailed:'Python 載入失敗，請重新整理',
     running:'執行中...', noOutput:'(無輸出)', errPrefix:'錯誤：\n',
     pyTimeout:'⏱ 執行逾時：程式跑太久（可能無限迴圈）。Python 環境已自動重置，請修正後再執行',
+    errNet:'🌐 無法連線到雲端評測服務（C/C++/Java 需要網路），請確認網路後再試',
+    errBusy:'🚦 雲端評測服務忙碌中（請求過於頻繁），請等幾秒再執行',
+    err5xx:s=>`⚠️ 雲端評測服務暫時異常（HTTP ${s}），請稍後再試`,
+    errResp:s=>`評測服務回應異常（HTTP ${s}）`,
+    errNoResp:'評測服務無回應',
+    errTLE:'⏱ 執行逾時（TLE）：程式超過時間限制，請檢查迴圈或演算法複雜度',
+    errCompile:'🛠 編譯錯誤：\n',
+    errService:d=>`⚠️ 雲端評測服務暫時異常（${d}），請稍後再試`,
     metaLearn:'🎯 這章你會學到', metaTry:'✋ 動手試試（改右邊程式碼）',
     metaMcq:'🧠 觀念小測驗（點選答案，立即看解析）', mcqRight:'✅ 答對了！', mcqWrong:'❌ 不對喔。',
     metaQuiz:'📝 程式練習（在右邊編輯器寫程式碼，按下方按鈕檢查）',
@@ -432,6 +440,14 @@ const UI_STR = {
     statusLoading:'Downloading Python runtime (~10–20 s first time)...', statusReady:'Pyodide ready', statusFailed:'Failed to load Python — please refresh',
     running:'Running...', noOutput:'(no output)', errPrefix:'Error:\n',
     pyTimeout:'⏱ Timeout: your program ran too long (possibly an infinite loop). The Python runtime was reset — fix the code and run again',
+    errNet:'🌐 Cannot reach the cloud judge (C/C++/Java need network) — please check your connection and retry',
+    errBusy:'🚦 The cloud judge is busy (rate limited) — wait a few seconds and retry',
+    err5xx:s=>`⚠️ The cloud judge is temporarily unavailable (HTTP ${s}) — please retry later`,
+    errResp:s=>`Unexpected judge response (HTTP ${s})`,
+    errNoResp:'No response from the judge service',
+    errTLE:'⏱ Time limit exceeded (TLE): check your loops or algorithm complexity',
+    errCompile:'🛠 Compile error:\n',
+    errService:d=>`⚠️ The cloud judge is temporarily unavailable (${d}) — please retry later`,
     metaLearn:'🎯 What you will learn', metaTry:'✋ Try it (edit the code on the right)',
     metaMcq:'🧠 Concept quiz (click an answer for instant feedback)', mcqRight:'✅ Correct!', mcqWrong:'❌ Not quite.',
     metaQuiz:'📝 Coding exercise (write code in the editor, then press the button below)',
@@ -455,7 +471,7 @@ function applyUiLang(){
   setText('logo', t.logo);
   const sub = document.querySelector('header .sub');
   if(sub){
-    const total = document.getElementById('chapter-total')?.textContent || '95';
+    const total = document.getElementById('chapter-total')?.textContent || String(CHAPTERS.length);
     sub.innerHTML = `<span id="chapter-total">${total}</span> ${t.subtitle1}`;
   }
   const gotoLink = document.querySelector('header a[href="index.html"]');
@@ -651,26 +667,58 @@ function translateError(raw){
     if(lines[i].trim()){ last = lines[i]; break; }
   }
   const rules = [
-    {re:/NameError: name '(.+?)' is not defined/, msg:(m)=>`<b>變數沒定義</b>：你用了 <code>${m[1]}</code>，但前面從沒設定它的值。檢查拼字、或在使用前先 <code>${m[1]} = ...</code>。`},
-    {re:/IndentationError|unexpected indent|expected an indented block/, msg:()=>`<b>縮排錯了</b>：Python 用空白來分組，<code>if</code>/<code>for</code>/<code>def</code> 下一行一定要往內縮 4 個空白。同一段也要對齊。`},
-    {re:/SyntaxError: invalid syntax/, msg:()=>`<b>語法錯誤</b>：通常是漏冒號 <code>:</code>、漏括號、引號沒成對。看一下錯誤指到的那一行附近。`},
-    {re:/SyntaxError: EOL while scanning string literal|unterminated string/, msg:()=>`<b>字串沒收尾</b>：開了 <code>"</code> 或 <code>'</code> 但沒關起來。`},
-    {re:/ZeroDivisionError/, msg:()=>`<b>除以 0 了</b>：檢查除號右邊的值是不是 0，或先用 if 擋掉。`},
-    {re:/TypeError: unsupported operand type.*'(\w+)'.* and '(\w+)'/, msg:(m)=>`<b>型別不能相加 / 相減</b>：<code>${m[1]}</code> 和 <code>${m[2]}</code> 不能直接運算。常見：字串 + 數字 → 要先 <code>str()</code> 或 <code>int()</code>。`},
-    {re:/TypeError: '(\w+)' object is not (subscriptable|iterable|callable)/, msg:(m)=>`<b>型別錯用</b>：<code>${m[1]}</code> 物件不能被「${m[2]==='subscriptable'?'用 []':m[2]==='iterable'?'用 for 走訪':'呼叫'}」。`},
-    {re:/TypeError/, msg:()=>`<b>型別錯誤</b>：兩邊型別不合（例如字串 + 數字）。用 <code>int(x)</code> / <code>str(x)</code> 轉換看看。`},
-    {re:/ValueError: invalid literal for int\(\)/, msg:()=>`<b>int() 收到不是數字的字串</b>：例如 <code>int("abc")</code> 會錯。檢查 input 是不是有空白或非數字字元。`},
-    {re:/ValueError/, msg:()=>`<b>值不合法</b>：函式收到它不接受的值。看看你傳了什麼。`},
-    {re:/IndexError: list index out of range/, msg:()=>`<b>list 索引超出範圍</b>：list 只有 0 到 len(list)-1。檢查迴圈條件是不是寫成 <code><=</code> 變成多跑一格。`},
-    {re:/IndexError/, msg:()=>`<b>索引超出範圍</b>：要存取的位置不存在。`},
-    {re:/KeyError: '?(.+?)'?$/, msg:(m)=>`<b>字典找不到這個 key</b>：<code>${m[1]}</code> 不在字典裡。用 <code>d.get(key, 預設值)</code> 比較安全。`},
-    {re:/AttributeError: '(\w+)' object has no attribute '(\w+)'/, msg:(m)=>`<b>物件沒這個方法</b>：<code>${m[1]}</code> 沒有 <code>.${m[2]}()</code>。檢查拼字，或是不是用錯型別（例如把 str 當 list 用）。`},
-    {re:/RecursionError/, msg:()=>`<b>遞迴太深</b>：函式呼叫自己沒有終止條件，或終止條件永遠到不了。檢查 base case。`},
-    {re:/ModuleNotFoundError|ImportError/, msg:()=>`<b>找不到模組</b>：可能是這個套件瀏覽器版 Python 沒有。試試標準函式庫的功能。`}
+    {re:/NameError: name '(.+?)' is not defined/,
+     msg:(m)=>`<b>變數沒定義</b>：你用了 <code>${m[1]}</code>，但前面從沒設定它的值。檢查拼字、或在使用前先 <code>${m[1]} = ...</code>。`,
+     msgEn:(m)=>`<b>Variable not defined</b>: you used <code>${m[1]}</code>, but it was never assigned. Check the spelling, or set <code>${m[1]} = ...</code> before using it.`},
+    {re:/IndentationError|unexpected indent|expected an indented block/,
+     msg:()=>`<b>縮排錯了</b>：Python 用空白來分組，<code>if</code>/<code>for</code>/<code>def</code> 下一行一定要往內縮 4 個空白。同一段也要對齊。`,
+     msgEn:()=>`<b>Indentation error</b>: Python groups code by whitespace — the line after <code>if</code>/<code>for</code>/<code>def</code> must be indented 4 spaces, and the same block must line up.`},
+    {re:/SyntaxError: invalid syntax/,
+     msg:()=>`<b>語法錯誤</b>：通常是漏冒號 <code>:</code>、漏括號、引號沒成對。看一下錯誤指到的那一行附近。`,
+     msgEn:()=>`<b>Syntax error</b>: usually a missing colon <code>:</code>, missing bracket, or unmatched quotes. Check around the line the error points to.`},
+    {re:/SyntaxError: EOL while scanning string literal|unterminated string/,
+     msg:()=>`<b>字串沒收尾</b>：開了 <code>"</code> 或 <code>'</code> 但沒關起來。`,
+     msgEn:()=>`<b>Unterminated string</b>: you opened a <code>"</code> or <code>'</code> but never closed it.`},
+    {re:/ZeroDivisionError/,
+     msg:()=>`<b>除以 0 了</b>：檢查除號右邊的值是不是 0，或先用 if 擋掉。`,
+     msgEn:()=>`<b>Division by zero</b>: check whether the right side of the division is 0, or guard it with an if first.`},
+    {re:/TypeError: unsupported operand type.*'(\w+)'.* and '(\w+)'/,
+     msg:(m)=>`<b>型別不能相加 / 相減</b>：<code>${m[1]}</code> 和 <code>${m[2]}</code> 不能直接運算。常見：字串 + 數字 → 要先 <code>str()</code> 或 <code>int()</code>。`,
+     msgEn:(m)=>`<b>Incompatible types</b>: <code>${m[1]}</code> and <code>${m[2]}</code> cannot be combined directly. Common case: string + number → convert with <code>str()</code> or <code>int()</code> first.`},
+    {re:/TypeError: '(\w+)' object is not (subscriptable|iterable|callable)/,
+     msg:(m)=>`<b>型別錯用</b>：<code>${m[1]}</code> 物件不能被「${m[2]==='subscriptable'?'用 []':m[2]==='iterable'?'用 for 走訪':'呼叫'}」。`,
+     msgEn:(m)=>`<b>Wrong type usage</b>: a <code>${m[1]}</code> object cannot be ${m[2]==='subscriptable'?'indexed with []':m[2]==='iterable'?'looped over with for':'called like a function'}.`},
+    {re:/TypeError/,
+     msg:()=>`<b>型別錯誤</b>：兩邊型別不合（例如字串 + 數字）。用 <code>int(x)</code> / <code>str(x)</code> 轉換看看。`,
+     msgEn:()=>`<b>Type error</b>: the types don't match (e.g. string + number). Try converting with <code>int(x)</code> / <code>str(x)</code>.`},
+    {re:/ValueError: invalid literal for int\(\)/,
+     msg:()=>`<b>int() 收到不是數字的字串</b>：例如 <code>int("abc")</code> 會錯。檢查 input 是不是有空白或非數字字元。`,
+     msgEn:()=>`<b>int() got a non-numeric string</b>: e.g. <code>int("abc")</code> fails. Check whether the input has spaces or non-digit characters.`},
+    {re:/ValueError/,
+     msg:()=>`<b>值不合法</b>：函式收到它不接受的值。看看你傳了什麼。`,
+     msgEn:()=>`<b>Invalid value</b>: a function received a value it cannot accept. Check what you passed in.`},
+    {re:/IndexError: list index out of range/,
+     msg:()=>`<b>list 索引超出範圍</b>：list 只有 0 到 len(list)-1。檢查迴圈條件是不是寫成 <code><=</code> 變成多跑一格。`,
+     msgEn:()=>`<b>List index out of range</b>: valid indexes are 0 to len(list)-1. Check whether a loop condition uses <code><=</code> and runs one step too far.`},
+    {re:/IndexError/,
+     msg:()=>`<b>索引超出範圍</b>：要存取的位置不存在。`,
+     msgEn:()=>`<b>Index out of range</b>: the position you tried to access does not exist.`},
+    {re:/KeyError: '?(.+?)'?$/,
+     msg:(m)=>`<b>字典找不到這個 key</b>：<code>${m[1]}</code> 不在字典裡。用 <code>d.get(key, 預設值)</code> 比較安全。`,
+     msgEn:(m)=>`<b>Key not found in dict</b>: <code>${m[1]}</code> is not in the dictionary. <code>d.get(key, default)</code> is safer.`},
+    {re:/AttributeError: '(\w+)' object has no attribute '(\w+)'/,
+     msg:(m)=>`<b>物件沒這個方法</b>：<code>${m[1]}</code> 沒有 <code>.${m[2]}()</code>。檢查拼字，或是不是用錯型別（例如把 str 當 list 用）。`,
+     msgEn:(m)=>`<b>No such attribute</b>: <code>${m[1]}</code> has no <code>.${m[2]}()</code>. Check the spelling, or whether you're using the wrong type (e.g. treating a str as a list).`},
+    {re:/RecursionError/,
+     msg:()=>`<b>遞迴太深</b>：函式呼叫自己沒有終止條件，或終止條件永遠到不了。檢查 base case。`,
+     msgEn:()=>`<b>Recursion too deep</b>: the function calls itself without a base case, or the base case is never reached. Check your base case.`},
+    {re:/ModuleNotFoundError|ImportError/,
+     msg:()=>`<b>找不到模組</b>：可能是這個套件瀏覽器版 Python 沒有。試試標準函式庫的功能。`,
+     msgEn:()=>`<b>Module not found</b>: this package may not exist in the browser build of Python. Try the standard library instead.`}
   ];
   for(const r of rules){
     const m = last.match(r.re);
-    if(m) return `<div class="err-hint">💡 ${r.msg(m)}</div>`;
+    if(m) return `<div class="err-hint">💡 ${(uiLang === 'en' && r.msgEn) ? r.msgEn(m) : r.msg(m)}</div>`;
   }
   return '';
 }
@@ -711,6 +759,9 @@ function flushDraft(){
   else delete drafts[_draftKey];
   try { localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts)); } catch(e) {}
 }
+// 關閉/切走分頁時把防抖中的草稿立即寫入，避免最後 0.4 秒的輸入遺失
+window.addEventListener('beforeunload', flushDraft);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushDraft(); });
 // 載入某章的草稿（沒有草稿就載入範例），並更新追蹤鍵
 function loadDraftInto(chap){
   _draftKey = chap.id + '_' + currentLang;
@@ -720,7 +771,8 @@ function loadDraftInto(chap){
 
 // ── 進度匯出 / 匯入（換裝置、清快取時可帶走進度） ─────────────────────────
 function exportProgress(){
-  const data = { app:'apcs-tutorial', v:1, exportedAt:new Date().toISOString(), done:[...completed] };
+  flushDraft(); // 草稿一併打包，換裝置時寫到一半的程式碼帶得走
+  const data = { app:'apcs-tutorial', v:1, exportedAt:new Date().toISOString(), done:[...completed], drafts };
   const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -737,6 +789,13 @@ document.getElementById('prog-file').addEventListener('change', async e=>{
     const data = JSON.parse(await f.text());
     if(data.app !== 'apcs-tutorial' || !Array.isArray(data.done)) throw new Error('bad format');
     data.done.forEach(id=>{ if(Number.isInteger(id)) completed.add(id); });
+    // 草稿合併：只補進本機沒有的（本機現有草稿優先，不被匯入檔覆蓋）
+    if(data.drafts && typeof data.drafts === 'object' && !Array.isArray(data.drafts)){
+      for(const [k, v] of Object.entries(data.drafts)){
+        if(typeof v === 'string' && v.trim() && drafts[k] === undefined) drafts[k] = v;
+      }
+      try { localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts)); } catch(e) {}
+    }
     saveState();
     updateProgress();
     renderChapList();
@@ -1009,9 +1068,9 @@ async function executeCode(code, stdin, lang) {
     const data = await judge0Submit(code, stdin, JUDGE0_LANG[lang]);
     // Judge0 status：3=正常結束, 5=TLE, 6=編譯錯誤, 7~12=執行期錯誤, 13/14=服務內部錯誤
     const sid = data.status && data.status.id;
-    if (sid === 5) return {raw: '⏱ 執行逾時（TLE）：程式超過時間限制，請檢查迴圈或演算法複雜度', stderr: true};
-    if (sid === 6) return {raw: '🛠 編譯錯誤：\n' + String(data.compile_output || ''), stderr: true};
-    if (sid >= 13) return {raw: '⚠️ 雲端評測服務暫時異常（' + ((data.status && data.status.description) || sid) + '），請稍後再試', stderr: true};
+    if (sid === 5) return {raw: T().errTLE, stderr: true};
+    if (sid === 6) return {raw: T().errCompile + String(data.compile_output || ''), stderr: true};
+    if (sid >= 13) return {raw: T().errService((data.status && data.status.description) || sid), stderr: true};
     const stdout = data.stdout || '';
     const stderr = data.stderr || data.compile_output || '';
     return {raw: stdout + (stderr ? '\n[stderr]\n' + stderr : ''), stderr: !!stderr};
@@ -1033,23 +1092,26 @@ async function judge0Submit(code, stdin, languageId) {
         body: JSON.stringify({ language_id: languageId, source_code: code, stdin: stdin || '' })
       });
     } catch(e) {
-      lastErr = '🌐 無法連線到雲端評測服務（C/C++/Java 需要網路），請確認網路後再試';
+      lastErr = T().errNet;
       continue;
     }
-    if (res.status === 429) { lastErr = '🚦 雲端評測服務忙碌中（請求過於頻繁），請等幾秒再執行'; continue; }
-    if (res.status >= 500) { lastErr = '⚠️ 雲端評測服務暫時異常（HTTP ' + res.status + '），請稍後再試'; continue; }
-    if (!res.ok) throw new Error('評測服務回應異常（HTTP ' + res.status + '）');
+    if (res.status === 429) { lastErr = T().errBusy; continue; }
+    if (res.status >= 500) { lastErr = T().err5xx(res.status); continue; }
+    if (!res.ok) throw new Error(T().errResp(res.status));
     let data = await res.json();
     // wait=true 在服務忙碌時可能直接回 In Queue / Processing（status 1/2），改以 token 輪詢到完成
     for (let p = 0; p < 12 && data.status && data.status.id <= 2 && data.token; p++) {
       await new Promise(r => setTimeout(r, 1200));
-      const r2 = await fetch('https://ce.judge0.com/submissions/' + data.token + '?base64_encoded=false');
-      if (!r2.ok) break;
-      data = await r2.json();
+      // 輪詢途中斷網不往外丟原始錯誤：中止輪詢，回傳目前已知狀態
+      try {
+        const r2 = await fetch('https://ce.judge0.com/submissions/' + data.token + '?base64_encoded=false');
+        if (!r2.ok) break;
+        data = await r2.json();
+      } catch (e) { break; }
     }
     return data;
   }
-  throw new Error(lastErr || '評測服務無回應');
+  throw new Error(lastErr || T().errNoResp);
 }
 
 let runBusy = false;
@@ -1090,22 +1152,29 @@ function normalizeOutput(s){
   return (s || '').replace(/\r\n/g,'\n').replace(/[ \t]+\n/g,'\n').replace(/\n+$/,'').trim();
 }
 async function checkAnswer(chapId){
+  if(runBusy) return; // 與「▶ 執行」共用互鎖，避免同時送出兩個請求
   const meta = CHAPTER_META[chapId];
   if(!meta || !meta.code) return;
+  runBusy = true;
   const btn = document.getElementById('check-btn-'+chapId);
   if(btn){ btn.disabled = true; btn.textContent = T().cqRunning; }
-  const code = cm.getValue();
-  let result;
   try {
-    result = await executeCode(code, meta.code.stdin || '', currentLang);
-  } catch(e){
-    result = {raw: String(e.message||e), stderr: true};
+    const code = cm.getValue();
+    let result;
+    try {
+      result = await executeCode(code, meta.code.stdin || '', currentLang);
+    } catch(e){
+      result = {raw: String(e.message||e), stderr: true};
+    }
+    const got = normalizeOutput(result.raw);
+    const want = normalizeOutput(meta.code.expect);
+    const passed = !result.stderr && got === want;
+    codeQuizState[chapId] = {status: passed ? 'pass' : 'fail', got: result.raw || T().noOutput};
+    if(passed && !completed.has(chapId)) markDone(chapId);
+  } finally {
+    runBusy = false;
+    if(btn){ btn.disabled = false; btn.textContent = T().cqCheck; }
   }
-  const got = normalizeOutput(result.raw);
-  const want = normalizeOutput(meta.code.expect);
-  const passed = !result.stderr && got === want;
-  codeQuizState[chapId] = {status: passed ? 'pass' : 'fail', got: result.raw || T().noOutput};
-  if(passed && !completed.has(chapId)) markDone(chapId);
   if(currentChap && currentChap.id === chapId) selectChap(chapId, {preserveEditor:true});
 }
 

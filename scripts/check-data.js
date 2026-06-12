@@ -60,6 +60,25 @@ for (const htmlFile of ['tutorial.html', 'index.html']) {
   scripts.forEach((m, i) => { if (m[1].trim()) syntaxCheck(htmlFile + ' inline[' + i + ']', m[1]); });
 }
 
+// 1.5) 快取版本同步：HTML 內所有 data/*.js 的 ?v= 必須一致
+//（index.html 的 <script> 標籤與 DATA_VER 是兩處手動同步點，漏改會造成「舊題目 + 新解答」）
+console.log('— 快取版本（cache-bust） —');
+{
+  const idxSrc = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  const dataVer = (idxSrc.match(/const DATA_VER = '([^']+)'/) || [])[1];
+  const probTag = (idxSrc.match(/judge-problems\.js\?v=([\w.-]+)/) || [])[1];
+  if (!dataVer) err('index.html 找不到 DATA_VER');
+  else if (!probTag) err('index.html 找不到 judge-problems.js 的 ?v= 標籤');
+  else if (dataVer !== probTag) err(`index.html 版本不同步：judge-problems.js?v=${probTag} ≠ DATA_VER '${dataVer}'`);
+  else ok(`index.html：judge-problems.js 標籤與 DATA_VER 同為 '${dataVer}'`);
+
+  const tutSrc = fs.readFileSync(path.join(ROOT, 'tutorial.html'), 'utf8');
+  const tutVers = new Set([...tutSrc.matchAll(/data\/tutorial-[\w-]+\.js\?v=([\w.-]+)/g)].map(m => m[1]));
+  if (!tutVers.size) err('tutorial.html 找不到任何 data/*.js 的 ?v= 標籤');
+  else if (tutVers.size > 1) err(`tutorial.html 的 ?v= 版本不一致：${[...tutVers].join(', ')}`);
+  else ok(`tutorial.html：全部 data 標籤同為 '${[...tutVers][0]}'`);
+}
+
 // 2) 教學資料
 console.log('— 教學資料（tutorial） —');
 const CHAPTERS = loadData('tutorial-chapters-zh.js', 'CHAPTERS');
