@@ -1210,6 +1210,22 @@ if (uiLang === 'en') {
     }
   }).catch(() => {});
 }
+
+// 版本指示器：顯示瀏覽器「實際載入」的章節數與資料版本，點擊強制破快取重載。
+// 用途：更新後若仍看到舊內容，可一眼確認拿到的是不是最新版（HTML 本身無法用 ?v= 破快取，
+// 只能靠硬重載或等 CDN 的 max-age=600 過期）。
+(function(){
+  const ver = ((document.querySelector('script[src*="tutorial-chapters-zh"]')||{}).src||'').match(/[?&]v=([\w.-]+)/)?.[1] || '?';
+  const b = document.createElement('div');
+  b.id = 'ver-badge';
+  b.textContent = `${CHAPTERS.length} 章 · v${ver}`;
+  b.title = '點此強制重新整理，取得最新版本（清掉舊快取）';
+  b.style.cssText = 'position:fixed;right:8px;bottom:8px;z-index:9999;font:10px/1.4 ui-monospace,monospace;color:var(--text-muted);background:var(--panel,#1118);border:1px solid var(--border);border-radius:10px;padding:2px 8px;opacity:.55;cursor:pointer;user-select:none';
+  b.onmouseenter = () => b.style.opacity = '1';
+  b.onmouseleave = () => b.style.opacity = '.55';
+  b.onclick = () => location.replace(location.pathname + '?_t=' + Date.now());
+  document.body.appendChild(b);
+})();
 </script>
 </body>
 </html>
