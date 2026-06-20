@@ -674,7 +674,12 @@ const PROBLEMS_EN = {
   "hint": "**Keywords**: \"keep digits\" → iterate over characters + check `c.isdigit()`.\n**Caution**: If no digits, output `-1`, not an empty string."
  },
  "j_gem_pick": {
-  "title": "Collect Gems (Non-adjacent)"
+  "title": "Collect Gems (Non-adjacent)",
+  "topic": "DP, house robber",
+  "desc": "n gems are arranged in a row; the i-th gem has value v_i.\nIf you take the i-th gem you cannot take the (i-1)-th or (i+1)-th. Find the maximum total value you can collect.",
+  "input_desc": "First line: an integer n (1 ≤ n ≤ 10⁵).\nSecond line: n integers v_1..v_n (0 ≤ v_i ≤ 10⁴).",
+  "output_desc": "A single integer: the maximum total value.",
+  "hint": "**Keyword**: \"non-adjacent\" → **House Robber DP**.\n**State**: `dp[i] = max(dp[i-1], dp[i-2] + v[i])`."
  },
  "src283_joi_15_inheritance": {
   "title": "2015 - Inheritance",
