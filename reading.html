@@ -97,9 +97,9 @@ pre.code .fn{color:#d2a8ff;}
 </div>
 <div id="ver-badge"></div>
 
-<script src="data/reading-questions.js?v=20260620d"></script>
+<script src="data/reading-questions.js?v=20260621a"></script>
 <script>
-const DATA_VER='20260620d';
+const DATA_VER='20260621a';
 const STORE_KEY='apcs_reading_v1';
 let answers=loadAnswers();
 let curFilter='all';
@@ -145,8 +145,8 @@ function renderFilters(){
   const f=document.getElementById('filters');
   const counts={all:READING_QUESTIONS.length};
   for(const e of exams())counts[e]=READING_QUESTIONS.filter(q=>q.exam===e).length;
-  let html=`<button class="fbtn ${curFilter==='all'?'on':''}" onclick="setFilter('all')">全部 (${counts.all})</button>`;
-  for(const e of exams())html+=`<button class="fbtn ${curFilter===e?'on':''}" onclick="setFilter(${JSON.stringify(e)})">${escH(e)} (${counts[e]})</button>`;
+  let html=`<button class="fbtn ${curFilter==='all'?'on':''}" data-exam="__all__">全部 (${counts.all})</button>`;
+  for(const e of exams())html+=`<button class="fbtn ${curFilter===e?'on':''}" data-exam="${escH(e)}">${escH(e)} (${counts[e]})</button>`;
   f.innerHTML=html;
 }
 function setFilter(e){curFilter=e;render();}
@@ -175,14 +175,14 @@ function renderCard(q){
       if(oi===q.answer){cls+=' correct';mk='<span class="mk" style="color:var(--green)">正解</span>';}
       else if(oi===chosen){cls+=' wrong';mk='<span class="mk" style="color:var(--red)">你的選擇</span>';}
     }
-    return `<button class="${cls}" ${dis} onclick="answer(${JSON.stringify(q.id)},${oi})"><span class="lab">(${'ABCD'[oi]})</span><span>${escH(op)}</span>${mk}</button>`;
+    return `<button class="${cls}" ${dis} data-oi="${oi}"><span class="lab">(${'ABCD'[oi]})</span><span>${escH(op)}</span>${mk}</button>`;
   }).join('');
   let explain='';
   if(done){
     const ok=chosen===q.answer;
     explain=`<div class="explain"><span class="lead ${ok?'':'bad'}">${ok?'✓ 答對！':'✗ 答錯了'}</span>　正解 (${'ABCD'[q.answer]})。<br>${escH(q.explain)}</div>`;
   }
-  return `<div class="qcard${done?' answered':''}">
+  return `<div class="qcard${done?' answered':''}" data-qid="${escH(q.id)}">
     <div class="qmeta">
       <span class="badge exam">${escH(q.exam)}</span>
       <span class="badge num">${escH(q.num)}</span>
@@ -200,7 +200,13 @@ function renderCard(q){
 
 function answer(id,oi){
   if(answers[id]!==undefined)return;
-  answers[id]=oi;saveAnswers();render();
+  answers[id]=oi;saveAnswers();
+  const q=READING_QUESTIONS.find(x=>x.id===id);
+  // 隱藏已答對模式下答對 → 該題要消失，需整頁重繪；否則只更新該張卡片（題庫大時避免整頁重繪卡頓）
+  if(hideDone&&oi===q.answer){render();return;}
+  const card=document.querySelector('.qcard[data-qid="'+id+'"]');
+  if(card){const t=document.createElement('div');t.innerHTML=renderCard(q);card.replaceWith(t.firstElementChild);updateScore();}
+  else render();
 }
 window.answer=answer;
 
@@ -224,6 +230,16 @@ document.getElementById('toggle-done').onclick=function(){
 
 (function(){
   document.getElementById('ver-badge').textContent=`${READING_QUESTIONS.length} 題 · v${DATA_VER}`;
+  // 事件委派：考試別篩選與選項作答（避免把含引號的 id／中文考試名放進 inline onclick 造成屬性被截斷）
+  document.getElementById('filters').addEventListener('click',e=>{
+    const b=e.target.closest('.fbtn'); if(!b)return;
+    setFilter(b.dataset.exam==='__all__'?'all':b.dataset.exam);
+  });
+  document.getElementById('qlist').addEventListener('click',e=>{
+    const b=e.target.closest('.opt'); if(!b||b.disabled)return;
+    const card=b.closest('.qcard'); if(!card)return;
+    answer(card.dataset.qid,Number(b.dataset.oi));
+  });
   render();
 })();
 </script>
