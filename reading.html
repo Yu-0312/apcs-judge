@@ -44,6 +44,12 @@ header{height:56px;display:flex;align-items:center;padding:0 20px;background:var
 .badge.lang{color:var(--orange);background:rgba(255,166,87,.1);border-color:rgba(255,166,87,.3);}
 .badge.num{color:var(--text-muted);}
 .badge.official{color:var(--green);background:rgba(63,185,80,.1);border-color:rgba(63,185,80,.3);}
+.badge.lv{font-weight:700;}
+.badge.lv1{color:var(--green);background:rgba(63,185,80,.12);border-color:rgba(63,185,80,.35);}
+.badge.lv2{color:var(--blue);background:rgba(88,166,255,.12);border-color:rgba(88,166,255,.35);}
+.badge.lv3{color:var(--orange);background:rgba(255,166,87,.12);border-color:rgba(255,166,87,.35);}
+.badge.lv4{color:var(--red);background:rgba(248,81,73,.12);border-color:rgba(248,81,73,.35);}
+.flabel{font-size:11px;color:var(--text-muted);align-self:center;margin-right:2px;}
 .qmark{margin-left:auto;font-size:16px;}
 pre.code{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:12px 14px;overflow-x:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.55;color:#cdd9e5;margin:4px 0 12px;white-space:pre;tab-size:2;}
 pre.code .cm{color:#6b7785;font-style:italic;}
@@ -86,6 +92,7 @@ pre.code .fn{color:#d2a8ff;}
     這裡收錄兩種考試的判讀題：讀程式碼、選出答案，作答後立即顯示<b style="color:var(--green)">正解</b>與<b>解析考點</b>。
     <div class="src">題目來源：APCS 官網範例題本（apcs.csie.ntnu.edu.tw）／技專校院入學測驗中心歷屆公告試題（tcte.edu.tw）；標註「官方解答」者為公告標準答案，其餘為依程式邏輯推得之正解。僅供練習參考。</div>
   </div>
+  <div class="filters" id="levelfilters"></div>
   <div class="filters" id="filters"></div>
   <div class="toolbar">
     <span id="prog-text">尚未作答</span>
@@ -97,13 +104,16 @@ pre.code .fn{color:#d2a8ff;}
 </div>
 <div id="ver-badge"></div>
 
-<script src="data/reading-questions.js?v=20260621a"></script>
+<script src="data/reading-questions.js?v=20260621b"></script>
 <script>
-const DATA_VER='20260621a';
+const DATA_VER='20260621b';
 const STORE_KEY='apcs_reading_v1';
 let answers=loadAnswers();
 let curFilter='all';
+let curLevel='all';
 let hideDone=false;
+const LEVELS=['初級','中級','中高級','高級'];
+const LVCLASS={'初級':'lv1','中級':'lv2','中高級':'lv3','高級':'lv4'};
 
 function loadAnswers(){try{const o=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');return (o&&typeof o==='object')?o:{};}catch(e){return {};}}
 function saveAnswers(){try{localStorage.setItem(STORE_KEY,JSON.stringify(answers));}catch(e){}}
@@ -152,12 +162,23 @@ function renderFilters(){
 function setFilter(e){curFilter=e;render();}
 window.setFilter=setFilter;
 
+function renderLevelFilters(){
+  const f=document.getElementById('levelfilters');
+  const c={all:READING_QUESTIONS.length};
+  for(const lv of LEVELS)c[lv]=READING_QUESTIONS.filter(q=>q.level===lv).length;
+  let html=`<span class="flabel">難度</span><button class="fbtn ${curLevel==='all'?'on':''}" data-level="__all__">全部 (${c.all})</button>`;
+  for(const lv of LEVELS)html+=`<button class="fbtn ${curLevel===lv?'on':''}" data-level="${lv}">${lv} (${c[lv]})</button>`;
+  f.innerHTML=html;
+}
+function setLevel(lv){curLevel=lv;render();}
+
 function langLabel(l){return ({c:'C',cpp:'C++',python:'Python'})[l]||'觀念題';}
 
 function render(){
   renderFilters();
+  renderLevelFilters();
   const list=document.getElementById('qlist');
-  let qs=READING_QUESTIONS.filter(q=>curFilter==='all'||q.exam===curFilter);
+  let qs=READING_QUESTIONS.filter(q=>(curFilter==='all'||q.exam===curFilter)&&(curLevel==='all'||q.level===curLevel));
   if(hideDone)qs=qs.filter(q=>!(answers[q.id]!==undefined&&answers[q.id]===q.answer));
   if(!qs.length){list.innerHTML='<div class="empty">沒有符合條件的題目（可能都已答對，試試「顯示已答對」）。</div>';updateScore();return;}
   list.innerHTML=qs.map(renderCard).join('');
@@ -184,6 +205,7 @@ function renderCard(q){
   }
   return `<div class="qcard${done?' answered':''}" data-qid="${escH(q.id)}">
     <div class="qmeta">
+      ${q.level?`<span class="badge lv ${LVCLASS[q.level]}">${escH(q.level)}</span>`:''}
       <span class="badge exam">${escH(q.exam)}</span>
       <span class="badge num">${escH(q.num)}</span>
       <span class="badge topic">${escH(q.topic)}</span>
@@ -234,6 +256,10 @@ document.getElementById('toggle-done').onclick=function(){
   document.getElementById('filters').addEventListener('click',e=>{
     const b=e.target.closest('.fbtn'); if(!b)return;
     setFilter(b.dataset.exam==='__all__'?'all':b.dataset.exam);
+  });
+  document.getElementById('levelfilters').addEventListener('click',e=>{
+    const b=e.target.closest('.fbtn'); if(!b)return;
+    setLevel(b.dataset.level==='__all__'?'all':b.dataset.level);
   });
   document.getElementById('qlist').addEventListener('click',e=>{
     const b=e.target.closest('.opt'); if(!b||b.disabled)return;

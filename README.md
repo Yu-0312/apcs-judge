@@ -1,11 +1,13 @@
 # 互動程式教室 × APCS 練習 / Interactive Coding Classroom × APCS Practice
 
-> 從零基礎到進階：Python · C++ · C · Java 四語言、95 章互動教學，搭配 300 題 APCS 分級題庫——全部在瀏覽器內完成，零安裝、零後端、零註冊。
-> Learn to code from zero in four languages — 95 interactive chapters plus a 300-problem tiered APCS judge, entirely in the browser. No install, no backend, no signup.
+> 從零基礎到進階：Python · C++ · C · Java 四語言、95 章互動教學，搭配 300 題 APCS 分級題庫與 292 題程式判讀練習——全部在瀏覽器內完成，零安裝、零後端、零註冊。
+> Learn to code from zero in four languages — 95 interactive chapters, a 300-problem tiered APCS judge, and a 292-question code-reading drill, entirely in the browser. No install, no backend, no signup.
 
 📚 **程式教學 / Tutorial**：**https://yu-0312.github.io/apcs-judge/tutorial.html**
 
 🎯 **APCS 題庫 / Judge**：https://yu-0312.github.io/apcs-judge/
+
+🔍 **程式判讀 / Code Reading**：https://yu-0312.github.io/apcs-judge/reading.html
 
 [繁體中文](#繁體中文) · [English](#english)
 
@@ -21,14 +23,15 @@
 
 ### 這是什麼？
 
-這個專案是一條完整的學習路徑，由兩個頁面組成：
+這個專案是一條完整的學習路徑，由三個頁面組成：
 
 | 頁面 | 角色 | 內容 |
 |------|------|------|
 | 📚 **tutorial.html** | **主軸：程式教學** | 95 章互動課程，從「什麼是程式」一路教到爬蟲、資料分析、機器人、遊戲開發，以及 C++ / C / Java 各自的語言專項 |
 | 🎯 **index.html** | **實戰：APCS 練習** | 300 道分級題目、四語言官方解答、即時評分與解題思路 |
+| 🔍 **reading.html** | **判讀：程式識讀** | 292 題「讀程式碼、選答案」的判讀練習，依 APCS 四級難度分類，作答後即時對解＋考點解析 |
 
-先在教學頁把觀念跑通，再到題庫實戰演練——也可以反過來，卡題時回教學頁補對應章節。
+先在教學頁把觀念跑通，再到題庫實戰演練、用判讀頁練讀程式的速度與細節——也可以反過來，卡題時回教學頁補對應章節。
 
 ### ✨ 特色
 
@@ -84,6 +87,15 @@ APCS 新制包含「程式識讀」與「程式實作」兩部分；實作題本
 
 參考：[APCS 題目範例](https://apcs.csie.ntnu.edu.tw/index.php/questionstypes/previousexam/)、[APCS 成績說明](https://apcs.csie.ntnu.edu.tw/index.php/grades/)、[王一哲老師 APCS 課程整理](https://sites.google.com/view/yizhe/%E8%AA%B2%E7%A8%8B/apcs)
 
+### 🔍 程式判讀（識讀練習）
+
+[程式判讀頁](https://yu-0312.github.io/apcs-judge/reading.html) 專門練「讀懂一段程式並推出結果 / 找出錯誤」的選擇題——這正是 **APCS 程式識讀**與**統測 程式設計實習**的主力題型。
+
+- **292 題**：APCS 官方範例題與統測歷屆判讀題（標「官方解答」），加上依考點自編的精選練習題；C / C++ / Python 程式追蹤、除錯、複雜度、位元、指標、結構與類別、資料結構與演算法等
+- **依 APCS 四級難度分類**：初級 / 中級 / 中高級 / 高級，可與「考試別」雙重篩選；卡片上也會標示該題難度
+- **即時對解**：讀程式碼、選答案，作答後立即顯示正解與考點解析；可執行的 C/C++ 題目其答案皆以本機編譯實跑驗證
+- **進度可攜**：作答紀錄存於瀏覽器 localStorage
+
 ### 🚀 快速開始
 
 **線上**：直接開 https://yu-0312.github.io/apcs-judge/tutorial.html 開始上課，或 https://yu-0312.github.io/apcs-judge/ 開始刷題。
@@ -127,12 +139,13 @@ MIT License。題目敘述若引用自 APCS、ZeroJudge、啟思博等來源，�
 
 ### Overview
 
-This project is a complete learning path made of two pages:
+This project is a complete learning path made of three pages:
 
 | Page | Role | Content |
 |------|------|---------|
 | 📚 **tutorial.html** | **Core: coding tutorial** | 95 interactive chapters, from "what is a program" through web scraping, data analysis, chat bots and game dev, plus dedicated C++ / C / Java tracks |
 | 🎯 **index.html** | **Practice: APCS judge** | 300 tiered problems with reference solutions in four languages, instant grading and solution hints |
+| 🔍 **reading.html** | **Code reading** | 292 "read the code, pick the answer" comprehension questions, classified into APCS's four difficulty tiers, with instant reveal and per-question explanations |
 
 ### Highlights
 
@@ -164,6 +177,10 @@ This project is a complete learning path made of two pages:
 ### APCS practice
 
 The [judge](https://yu-0312.github.io/apcs-judge/) hosts **300 problems** (⭐ 36 / ⭐⭐ 84 / ⭐⭐⭐ 53 / ⭐⭐⭐⭐ 127) with four-language reference solutions, instant grading with per-character diff, and keyword→algorithm solution hints. Sources include official APCS past exams, ZeroJudge, and Codeforces / CF Gym / USACO for advanced training.
+
+### Code reading
+
+The [code-reading page](https://yu-0312.github.io/apcs-judge/reading.html) drills the "trace a program / spot the bug" multiple-choice format used by **APCS code literacy** and the **statutory vocational exam (統測)**. It holds **292 questions** (official APCS samples and past 統測 items marked "official answer", plus curated practice questions), each tagged with one of APCS's four difficulty tiers (basic / intermediate / advanced / expert) and filterable by both tier and exam. Pick an answer to instantly reveal the correct option and its explanation; every runnable C/C++ question's answer was verified by local compilation.
 
 ### Quick start
 
