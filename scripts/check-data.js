@@ -54,7 +54,7 @@ const syntaxCheck = (label, code) => {
 for (const f of fs.readdirSync(path.join(ROOT, 'data')).filter(f => f.endsWith('.js'))) {
   syntaxCheck('data/' + f, fs.readFileSync(path.join(ROOT, 'data', f), 'utf8'));
 }
-for (const htmlFile of ['tutorial.html', 'index.html']) {
+for (const htmlFile of ['tutorial.html', 'index.html', 'reading.html']) {
   const src = fs.readFileSync(path.join(ROOT, htmlFile), 'utf8');
   const scripts = [...src.matchAll(/<script(?![^>]*src=)[^>]*>([\s\S]*?)<\/script>/g)];
   scripts.forEach((m, i) => { if (m[1].trim()) syntaxCheck(htmlFile + ' inline[' + i + ']', m[1]); });

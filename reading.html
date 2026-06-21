@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APCS 程式判讀練習｜程式識讀 × 統測判讀題</title>
+<meta name="description" content="APCS『程式識讀』與統測『程式設計實習』判讀題的線上練習：讀程式、選答案、即時對解＋解析。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔍</text></svg>">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0f1117;--sidebar-bg:#161b22;--panel-bg:#1c2128;
+  --border:#30363d;--text:#e6edf3;--text-muted:#8b949e;
+  --green:#3fb950;--red:#f85149;--yellow:#d29922;--blue:#58a6ff;--purple:#bc8cff;--orange:#ffa657;
+  --accent:#58a6ff;
+}
+html,body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100%;}
+a{color:inherit;}
+header{height:56px;display:flex;align-items:center;padding:0 20px;background:var(--sidebar-bg);border-bottom:1px solid var(--border);gap:12px;position:sticky;top:0;z-index:20;}
+.logo{font-size:17px;font-weight:700;color:var(--accent);}
+.sub{font-size:12px;color:var(--text-muted);}
+.hright{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12px;}
+.navlink{color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;}
+.navlink:hover{border-color:var(--text-muted);color:var(--text);}
+.score-pill{font-size:12px;color:var(--green);background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.3);border-radius:999px;padding:4px 12px;font-weight:700;}
+.wrap{max-width:880px;margin:0 auto;padding:20px 16px 80px;}
+.intro{background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:18px;font-size:13px;line-height:1.7;color:#cdd9e5;}
+.intro b{color:var(--text);}
+.intro .src{font-size:11px;color:var(--text-muted);margin-top:8px;}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
+.fbtn{background:var(--panel-bg);border:1px solid var(--border);color:var(--text-muted);border-radius:999px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;}
+.fbtn:hover{color:var(--text);}
+.fbtn.on{color:#fff;background:var(--accent);border-color:var(--accent);}
+.toolbar{display:flex;align-items:center;gap:10px;margin:6px 0 18px;font-size:12px;color:var(--text-muted);flex-wrap:wrap;}
+.toolbar .grow{flex:1;}
+.tbtn{background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;font-family:inherit;}
+.tbtn:hover{color:var(--text);border-color:var(--text-muted);}
+.qcard{background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:16px;}
+.qcard.answered{border-color:rgba(88,166,255,.25);}
+.qmeta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px;}
+.badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text-muted);}
+.badge.exam{color:var(--blue);background:rgba(88,166,255,.1);border-color:rgba(88,166,255,.3);}
+.badge.topic{color:var(--purple);background:rgba(188,140,255,.1);border-color:rgba(188,140,255,.3);}
+.badge.lang{color:var(--orange);background:rgba(255,166,87,.1);border-color:rgba(255,166,87,.3);}
+.badge.num{color:var(--text-muted);}
+.badge.official{color:var(--green);background:rgba(63,185,80,.1);border-color:rgba(63,185,80,.3);}
+.qmark{margin-left:auto;font-size:16px;}
+pre.code{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:12px 14px;overflow-x:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.55;color:#cdd9e5;margin:4px 0 12px;white-space:pre;tab-size:2;}
+pre.code .cm{color:#6b7785;font-style:italic;}
+pre.code .st{color:#a5d6ff;}
+pre.code .kw{color:#ff7b72;}
+pre.code .nm{color:#79c0ff;}
+pre.code .fn{color:#d2a8ff;}
+.qprompt{font-size:14px;line-height:1.7;color:var(--text);margin-bottom:12px;font-weight:500;}
+.opts{display:flex;flex-direction:column;gap:8px;}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--text);cursor:pointer;font-family:inherit;line-height:1.5;transition:all .12s;}
+.opt:hover:not(:disabled){border-color:var(--accent);background:rgba(88,166,255,.05);}
+.opt:disabled{cursor:default;}
+.opt .lab{font-weight:700;color:var(--text-muted);flex-shrink:0;}
+.opt.correct{border-color:var(--green);background:rgba(63,185,80,.12);}
+.opt.correct .lab{color:var(--green);}
+.opt.wrong{border-color:var(--red);background:rgba(248,81,73,.12);}
+.opt.wrong .lab{color:var(--red);}
+.opt .mk{margin-left:auto;font-weight:700;}
+.explain{margin-top:12px;background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.22);border-left:3px solid var(--accent);border-radius:6px;padding:10px 14px;font-size:12.5px;line-height:1.7;color:#cdd9e5;}
+.explain b{color:var(--text);}
+.explain .lead{color:var(--green);font-weight:700;}
+.explain .lead.bad{color:var(--red);}
+.empty{text-align:center;color:var(--text-muted);padding:40px;}
+#ver-badge{position:fixed;right:8px;bottom:8px;z-index:50;font:10px/1.4 ui-monospace,monospace;color:var(--text-muted);background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:2px 8px;opacity:.55;}
+@media(max-width:640px){.wrap{padding:14px 10px 80px;}header{padding:0 12px;}.sub{display:none;}}
+</style>
+</head>
+<body>
+<header>
+  <div><div class="logo">🔍 APCS 程式判讀</div><div class="sub">讀程式 · 選答案 · 即時對解</div></div>
+  <div class="hright">
+    <a class="navlink" href="index.html">🎯 評分系統</a>
+    <a class="navlink" href="tutorial.html">📚 基礎教學</a>
+    <span class="score-pill" id="score-pill">0 / 0</span>
+  </div>
+</header>
+<div class="wrap">
+  <div class="intro">
+    <b>程式判讀</b>是「讀懂一段程式並推出結果 / 找出錯誤」的題型，<b>APCS 程式識讀</b>與<b>統測 程式設計實習</b>都大量出現。
+    這裡收錄兩種考試的判讀題：讀程式碼、選出答案，作答後立即顯示<b style="color:var(--green)">正解</b>與<b>解析考點</b>。
+    <div class="src">題目來源：APCS 官網範例題本（apcs.csie.ntnu.edu.tw）／技專校院入學測驗中心歷屆公告試題（tcte.edu.tw）；標註「官方解答」者為公告標準答案，其餘為依程式邏輯推得之正解。僅供練習參考。</div>
+  </div>
+  <div class="filters" id="filters"></div>
+  <div class="toolbar">
+    <span id="prog-text">尚未作答</span>
+    <span class="grow"></span>
+    <button class="tbtn" id="toggle-done">隱藏已答對</button>
+    <button class="tbtn" onclick="resetAll()">清除作答紀錄</button>
+  </div>
+  <div id="qlist"></div>
+</div>
+<div id="ver-badge"></div>
+
+<script src="data/reading-questions.js?v=20260620d"></script>
+<script>
+const DATA_VER='20260620d';
+const STORE_KEY='apcs_reading_v1';
+let answers=loadAnswers();
+let curFilter='all';
+let hideDone=false;
+
+function loadAnswers(){try{const o=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');return (o&&typeof o==='object')?o:{};}catch(e){return {};}}
+function saveAnswers(){try{localStorage.setItem(STORE_KEY,JSON.stringify(answers));}catch(e){}}
+
+function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// 輕量語法上色：逐字掃描，安全 escape。支援 C/C++/Python 註解、字串、關鍵字、數字。
+const KW=new Set(['int','float','double','char','unsigned','signed','long','short','void','bool','if','else','while','for','return','switch','case','default','break','continue','enum','struct','class','public','private','static','const','def','print','elif','std']);
+function hlCode(code,lang){
+  const lineComment=(lang==='python')?'#':'//';
+  let out='',i=0,n=code.length;
+  function esc(c){return c==='&'?'&amp;':c==='<'?'&lt;':c==='>'?'&gt;':c;}
+  while(i<n){
+    const c=code[i];
+    // line comment
+    if(c===lineComment[0]&&(lineComment.length===1||code[i+1]===lineComment[1])){
+      let j=i;while(j<n&&code[j]!=='\n')j++;out+='<span class="cm">'+escH(code.slice(i,j))+'</span>';i=j;continue;
+    }
+    // block comment
+    if(c==='/'&&code[i+1]==='*'){let j=i+2;while(j<n&&!(code[j]==='*'&&code[j+1]==='/'))j++;j=Math.min(n,j+2);out+='<span class="cm">'+escH(code.slice(i,j))+'</span>';i=j;continue;}
+    // string
+    if(c==='"'||c==="'"){const q=c;let j=i+1;while(j<n){if(code[j]==='\\'){j+=2;continue;}if(code[j]===q){j++;break;}j++;}out+='<span class="st">'+escH(code.slice(i,j))+'</span>';i=j;continue;}
+    // identifier / keyword / function-call
+    if(/[A-Za-z_]/.test(c)){let j=i;while(j<n&&/[A-Za-z0-9_]/.test(code[j]))j++;const w=code.slice(i,j);
+      if(KW.has(w))out+='<span class="kw">'+w+'</span>';
+      else if(code[j]==='(')out+='<span class="fn">'+escH(w)+'</span>';
+      else out+=escH(w);
+      i=j;continue;}
+    // number
+    if(/[0-9]/.test(c)){let j=i;while(j<n&&/[0-9xXa-fA-F.]/.test(code[j]))j++;out+='<span class="nm">'+code.slice(i,j)+'</span>';i=j;continue;}
+    out+=esc(c);i++;
+  }
+  return out;
+}
+
+function exams(){const seen=[];for(const q of READING_QUESTIONS)if(!seen.includes(q.exam))seen.push(q.exam);return seen;}
+
+function renderFilters(){
+  const f=document.getElementById('filters');
+  const counts={all:READING_QUESTIONS.length};
+  for(const e of exams())counts[e]=READING_QUESTIONS.filter(q=>q.exam===e).length;
+  let html=`<button class="fbtn ${curFilter==='all'?'on':''}" onclick="setFilter('all')">全部 (${counts.all})</button>`;
+  for(const e of exams())html+=`<button class="fbtn ${curFilter===e?'on':''}" onclick="setFilter(${JSON.stringify(e)})">${escH(e)} (${counts[e]})</button>`;
+  f.innerHTML=html;
+}
+function setFilter(e){curFilter=e;render();}
+window.setFilter=setFilter;
+
+function langLabel(l){return ({c:'C',cpp:'C++',python:'Python'})[l]||'觀念題';}
+
+function render(){
+  renderFilters();
+  const list=document.getElementById('qlist');
+  let qs=READING_QUESTIONS.filter(q=>curFilter==='all'||q.exam===curFilter);
+  if(hideDone)qs=qs.filter(q=>!(answers[q.id]!==undefined&&answers[q.id]===q.answer));
+  if(!qs.length){list.innerHTML='<div class="empty">沒有符合條件的題目（可能都已答對，試試「顯示已答對」）。</div>';updateScore();return;}
+  list.innerHTML=qs.map(renderCard).join('');
+  updateScore();
+}
+
+function renderCard(q){
+  const chosen=answers[q.id];
+  const done=chosen!==undefined;
+  const mark=done?(chosen===q.answer?'<span class="qmark" style="color:var(--green)">✓</span>':'<span class="qmark" style="color:var(--red)">✗</span>'):'';
+  const codeBlock=q.code?`<pre class="code">${hlCode(q.code,q.lang)}</pre>`:'';
+  const opts=q.options.map((op,oi)=>{
+    let cls='opt';let mk='';let dis=done?'disabled':'';
+    if(done){
+      if(oi===q.answer){cls+=' correct';mk='<span class="mk" style="color:var(--green)">正解</span>';}
+      else if(oi===chosen){cls+=' wrong';mk='<span class="mk" style="color:var(--red)">你的選擇</span>';}
+    }
+    return `<button class="${cls}" ${dis} onclick="answer(${JSON.stringify(q.id)},${oi})"><span class="lab">(${'ABCD'[oi]})</span><span>${escH(op)}</span>${mk}</button>`;
+  }).join('');
+  let explain='';
+  if(done){
+    const ok=chosen===q.answer;
+    explain=`<div class="explain"><span class="lead ${ok?'':'bad'}">${ok?'✓ 答對！':'✗ 答錯了'}</span>　正解 (${'ABCD'[q.answer]})。<br>${escH(q.explain)}</div>`;
+  }
+  return `<div class="qcard${done?' answered':''}">
+    <div class="qmeta">
+      <span class="badge exam">${escH(q.exam)}</span>
+      <span class="badge num">${escH(q.num)}</span>
+      <span class="badge topic">${escH(q.topic)}</span>
+      <span class="badge lang">${langLabel(q.lang)}</span>
+      ${q.official?'<span class="badge official">官方解答</span>':''}
+      ${mark}
+    </div>
+    ${codeBlock}
+    <div class="qprompt">${escH(q.q)}</div>
+    <div class="opts">${opts}</div>
+    ${explain}
+  </div>`;
+}
+
+function answer(id,oi){
+  if(answers[id]!==undefined)return;
+  answers[id]=oi;saveAnswers();render();
+}
+window.answer=answer;
+
+function updateScore(){
+  const total=READING_QUESTIONS.length;
+  const done=Object.keys(answers).filter(id=>READING_QUESTIONS.some(q=>q.id===id)).length;
+  const correct=READING_QUESTIONS.filter(q=>answers[q.id]===q.answer).length;
+  document.getElementById('score-pill').textContent=`答對 ${correct} / ${total}`;
+  document.getElementById('prog-text').textContent=done?`已作答 ${done}/${total} 題，答對 ${correct} 題`:'尚未作答';
+}
+
+function resetAll(){
+  if(!confirm('確定清除所有作答紀錄？'))return;
+  answers={};saveAnswers();render();
+}
+window.resetAll=resetAll;
+
+document.getElementById('toggle-done').onclick=function(){
+  hideDone=!hideDone;this.textContent=hideDone?'顯示已答對':'隱藏已答對';render();
+};
+
+(function(){
+  document.getElementById('ver-badge').textContent=`${READING_QUESTIONS.length} 題 · v${DATA_VER}`;
+  render();
+})();
+</script>
+</body>
+</html>
