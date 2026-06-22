@@ -69,6 +69,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .panel-hdr .grow{flex:1;}
 .main-scroll{overflow-y:auto;flex:1;padding:18px 18px 90px;}
 .inner{max-width:880px;margin:0 auto;}
+.inner.practice{max-width:760px;}
 .tbtn{background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;padding:5px 11px;font-size:12px;cursor:pointer;font-family:inherit;}
 .tbtn:hover{color:var(--text);border-color:var(--text-muted);}
 
@@ -80,7 +81,9 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .ov-hint .grow{flex:1;}
 .ov-reset{background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:400;}
 .ov-reset:hover{color:var(--red);border-color:var(--red);}
-.ov-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;}
+.ov-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:start;}
+@media(max-width:1300px){.ov-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:560px){.ov-grid{grid-template-columns:minmax(0,1fr);}}
 .ov-card{background:var(--panel-bg);border:1px solid var(--border);border-top:3px solid var(--lvcolor);border-radius:12px;padding:15px 16px;}
 .ov-card h3{display:flex;align-items:center;gap:8px;font-size:14px;margin-bottom:4px;}
 .ov-card-count{margin-left:auto;font-size:12px;color:var(--text-muted);font-weight:400;}
@@ -131,6 +134,18 @@ pre.code .fn{color:#d2a8ff;}
 .explain .lead{color:var(--green);font-weight:700;}
 .explain .lead.bad{color:var(--red);}
 .empty{text-align:center;color:var(--text-muted);padding:48px 20px;}
+
+/* ===== 單題導覽 ===== */
+.q-progress-bar{height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;margin-bottom:16px;}
+.q-progress-bar i{display:block;height:100%;background:var(--accent);border-radius:3px;transition:width .3s ease;}
+.q-nav{display:flex;align-items:center;gap:12px;margin-top:20px;}
+.q-nav .grow{flex:1;}
+.q-counter{font-size:12px;color:var(--text-muted);white-space:nowrap;}
+.nav-btn{background:var(--panel-bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:11px 20px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .12s;}
+.nav-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent);}
+.nav-btn:disabled{opacity:.35;cursor:default;}
+.nav-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.nav-btn.primary:hover{filter:brightness(1.12);color:#fff;}
 #ver-badge{position:fixed;right:8px;bottom:8px;z-index:50;font:10px/1.4 ui-monospace,monospace;color:var(--text-muted);background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:2px 8px;opacity:.55;}
 ::-webkit-scrollbar{width:7px;height:7px;}
 ::-webkit-scrollbar-thumb{background:#30363d;border-radius:3px;}
@@ -169,9 +184,9 @@ pre.code .fn{color:#d2a8ff;}
 </div>
 <div id="ver-badge"></div>
 
-<script src="data/reading-questions.js?v=20260621c"></script>
+<script src="data/reading-questions.js?v=20260622a"></script>
 <script>
-const DATA_VER='20260621c';
+const DATA_VER='20260622a';
 const STORE_KEY='apcs_reading_v1';
 const UI_KEY='apcs_reading_ui_v1';
 const LEVELS=['初級','中級','中高級','高級'];
@@ -184,12 +199,13 @@ let curBank=null;          // {level,exam}
 let expanded=new Set();    // 展開的難度
 let hideDone=false;
 let randLevel=null, randCount=20, randIds=[];
+let curIndex=0;            // 單題模式：目前題目在清單中的索引
 const RAND_MAX=50;
 
 function loadAnswers(){try{const o=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');return (o&&typeof o==='object')?o:{};}catch(e){return {};}}
 function saveAnswers(){try{localStorage.setItem(STORE_KEY,JSON.stringify(answers));}catch(e){}}
-function loadUI(){try{const o=JSON.parse(localStorage.getItem(UI_KEY)||'{}');if(o&&typeof o==='object'){if(Array.isArray(o.expanded))expanded=new Set(o.expanded);if(o.bank&&o.bank.level&&o.bank.exam)curBank=o.bank;if(o.view)curView=o.view;if(o.randLevel)randLevel=o.randLevel;if(o.randCount)randCount=o.randCount;}}catch(e){}}
-function saveUI(){try{localStorage.setItem(UI_KEY,JSON.stringify({expanded:[...expanded],bank:curBank,view:curView,randLevel,randCount}));}catch(e){}}
+function loadUI(){try{const o=JSON.parse(localStorage.getItem(UI_KEY)||'{}');if(o&&typeof o==='object'){if(Array.isArray(o.expanded))expanded=new Set(o.expanded);if(o.bank&&o.bank.level&&o.bank.exam)curBank=o.bank;if(o.view)curView=o.view;if(o.randLevel)randLevel=o.randLevel;if(o.randCount)randCount=o.randCount;if(typeof o.idx==='number')curIndex=o.idx;}}catch(e){}}
+function saveUI(){try{localStorage.setItem(UI_KEY,JSON.stringify({expanded:[...expanded],bank:curBank,view:curView,randLevel,randCount,idx:curIndex}));}catch(e){}}
 
 function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
@@ -302,23 +318,67 @@ function overviewHTML(){
   </div></div>`;
 }
 
-// ===== 題庫練習 =====
-function bankHTML(){
-  const {level,exam}=curBank;
-  const st=bankStats(level,exam);
-  let qs=READING_QUESTIONS.filter(q=>q.level===level&&q.exam===exam);
-  if(hideDone)qs=qs.filter(q=>!(answers[q.id]!==undefined&&answers[q.id]===q.answer));
-  const body=qs.length?qs.map(renderCard).join(''):'<div class="empty">這個題庫的題目都答對了 🎉　（點「顯示已答對」可再複習一次）</div>';
-  return `<div class="panel-hdr">
-      <button class="tbtn" id="btn-back">‹ 題庫總覽</button>
-      <span class="badge lv ${LVCLASS[level]}">${escH(level)}</span>
-      <span class="panel-title">${escH(exam)}</span>
-      <span class="panel-sub" id="panel-prog">已答對 ${st.correct}／${st.total}</span>
+// ===== 題庫練習（一頁一題）=====
+// 目前練習中的題目清單（題庫或隨機回合）
+function currentList(){
+  if(curView==='random')return randIds.map(id=>READING_QUESTIONS.find(q=>q.id===id)).filter(Boolean);
+  if(curView==='bank'&&curBank){
+    let qs=READING_QUESTIONS.filter(q=>q.level===curBank.level&&q.exam===curBank.exam);
+    if(hideDone)qs=qs.filter(q=>!(answers[q.id]!==undefined&&answers[q.id]===q.answer));
+    return qs;
+  }
+  return [];
+}
+
+function practiceHTML(){
+  const isRandom=curView==='random';
+  const level=isRandom?randLevel:curBank.level;
+  const list=currentList();
+  // ---- 標題列 ----
+  let head;
+  if(isRandom){
+    const maxN=Math.min(RAND_MAX,READING_QUESTIONS.filter(q=>q.level===level).length);
+    head=`<div class="panel-hdr">
+        <button class="tbtn" id="btn-back">‹ 題庫總覽</button>
+        <span class="badge lv ${LVCLASS[level]}">${escH(level)}</span>
+        <span class="panel-title">🎲 隨機練習</span>
+        <span class="rand-ctl">題數 <input type="number" id="rand-count" min="1" max="${maxN}" value="${Math.min(randCount,maxN)}"> / ${maxN}
+          <button class="tbtn" id="btn-redraw">🎲 重新抽題</button></span>
+        <span class="panel-sub" id="panel-prog"></span>
+        <span class="grow"></span>
+      </div>`;
+  }else{
+    head=`<div class="panel-hdr">
+        <button class="tbtn" id="btn-back">‹ 題庫總覽</button>
+        <span class="badge lv ${LVCLASS[level]}">${escH(level)}</span>
+        <span class="panel-title">${escH(curBank.exam)}</span>
+        <span class="panel-sub" id="panel-prog"></span>
+        <span class="grow"></span>
+        <button class="tbtn" id="toggle-done">${hideDone?'顯示已答對':'隱藏已答對'}</button>
+        <button class="tbtn" id="btn-reset">清除本庫紀錄</button>
+      </div>`;
+  }
+  // ---- 內容：空清單 ----
+  if(!list.length){
+    const msg=isRandom?'按「重新抽題」開始一回合隨機練習。':'這個題庫的題目都答對了 🎉　（點「顯示已答對」可再複習一次）';
+    return head+`<div class="main-scroll"><div class="inner practice"><div class="empty">${msg}</div></div></div>`;
+  }
+  // ---- 內容：單題 + 導覽 ----
+  curIndex=Math.max(0,Math.min(curIndex,list.length-1));
+  const q=list[curIndex];
+  const answered=answers[q.id]!==undefined;
+  const isLast=curIndex>=list.length-1;
+  const pct=Math.round((curIndex+1)/list.length*100);
+  const body=`
+    <div class="q-progress-bar"><i style="width:${pct}%"></i></div>
+    ${renderCard(q)}
+    <div class="q-nav">
+      <button class="nav-btn" id="q-prev" ${curIndex===0?'disabled':''}>‹ 上一題</button>
+      <span class="q-counter">第 ${curIndex+1} / ${list.length} 題</span>
       <span class="grow"></span>
-      <button class="tbtn" id="toggle-done">${hideDone?'顯示已答對':'隱藏已答對'}</button>
-      <button class="tbtn" id="btn-reset">清除本庫紀錄</button>
-    </div>
-    <div class="main-scroll"><div class="inner" id="qlist">${body}</div></div>`;
+      <button class="nav-btn${answered?' primary':''}" id="q-next">${isLast?'完成 ✓':'下一題 ›'}</button>
+    </div>`;
+  return head+`<div class="main-scroll"><div class="inner practice" id="qlist">${body}</div></div>`;
 }
 
 function renderCard(q){
@@ -356,34 +416,28 @@ function renderCard(q){
   </div>`;
 }
 
-function randomHTML(){
-  const lv=randLevel;
-  const pool=READING_QUESTIONS.filter(q=>q.level===lv);
-  const maxN=Math.min(RAND_MAX,pool.length);
-  const qs=randIds.map(id=>READING_QUESTIONS.find(q=>q.id===id)).filter(Boolean);
-  const correct=qs.filter(q=>answers[q.id]===q.answer).length;
-  const body=qs.length?qs.map(renderCard).join(''):'<div class="empty">按「重新抽題」開始一回合隨機練習。</div>';
-  return `<div class="panel-hdr">
-      <button class="tbtn" id="btn-back">‹ 題庫總覽</button>
-      <span class="badge lv ${LVCLASS[lv]}">${escH(lv)}</span>
-      <span class="panel-title">🎲 隨機練習</span>
-      <span class="rand-ctl">題數 <input type="number" id="rand-count" min="1" max="${maxN}" value="${Math.min(randCount,maxN)}"> / ${maxN}
-        <button class="tbtn" id="btn-redraw">🎲 重新抽題</button></span>
-      <span class="panel-sub" id="panel-prog">本回合 ${qs.length} 題，已答對 ${correct}</span>
-      <span class="grow"></span>
-    </div>
-    <div class="main-scroll"><div class="inner" id="qlist">${body}</div></div>`;
+// 單題導覽
+function goTo(i){
+  const list=currentList();
+  if(!list.length){backToOverview();return;}
+  if(i>=list.length){backToOverview();return;}   // 在最後一題按「完成」→ 回總覽
+  curIndex=Math.max(0,Math.min(i,list.length-1));
+  saveUI();renderMain();
+  const sc=document.querySelector('.main-scroll');if(sc)sc.scrollTop=0;
 }
+function nextQ(){goTo(curIndex+1);}
+function prevQ(){goTo(curIndex-1);}
 
 function renderMain(){
   const m=document.getElementById('main');
-  m.innerHTML=(curView==='random')?randomHTML():(curView==='bank'&&curBank)?bankHTML():overviewHTML();
+  const inPractice=(curView==='bank'&&curBank)||(curView==='random'&&randLevel);
+  m.innerHTML=inPractice?practiceHTML():overviewHTML();
   refresh();
 }
 
 // ===== 互動 =====
 function selectBank(level,exam){
-  curView='bank';curBank={level,exam};
+  curView='bank';curBank={level,exam};curIndex=0;
   expanded.add(level);
   hideDone=false;
   saveUI();
@@ -403,7 +457,7 @@ function drawRandom(){
   randIds=pool.slice(0,randCount);
 }
 function openRandom(level){
-  curView='random';randLevel=level;expanded.add(level);
+  curView='random';randLevel=level;curIndex=0;expanded.add(level);
   const maxN=Math.min(RAND_MAX,READING_QUESTIONS.filter(q=>q.level===level).length);
   if(!randCount||randCount>maxN)randCount=Math.min(20,maxN);
   drawRandom();saveUI();renderSidebar();renderMain();
@@ -413,7 +467,7 @@ function redrawRandom(){
   const inp=document.getElementById('rand-count');
   const maxN=Math.min(RAND_MAX,READING_QUESTIONS.filter(q=>q.level===randLevel).length);
   let n=parseInt(inp&&inp.value,10);if(!n||n<1)n=1;if(n>maxN)n=maxN;
-  randCount=n;drawRandom();saveUI();renderMain();
+  randCount=n;curIndex=0;drawRandom();saveUI();renderMain();
   const sc=document.querySelector('.main-scroll');if(sc)sc.scrollTop=0;
 }
 
@@ -421,9 +475,11 @@ function answer(id,oi){
   if(answers[id]!==undefined)return;
   answers[id]=oi;saveAnswers();
   const q=READING_QUESTIONS.find(x=>x.id===id);
-  if(hideDone&&oi===q.answer){renderMain();renderSidebar();return;}
+  // 題庫模式開「隱藏已答對」且答對 → 該題離開清單，重建單題頁
+  if(curView==='bank'&&hideDone&&oi===q.answer){renderMain();renderSidebar();return;}
   const card=document.querySelector('.qcard[data-qid="'+CSS.escape(id)+'"]');
   if(card){const t=document.createElement('div');t.innerHTML=renderCard(q);card.replaceWith(t.firstElementChild);}
+  const nb=document.getElementById('q-next');if(nb)nb.classList.add('primary');  // 作答後「下一題」變主要動作
   refresh();renderSidebar();
 }
 
@@ -449,8 +505,12 @@ function refresh(){
   const oc=document.getElementById('ov-correct');if(oc)oc.textContent=`答對 ${correct}`;
   const pp=document.getElementById('panel-prog');
   if(pp){
-    if(curView==='bank'&&curBank){const st=bankStats(curBank.level,curBank.exam);pp.textContent=`已答對 ${st.correct}／${st.total}`;}
-    else if(curView==='random'){const qs=randIds.map(id=>READING_QUESTIONS.find(q=>q.id===id)).filter(Boolean);const c=qs.filter(q=>answers[q.id]===q.answer).length;pp.textContent=`本回合 ${qs.length} 題，已答對 ${c}`;}
+    const inPractice=(curView==='bank'&&curBank)||(curView==='random'&&randLevel);
+    if(inPractice){
+      const list=currentList();
+      const c=list.filter(q=>answers[q.id]===q.answer).length;
+      pp.textContent=list.length?`第 ${Math.min(curIndex+1,list.length)} / ${list.length} 題 · 答對 ${c}`:`答對 ${c}`;
+    }
   }
 }
 
@@ -462,8 +522,10 @@ document.getElementById('sb-scroll').addEventListener('click',e=>{
 });
 document.getElementById('main').addEventListener('click',e=>{
   if(e.target.closest('#btn-back')){backToOverview();return;}
+  if(e.target.closest('#q-prev')){prevQ();return;}
+  if(e.target.closest('#q-next')){nextQ();return;}
   if(e.target.closest('#btn-redraw')){redrawRandom();return;}
-  if(e.target.closest('#toggle-done')){hideDone=!hideDone;renderMain();return;}
+  if(e.target.closest('#toggle-done')){hideDone=!hideDone;curIndex=0;renderMain();return;}
   if(e.target.closest('#btn-reset')){resetBank();return;}
   if(e.target.closest('.ov-reset')){resetAll();return;}
   const ovr=e.target.closest('.ov-rand');if(ovr){openRandom(ovr.dataset.randlevel);return;}
@@ -472,6 +534,18 @@ document.getElementById('main').addEventListener('click',e=>{
 });
 document.getElementById('main').addEventListener('keydown',e=>{
   if(e.target.id==='rand-count'&&e.key==='Enter'){e.preventDefault();redrawRandom();}
+});
+// 鍵盤操作：← → 換題、1~4 選答案（單題模式）
+document.addEventListener('keydown',e=>{
+  if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'))return;
+  const inPractice=(curView==='bank'&&curBank)||(curView==='random'&&randLevel);
+  if(!inPractice)return;
+  if(e.key==='ArrowRight'){e.preventDefault();nextQ();return;}
+  if(e.key==='ArrowLeft'){e.preventDefault();prevQ();return;}
+  if(/^[1-4]$/.test(e.key)){
+    const list=currentList();const q=list[curIndex];
+    if(q&&answers[q.id]===undefined){answer(q.id,Number(e.key)-1);}
+  }
 });
 
 // ===== 啟動 =====
