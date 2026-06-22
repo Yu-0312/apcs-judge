@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APCS 程式判讀練習｜程式識讀 × 統測判讀題</title>
-<meta name="description" content="APCS『程式識讀』與統測『程式設計實習』判讀題的線上練習：讀程式、選答案、即時對解＋解析。">
+<meta name="description" content="APCS『程式識讀』與統測『程式設計實習』判讀題的線上練習：依 APCS 四級難度分庫，讀程式、選答案、即時對解＋解析。">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔍</text></svg>">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -12,29 +12,88 @@
   --bg:#0f1117;--sidebar-bg:#161b22;--panel-bg:#1c2128;
   --border:#30363d;--text:#e6edf3;--text-muted:#8b949e;
   --green:#3fb950;--red:#f85149;--yellow:#d29922;--blue:#58a6ff;--purple:#bc8cff;--orange:#ffa657;
-  --accent:#58a6ff;
+  --accent:#58a6ff;--header-h:56px;
 }
-html,body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100%;}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
 a{color:inherit;}
-header{height:56px;display:flex;align-items:center;padding:0 20px;background:var(--sidebar-bg);border-bottom:1px solid var(--border);gap:12px;position:sticky;top:0;z-index:20;}
+header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;background:var(--sidebar-bg);border-bottom:1px solid var(--border);gap:12px;flex-shrink:0;}
 .logo{font-size:17px;font-weight:700;color:var(--accent);}
 .sub{font-size:12px;color:var(--text-muted);}
 .hright{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12px;}
 .navlink{color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;}
 .navlink:hover{border-color:var(--text-muted);color:var(--text);}
-.score-pill{font-size:12px;color:var(--green);background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.3);border-radius:999px;padding:4px 12px;font-weight:700;}
-.wrap{max-width:880px;margin:0 auto;padding:20px 16px 80px;}
-.intro{background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:18px;font-size:13px;line-height:1.7;color:#cdd9e5;}
+.score-pill{font-size:12px;color:var(--green);background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.3);border-radius:999px;padding:4px 12px;font-weight:700;white-space:nowrap;}
+
+/* ===== layout ===== */
+.layout{display:grid;grid-template-columns:300px 1fr;height:calc(100vh - var(--header-h));overflow:hidden;}
+.sidebar{background:var(--sidebar-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.sidebar-hdr{padding:11px 14px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border);}
+.progress-wrap{padding:11px 14px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02);}
+.progress-bar{height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--green),#56d364);width:0%;transition:width .4s ease;}
+.progress-text{display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-top:6px;letter-spacing:.3px;}
+.sb-scroll{overflow-y:auto;flex:1;padding:10px;}
+
+.lv-section{margin-bottom:8px;border:1px solid var(--border);border-radius:9px;overflow:hidden;background:var(--panel-bg);}
+.lv-head{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;border-left:3px solid var(--lvcolor);user-select:none;}
+.lv-head:hover{background:rgba(255,255,255,.03);}
+.lv-chev{font-size:10px;color:var(--text-muted);transition:transform .2s;}
+.lv-section.open .lv-chev{transform:rotate(90deg);}
+.lv-name{font-weight:700;font-size:13px;color:var(--lvcolor);}
+.lv-count{font-size:11px;color:var(--text-muted);}
+.lv-prog{margin-left:auto;font-size:10px;color:var(--text-muted);white-space:nowrap;}
+.lv-prog.done{color:var(--green);}
+.bank-list{display:none;border-top:1px solid var(--border);}
+.lv-section.open .bank-list{display:block;}
+.bank-item{display:flex;align-items:center;gap:8px;padding:9px 12px 9px 24px;cursor:pointer;border-top:1px solid rgba(48,54,61,.45);transition:background .12s;}
+.bank-item:first-child{border-top:none;}
+.bank-item:hover{background:rgba(255,255,255,.04);}
+.bank-item.active{background:rgba(88,166,255,.12);box-shadow:inset 3px 0 0 var(--accent);}
+.bank-name{font-size:12.5px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bank-item.active .bank-name{color:var(--accent);font-weight:600;}
+.bank-stat{margin-left:auto;font-size:10.5px;color:var(--text-muted);white-space:nowrap;flex-shrink:0;}
+.bank-stat.done{color:var(--green);font-weight:700;}
+.rand-item{display:flex;align-items:center;gap:8px;padding:8px 12px 8px 22px;cursor:pointer;border-top:1px solid rgba(48,54,61,.45);font-size:12.5px;color:var(--purple);background:rgba(188,140,255,.06);}
+.rand-item:hover{background:rgba(188,140,255,.14);}
+.rand-item.active{box-shadow:inset 3px 0 0 var(--purple);font-weight:700;}
+.rand-ctl{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);}
+.rand-ctl input{width:54px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 6px;font-family:inherit;font-size:12px;text-align:center;}
+.ov-rand{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px;border:1px dashed var(--purple);color:var(--purple);border-radius:8px;margin-top:10px;cursor:pointer;font-size:12px;font-weight:600;background:rgba(188,140,255,.05);}
+.ov-rand:hover{background:rgba(188,140,255,.14);}
+
+/* ===== main ===== */
+.main{display:flex;flex-direction:column;overflow:hidden;}
+.panel-hdr{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:11px 18px;border-bottom:1px solid var(--border);background:var(--panel-bg);flex-shrink:0;}
+.panel-title{font-size:15px;font-weight:700;}
+.panel-sub{font-size:12px;color:var(--text-muted);}
+.panel-hdr .grow{flex:1;}
+.main-scroll{overflow-y:auto;flex:1;padding:18px 18px 90px;}
+.inner{max-width:880px;margin:0 auto;}
+.tbtn{background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;padding:5px 11px;font-size:12px;cursor:pointer;font-family:inherit;}
+.tbtn:hover{color:var(--text);border-color:var(--text-muted);}
+
+/* ===== overview ===== */
+.intro{background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:16px 18px;font-size:13px;line-height:1.7;color:#cdd9e5;}
 .intro b{color:var(--text);}
 .intro .src{font-size:11px;color:var(--text-muted);margin-top:8px;}
-.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
-.fbtn{background:var(--panel-bg);border:1px solid var(--border);color:var(--text-muted);border-radius:999px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;}
-.fbtn:hover{color:var(--text);}
-.fbtn.on{color:#fff;background:var(--accent);border-color:var(--accent);}
-.toolbar{display:flex;align-items:center;gap:10px;margin:6px 0 18px;font-size:12px;color:var(--text-muted);flex-wrap:wrap;}
-.toolbar .grow{flex:1;}
-.tbtn{background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;font-family:inherit;}
-.tbtn:hover{color:var(--text);border-color:var(--text-muted);}
+.ov-hint{display:flex;align-items:center;gap:10px;margin:18px 0 12px;font-size:13px;color:var(--text);font-weight:600;}
+.ov-hint .grow{flex:1;}
+.ov-reset{background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:400;}
+.ov-reset:hover{color:var(--red);border-color:var(--red);}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;}
+.ov-card{background:var(--panel-bg);border:1px solid var(--border);border-top:3px solid var(--lvcolor);border-radius:12px;padding:15px 16px;}
+.ov-card h3{display:flex;align-items:center;gap:8px;font-size:14px;margin-bottom:4px;}
+.ov-card-count{margin-left:auto;font-size:12px;color:var(--text-muted);font-weight:400;}
+.ov-card-prog{font-size:11px;color:var(--text-muted);margin-bottom:8px;}
+.ov-prog-bar{height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;margin-bottom:12px;}
+.ov-prog-bar i{display:block;height:100%;background:var(--lvcolor);border-radius:3px;}
+.ov-bank-chip{display:flex;align-items:center;gap:8px;padding:8px 11px;border:1px solid var(--border);border-radius:8px;margin-top:8px;cursor:pointer;font-size:12.5px;transition:all .12s;}
+.ov-bank-chip:hover{border-color:var(--accent);background:rgba(88,166,255,.06);}
+.ov-bank-chip .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ov-chip-stat{margin-left:auto;font-size:10.5px;color:var(--text-muted);white-space:nowrap;flex-shrink:0;}
+.ov-chip-stat.done{color:var(--green);font-weight:700;}
+
+/* ===== question card ===== */
 .qcard{background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:16px;}
 .qcard.answered{border-color:rgba(88,166,255,.25);}
 .qmeta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px;}
@@ -49,7 +108,6 @@ header{height:56px;display:flex;align-items:center;padding:0 20px;background:var
 .badge.lv2{color:var(--blue);background:rgba(88,166,255,.12);border-color:rgba(88,166,255,.35);}
 .badge.lv3{color:var(--orange);background:rgba(255,166,87,.12);border-color:rgba(255,166,87,.35);}
 .badge.lv4{color:var(--red);background:rgba(248,81,73,.12);border-color:rgba(248,81,73,.35);}
-.flabel{font-size:11px;color:var(--text-muted);align-self:center;margin-right:2px;}
 .qmark{margin-left:auto;font-size:16px;}
 pre.code{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:12px 14px;overflow-x:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.55;color:#cdd9e5;margin:4px 0 12px;white-space:pre;tab-size:2;}
 pre.code .cm{color:#6b7785;font-style:italic;}
@@ -72,117 +130,195 @@ pre.code .fn{color:#d2a8ff;}
 .explain b{color:var(--text);}
 .explain .lead{color:var(--green);font-weight:700;}
 .explain .lead.bad{color:var(--red);}
-.empty{text-align:center;color:var(--text-muted);padding:40px;}
+.empty{text-align:center;color:var(--text-muted);padding:48px 20px;}
 #ver-badge{position:fixed;right:8px;bottom:8px;z-index:50;font:10px/1.4 ui-monospace,monospace;color:var(--text-muted);background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:2px 8px;opacity:.55;}
-@media(max-width:640px){.wrap{padding:14px 10px 80px;}header{padding:0 12px;}.sub{display:none;}}
+::-webkit-scrollbar{width:7px;height:7px;}
+::-webkit-scrollbar-thumb{background:#30363d;border-radius:3px;}
+
+@media(max-width:860px){
+  html,body{overflow:auto;height:auto;}
+  .layout{display:block;height:auto;overflow:visible;}
+  .sidebar{border-right:none;border-bottom:1px solid var(--border);overflow:visible;}
+  .sb-scroll{overflow:visible;max-height:none;}
+  .main{overflow:visible;}
+  .main-scroll{overflow:visible;padding:16px 12px 60px;}
+  .sub{display:none;}
+  header{padding:0 12px;}
+}
 </style>
 </head>
 <body>
 <header>
-  <div><div class="logo">🔍 APCS 程式判讀</div><div class="sub">讀程式 · 選答案 · 即時對解</div></div>
+  <div><div class="logo">🔍 APCS 程式判讀</div><div class="sub">分級題庫 · 讀程式 · 即時對解</div></div>
   <div class="hright">
     <a class="navlink" href="index.html">🎯 評分系統</a>
     <a class="navlink" href="tutorial.html">📚 基礎教學</a>
     <span class="score-pill" id="score-pill">0 / 0</span>
   </div>
 </header>
-<div class="wrap">
-  <div class="intro">
-    <b>程式判讀</b>是「讀懂一段程式並推出結果 / 找出錯誤」的題型，<b>APCS 程式識讀</b>與<b>統測 程式設計實習</b>都大量出現。
-    這裡收錄兩種考試的判讀題：讀程式碼、選出答案，作答後立即顯示<b style="color:var(--green)">正解</b>與<b>解析考點</b>。
-    <div class="src">題目來源：APCS 官網範例題本（apcs.csie.ntnu.edu.tw）／技專校院入學測驗中心歷屆公告試題（tcte.edu.tw）；標註「官方解答」者為公告標準答案，其餘為依程式邏輯推得之正解。僅供練習參考。</div>
-  </div>
-  <div class="filters" id="levelfilters"></div>
-  <div class="filters" id="filters"></div>
-  <div class="toolbar">
-    <span id="prog-text">尚未作答</span>
-    <span class="grow"></span>
-    <button class="tbtn" id="toggle-done">隱藏已答對</button>
-    <button class="tbtn" onclick="resetAll()">清除作答紀錄</button>
-  </div>
-  <div id="qlist"></div>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-hdr">題庫 · APCS 難度分級</div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="ov-fill"></div></div>
+      <div class="progress-text"><span id="ov-done">已作答 0</span><span id="ov-correct">答對 0</span></div>
+    </div>
+    <div class="sb-scroll" id="sb-scroll"></div>
+  </aside>
+  <section class="main" id="main"></section>
 </div>
 <div id="ver-badge"></div>
 
-<script src="data/reading-questions.js?v=20260621b"></script>
+<script src="data/reading-questions.js?v=20260621c"></script>
 <script>
-const DATA_VER='20260621b';
+const DATA_VER='20260621c';
 const STORE_KEY='apcs_reading_v1';
-let answers=loadAnswers();
-let curFilter='all';
-let curLevel='all';
-let hideDone=false;
+const UI_KEY='apcs_reading_ui_v1';
 const LEVELS=['初級','中級','中高級','高級'];
 const LVCLASS={'初級':'lv1','中級':'lv2','中高級':'lv3','高級':'lv4'};
+const LV_COLOR={'初級':'var(--green)','中級':'var(--blue)','中高級':'var(--orange)','高級':'var(--red)'};
+
+let answers=loadAnswers();
+let curView='overview';    // 'overview' | 'bank' | 'random'
+let curBank=null;          // {level,exam}
+let expanded=new Set();    // 展開的難度
+let hideDone=false;
+let randLevel=null, randCount=20, randIds=[];
+const RAND_MAX=50;
 
 function loadAnswers(){try{const o=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');return (o&&typeof o==='object')?o:{};}catch(e){return {};}}
 function saveAnswers(){try{localStorage.setItem(STORE_KEY,JSON.stringify(answers));}catch(e){}}
+function loadUI(){try{const o=JSON.parse(localStorage.getItem(UI_KEY)||'{}');if(o&&typeof o==='object'){if(Array.isArray(o.expanded))expanded=new Set(o.expanded);if(o.bank&&o.bank.level&&o.bank.exam)curBank=o.bank;if(o.view)curView=o.view;if(o.randLevel)randLevel=o.randLevel;if(o.randCount)randCount=o.randCount;}}catch(e){}}
+function saveUI(){try{localStorage.setItem(UI_KEY,JSON.stringify({expanded:[...expanded],bank:curBank,view:curView,randLevel,randCount}));}catch(e){}}
 
 function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 // 輕量語法上色：逐字掃描，安全 escape。支援 C/C++/Python 註解、字串、關鍵字、數字。
-const KW=new Set(['int','float','double','char','unsigned','signed','long','short','void','bool','if','else','while','for','return','switch','case','default','break','continue','enum','struct','class','public','private','static','const','def','print','elif','std']);
+const KW=new Set(['int','float','double','char','unsigned','signed','long','short','void','bool','if','else','while','for','return','switch','case','default','break','continue','enum','struct','class','public','private','static','const','def','print','elif','std','let','var','function','new','delete','typeof','instanceof','async','await','yield','this','super','extends','null','true','false','undefined','import','from','export','lambda']);
 function hlCode(code,lang){
   const lineComment=(lang==='python')?'#':'//';
   let out='',i=0,n=code.length;
   function esc(c){return c==='&'?'&amp;':c==='<'?'&lt;':c==='>'?'&gt;':c;}
   while(i<n){
     const c=code[i];
-    // line comment
     if(c===lineComment[0]&&(lineComment.length===1||code[i+1]===lineComment[1])){
       let j=i;while(j<n&&code[j]!=='\n')j++;out+='<span class="cm">'+escH(code.slice(i,j))+'</span>';i=j;continue;
     }
-    // block comment
     if(c==='/'&&code[i+1]==='*'){let j=i+2;while(j<n&&!(code[j]==='*'&&code[j+1]==='/'))j++;j=Math.min(n,j+2);out+='<span class="cm">'+escH(code.slice(i,j))+'</span>';i=j;continue;}
-    // string
     if(c==='"'||c==="'"){const q=c;let j=i+1;while(j<n){if(code[j]==='\\'){j+=2;continue;}if(code[j]===q){j++;break;}j++;}out+='<span class="st">'+escH(code.slice(i,j))+'</span>';i=j;continue;}
-    // identifier / keyword / function-call
     if(/[A-Za-z_]/.test(c)){let j=i;while(j<n&&/[A-Za-z0-9_]/.test(code[j]))j++;const w=code.slice(i,j);
       if(KW.has(w))out+='<span class="kw">'+w+'</span>';
       else if(code[j]==='(')out+='<span class="fn">'+escH(w)+'</span>';
       else out+=escH(w);
       i=j;continue;}
-    // number
     if(/[0-9]/.test(c)){let j=i;while(j<n&&/[0-9xXa-fA-F.]/.test(code[j]))j++;out+='<span class="nm">'+code.slice(i,j)+'</span>';i=j;continue;}
     out+=esc(c);i++;
   }
   return out;
 }
+function langLabel(l){return ({c:'C',cpp:'C++',python:'Python',js:'JavaScript'})[l]||'觀念題';}
 
-function exams(){const seen=[];for(const q of READING_QUESTIONS)if(!seen.includes(q.exam))seen.push(q.exam);return seen;}
-
-function renderFilters(){
-  const f=document.getElementById('filters');
-  const counts={all:READING_QUESTIONS.length};
-  for(const e of exams())counts[e]=READING_QUESTIONS.filter(q=>q.exam===e).length;
-  let html=`<button class="fbtn ${curFilter==='all'?'on':''}" data-exam="__all__">全部 (${counts.all})</button>`;
-  for(const e of exams())html+=`<button class="fbtn ${curFilter===e?'on':''}" data-exam="${escH(e)}">${escH(e)} (${counts[e]})</button>`;
-  f.innerHTML=html;
+// ===== 題庫結構 =====
+function banksForLevel(lv){
+  const seen=[];
+  for(const q of READING_QUESTIONS)if(q.level===lv&&!seen.includes(q.exam))seen.push(q.exam);
+  return seen.map(ex=>({exam:ex,count:READING_QUESTIONS.filter(q=>q.level===lv&&q.exam===ex).length}));
 }
-function setFilter(e){curFilter=e;render();}
-window.setFilter=setFilter;
-
-function renderLevelFilters(){
-  const f=document.getElementById('levelfilters');
-  const c={all:READING_QUESTIONS.length};
-  for(const lv of LEVELS)c[lv]=READING_QUESTIONS.filter(q=>q.level===lv).length;
-  let html=`<span class="flabel">難度</span><button class="fbtn ${curLevel==='all'?'on':''}" data-level="__all__">全部 (${c.all})</button>`;
-  for(const lv of LEVELS)html+=`<button class="fbtn ${curLevel===lv?'on':''}" data-level="${lv}">${lv} (${c[lv]})</button>`;
-  f.innerHTML=html;
+function bankStats(lv,ex){
+  let total=0,done=0,correct=0;
+  for(const q of READING_QUESTIONS)if(q.level===lv&&q.exam===ex){total++;const a=answers[q.id];if(a!==undefined){done++;if(a===q.answer)correct++;}}
+  return {total,done,correct};
 }
-function setLevel(lv){curLevel=lv;render();}
+function levelStats(lv){
+  let total=0,done=0,correct=0;
+  for(const q of READING_QUESTIONS)if(q.level===lv){total++;const a=answers[q.id];if(a!==undefined){done++;if(a===q.answer)correct++;}}
+  return {total,done,correct};
+}
 
-function langLabel(l){return ({c:'C',cpp:'C++',python:'Python'})[l]||'觀念題';}
+// ===== 側欄 =====
+function renderSidebar(){
+  let html='';
+  for(const lv of LEVELS){
+    const s=levelStats(lv);
+    const open=expanded.has(lv);
+    const banks=banksForLevel(lv);
+    const randOn=curView==='random'&&randLevel===lv;
+    let items=`<div class="rand-item${randOn?' active':''}" data-randlevel="${escH(lv)}">🎲 隨機練習（最多 ${Math.min(RAND_MAX,s.total)} 題）</div>`;
+    for(const b of banks){
+      const st=bankStats(lv,b.exam);
+      const active=curView==='bank'&&curBank&&curBank.level===lv&&curBank.exam===b.exam;
+      const stTxt=st.done?`${st.correct}/${st.total}`:`${st.total} 題`;
+      const stDone=st.total>0&&st.done===st.total?' done':'';
+      items+=`<div class="bank-item${active?' active':''}" data-level="${escH(lv)}" data-exam="${escH(b.exam)}">
+        <span class="bank-name">${escH(b.exam)}</span>
+        <span class="bank-stat${stDone}">${stTxt}</span></div>`;
+    }
+    const lvFull=s.total>0&&s.done===s.total;
+    const lvTxt=`${s.correct}/${s.total}${lvFull?' ✓':''}`;
+    html+=`<div class="lv-section${open?' open':''}" data-level="${escH(lv)}" style="--lvcolor:${LV_COLOR[lv]}">
+      <div class="lv-head">
+        <span class="lv-chev">▶</span>
+        <span class="lv-name">${escH(lv)}</span>
+        <span class="lv-count">${s.total} 題</span>
+        <span class="lv-prog${lvFull?' done':''}">${lvTxt}</span>
+      </div>
+      <div class="bank-list">${items}</div>
+    </div>`;
+  }
+  document.getElementById('sb-scroll').innerHTML=html;
+}
 
-function render(){
-  renderFilters();
-  renderLevelFilters();
-  const list=document.getElementById('qlist');
-  let qs=READING_QUESTIONS.filter(q=>(curFilter==='all'||q.exam===curFilter)&&(curLevel==='all'||q.level===curLevel));
+// ===== 總覽 =====
+function overviewHTML(){
+  let cards='';
+  for(const lv of LEVELS){
+    const s=levelStats(lv);
+    const pct=s.total?Math.round(s.correct/s.total*100):0;
+    let chips='';
+    for(const b of banksForLevel(lv)){
+      const st=bankStats(lv,b.exam);
+      const stTxt=st.done?`${st.correct}/${st.total}`:`${st.total} 題`;
+      const stDone=st.total>0&&st.done===st.total?' done':'';
+      chips+=`<div class="ov-bank-chip" data-level="${escH(lv)}" data-exam="${escH(b.exam)}">
+        <span class="nm">${escH(b.exam)}</span>
+        <span class="ov-chip-stat${stDone}">${stTxt}</span></div>`;
+    }
+    cards+=`<div class="ov-card" style="--lvcolor:${LV_COLOR[lv]}">
+      <h3><span class="badge lv ${LVCLASS[lv]}">${escH(lv)}</span><span class="ov-card-count">${s.total} 題</span></h3>
+      <div class="ov-card-prog">已作答 ${s.done}／${s.total}，答對 ${s.correct}</div>
+      <div class="ov-prog-bar"><i style="width:${pct}%"></i></div>
+      <div class="ov-rand" data-randlevel="${escH(lv)}">🎲 隨機抽題練習（最多 ${Math.min(RAND_MAX,s.total)} 題）</div>
+      ${chips}
+    </div>`;
+  }
+  return `<div class="main-scroll"><div class="inner">
+    <div class="intro">
+      <b>程式判讀</b>是「讀懂一段程式並推出結果 / 找出錯誤」的題型，<b>APCS 程式識讀</b>與<b>統測 程式設計實習</b>都大量出現。
+      題庫依 <b>APCS 四級難度</b>（初級／中級／中高級／高級）分庫，挑一個難度展開、點進題庫即可開始練習；作答後立即顯示<b style="color:var(--green)">正解</b>與<b>解析考點</b>，進度自動保存。
+      <div class="src">題目來源：APCS 官網範例題本（apcs.csie.ntnu.edu.tw）／技專校院入學測驗中心歷屆公告試題（tcte.edu.tw）；標註「官方解答」者為公告標準答案，其餘為依程式邏輯推得之正解。僅供練習參考。</div>
+    </div>
+    <div class="ov-hint">選擇難度與題庫開始練習 👇<span class="grow"></span><button class="ov-reset">清除全部作答紀錄</button></div>
+    <div class="ov-grid">${cards}</div>
+  </div></div>`;
+}
+
+// ===== 題庫練習 =====
+function bankHTML(){
+  const {level,exam}=curBank;
+  const st=bankStats(level,exam);
+  let qs=READING_QUESTIONS.filter(q=>q.level===level&&q.exam===exam);
   if(hideDone)qs=qs.filter(q=>!(answers[q.id]!==undefined&&answers[q.id]===q.answer));
-  if(!qs.length){list.innerHTML='<div class="empty">沒有符合條件的題目（可能都已答對，試試「顯示已答對」）。</div>';updateScore();return;}
-  list.innerHTML=qs.map(renderCard).join('');
-  updateScore();
+  const body=qs.length?qs.map(renderCard).join(''):'<div class="empty">這個題庫的題目都答對了 🎉　（點「顯示已答對」可再複習一次）</div>';
+  return `<div class="panel-hdr">
+      <button class="tbtn" id="btn-back">‹ 題庫總覽</button>
+      <span class="badge lv ${LVCLASS[level]}">${escH(level)}</span>
+      <span class="panel-title">${escH(exam)}</span>
+      <span class="panel-sub" id="panel-prog">已答對 ${st.correct}／${st.total}</span>
+      <span class="grow"></span>
+      <button class="tbtn" id="toggle-done">${hideDone?'顯示已答對':'隱藏已答對'}</button>
+      <button class="tbtn" id="btn-reset">清除本庫紀錄</button>
+    </div>
+    <div class="main-scroll"><div class="inner" id="qlist">${body}</div></div>`;
 }
 
 function renderCard(q){
@@ -220,53 +356,137 @@ function renderCard(q){
   </div>`;
 }
 
+function randomHTML(){
+  const lv=randLevel;
+  const pool=READING_QUESTIONS.filter(q=>q.level===lv);
+  const maxN=Math.min(RAND_MAX,pool.length);
+  const qs=randIds.map(id=>READING_QUESTIONS.find(q=>q.id===id)).filter(Boolean);
+  const correct=qs.filter(q=>answers[q.id]===q.answer).length;
+  const body=qs.length?qs.map(renderCard).join(''):'<div class="empty">按「重新抽題」開始一回合隨機練習。</div>';
+  return `<div class="panel-hdr">
+      <button class="tbtn" id="btn-back">‹ 題庫總覽</button>
+      <span class="badge lv ${LVCLASS[lv]}">${escH(lv)}</span>
+      <span class="panel-title">🎲 隨機練習</span>
+      <span class="rand-ctl">題數 <input type="number" id="rand-count" min="1" max="${maxN}" value="${Math.min(randCount,maxN)}"> / ${maxN}
+        <button class="tbtn" id="btn-redraw">🎲 重新抽題</button></span>
+      <span class="panel-sub" id="panel-prog">本回合 ${qs.length} 題，已答對 ${correct}</span>
+      <span class="grow"></span>
+    </div>
+    <div class="main-scroll"><div class="inner" id="qlist">${body}</div></div>`;
+}
+
+function renderMain(){
+  const m=document.getElementById('main');
+  m.innerHTML=(curView==='random')?randomHTML():(curView==='bank'&&curBank)?bankHTML():overviewHTML();
+  refresh();
+}
+
+// ===== 互動 =====
+function selectBank(level,exam){
+  curView='bank';curBank={level,exam};
+  expanded.add(level);
+  hideDone=false;
+  saveUI();
+  renderSidebar();
+  renderMain();
+  const sc=document.querySelector('.main-scroll');if(sc)sc.scrollTop=0;
+}
+function toggleLevel(lv){
+  if(expanded.has(lv))expanded.delete(lv);else expanded.add(lv);
+  saveUI();renderSidebar();
+}
+function backToOverview(){curView='overview';saveUI();renderSidebar();renderMain();}
+
+function drawRandom(){
+  const pool=READING_QUESTIONS.filter(q=>q.level===randLevel).map(q=>q.id);
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=pool[i];pool[i]=pool[j];pool[j]=t;}
+  randIds=pool.slice(0,randCount);
+}
+function openRandom(level){
+  curView='random';randLevel=level;expanded.add(level);
+  const maxN=Math.min(RAND_MAX,READING_QUESTIONS.filter(q=>q.level===level).length);
+  if(!randCount||randCount>maxN)randCount=Math.min(20,maxN);
+  drawRandom();saveUI();renderSidebar();renderMain();
+  const sc=document.querySelector('.main-scroll');if(sc)sc.scrollTop=0;
+}
+function redrawRandom(){
+  const inp=document.getElementById('rand-count');
+  const maxN=Math.min(RAND_MAX,READING_QUESTIONS.filter(q=>q.level===randLevel).length);
+  let n=parseInt(inp&&inp.value,10);if(!n||n<1)n=1;if(n>maxN)n=maxN;
+  randCount=n;drawRandom();saveUI();renderMain();
+  const sc=document.querySelector('.main-scroll');if(sc)sc.scrollTop=0;
+}
+
 function answer(id,oi){
   if(answers[id]!==undefined)return;
   answers[id]=oi;saveAnswers();
   const q=READING_QUESTIONS.find(x=>x.id===id);
-  // 隱藏已答對模式下答對 → 該題要消失，需整頁重繪；否則只更新該張卡片（題庫大時避免整頁重繪卡頓）
-  if(hideDone&&oi===q.answer){render();return;}
-  const card=document.querySelector('.qcard[data-qid="'+id+'"]');
-  if(card){const t=document.createElement('div');t.innerHTML=renderCard(q);card.replaceWith(t.firstElementChild);updateScore();}
-  else render();
+  if(hideDone&&oi===q.answer){renderMain();renderSidebar();return;}
+  const card=document.querySelector('.qcard[data-qid="'+CSS.escape(id)+'"]');
+  if(card){const t=document.createElement('div');t.innerHTML=renderCard(q);card.replaceWith(t.firstElementChild);}
+  refresh();renderSidebar();
 }
-window.answer=answer;
 
-function updateScore(){
+function resetBank(){
+  if(!curBank)return;
+  if(!confirm('確定清除「'+curBank.level+'｜'+curBank.exam+'」的作答紀錄？'))return;
+  for(const q of READING_QUESTIONS)if(q.level===curBank.level&&q.exam===curBank.exam)delete answers[q.id];
+  saveAnswers();renderSidebar();renderMain();
+}
+function resetAll(){
+  if(!confirm('確定清除全部作答紀錄？'))return;
+  answers={};saveAnswers();renderSidebar();renderMain();
+}
+
+// 只更新數字/進度（不重建 DOM、不重置捲動）
+function refresh(){
   const total=READING_QUESTIONS.length;
   const done=Object.keys(answers).filter(id=>READING_QUESTIONS.some(q=>q.id===id)).length;
   const correct=READING_QUESTIONS.filter(q=>answers[q.id]===q.answer).length;
   document.getElementById('score-pill').textContent=`答對 ${correct} / ${total}`;
-  document.getElementById('prog-text').textContent=done?`已作答 ${done}/${total} 題，答對 ${correct} 題`:'尚未作答';
+  const fill=document.getElementById('ov-fill');if(fill)fill.style.width=(total?Math.round(correct/total*100):0)+'%';
+  const od=document.getElementById('ov-done');if(od)od.textContent=`已作答 ${done}`;
+  const oc=document.getElementById('ov-correct');if(oc)oc.textContent=`答對 ${correct}`;
+  const pp=document.getElementById('panel-prog');
+  if(pp){
+    if(curView==='bank'&&curBank){const st=bankStats(curBank.level,curBank.exam);pp.textContent=`已答對 ${st.correct}／${st.total}`;}
+    else if(curView==='random'){const qs=randIds.map(id=>READING_QUESTIONS.find(q=>q.id===id)).filter(Boolean);const c=qs.filter(q=>answers[q.id]===q.answer).length;pp.textContent=`本回合 ${qs.length} 題，已答對 ${c}`;}
+  }
 }
 
-function resetAll(){
-  if(!confirm('確定清除所有作答紀錄？'))return;
-  answers={};saveAnswers();render();
-}
-window.resetAll=resetAll;
+// ===== 事件委派 =====
+document.getElementById('sb-scroll').addEventListener('click',e=>{
+  const ri=e.target.closest('.rand-item');if(ri){openRandom(ri.dataset.randlevel);return;}
+  const bi=e.target.closest('.bank-item');if(bi){selectBank(bi.dataset.level,bi.dataset.exam);return;}
+  const head=e.target.closest('.lv-head');if(head){toggleLevel(head.parentElement.dataset.level);return;}
+});
+document.getElementById('main').addEventListener('click',e=>{
+  if(e.target.closest('#btn-back')){backToOverview();return;}
+  if(e.target.closest('#btn-redraw')){redrawRandom();return;}
+  if(e.target.closest('#toggle-done')){hideDone=!hideDone;renderMain();return;}
+  if(e.target.closest('#btn-reset')){resetBank();return;}
+  if(e.target.closest('.ov-reset')){resetAll();return;}
+  const ovr=e.target.closest('.ov-rand');if(ovr){openRandom(ovr.dataset.randlevel);return;}
+  const chip=e.target.closest('.ov-bank-chip');if(chip){selectBank(chip.dataset.level,chip.dataset.exam);return;}
+  const opt=e.target.closest('.opt');if(opt&&!opt.disabled){const card=opt.closest('.qcard');if(card)answer(card.dataset.qid,Number(opt.dataset.oi));return;}
+});
+document.getElementById('main').addEventListener('keydown',e=>{
+  if(e.target.id==='rand-count'&&e.key==='Enter'){e.preventDefault();redrawRandom();}
+});
 
-document.getElementById('toggle-done').onclick=function(){
-  hideDone=!hideDone;this.textContent=hideDone?'顯示已答對':'隱藏已答對';render();
-};
-
+// ===== 啟動 =====
 (function(){
   document.getElementById('ver-badge').textContent=`${READING_QUESTIONS.length} 題 · v${DATA_VER}`;
-  // 事件委派：考試別篩選與選項作答（避免把含引號的 id／中文考試名放進 inline onclick 造成屬性被截斷）
-  document.getElementById('filters').addEventListener('click',e=>{
-    const b=e.target.closest('.fbtn'); if(!b)return;
-    setFilter(b.dataset.exam==='__all__'?'all':b.dataset.exam);
-  });
-  document.getElementById('levelfilters').addEventListener('click',e=>{
-    const b=e.target.closest('.fbtn'); if(!b)return;
-    setLevel(b.dataset.level==='__all__'?'all':b.dataset.level);
-  });
-  document.getElementById('qlist').addEventListener('click',e=>{
-    const b=e.target.closest('.opt'); if(!b||b.disabled)return;
-    const card=b.closest('.qcard'); if(!card)return;
-    answer(card.dataset.qid,Number(b.dataset.oi));
-  });
-  render();
+  loadUI();
+  if(!expanded.size)expanded.add('初級');
+  // 防呆：持久化的題庫若已不存在則回總覽
+  if(curBank&&!READING_QUESTIONS.some(q=>q.level===curBank.level&&q.exam===curBank.exam)){curBank=null;if(curView==='bank')curView='overview';}
+  if(curView==='random'){
+    if(randLevel&&READING_QUESTIONS.some(q=>q.level===randLevel)){expanded.add(randLevel);drawRandom();}
+    else curView='overview';
+  }
+  renderSidebar();
+  renderMain();
 })();
 </script>
 </body>
