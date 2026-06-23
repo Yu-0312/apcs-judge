@@ -34,25 +34,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .progress-text{display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-top:6px;letter-spacing:.3px;}
 .sb-scroll{overflow-y:auto;flex:1;padding:10px;}
 
-.lv-section{margin-bottom:8px;border:1px solid var(--border);border-radius:9px;overflow:hidden;background:var(--panel-bg);}
-.lv-head{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;border-left:3px solid var(--lvcolor);user-select:none;}
-.lv-head:hover{background:rgba(255,255,255,.03);}
-.lv-chev{font-size:10px;color:var(--text-muted);transition:transform .2s;}
-.lv-section.open .lv-chev{transform:rotate(90deg);}
-.lv-name{font-weight:700;font-size:13px;color:var(--lvcolor);}
-.lv-count{font-size:11px;color:var(--text-muted);}
-.lv-prog{margin-left:auto;font-size:10px;color:var(--text-muted);white-space:nowrap;}
-.lv-prog.done{color:var(--green);}
-.bank-list{display:none;border-top:1px solid var(--border);}
-.lv-section.open .bank-list{display:block;}
-.bank-item{display:flex;align-items:center;gap:8px;padding:9px 12px 9px 24px;cursor:pointer;border-top:1px solid rgba(48,54,61,.45);transition:background .12s;}
-.bank-item:first-child{border-top:none;}
-.bank-item:hover{background:rgba(255,255,255,.04);}
-.bank-item.active{background:rgba(88,166,255,.12);box-shadow:inset 3px 0 0 var(--accent);}
 .bank-name{font-size:12.5px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.bank-item.active .bank-name{color:var(--accent);font-weight:600;}
-.bank-stat{margin-left:auto;font-size:10.5px;color:var(--text-muted);white-space:nowrap;flex-shrink:0;}
-.bank-stat.done{color:var(--green);font-weight:700;}
 .rand-item{display:flex;align-items:center;gap:8px;padding:8px 12px 8px 22px;cursor:pointer;border-top:1px solid rgba(48,54,61,.45);font-size:12.5px;color:var(--purple);background:rgba(188,140,255,.06);}
 .rand-item:hover{background:rgba(188,140,255,.14);}
 .rand-item.active{box-shadow:inset 3px 0 0 var(--purple);font-weight:700;}
@@ -60,6 +42,40 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .rand-ctl input{width:54px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 6px;font-family:inherit;font-size:12px;text-align:center;}
 .ov-rand{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px;border:1px dashed var(--purple);color:var(--purple);border-radius:8px;margin-top:10px;cursor:pointer;font-size:12px;font-weight:600;background:rgba(188,140,255,.05);}
 .ov-rand:hover{background:rgba(188,140,255,.14);}
+
+/* ===== sidebar 3-level tree: 語言 → 難度 → 題型 ===== */
+.lang-sec{margin-bottom:8px;border:1px solid var(--border);border-radius:9px;overflow:hidden;background:var(--panel-bg);}
+.lang-head{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;border-left:3px solid var(--lgcolor);user-select:none;}
+.lang-head:hover{background:rgba(255,255,255,.03);}
+.lang-chev{font-size:10px;color:var(--text-muted);transition:transform .2s;}
+.lang-sec.open>.lang-head .lang-chev{transform:rotate(90deg);}
+.lang-name{font-weight:700;font-size:13px;color:var(--lgcolor);}
+.lang-count{font-size:11px;color:var(--text-muted);}
+.lang-body{display:none;border-top:1px solid var(--border);}
+.lang-sec.open>.lang-body{display:block;}
+.lvl-sec{border-top:1px solid rgba(48,54,61,.45);}
+.lvl-sec:first-child{border-top:none;}
+.lvl-head{display:flex;align-items:center;gap:7px;padding:8px 12px 8px 20px;cursor:pointer;user-select:none;border-left:3px solid var(--lvcolor);}
+.lvl-head:hover{background:rgba(255,255,255,.03);}
+.lvl-chev{font-size:9px;color:var(--text-muted);transition:transform .2s;}
+.lvl-sec.open>.lvl-head .lvl-chev{transform:rotate(90deg);}
+.lvl-name{font-weight:600;font-size:12.5px;color:var(--lvcolor);}
+.lvl-count{font-size:10.5px;color:var(--text-muted);}
+.lvl-body{display:none;background:rgba(0,0,0,.12);}
+.lvl-sec.open>.lvl-body{display:block;}
+.rand-item.l3{padding-left:38px;}
+.cat-item{display:flex;align-items:center;gap:8px;padding:7px 12px 7px 38px;cursor:pointer;border-top:1px solid rgba(48,54,61,.3);transition:background .12s;}
+.cat-item:hover{background:rgba(255,255,255,.04);}
+.cat-item.active{background:rgba(88,166,255,.12);box-shadow:inset 3px 0 0 var(--accent);}
+.cat-name{font-size:12px;color:var(--text);}
+.cat-item.active .cat-name{color:var(--accent);font-weight:600;}
+.cat-stat{margin-left:auto;font-size:10px;color:var(--text-muted);white-space:nowrap;flex-shrink:0;}
+/* overview 語言卡片 */
+.ov-lv{display:flex;align-items:center;gap:8px;margin-top:14px;}
+.ov-lv-count{font-size:11px;color:var(--text-muted);}
+.ov-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;}
+.ov-chips .ov-bank-chip{margin-top:0;flex:0 0 auto;}
+.badge.lang-badge{color:var(--lvcolor);background:rgba(255,255,255,.05);border-color:var(--lvcolor);font-weight:700;font-size:13px;}
 
 /* ===== main ===== */
 .main{display:flex;flex-direction:column;overflow:hidden;}
@@ -107,6 +123,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .qmeta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px;}
 .badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text-muted);}
 .badge.exam{color:var(--blue);background:rgba(88,166,255,.1);border-color:rgba(88,166,255,.3);}
+.badge.cat{color:var(--blue);background:rgba(88,166,255,.1);border-color:rgba(88,166,255,.3);}
 .badge.topic{color:var(--purple);background:rgba(188,140,255,.1);border-color:rgba(188,140,255,.3);}
 .badge.lang{color:var(--orange);background:rgba(255,166,87,.1);border-color:rgba(255,166,87,.3);}
 .badge.num{color:var(--text-muted);}
@@ -203,7 +220,7 @@ pre.code .fn{color:#d2a8ff;}
 </header>
 <div class="layout">
   <aside class="sidebar">
-    <div class="sidebar-hdr">題庫 · APCS 難度分級</div>
+    <div class="sidebar-hdr">題庫 · 語言 × 難度 × 題型</div>
     <div class="progress-wrap">
       <div class="pw-row"><span>📚 題庫總數</span><b id="pw-total">0</b></div>
       <div class="pw-row"><span>📕 錯題本</span><b class="wrong" id="pw-wrong">0</b></div>
@@ -215,22 +232,25 @@ pre.code .fn{color:#d2a8ff;}
 <div id="modal-root"></div>
 <div id="ver-badge"></div>
 
-<script src="data/reading-questions.js?v=20260623a"></script>
+<script src="data/reading-questions.js?v=20260623b"></script>
 <script>
-const DATA_VER='20260623a';
+const DATA_VER='20260623b';
 const SESS_KEY='apcs_reading_sess_v1';   // 本回合作答（打完即清空）
 const WRONG_KEY='apcs_reading_wrong_v1'; // 錯題本（持久）
-const UI_KEY='apcs_reading_ui_v2';
+const UI_KEY='apcs_reading_ui_v3';
 const LEVELS=['初級','中級','中高級','高級'];
 const LVCLASS={'初級':'lv1','中級':'lv2','中高級':'lv3','高級':'lv4'};
 const LV_COLOR={'初級':'var(--green)','中級':'var(--blue)','中高級':'var(--orange)','高級':'var(--red)'};
+const LANGS=[{key:'c',name:'C'},{key:'cpp',name:'C++'},{key:'python',name:'Python'},{key:'js',name:'JavaScript'},{key:'',name:'共同'}];
+const LANG_COLOR={c:'var(--blue)',cpp:'var(--purple)',python:'var(--green)',js:'var(--yellow)','':'var(--text-muted)'};
+const CATS=['基礎','流程','迴圈','陣列字串','函式遞迴','指標記憶體','結構類別','演算法'];
 const RAND_MAX=50, DEFAULT_N=20;
 
 let sess=loadSess();        // {id:oi} 本回合作答
 let wrong=loadWrong();      // [id,...] 錯題本
-let expanded=new Set();     // 展開的難度
+let expanded=new Set();     // 展開的節點（lang::x / lv::lang::level）
 let view='home';            // 'home' | 'practice' | 'wrong'
-let run={mode:null,level:null,exam:null,ids:[],idx:0,count:DEFAULT_N}; // mode: bank|random|wrong
+let run={wrong:false,lang:null,level:null,cat:null,ids:[],idx:0,count:DEFAULT_N}; // 篩選：語言/難度/題型
 let pick=null;              // 抽題數對話框狀態
 
 function loadSess(){try{const o=JSON.parse(localStorage.getItem(SESS_KEY)||'{}');return (o&&typeof o==='object')?o:{};}catch(e){return {};}}
@@ -266,111 +286,124 @@ function hlCode(code,lang){
   return out;
 }
 function langLabel(l){return ({c:'C',cpp:'C++',python:'Python',js:'JavaScript'})[l]||'觀念題';}
+function langName(l){return ({c:'C',cpp:'C++',python:'Python',js:'JavaScript'})[l]!==undefined?({c:'C',cpp:'C++',python:'Python',js:'JavaScript'})[l]:'共同';}
 
-// ===== 題庫結構 =====
+// ===== 題庫結構（語言 → 難度 → 題型）=====
 function QById(id){return READING_QUESTIONS.find(q=>q.id===id);}
-function banksForLevel(lv){
-  const seen=[];
-  for(const q of READING_QUESTIONS)if(q.level===lv&&!seen.includes(q.exam))seen.push(q.exam);
-  return seen.map(ex=>({exam:ex,count:READING_QUESTIONS.filter(q=>q.level===lv&&q.exam===ex).length}));
+// 篩選：f={wrong?, lang(null=全部 / ''=共同), level, cat}
+function poolFor(f){
+  f=f||{};
+  let arr=f.wrong?validWrong().map(QById):READING_QUESTIONS;
+  return arr.filter(q=>q&&
+    (f.lang==null||q.lang===f.lang)&&
+    (f.level==null||q.level===f.level)&&
+    (f.cat==null||q.cat===f.cat)
+  ).map(q=>q.id);
 }
-function levelTotal(lv){return READING_QUESTIONS.filter(q=>q.level===lv).length;}
+function countQ(f){return poolFor(f).length;}
+function langLevels(lang){return LEVELS.filter(lv=>countQ({lang,level:lv})>0);}
+function catsIn(lang,level){return CATS.filter(c=>countQ({lang,level,cat:c})>0);}
 
 // ===== 錯題本 =====
 function validWrong(){return wrong.filter(id=>QById(id));}
-function wrongInLevel(lv){return validWrong().filter(id=>QById(id).level===lv).length;}
-function wrongInBank(lv,ex){return validWrong().filter(id=>{const q=QById(id);return q.level===lv&&q.exam===ex;}).length;}
+function wrongCount(f){return poolFor(Object.assign({wrong:true},f)).length;}
 function addWrong(id){if(!wrong.includes(id)){wrong.push(id);saveWrong();}}
 function removeWrong(id){const i=wrong.indexOf(id);if(i>=0){wrong.splice(i,1);saveWrong();}}
 
 // ===== 抽題 =====
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
-function poolFor(mode,level,exam){
-  if(mode==='bank')return READING_QUESTIONS.filter(q=>q.level===level&&q.exam===exam).map(q=>q.id);
-  if(mode==='random')return READING_QUESTIONS.filter(q=>q.level===level).map(q=>q.id);
-  if(mode==='wrong'){
-    let ids=validWrong();
-    if(level)ids=ids.filter(id=>QById(id).level===level);
-    if(exam)ids=ids.filter(id=>QById(id).exam===exam);
-    return ids;
-  }
-  return [];
-}
-function drawRun(mode,level,exam,count){
-  const pool=poolFor(mode,level,exam);shuffle(pool);
-  return pool.slice(0,Math.min(count,pool.length));
-}
+function drawRun(f,count){const pool=poolFor(f);shuffle(pool);return pool.slice(0,Math.min(count,pool.length));}
+function runFilter(){return {wrong:run.wrong,lang:run.lang,level:run.level,cat:run.cat};}
 function runList(){return run.ids.map(id=>QById(id)).filter(Boolean);}
 
-// ===== 側欄 =====
+// ===== 側欄（語言 → 難度 → 題型）=====
 function renderSidebar(){
   const wt=validWrong().length;
   let html=`<div class="wb-item${view==='wrong'?' active':''}" data-open="wrong">
     <span class="bank-name">📕 錯題本</span><span class="grow"></span><span class="wrong-pill">${wt}</span></div>`;
-  for(const lv of LEVELS){
-    const total=levelTotal(lv);
-    const open=expanded.has(lv);
-    const randOn=view==='practice'&&run.mode==='random'&&run.level===lv;
-    let items=`<div class="rand-item${randOn?' active':''}" data-randlevel="${escH(lv)}">🎲 隨機練習（最多 ${Math.min(RAND_MAX,total)} 題）</div>`;
-    for(const b of banksForLevel(lv)){
-      const active=view==='practice'&&run.mode==='bank'&&run.level===lv&&run.exam===b.exam;
-      const w=wrongInBank(lv,b.exam);
-      items+=`<div class="bank-item${active?' active':''}" data-level="${escH(lv)}" data-exam="${escH(b.exam)}">
-        <span class="bank-name">${escH(b.exam)}</span>
-        <span class="bank-stat">${b.count} 題</span>${w?`<span class="bank-wrong">❌${w}</span>`:''}</div>`;
+  for(const lg of LANGS){
+    const lang=lg.key;
+    const total=countQ({lang});
+    if(!total)continue;
+    const langKey='lang::'+lang;
+    const lopen=expanded.has(langKey);
+    let body='';
+    for(const lv of langLevels(lang)){
+      const lvTotal=countQ({lang,level:lv});
+      const lvKey='lv::'+lang+'::'+lv;
+      const lvopen=expanded.has(lvKey);
+      const lvw=wrongCount({lang,level:lv});
+      const randOn=view==='practice'&&!run.wrong&&run.lang===lang&&run.level===lv&&run.cat==null;
+      let inner=`<div class="rand-item l3${randOn?' active':''}" data-rlang="${escH(lang)}" data-rlevel="${escH(lv)}">🎲 隨機練習（最多 ${Math.min(RAND_MAX,lvTotal)} 題）</div>`;
+      if(lang!==''){
+        for(const c of catsIn(lang,lv)){
+          const n=countQ({lang,level:lv,cat:c});
+          const cw=wrongCount({lang,level:lv,cat:c});
+          const active=view==='practice'&&!run.wrong&&run.lang===lang&&run.level===lv&&run.cat===c;
+          inner+=`<div class="cat-item${active?' active':''}" data-lang="${escH(lang)}" data-level="${escH(lv)}" data-cat="${escH(c)}">
+            <span class="cat-name">${escH(c)}</span><span class="cat-stat">${n}</span>${cw?`<span class="bank-wrong">❌${cw}</span>`:''}</div>`;
+        }
+      }
+      body+=`<div class="lvl-sec${lvopen?' open':''}" data-lvkey="${escH(lvKey)}" style="--lvcolor:${LV_COLOR[lv]}">
+        <div class="lvl-head"><span class="lvl-chev">▶</span><span class="lvl-name">${escH(lv)}</span><span class="lvl-count">${lvTotal} 題</span>${lvw?`<span class="bank-wrong">❌${lvw}</span>`:''}</div>
+        <div class="lvl-body">${inner}</div></div>`;
     }
-    const lw=wrongInLevel(lv);
-    html+=`<div class="lv-section${open?' open':''}" data-level="${escH(lv)}" style="--lvcolor:${LV_COLOR[lv]}">
-      <div class="lv-head">
-        <span class="lv-chev">▶</span>
-        <span class="lv-name">${escH(lv)}</span>
-        <span class="lv-count">${total} 題</span>
-        ${lw?`<span class="bank-wrong">❌${lw}</span>`:''}
-      </div>
-      <div class="bank-list">${items}</div>
-    </div>`;
+    const lw=wrongCount({lang});
+    html+=`<div class="lang-sec${lopen?' open':''}" data-langkey="${escH(langKey)}" style="--lgcolor:${LANG_COLOR[lang]}">
+      <div class="lang-head"><span class="lang-chev">▶</span><span class="lang-name">${escH(lg.name)}</span><span class="lang-count">${total} 題</span>${lw?`<span class="bank-wrong">❌${lw}</span>`:''}</div>
+      <div class="lang-body">${body}</div></div>`;
   }
   document.getElementById('sb-scroll').innerHTML=html;
 }
 
-// ===== 總覽 =====
+// ===== 總覽（依語言分卡）=====
 function overviewHTML(){
   let cards='';
-  for(const lv of LEVELS){
-    const total=levelTotal(lv);
-    const lw=wrongInLevel(lv);
-    let chips='';
-    for(const b of banksForLevel(lv)){
-      const w=wrongInBank(lv,b.exam);
-      chips+=`<div class="ov-bank-chip" data-level="${escH(lv)}" data-exam="${escH(b.exam)}">
-        <span class="nm">${escH(b.exam)}</span>
-        <span class="ov-chip-stat">${b.count} 題</span>${w?`<span class="ov-chip-wrong">❌${w}</span>`:''}</div>`;
+  for(const lg of LANGS){
+    const lang=lg.key;
+    const total=countQ({lang});
+    if(!total)continue;
+    const lw=wrongCount({lang});
+    let inner='';
+    for(const lv of langLevels(lang)){
+      const lvTotal=countQ({lang,level:lv});
+      inner+=`<div class="ov-lv"><span class="badge lv ${LVCLASS[lv]}">${escH(lv)}</span><span class="ov-lv-count">${lvTotal} 題</span></div>`;
+      inner+=`<div class="ov-rand" data-rlang="${escH(lang)}" data-rlevel="${escH(lv)}">🎲 隨機抽題（最多 ${Math.min(RAND_MAX,lvTotal)} 題）</div>`;
+      if(lang!==''){
+        let chips='';
+        for(const c of catsIn(lang,lv)){
+          const n=countQ({lang,level:lv,cat:c});
+          const cw=wrongCount({lang,level:lv,cat:c});
+          chips+=`<div class="ov-bank-chip" data-lang="${escH(lang)}" data-level="${escH(lv)}" data-cat="${escH(c)}">
+            <span class="nm">${escH(c)}</span><span class="ov-chip-stat">${n}</span>${cw?`<span class="ov-chip-wrong">❌${cw}</span>`:''}</div>`;
+        }
+        inner+=`<div class="ov-chips">${chips}</div>`;
+      }
     }
-    cards+=`<div class="ov-card" style="--lvcolor:${LV_COLOR[lv]}">
-      <h3><span class="badge lv ${LVCLASS[lv]}">${escH(lv)}</span><span class="ov-card-count">${total} 題</span></h3>
+    cards+=`<div class="ov-card" style="--lvcolor:${LANG_COLOR[lang]}">
+      <h3><span class="badge lang-badge">${escH(lg.name)}</span><span class="ov-card-count">${total} 題</span></h3>
       <div class="ov-card-prog">${lw?`📕 錯題本 ${lw} 題`:'尚無錯題 ✓'}</div>
-      <div class="ov-rand" data-randlevel="${escH(lv)}">🎲 隨機抽題練習（最多 ${Math.min(RAND_MAX,total)} 題）</div>
-      ${chips}
+      ${inner}
     </div>`;
   }
   const wt=validWrong().length;
   return `<div class="main-scroll"><div class="inner">
     <div class="intro">
       <b>程式判讀</b>是「讀懂一段程式並推出結果 / 找出錯誤」的題型，<b>APCS 程式識讀</b>與<b>統測 程式設計實習</b>都大量出現。
-      題庫依 <b>APCS 四級難度</b>（初級／中級／中高級／高級）分庫，挑一個難度展開、點進題庫後<b>選擇題數</b>即可開始隨機練習；每回合作答完成即<b>重置</b>，答錯的題目會自動收進<b style="color:var(--red)">📕 錯題本</b>（答對後自動移除）。
+      題庫依 <b>語言（C／C++／Python／JavaScript／共同）→ 難度 → 題型</b>分類；展開語言、選難度後再點<b>題型</b>（或 🎲 隨機抽題），<b>選擇題數</b>即可開始練習；每回合作答完成即<b>重置</b>，答錯的題目會自動收進<b style="color:var(--red)">📕 錯題本</b>（答對後自動移除）。
       <div class="src">題目來源：APCS 官網範例題本（apcs.csie.ntnu.edu.tw）／技專校院入學測驗中心歷屆公告試題（tcte.edu.tw）；標註「官方解答」者為公告標準答案，其餘為依程式邏輯推得之正解。僅供練習參考。</div>
     </div>
-    <div class="ov-hint">選擇難度與題庫開始練習 👇<span class="grow"></span><button class="ov-wrong">📕 錯題本（${wt}）</button><button class="ov-reset">清除全部紀錄</button></div>
+    <div class="ov-hint">選擇語言・難度・題型開始練習 👇<span class="grow"></span><button class="ov-wrong">📕 錯題本（${wt}）</button><button class="ov-reset">清除全部紀錄</button></div>
     <div class="ov-grid">${cards}</div>
   </div></div>`;
 }
 
-// ===== 錯題本（依難度分類）=====
+// ===== 錯題本（依語言 → 難度 → 題型分類）=====
 function wrongHTML(){
   const ids=validWrong();
   const header=`<div class="panel-hdr">
       <button class="tbtn" id="btn-home">‹ 回題庫總覽</button>
-      <span class="panel-title">📕 錯題本（依難度分類）</span>
+      <span class="panel-title">📕 錯題本（依語言分類）</span>
       <span class="grow"></span>
       ${ids.length?'<button class="tbtn ov-clear-wrong">清空錯題本</button>':''}
     </div>`;
@@ -378,24 +411,34 @@ function wrongHTML(){
     return header+`<div class="main-scroll"><div class="inner"><div class="wrong-empty"><span class="big">📕</span>錯題本目前是空的。<br>練習時答錯的題目會自動收進這裡，答對後自動移除。</div></div></div>`;
   }
   let cards='';
-  for(const lv of LEVELS){
-    const lvIds=ids.filter(id=>QById(id).level===lv);
-    if(!lvIds.length)continue;
-    let chips='';
-    for(const b of banksForLevel(lv)){
-      const n=lvIds.filter(id=>QById(id).exam===b.exam).length;
-      if(!n)continue;
-      chips+=`<div class="ov-bank-chip" data-wlevel="${escH(lv)}" data-wexam="${escH(b.exam)}">
-        <span class="nm">${escH(b.exam)}</span><span class="ov-chip-wrong">❌${n}</span></div>`;
+  for(const lg of LANGS){
+    const lang=lg.key;
+    const lw=wrongCount({lang});
+    if(!lw)continue;
+    let inner='';
+    for(const lv of LEVELS){
+      const lvw=wrongCount({lang,level:lv});
+      if(!lvw)continue;
+      inner+=`<div class="ov-lv"><span class="badge lv ${LVCLASS[lv]}">${escH(lv)}</span><span class="ov-chip-wrong">❌${lvw}</span></div>`;
+      inner+=`<div class="ov-rand" data-wrong="1" data-rlang="${escH(lang)}" data-rlevel="${escH(lv)}">🎲 複習此難度錯題（最多 ${Math.min(RAND_MAX,lvw)} 題）</div>`;
+      if(lang!==''){
+        let chips='';
+        for(const c of CATS){
+          const cw=wrongCount({lang,level:lv,cat:c});
+          if(!cw)continue;
+          chips+=`<div class="ov-bank-chip" data-wrong="1" data-lang="${escH(lang)}" data-level="${escH(lv)}" data-cat="${escH(c)}">
+            <span class="nm">${escH(c)}</span><span class="ov-chip-wrong">❌${cw}</span></div>`;
+        }
+        if(chips)inner+=`<div class="ov-chips">${chips}</div>`;
+      }
     }
-    cards+=`<div class="ov-card" style="--lvcolor:${LV_COLOR[lv]}">
-      <h3><span class="badge lv ${LVCLASS[lv]}">${escH(lv)}</span><span class="ov-card-count">${lvIds.length} 題</span></h3>
-      <div class="ov-rand" data-wlevel="${escH(lv)}" data-wexam="">🎲 複習此難度全部錯題（最多 ${Math.min(RAND_MAX,lvIds.length)} 題）</div>
-      ${chips}
+    cards+=`<div class="ov-card" style="--lvcolor:${LANG_COLOR[lang]}">
+      <h3><span class="badge lang-badge">${escH(lg.name)}</span><span class="ov-card-count">❌ ${lw} 題</span></h3>
+      ${inner}
     </div>`;
   }
   return header+`<div class="main-scroll"><div class="inner">
-    <div class="ov-hint">點難度或題庫開始複習錯題 👇<span class="grow"></span><button class="ov-wrong-all">📕 複習全部錯題（最多 ${Math.min(RAND_MAX,ids.length)} 題）</button></div>
+    <div class="ov-hint">點語言・難度・題型開始複習錯題 👇<span class="grow"></span><button class="ov-wrong-all">📕 複習全部錯題（最多 ${Math.min(RAND_MAX,ids.length)} 題）</button></div>
     <div class="ov-grid">${cards}</div>
   </div></div>`;
 }
@@ -404,10 +447,11 @@ function wrongHTML(){
 function practiceHTML(){
   const level=run.level;
   const list=runList();
-  const title=run.mode==='bank'?escH(run.exam):(run.mode==='wrong'?'📕 錯題複習':'🎲 隨機練習');
-  const canRedraw=run.mode==='bank'||run.mode==='random';
+  const title=run.wrong?'📕 錯題複習':(run.cat?escH(run.cat):'🎲 隨機練習');
+  const canRedraw=!run.wrong;
   const head=`<div class="panel-hdr">
       <button class="tbtn" id="btn-home">‹ 題庫總覽</button>
+      ${run.lang!=null?`<span class="badge lang">${escH(langName(run.lang))}</span>`:''}
       ${level?`<span class="badge lv ${LVCLASS[level]}">${escH(level)}</span>`:''}
       <span class="panel-title">${title}</span>
       <span class="panel-sub" id="panel-prog"></span>
@@ -415,7 +459,7 @@ function practiceHTML(){
       ${canRedraw?'<button class="tbtn" id="btn-redraw">🎲 重新抽題</button>':''}
     </div>`;
   if(!list.length){
-    const msg=run.mode==='wrong'?'錯題本沒有可複習的題目了 🎉':'沒有可練習的題目。';
+    const msg=run.wrong?'錯題本沒有可複習的題目了 🎉':'沒有可練習的題目。';
     return head+`<div class="main-scroll"><div class="inner practice"><div class="empty">${msg}</div></div></div>`;
   }
   run.idx=Math.max(0,Math.min(run.idx,list.length-1));
@@ -456,10 +500,10 @@ function renderCard(q){
   return `<div class="qcard${done?' answered':''}" data-qid="${escH(q.id)}">
     <div class="qmeta">
       ${q.level?`<span class="badge lv ${LVCLASS[q.level]}">${escH(q.level)}</span>`:''}
-      <span class="badge exam">${escH(q.exam)}</span>
-      <span class="badge num">${escH(q.num)}</span>
-      <span class="badge topic">${escH(q.topic)}</span>
       <span class="badge lang">${langLabel(q.lang)}</span>
+      ${q.cat?`<span class="badge cat">${escH(q.cat)}</span>`:''}
+      <span class="badge topic">${escH(q.topic)}</span>
+      <span class="badge num">${escH(q.num)}</span>
       ${q.official?'<span class="badge official">官方解答</span>':''}
       ${mark}
     </div>
@@ -490,31 +534,33 @@ function renderMain(){
 }
 
 // ===== 互動 =====
-function toggleLevel(lv){if(expanded.has(lv))expanded.delete(lv);else expanded.add(lv);saveUI();renderSidebar();}
+function toggleKey(k){if(expanded.has(k))expanded.delete(k);else expanded.add(k);saveUI();renderSidebar();}
 function backHome(){view='home';saveUI();renderSidebar();renderMain();scrollTop();}
 function openWrong(){view='wrong';saveUI();renderSidebar();renderMain();scrollTop();}
 
 // 結束回合：清空本回合作答、回總覽（錯題本已持久保存）
 function finishRun(){
   sess={};saveSess();
-  view='home';run={mode:null,level:null,exam:null,ids:[],idx:0,count:run.count};
+  view='home';run={wrong:false,lang:null,level:null,cat:null,ids:[],idx:0,count:run.count};
   saveUI();renderSidebar();renderMain();scrollTop();
 }
 
 // ===== 抽題數對話框 =====
-function openPick(mode,level,exam){
-  const max=Math.min(RAND_MAX,poolFor(mode,level,exam).length);
+function openPick(f){
+  f=f||{};
+  const max=Math.min(RAND_MAX,poolFor(f).length);
   if(max<=0)return;
-  pick={mode,level,exam,max,n:Math.min(run.count||DEFAULT_N,max)};
+  pick={wrong:!!f.wrong,lang:(f.lang===undefined?null:f.lang),level:f.level||null,cat:f.cat||null,max,n:Math.min(run.count||DEFAULT_N,max)};
   renderModal();
 }
 function renderModal(){
   const root=document.getElementById('modal-root');
   if(!pick){root.innerHTML='';root.classList.remove('show');return;}
-  const label=pick.mode==='bank'?escH(pick.exam):(pick.mode==='wrong'?'📕 錯題複習':'🎲 隨機練習');
+  const label=pick.wrong?'📕 錯題複習':(pick.cat?escH(pick.cat):'🎲 隨機練習');
+  const crumb=[pick.lang!=null?escH(langName(pick.lang)):'',pick.level?escH(pick.level):''].filter(Boolean).join('｜');
   root.innerHTML=`<div class="modal">
     <div class="modal-title">選擇題數</div>
-    <div class="modal-sub">${pick.level?escH(pick.level)+'｜':''}${label}　共 ${pick.max} 題可抽（最多 ${RAND_MAX}）</div>
+    <div class="modal-sub">${crumb?crumb+'｜':''}${label}　共 ${pick.max} 題可抽（最多 ${RAND_MAX}）</div>
     <div class="modal-row">
       <input type="number" id="pick-count" min="1" max="${pick.max}" value="${pick.n}"><span>／ ${pick.max} 題</span>
     </div>
@@ -530,17 +576,18 @@ function confirmPick(){
   if(!pick)return;
   const inp=document.getElementById('pick-count');
   let n=parseInt(inp&&inp.value,10);if(!n||n<1)n=1;if(n>pick.max)n=pick.max;
-  const p=pick;closePick();startRun(p.mode,p.level,p.exam,n);
+  const p=pick;closePick();startRun({wrong:p.wrong,lang:p.lang,level:p.level,cat:p.cat},n);
 }
 function closePick(){pick=null;renderModal();}
 
-function startRun(mode,level,exam,n){
-  run={mode,level,exam,ids:drawRun(mode,level,exam,n),idx:0,count:n};
+function startRun(f,n){
+  run={wrong:!!f.wrong,lang:(f.lang===undefined?null:f.lang),level:f.level||null,cat:f.cat||null,ids:drawRun(f,n),idx:0,count:n};
   sess={};saveSess();
-  view='practice';if(level)expanded.add(level);
+  view='practice';
+  if(run.lang!=null){expanded.add('lang::'+run.lang);if(run.level)expanded.add('lv::'+run.lang+'::'+run.level);}
   saveUI();renderSidebar();renderMain();scrollTop();
 }
-function redraw(){if(run.mode==='bank'||run.mode==='random')openPick(run.mode,run.level,run.exam);}
+function redraw(){if(!run.wrong)openPick(runFilter());}
 
 function answer(id,oi){
   if(sess[id]!==undefined)return;
@@ -561,7 +608,7 @@ function clearWrong(){
 function resetAll(){
   if(!confirm('確定清除全部紀錄（含錯題本與本回合作答）？'))return;
   wrong=[];saveWrong();sess={};saveSess();
-  view='home';run={mode:null,level:null,exam:null,ids:[],idx:0,count:DEFAULT_N};
+  view='home';run={wrong:false,lang:null,level:null,cat:null,ids:[],idx:0,count:DEFAULT_N};
   saveUI();renderSidebar();renderMain();scrollTop();
 }
 
@@ -582,9 +629,10 @@ function refresh(){
 // ===== 事件委派 =====
 document.getElementById('sb-scroll').addEventListener('click',e=>{
   if(e.target.closest('.wb-item')){openWrong();return;}
-  const ri=e.target.closest('.rand-item');if(ri){openPick('random',ri.dataset.randlevel,null);return;}
-  const bi=e.target.closest('.bank-item');if(bi){openPick('bank',bi.dataset.level,bi.dataset.exam);return;}
-  const head=e.target.closest('.lv-head');if(head){toggleLevel(head.parentElement.dataset.level);return;}
+  const ri=e.target.closest('.rand-item');if(ri){openPick({lang:ri.dataset.rlang,level:ri.dataset.rlevel,cat:null});return;}
+  const ci=e.target.closest('.cat-item');if(ci){openPick({lang:ci.dataset.lang,level:ci.dataset.level,cat:ci.dataset.cat});return;}
+  const lvh=e.target.closest('.lvl-head');if(lvh){toggleKey(lvh.parentElement.dataset.lvkey);return;}
+  const lgh=e.target.closest('.lang-head');if(lgh){toggleKey(lgh.parentElement.dataset.langkey);return;}
 });
 document.getElementById('main').addEventListener('click',e=>{
   if(e.target.closest('#btn-home')){backHome();return;}
@@ -594,16 +642,11 @@ document.getElementById('main').addEventListener('click',e=>{
   if(e.target.closest('.ov-wrong')){openWrong();return;}
   if(e.target.closest('.ov-reset')){resetAll();return;}
   if(e.target.closest('.ov-clear-wrong')){clearWrong();return;}
-  if(e.target.closest('.ov-wrong-all')){openPick('wrong',null,null);return;}
+  if(e.target.closest('.ov-wrong-all')){openPick({wrong:true});return;}
   const ovr=e.target.closest('.ov-rand');
-  if(ovr){
-    if(ovr.dataset.wlevel!==undefined)openPick('wrong',ovr.dataset.wlevel||null,ovr.dataset.wexam||null);
-    else openPick('random',ovr.dataset.randlevel,null);
-    return;
-  }
-  const wchip=e.target.closest('.ov-bank-chip[data-wexam]');
-  if(wchip){openPick('wrong',wchip.dataset.wlevel,wchip.dataset.wexam);return;}
-  const chip=e.target.closest('.ov-bank-chip');if(chip){openPick('bank',chip.dataset.level,chip.dataset.exam);return;}
+  if(ovr){openPick({wrong:!!ovr.dataset.wrong,lang:ovr.dataset.rlang,level:ovr.dataset.rlevel||null,cat:null});return;}
+  const chip=e.target.closest('.ov-bank-chip');
+  if(chip){openPick({wrong:!!chip.dataset.wrong,lang:chip.dataset.lang,level:chip.dataset.level,cat:chip.dataset.cat});return;}
   const opt=e.target.closest('.opt');if(opt&&!opt.disabled){const card=opt.closest('.qcard');if(card)answer(card.dataset.qid,Number(opt.dataset.oi));return;}
 });
 document.getElementById('modal-root').addEventListener('click',e=>{
@@ -631,11 +674,11 @@ document.addEventListener('keydown',e=>{
 (function(){
   document.getElementById('ver-badge').textContent=`${READING_QUESTIONS.length} 題 · v${DATA_VER}`;
   loadUI();
-  if(!expanded.size)expanded.add('初級');
+  if(!expanded.size)expanded.add('lang::c');
   // 還原練習回合防呆：題目已不存在或為空 → 回總覽
   if(view==='practice'){
-    if(!run.mode||!runList().length)view='home';
-    else if(run.level)expanded.add(run.level);
+    if(!runList().length)view='home';
+    else if(run.lang!=null){expanded.add('lang::'+run.lang);if(run.level)expanded.add('lv::'+run.lang+'::'+run.level);}
   }
   renderSidebar();
   renderMain();
