@@ -232,9 +232,9 @@ pre.code .fn{color:#d2a8ff;}
 <div id="modal-root"></div>
 <div id="ver-badge"></div>
 
-<script src="data/reading-questions.js?v=20260623c"></script>
+<script src="data/reading-questions.js?v=20260623e"></script>
 <script>
-const DATA_VER='20260623c';
+const DATA_VER='20260623e';
 const SESS_KEY='apcs_reading_sess_v1';   // 本回合作答（打完即清空）
 const WRONG_KEY='apcs_reading_wrong_v1'; // 錯題本（持久）
 const UI_KEY='apcs_reading_ui_v3';
@@ -289,8 +289,16 @@ function langLabel(l){return ({c:'C',cpp:'C++',python:'Python',js:'JavaScript'})
 function langName(l){return ({c:'C',cpp:'C++',python:'Python',js:'JavaScript'})[l]!==undefined?({c:'C',cpp:'C++',python:'Python',js:'JavaScript'})[l]:'共同';}
 
 // ===== 題庫結構（語言 → 難度 → 題型）=====
-function QById(id){return READING_QUESTIONS.find(q=>q.id===id);}
-// 篩選：f={wrong?, lang(null=全部 / ''=共同), level, cat}
+const QMAP=new Map();for(const q of READING_QUESTIONS)QMAP.set(q.id,q);
+function QById(id){return QMAP.get(id);}   // O(1) 查表（取代 O(n) find）
+// 預建計數索引（題庫靜態，啟動算一次）→ 側欄／總覽計數改 O(1)，免去每次 render 數百次全表掃描
+const CNT={total:READING_QUESTIONS.length,lang:{},langLevel:{},langLevelCat:{}};
+for(const q of READING_QUESTIONS){
+  CNT.lang[q.lang]=(CNT.lang[q.lang]||0)+1;
+  const lk=q.lang+'|'+q.level;CNT.langLevel[lk]=(CNT.langLevel[lk]||0)+1;
+  CNT.langLevelCat[lk+'|'+q.cat]=(CNT.langLevelCat[lk+'|'+q.cat]||0)+1;
+}
+// 篩選：f={wrong?, lang(null=全部 / ''=共同), level, cat}（poolFor 仍用於實際抽題與錯題計數）
 function poolFor(f){
   f=f||{};
   let arr=f.wrong?validWrong().map(QById):READING_QUESTIONS;
@@ -300,7 +308,15 @@ function poolFor(f){
     (f.cat==null||q.cat===f.cat)
   ).map(q=>q.id);
 }
-function countQ(f){return poolFor(f).length;}
+// 非錯題計數走索引（O(1)）；錯題題數少，仍走 poolFor
+function countQ(f){
+  f=f||{};
+  if(f.wrong)return poolFor(f).length;
+  if(f.cat!=null)return CNT.langLevelCat[f.lang+'|'+f.level+'|'+f.cat]||0;
+  if(f.level!=null)return CNT.langLevel[f.lang+'|'+f.level]||0;
+  if(f.lang!=null)return CNT.lang[f.lang]||0;
+  return CNT.total;
+}
 function langLevels(lang){return LEVELS.filter(lv=>countQ({lang,level:lv})>0);}
 function catsIn(lang,level){return CATS.filter(c=>countQ({lang,level,cat:c})>0);}
 
