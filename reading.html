@@ -69,7 +69,12 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .panel-hdr .grow{flex:1;}
 .main-scroll{overflow-y:auto;flex:1;padding:18px 18px 90px;}
 .inner{max-width:880px;margin:0 auto;}
-.inner.practice{max-width:760px;}
+.inner.practice{max-width:1060px;}
+.inner.practice .qcard{padding:20px 24px;}
+.inner.practice .qprompt{font-size:15.5px;}
+.inner.practice pre.code{font-size:13.5px;padding:14px 16px;}
+.inner.practice .opt{font-size:14px;padding:13px 15px;}
+.inner.practice .explain{font-size:13px;}
 .tbtn{background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;padding:5px 11px;font-size:12px;cursor:pointer;font-family:inherit;}
 .tbtn:hover{color:var(--text);border-color:var(--text-muted);}
 
@@ -146,6 +151,31 @@ pre.code .fn{color:#d2a8ff;}
 .nav-btn:disabled{opacity:.35;cursor:default;}
 .nav-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
 .nav-btn.primary:hover{filter:brightness(1.12);color:#fff;}
+
+/* ===== 錯題本徽章／統計 ===== */
+.pw-row{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:var(--text-muted);padding:3px 0;}
+.pw-row b{color:var(--text);font-weight:700;}
+.pw-row b.wrong{color:var(--red);}
+.wrong-pill{font-size:11px;color:var(--red);background:rgba(248,81,73,.12);border:1px solid rgba(248,81,73,.3);border-radius:999px;padding:1px 7px;font-weight:700;white-space:nowrap;}
+.wb-item{display:flex;align-items:center;gap:8px;padding:9px 12px 9px 22px;cursor:pointer;border-top:1px solid rgba(48,54,61,.45);font-size:12.5px;color:var(--red);background:rgba(248,81,73,.06);font-weight:600;}
+.wb-item:hover{background:rgba(248,81,73,.14);}
+.wb-item.active{box-shadow:inset 3px 0 0 var(--red);}
+.bank-wrong{font-size:10.5px;color:var(--red);margin-left:6px;flex-shrink:0;}
+
+/* ===== 錯題本總覽 ===== */
+.ov-chip-wrong{margin-left:auto;font-size:10.5px;color:var(--red);font-weight:700;white-space:nowrap;flex-shrink:0;}
+.wrong-empty{text-align:center;color:var(--text-muted);padding:56px 20px;font-size:14px;line-height:1.9;}
+.wrong-empty .big{font-size:40px;display:block;margin-bottom:10px;}
+
+/* ===== 抽題數 modal ===== */
+#modal-root{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);}
+#modal-root.show{display:flex;}
+.modal{background:var(--panel-bg);border:1px solid var(--border);border-radius:14px;padding:22px 24px;width:min(92vw,380px);box-shadow:0 18px 50px rgba(0,0,0,.5);}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.modal-sub{font-size:12.5px;color:var(--text-muted);margin-bottom:16px;line-height:1.6;}
+.modal-row{display:flex;align-items:center;gap:10px;font-size:13.5px;margin-bottom:20px;}
+.modal-row input{width:90px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 10px;font-family:inherit;font-size:15px;text-align:center;}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end;}
 #ver-badge{position:fixed;right:8px;bottom:8px;z-index:50;font:10px/1.4 ui-monospace,monospace;color:var(--text-muted);background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:2px 8px;opacity:.55;}
 ::-webkit-scrollbar{width:7px;height:7px;}
 ::-webkit-scrollbar-thumb{background:#30363d;border-radius:3px;}
@@ -168,44 +198,47 @@ pre.code .fn{color:#d2a8ff;}
   <div class="hright">
     <a class="navlink" href="index.html">🎯 評分系統</a>
     <a class="navlink" href="tutorial.html">📚 基礎教學</a>
-    <span class="score-pill" id="score-pill">0 / 0</span>
+    <span class="score-pill" id="score-pill">📕 錯題本 0 題</span>
   </div>
 </header>
 <div class="layout">
   <aside class="sidebar">
     <div class="sidebar-hdr">題庫 · APCS 難度分級</div>
     <div class="progress-wrap">
-      <div class="progress-bar"><div class="progress-fill" id="ov-fill"></div></div>
-      <div class="progress-text"><span id="ov-done">已作答 0</span><span id="ov-correct">答對 0</span></div>
+      <div class="pw-row"><span>📚 題庫總數</span><b id="pw-total">0</b></div>
+      <div class="pw-row"><span>📕 錯題本</span><b class="wrong" id="pw-wrong">0</b></div>
     </div>
     <div class="sb-scroll" id="sb-scroll"></div>
   </aside>
   <section class="main" id="main"></section>
 </div>
+<div id="modal-root"></div>
 <div id="ver-badge"></div>
 
-<script src="data/reading-questions.js?v=20260622a"></script>
+<script src="data/reading-questions.js?v=20260623a"></script>
 <script>
-const DATA_VER='20260622a';
-const STORE_KEY='apcs_reading_v1';
-const UI_KEY='apcs_reading_ui_v1';
+const DATA_VER='20260623a';
+const SESS_KEY='apcs_reading_sess_v1';   // 本回合作答（打完即清空）
+const WRONG_KEY='apcs_reading_wrong_v1'; // 錯題本（持久）
+const UI_KEY='apcs_reading_ui_v2';
 const LEVELS=['初級','中級','中高級','高級'];
 const LVCLASS={'初級':'lv1','中級':'lv2','中高級':'lv3','高級':'lv4'};
 const LV_COLOR={'初級':'var(--green)','中級':'var(--blue)','中高級':'var(--orange)','高級':'var(--red)'};
+const RAND_MAX=50, DEFAULT_N=20;
 
-let answers=loadAnswers();
-let curView='overview';    // 'overview' | 'bank' | 'random'
-let curBank=null;          // {level,exam}
-let expanded=new Set();    // 展開的難度
-let hideDone=false;
-let randLevel=null, randCount=20, randIds=[];
-let curIndex=0;            // 單題模式：目前題目在清單中的索引
-const RAND_MAX=50;
+let sess=loadSess();        // {id:oi} 本回合作答
+let wrong=loadWrong();      // [id,...] 錯題本
+let expanded=new Set();     // 展開的難度
+let view='home';            // 'home' | 'practice' | 'wrong'
+let run={mode:null,level:null,exam:null,ids:[],idx:0,count:DEFAULT_N}; // mode: bank|random|wrong
+let pick=null;              // 抽題數對話框狀態
 
-function loadAnswers(){try{const o=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');return (o&&typeof o==='object')?o:{};}catch(e){return {};}}
-function saveAnswers(){try{localStorage.setItem(STORE_KEY,JSON.stringify(answers));}catch(e){}}
-function loadUI(){try{const o=JSON.parse(localStorage.getItem(UI_KEY)||'{}');if(o&&typeof o==='object'){if(Array.isArray(o.expanded))expanded=new Set(o.expanded);if(o.bank&&o.bank.level&&o.bank.exam)curBank=o.bank;if(o.view)curView=o.view;if(o.randLevel)randLevel=o.randLevel;if(o.randCount)randCount=o.randCount;if(typeof o.idx==='number')curIndex=o.idx;}}catch(e){}}
-function saveUI(){try{localStorage.setItem(UI_KEY,JSON.stringify({expanded:[...expanded],bank:curBank,view:curView,randLevel,randCount,idx:curIndex}));}catch(e){}}
+function loadSess(){try{const o=JSON.parse(localStorage.getItem(SESS_KEY)||'{}');return (o&&typeof o==='object')?o:{};}catch(e){return {};}}
+function saveSess(){try{localStorage.setItem(SESS_KEY,JSON.stringify(sess));}catch(e){}}
+function loadWrong(){try{const a=JSON.parse(localStorage.getItem(WRONG_KEY)||'[]');return Array.isArray(a)?a.filter(x=>typeof x==='string'):[];}catch(e){return [];}}
+function saveWrong(){try{localStorage.setItem(WRONG_KEY,JSON.stringify(wrong));}catch(e){}}
+function loadUI(){try{const o=JSON.parse(localStorage.getItem(UI_KEY)||'{}');if(o&&typeof o==='object'){if(Array.isArray(o.expanded))expanded=new Set(o.expanded);if(o.view)view=o.view;if(o.run&&typeof o.run==='object')run=Object.assign(run,o.run);}}catch(e){}}
+function saveUI(){try{localStorage.setItem(UI_KEY,JSON.stringify({expanded:[...expanded],view,run}));}catch(e){}}
 
 function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
@@ -235,48 +268,64 @@ function hlCode(code,lang){
 function langLabel(l){return ({c:'C',cpp:'C++',python:'Python',js:'JavaScript'})[l]||'觀念題';}
 
 // ===== 題庫結構 =====
+function QById(id){return READING_QUESTIONS.find(q=>q.id===id);}
 function banksForLevel(lv){
   const seen=[];
   for(const q of READING_QUESTIONS)if(q.level===lv&&!seen.includes(q.exam))seen.push(q.exam);
   return seen.map(ex=>({exam:ex,count:READING_QUESTIONS.filter(q=>q.level===lv&&q.exam===ex).length}));
 }
-function bankStats(lv,ex){
-  let total=0,done=0,correct=0;
-  for(const q of READING_QUESTIONS)if(q.level===lv&&q.exam===ex){total++;const a=answers[q.id];if(a!==undefined){done++;if(a===q.answer)correct++;}}
-  return {total,done,correct};
+function levelTotal(lv){return READING_QUESTIONS.filter(q=>q.level===lv).length;}
+
+// ===== 錯題本 =====
+function validWrong(){return wrong.filter(id=>QById(id));}
+function wrongInLevel(lv){return validWrong().filter(id=>QById(id).level===lv).length;}
+function wrongInBank(lv,ex){return validWrong().filter(id=>{const q=QById(id);return q.level===lv&&q.exam===ex;}).length;}
+function addWrong(id){if(!wrong.includes(id)){wrong.push(id);saveWrong();}}
+function removeWrong(id){const i=wrong.indexOf(id);if(i>=0){wrong.splice(i,1);saveWrong();}}
+
+// ===== 抽題 =====
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function poolFor(mode,level,exam){
+  if(mode==='bank')return READING_QUESTIONS.filter(q=>q.level===level&&q.exam===exam).map(q=>q.id);
+  if(mode==='random')return READING_QUESTIONS.filter(q=>q.level===level).map(q=>q.id);
+  if(mode==='wrong'){
+    let ids=validWrong();
+    if(level)ids=ids.filter(id=>QById(id).level===level);
+    if(exam)ids=ids.filter(id=>QById(id).exam===exam);
+    return ids;
+  }
+  return [];
 }
-function levelStats(lv){
-  let total=0,done=0,correct=0;
-  for(const q of READING_QUESTIONS)if(q.level===lv){total++;const a=answers[q.id];if(a!==undefined){done++;if(a===q.answer)correct++;}}
-  return {total,done,correct};
+function drawRun(mode,level,exam,count){
+  const pool=poolFor(mode,level,exam);shuffle(pool);
+  return pool.slice(0,Math.min(count,pool.length));
 }
+function runList(){return run.ids.map(id=>QById(id)).filter(Boolean);}
 
 // ===== 側欄 =====
 function renderSidebar(){
-  let html='';
+  const wt=validWrong().length;
+  let html=`<div class="wb-item${view==='wrong'?' active':''}" data-open="wrong">
+    <span class="bank-name">📕 錯題本</span><span class="grow"></span><span class="wrong-pill">${wt}</span></div>`;
   for(const lv of LEVELS){
-    const s=levelStats(lv);
+    const total=levelTotal(lv);
     const open=expanded.has(lv);
-    const banks=banksForLevel(lv);
-    const randOn=curView==='random'&&randLevel===lv;
-    let items=`<div class="rand-item${randOn?' active':''}" data-randlevel="${escH(lv)}">🎲 隨機練習（最多 ${Math.min(RAND_MAX,s.total)} 題）</div>`;
-    for(const b of banks){
-      const st=bankStats(lv,b.exam);
-      const active=curView==='bank'&&curBank&&curBank.level===lv&&curBank.exam===b.exam;
-      const stTxt=st.done?`${st.correct}/${st.total}`:`${st.total} 題`;
-      const stDone=st.total>0&&st.done===st.total?' done':'';
+    const randOn=view==='practice'&&run.mode==='random'&&run.level===lv;
+    let items=`<div class="rand-item${randOn?' active':''}" data-randlevel="${escH(lv)}">🎲 隨機練習（最多 ${Math.min(RAND_MAX,total)} 題）</div>`;
+    for(const b of banksForLevel(lv)){
+      const active=view==='practice'&&run.mode==='bank'&&run.level===lv&&run.exam===b.exam;
+      const w=wrongInBank(lv,b.exam);
       items+=`<div class="bank-item${active?' active':''}" data-level="${escH(lv)}" data-exam="${escH(b.exam)}">
         <span class="bank-name">${escH(b.exam)}</span>
-        <span class="bank-stat${stDone}">${stTxt}</span></div>`;
+        <span class="bank-stat">${b.count} 題</span>${w?`<span class="bank-wrong">❌${w}</span>`:''}</div>`;
     }
-    const lvFull=s.total>0&&s.done===s.total;
-    const lvTxt=`${s.correct}/${s.total}${lvFull?' ✓':''}`;
+    const lw=wrongInLevel(lv);
     html+=`<div class="lv-section${open?' open':''}" data-level="${escH(lv)}" style="--lvcolor:${LV_COLOR[lv]}">
       <div class="lv-head">
         <span class="lv-chev">▶</span>
         <span class="lv-name">${escH(lv)}</span>
-        <span class="lv-count">${s.total} 題</span>
-        <span class="lv-prog${lvFull?' done':''}">${lvTxt}</span>
+        <span class="lv-count">${total} 題</span>
+        ${lw?`<span class="bank-wrong">❌${lw}</span>`:''}
       </div>
       <div class="bank-list">${items}</div>
     </div>`;
@@ -288,93 +337,98 @@ function renderSidebar(){
 function overviewHTML(){
   let cards='';
   for(const lv of LEVELS){
-    const s=levelStats(lv);
-    const pct=s.total?Math.round(s.correct/s.total*100):0;
+    const total=levelTotal(lv);
+    const lw=wrongInLevel(lv);
     let chips='';
     for(const b of banksForLevel(lv)){
-      const st=bankStats(lv,b.exam);
-      const stTxt=st.done?`${st.correct}/${st.total}`:`${st.total} 題`;
-      const stDone=st.total>0&&st.done===st.total?' done':'';
+      const w=wrongInBank(lv,b.exam);
       chips+=`<div class="ov-bank-chip" data-level="${escH(lv)}" data-exam="${escH(b.exam)}">
         <span class="nm">${escH(b.exam)}</span>
-        <span class="ov-chip-stat${stDone}">${stTxt}</span></div>`;
+        <span class="ov-chip-stat">${b.count} 題</span>${w?`<span class="ov-chip-wrong">❌${w}</span>`:''}</div>`;
     }
     cards+=`<div class="ov-card" style="--lvcolor:${LV_COLOR[lv]}">
-      <h3><span class="badge lv ${LVCLASS[lv]}">${escH(lv)}</span><span class="ov-card-count">${s.total} 題</span></h3>
-      <div class="ov-card-prog">已作答 ${s.done}／${s.total}，答對 ${s.correct}</div>
-      <div class="ov-prog-bar"><i style="width:${pct}%"></i></div>
-      <div class="ov-rand" data-randlevel="${escH(lv)}">🎲 隨機抽題練習（最多 ${Math.min(RAND_MAX,s.total)} 題）</div>
+      <h3><span class="badge lv ${LVCLASS[lv]}">${escH(lv)}</span><span class="ov-card-count">${total} 題</span></h3>
+      <div class="ov-card-prog">${lw?`📕 錯題本 ${lw} 題`:'尚無錯題 ✓'}</div>
+      <div class="ov-rand" data-randlevel="${escH(lv)}">🎲 隨機抽題練習（最多 ${Math.min(RAND_MAX,total)} 題）</div>
       ${chips}
     </div>`;
   }
+  const wt=validWrong().length;
   return `<div class="main-scroll"><div class="inner">
     <div class="intro">
       <b>程式判讀</b>是「讀懂一段程式並推出結果 / 找出錯誤」的題型，<b>APCS 程式識讀</b>與<b>統測 程式設計實習</b>都大量出現。
-      題庫依 <b>APCS 四級難度</b>（初級／中級／中高級／高級）分庫，挑一個難度展開、點進題庫即可開始練習；作答後立即顯示<b style="color:var(--green)">正解</b>與<b>解析考點</b>，進度自動保存。
+      題庫依 <b>APCS 四級難度</b>（初級／中級／中高級／高級）分庫，挑一個難度展開、點進題庫後<b>選擇題數</b>即可開始隨機練習；每回合作答完成即<b>重置</b>，答錯的題目會自動收進<b style="color:var(--red)">📕 錯題本</b>（答對後自動移除）。
       <div class="src">題目來源：APCS 官網範例題本（apcs.csie.ntnu.edu.tw）／技專校院入學測驗中心歷屆公告試題（tcte.edu.tw）；標註「官方解答」者為公告標準答案，其餘為依程式邏輯推得之正解。僅供練習參考。</div>
     </div>
-    <div class="ov-hint">選擇難度與題庫開始練習 👇<span class="grow"></span><button class="ov-reset">清除全部作答紀錄</button></div>
+    <div class="ov-hint">選擇難度與題庫開始練習 👇<span class="grow"></span><button class="ov-wrong">📕 錯題本（${wt}）</button><button class="ov-reset">清除全部紀錄</button></div>
     <div class="ov-grid">${cards}</div>
   </div></div>`;
 }
 
-// ===== 題庫練習（一頁一題）=====
-// 目前練習中的題目清單（題庫或隨機回合）
-function currentList(){
-  if(curView==='random')return randIds.map(id=>READING_QUESTIONS.find(q=>q.id===id)).filter(Boolean);
-  if(curView==='bank'&&curBank){
-    let qs=READING_QUESTIONS.filter(q=>q.level===curBank.level&&q.exam===curBank.exam);
-    if(hideDone)qs=qs.filter(q=>!(answers[q.id]!==undefined&&answers[q.id]===q.answer));
-    return qs;
+// ===== 錯題本（依難度分類）=====
+function wrongHTML(){
+  const ids=validWrong();
+  const header=`<div class="panel-hdr">
+      <button class="tbtn" id="btn-home">‹ 回題庫總覽</button>
+      <span class="panel-title">📕 錯題本（依難度分類）</span>
+      <span class="grow"></span>
+      ${ids.length?'<button class="tbtn ov-clear-wrong">清空錯題本</button>':''}
+    </div>`;
+  if(!ids.length){
+    return header+`<div class="main-scroll"><div class="inner"><div class="wrong-empty"><span class="big">📕</span>錯題本目前是空的。<br>練習時答錯的題目會自動收進這裡，答對後自動移除。</div></div></div>`;
   }
-  return [];
+  let cards='';
+  for(const lv of LEVELS){
+    const lvIds=ids.filter(id=>QById(id).level===lv);
+    if(!lvIds.length)continue;
+    let chips='';
+    for(const b of banksForLevel(lv)){
+      const n=lvIds.filter(id=>QById(id).exam===b.exam).length;
+      if(!n)continue;
+      chips+=`<div class="ov-bank-chip" data-wlevel="${escH(lv)}" data-wexam="${escH(b.exam)}">
+        <span class="nm">${escH(b.exam)}</span><span class="ov-chip-wrong">❌${n}</span></div>`;
+    }
+    cards+=`<div class="ov-card" style="--lvcolor:${LV_COLOR[lv]}">
+      <h3><span class="badge lv ${LVCLASS[lv]}">${escH(lv)}</span><span class="ov-card-count">${lvIds.length} 題</span></h3>
+      <div class="ov-rand" data-wlevel="${escH(lv)}" data-wexam="">🎲 複習此難度全部錯題（最多 ${Math.min(RAND_MAX,lvIds.length)} 題）</div>
+      ${chips}
+    </div>`;
+  }
+  return header+`<div class="main-scroll"><div class="inner">
+    <div class="ov-hint">點難度或題庫開始複習錯題 👇<span class="grow"></span><button class="ov-wrong-all">📕 複習全部錯題（最多 ${Math.min(RAND_MAX,ids.length)} 題）</button></div>
+    <div class="ov-grid">${cards}</div>
+  </div></div>`;
 }
 
+// ===== 練習（一頁一題）=====
 function practiceHTML(){
-  const isRandom=curView==='random';
-  const level=isRandom?randLevel:curBank.level;
-  const list=currentList();
-  // ---- 標題列 ----
-  let head;
-  if(isRandom){
-    const maxN=Math.min(RAND_MAX,READING_QUESTIONS.filter(q=>q.level===level).length);
-    head=`<div class="panel-hdr">
-        <button class="tbtn" id="btn-back">‹ 題庫總覽</button>
-        <span class="badge lv ${LVCLASS[level]}">${escH(level)}</span>
-        <span class="panel-title">🎲 隨機練習</span>
-        <span class="rand-ctl">題數 <input type="number" id="rand-count" min="1" max="${maxN}" value="${Math.min(randCount,maxN)}"> / ${maxN}
-          <button class="tbtn" id="btn-redraw">🎲 重新抽題</button></span>
-        <span class="panel-sub" id="panel-prog"></span>
-        <span class="grow"></span>
-      </div>`;
-  }else{
-    head=`<div class="panel-hdr">
-        <button class="tbtn" id="btn-back">‹ 題庫總覽</button>
-        <span class="badge lv ${LVCLASS[level]}">${escH(level)}</span>
-        <span class="panel-title">${escH(curBank.exam)}</span>
-        <span class="panel-sub" id="panel-prog"></span>
-        <span class="grow"></span>
-        <button class="tbtn" id="toggle-done">${hideDone?'顯示已答對':'隱藏已答對'}</button>
-        <button class="tbtn" id="btn-reset">清除本庫紀錄</button>
-      </div>`;
-  }
-  // ---- 內容：空清單 ----
+  const level=run.level;
+  const list=runList();
+  const title=run.mode==='bank'?escH(run.exam):(run.mode==='wrong'?'📕 錯題複習':'🎲 隨機練習');
+  const canRedraw=run.mode==='bank'||run.mode==='random';
+  const head=`<div class="panel-hdr">
+      <button class="tbtn" id="btn-home">‹ 題庫總覽</button>
+      ${level?`<span class="badge lv ${LVCLASS[level]}">${escH(level)}</span>`:''}
+      <span class="panel-title">${title}</span>
+      <span class="panel-sub" id="panel-prog"></span>
+      <span class="grow"></span>
+      ${canRedraw?'<button class="tbtn" id="btn-redraw">🎲 重新抽題</button>':''}
+    </div>`;
   if(!list.length){
-    const msg=isRandom?'按「重新抽題」開始一回合隨機練習。':'這個題庫的題目都答對了 🎉　（點「顯示已答對」可再複習一次）';
+    const msg=run.mode==='wrong'?'錯題本沒有可複習的題目了 🎉':'沒有可練習的題目。';
     return head+`<div class="main-scroll"><div class="inner practice"><div class="empty">${msg}</div></div></div>`;
   }
-  // ---- 內容：單題 + 導覽 ----
-  curIndex=Math.max(0,Math.min(curIndex,list.length-1));
-  const q=list[curIndex];
-  const answered=answers[q.id]!==undefined;
-  const isLast=curIndex>=list.length-1;
-  const pct=Math.round((curIndex+1)/list.length*100);
+  run.idx=Math.max(0,Math.min(run.idx,list.length-1));
+  const q=list[run.idx];
+  const answered=sess[q.id]!==undefined;
+  const isLast=run.idx>=list.length-1;
+  const pct=Math.round((run.idx+1)/list.length*100);
   const body=`
     <div class="q-progress-bar"><i style="width:${pct}%"></i></div>
     ${renderCard(q)}
     <div class="q-nav">
-      <button class="nav-btn" id="q-prev" ${curIndex===0?'disabled':''}>‹ 上一題</button>
-      <span class="q-counter">第 ${curIndex+1} / ${list.length} 題</span>
+      <button class="nav-btn" id="q-prev" ${run.idx===0?'disabled':''}>‹ 上一題</button>
+      <span class="q-counter">第 ${run.idx+1} / ${list.length} 題</span>
       <span class="grow"></span>
       <button class="nav-btn${answered?' primary':''}" id="q-next">${isLast?'完成 ✓':'下一題 ›'}</button>
     </div>`;
@@ -382,7 +436,7 @@ function practiceHTML(){
 }
 
 function renderCard(q){
-  const chosen=answers[q.id];
+  const chosen=sess[q.id];
   const done=chosen!==undefined;
   const mark=done?(chosen===q.answer?'<span class="qmark" style="color:var(--green)">✓</span>':'<span class="qmark" style="color:var(--red)">✗</span>'):'';
   const codeBlock=q.code?`<pre class="code">${hlCode(q.code,q.lang)}</pre>`:'';
@@ -397,7 +451,7 @@ function renderCard(q){
   let explain='';
   if(done){
     const ok=chosen===q.answer;
-    explain=`<div class="explain"><span class="lead ${ok?'':'bad'}">${ok?'✓ 答對！':'✗ 答錯了'}</span>　正解 (${'ABCD'[q.answer]})。<br>${escH(q.explain)}</div>`;
+    explain=`<div class="explain"><span class="lead ${ok?'':'bad'}">${ok?'✓ 答對！':'✗ 答錯了（已收進錯題本）'}</span>　正解 (${'ABCD'[q.answer]})。<br>${escH(q.explain)}</div>`;
   }
   return `<div class="qcard${done?' answered':''}" data-qid="${escH(q.id)}">
     <div class="qmeta">
@@ -416,135 +470,160 @@ function renderCard(q){
   </div>`;
 }
 
-// 單題導覽
+// ===== 導覽 =====
+function scrollTop(){const sc=document.querySelector('.main-scroll');if(sc)sc.scrollTop=0;}
 function goTo(i){
-  const list=currentList();
-  if(!list.length){backToOverview();return;}
-  if(i>=list.length){backToOverview();return;}   // 在最後一題按「完成」→ 回總覽
-  curIndex=Math.max(0,Math.min(i,list.length-1));
-  saveUI();renderMain();
-  const sc=document.querySelector('.main-scroll');if(sc)sc.scrollTop=0;
+  const list=runList();
+  if(!list.length||i>=list.length){finishRun();return;}   // 在最後一題按「完成」→ 結束回合並重置
+  run.idx=Math.max(0,Math.min(i,list.length-1));
+  saveUI();renderMain();scrollTop();
 }
-function nextQ(){goTo(curIndex+1);}
-function prevQ(){goTo(curIndex-1);}
+function nextQ(){goTo(run.idx+1);}
+function prevQ(){goTo(run.idx-1);}
 
 function renderMain(){
   const m=document.getElementById('main');
-  const inPractice=(curView==='bank'&&curBank)||(curView==='random'&&randLevel);
-  m.innerHTML=inPractice?practiceHTML():overviewHTML();
+  if(view==='practice')m.innerHTML=practiceHTML();
+  else if(view==='wrong')m.innerHTML=wrongHTML();
+  else m.innerHTML=overviewHTML();
   refresh();
 }
 
 // ===== 互動 =====
-function selectBank(level,exam){
-  curView='bank';curBank={level,exam};curIndex=0;
-  expanded.add(level);
-  hideDone=false;
-  saveUI();
-  renderSidebar();
-  renderMain();
-  const sc=document.querySelector('.main-scroll');if(sc)sc.scrollTop=0;
-}
-function toggleLevel(lv){
-  if(expanded.has(lv))expanded.delete(lv);else expanded.add(lv);
-  saveUI();renderSidebar();
-}
-function backToOverview(){curView='overview';saveUI();renderSidebar();renderMain();}
+function toggleLevel(lv){if(expanded.has(lv))expanded.delete(lv);else expanded.add(lv);saveUI();renderSidebar();}
+function backHome(){view='home';saveUI();renderSidebar();renderMain();scrollTop();}
+function openWrong(){view='wrong';saveUI();renderSidebar();renderMain();scrollTop();}
 
-function drawRandom(){
-  const pool=READING_QUESTIONS.filter(q=>q.level===randLevel).map(q=>q.id);
-  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=pool[i];pool[i]=pool[j];pool[j]=t;}
-  randIds=pool.slice(0,randCount);
+// 結束回合：清空本回合作答、回總覽（錯題本已持久保存）
+function finishRun(){
+  sess={};saveSess();
+  view='home';run={mode:null,level:null,exam:null,ids:[],idx:0,count:run.count};
+  saveUI();renderSidebar();renderMain();scrollTop();
 }
-function openRandom(level){
-  curView='random';randLevel=level;curIndex=0;expanded.add(level);
-  const maxN=Math.min(RAND_MAX,READING_QUESTIONS.filter(q=>q.level===level).length);
-  if(!randCount||randCount>maxN)randCount=Math.min(20,maxN);
-  drawRandom();saveUI();renderSidebar();renderMain();
-  const sc=document.querySelector('.main-scroll');if(sc)sc.scrollTop=0;
+
+// ===== 抽題數對話框 =====
+function openPick(mode,level,exam){
+  const max=Math.min(RAND_MAX,poolFor(mode,level,exam).length);
+  if(max<=0)return;
+  pick={mode,level,exam,max,n:Math.min(run.count||DEFAULT_N,max)};
+  renderModal();
 }
-function redrawRandom(){
-  const inp=document.getElementById('rand-count');
-  const maxN=Math.min(RAND_MAX,READING_QUESTIONS.filter(q=>q.level===randLevel).length);
-  let n=parseInt(inp&&inp.value,10);if(!n||n<1)n=1;if(n>maxN)n=maxN;
-  randCount=n;curIndex=0;drawRandom();saveUI();renderMain();
-  const sc=document.querySelector('.main-scroll');if(sc)sc.scrollTop=0;
+function renderModal(){
+  const root=document.getElementById('modal-root');
+  if(!pick){root.innerHTML='';root.classList.remove('show');return;}
+  const label=pick.mode==='bank'?escH(pick.exam):(pick.mode==='wrong'?'📕 錯題複習':'🎲 隨機練習');
+  root.innerHTML=`<div class="modal">
+    <div class="modal-title">選擇題數</div>
+    <div class="modal-sub">${pick.level?escH(pick.level)+'｜':''}${label}　共 ${pick.max} 題可抽（最多 ${RAND_MAX}）</div>
+    <div class="modal-row">
+      <input type="number" id="pick-count" min="1" max="${pick.max}" value="${pick.n}"><span>／ ${pick.max} 題</span>
+    </div>
+    <div class="modal-btns">
+      <button class="tbtn" id="pick-cancel">取消</button>
+      <button class="nav-btn primary" id="pick-go">開始練習 ›</button>
+    </div>
+  </div>`;
+  root.classList.add('show');
+  const inp=document.getElementById('pick-count');if(inp){inp.focus();inp.select();}
 }
+function confirmPick(){
+  if(!pick)return;
+  const inp=document.getElementById('pick-count');
+  let n=parseInt(inp&&inp.value,10);if(!n||n<1)n=1;if(n>pick.max)n=pick.max;
+  const p=pick;closePick();startRun(p.mode,p.level,p.exam,n);
+}
+function closePick(){pick=null;renderModal();}
+
+function startRun(mode,level,exam,n){
+  run={mode,level,exam,ids:drawRun(mode,level,exam,n),idx:0,count:n};
+  sess={};saveSess();
+  view='practice';if(level)expanded.add(level);
+  saveUI();renderSidebar();renderMain();scrollTop();
+}
+function redraw(){if(run.mode==='bank'||run.mode==='random')openPick(run.mode,run.level,run.exam);}
 
 function answer(id,oi){
-  if(answers[id]!==undefined)return;
-  answers[id]=oi;saveAnswers();
-  const q=READING_QUESTIONS.find(x=>x.id===id);
-  // 題庫模式開「隱藏已答對」且答對 → 該題離開清單，重建單題頁
-  if(curView==='bank'&&hideDone&&oi===q.answer){renderMain();renderSidebar();return;}
+  if(sess[id]!==undefined)return;
+  const q=QById(id);if(!q)return;
+  sess[id]=oi;saveSess();
+  if(oi===q.answer)removeWrong(id);else addWrong(id);
   const card=document.querySelector('.qcard[data-qid="'+CSS.escape(id)+'"]');
   if(card){const t=document.createElement('div');t.innerHTML=renderCard(q);card.replaceWith(t.firstElementChild);}
-  const nb=document.getElementById('q-next');if(nb)nb.classList.add('primary');  // 作答後「下一題」變主要動作
+  const nb=document.getElementById('q-next');if(nb)nb.classList.add('primary');
   refresh();renderSidebar();
 }
 
-function resetBank(){
-  if(!curBank)return;
-  if(!confirm('確定清除「'+curBank.level+'｜'+curBank.exam+'」的作答紀錄？'))return;
-  for(const q of READING_QUESTIONS)if(q.level===curBank.level&&q.exam===curBank.exam)delete answers[q.id];
-  saveAnswers();renderSidebar();renderMain();
+function clearWrong(){
+  if(!validWrong().length)return;
+  if(!confirm('確定清空錯題本？此動作無法復原。'))return;
+  wrong=[];saveWrong();renderSidebar();renderMain();
 }
 function resetAll(){
-  if(!confirm('確定清除全部作答紀錄？'))return;
-  answers={};saveAnswers();renderSidebar();renderMain();
+  if(!confirm('確定清除全部紀錄（含錯題本與本回合作答）？'))return;
+  wrong=[];saveWrong();sess={};saveSess();
+  view='home';run={mode:null,level:null,exam:null,ids:[],idx:0,count:DEFAULT_N};
+  saveUI();renderSidebar();renderMain();scrollTop();
 }
 
 // 只更新數字/進度（不重建 DOM、不重置捲動）
 function refresh(){
-  const total=READING_QUESTIONS.length;
-  const done=Object.keys(answers).filter(id=>READING_QUESTIONS.some(q=>q.id===id)).length;
-  const correct=READING_QUESTIONS.filter(q=>answers[q.id]===q.answer).length;
-  document.getElementById('score-pill').textContent=`答對 ${correct} / ${total}`;
-  const fill=document.getElementById('ov-fill');if(fill)fill.style.width=(total?Math.round(correct/total*100):0)+'%';
-  const od=document.getElementById('ov-done');if(od)od.textContent=`已作答 ${done}`;
-  const oc=document.getElementById('ov-correct');if(oc)oc.textContent=`答對 ${correct}`;
+  const wt=validWrong().length;
+  document.getElementById('score-pill').textContent=`📕 錯題本 ${wt} 題`;
+  const pt=document.getElementById('pw-total');if(pt)pt.textContent=READING_QUESTIONS.length;
+  const pw=document.getElementById('pw-wrong');if(pw)pw.textContent=wt;
   const pp=document.getElementById('panel-prog');
-  if(pp){
-    const inPractice=(curView==='bank'&&curBank)||(curView==='random'&&randLevel);
-    if(inPractice){
-      const list=currentList();
-      const c=list.filter(q=>answers[q.id]===q.answer).length;
-      pp.textContent=list.length?`第 ${Math.min(curIndex+1,list.length)} / ${list.length} 題 · 答對 ${c}`:`答對 ${c}`;
-    }
+  if(pp&&view==='practice'){
+    const list=runList();
+    const done=list.filter(q=>sess[q.id]!==undefined).length;
+    pp.textContent=list.length?`第 ${Math.min(run.idx+1,list.length)} / ${list.length} 題 · 已答 ${done}`:'';
   }
 }
 
 // ===== 事件委派 =====
 document.getElementById('sb-scroll').addEventListener('click',e=>{
-  const ri=e.target.closest('.rand-item');if(ri){openRandom(ri.dataset.randlevel);return;}
-  const bi=e.target.closest('.bank-item');if(bi){selectBank(bi.dataset.level,bi.dataset.exam);return;}
+  if(e.target.closest('.wb-item')){openWrong();return;}
+  const ri=e.target.closest('.rand-item');if(ri){openPick('random',ri.dataset.randlevel,null);return;}
+  const bi=e.target.closest('.bank-item');if(bi){openPick('bank',bi.dataset.level,bi.dataset.exam);return;}
   const head=e.target.closest('.lv-head');if(head){toggleLevel(head.parentElement.dataset.level);return;}
 });
 document.getElementById('main').addEventListener('click',e=>{
-  if(e.target.closest('#btn-back')){backToOverview();return;}
+  if(e.target.closest('#btn-home')){backHome();return;}
   if(e.target.closest('#q-prev')){prevQ();return;}
   if(e.target.closest('#q-next')){nextQ();return;}
-  if(e.target.closest('#btn-redraw')){redrawRandom();return;}
-  if(e.target.closest('#toggle-done')){hideDone=!hideDone;curIndex=0;renderMain();return;}
-  if(e.target.closest('#btn-reset')){resetBank();return;}
+  if(e.target.closest('#btn-redraw')){redraw();return;}
+  if(e.target.closest('.ov-wrong')){openWrong();return;}
   if(e.target.closest('.ov-reset')){resetAll();return;}
-  const ovr=e.target.closest('.ov-rand');if(ovr){openRandom(ovr.dataset.randlevel);return;}
-  const chip=e.target.closest('.ov-bank-chip');if(chip){selectBank(chip.dataset.level,chip.dataset.exam);return;}
+  if(e.target.closest('.ov-clear-wrong')){clearWrong();return;}
+  if(e.target.closest('.ov-wrong-all')){openPick('wrong',null,null);return;}
+  const ovr=e.target.closest('.ov-rand');
+  if(ovr){
+    if(ovr.dataset.wlevel!==undefined)openPick('wrong',ovr.dataset.wlevel||null,ovr.dataset.wexam||null);
+    else openPick('random',ovr.dataset.randlevel,null);
+    return;
+  }
+  const wchip=e.target.closest('.ov-bank-chip[data-wexam]');
+  if(wchip){openPick('wrong',wchip.dataset.wlevel,wchip.dataset.wexam);return;}
+  const chip=e.target.closest('.ov-bank-chip');if(chip){openPick('bank',chip.dataset.level,chip.dataset.exam);return;}
   const opt=e.target.closest('.opt');if(opt&&!opt.disabled){const card=opt.closest('.qcard');if(card)answer(card.dataset.qid,Number(opt.dataset.oi));return;}
 });
-document.getElementById('main').addEventListener('keydown',e=>{
-  if(e.target.id==='rand-count'&&e.key==='Enter'){e.preventDefault();redrawRandom();}
+document.getElementById('modal-root').addEventListener('click',e=>{
+  if(e.target.closest('#pick-go')){confirmPick();return;}
+  if(e.target.closest('#pick-cancel')){closePick();return;}
+  if(e.target.classList.contains('show')){closePick();return;}   // 點背景關閉
 });
-// 鍵盤操作：← → 換題、1~4 選答案（單題模式）
+document.getElementById('modal-root').addEventListener('keydown',e=>{
+  if(e.target.id==='pick-count'&&e.key==='Enter'){e.preventDefault();confirmPick();}
+});
+// 鍵盤操作：對話框 Esc 關閉；練習中 ← → 換題、1~4 選答案
 document.addEventListener('keydown',e=>{
+  if(pick){if(e.key==='Escape')closePick();return;}
   if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'))return;
-  const inPractice=(curView==='bank'&&curBank)||(curView==='random'&&randLevel);
-  if(!inPractice)return;
+  if(view!=='practice')return;
   if(e.key==='ArrowRight'){e.preventDefault();nextQ();return;}
   if(e.key==='ArrowLeft'){e.preventDefault();prevQ();return;}
   if(/^[1-4]$/.test(e.key)){
-    const list=currentList();const q=list[curIndex];
-    if(q&&answers[q.id]===undefined){answer(q.id,Number(e.key)-1);}
+    const list=runList();const q=list[run.idx];
+    if(q&&sess[q.id]===undefined)answer(q.id,Number(e.key)-1);
   }
 });
 
@@ -553,11 +632,10 @@ document.addEventListener('keydown',e=>{
   document.getElementById('ver-badge').textContent=`${READING_QUESTIONS.length} 題 · v${DATA_VER}`;
   loadUI();
   if(!expanded.size)expanded.add('初級');
-  // 防呆：持久化的題庫若已不存在則回總覽
-  if(curBank&&!READING_QUESTIONS.some(q=>q.level===curBank.level&&q.exam===curBank.exam)){curBank=null;if(curView==='bank')curView='overview';}
-  if(curView==='random'){
-    if(randLevel&&READING_QUESTIONS.some(q=>q.level===randLevel)){expanded.add(randLevel);drawRandom();}
-    else curView='overview';
+  // 還原練習回合防呆：題目已不存在或為空 → 回總覽
+  if(view==='practice'){
+    if(!run.mode||!runList().length)view='home';
+    else if(run.level)expanded.add(run.level);
   }
   renderSidebar();
   renderMain();
