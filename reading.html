@@ -197,15 +197,25 @@ pre.code .fn{color:#d2a8ff;}
 ::-webkit-scrollbar{width:7px;height:7px;}
 ::-webkit-scrollbar-thumb{background:#30363d;border-radius:3px;}
 
+#mobile-nav{display:none;}
 @media(max-width:860px){
-  html,body{overflow:auto;height:auto;}
-  .layout{display:block;height:auto;overflow:visible;}
-  .sidebar{border-right:none;border-bottom:1px solid var(--border);overflow:visible;}
-  .sb-scroll{overflow:visible;max-height:none;}
-  .main{overflow:visible;}
-  .main-scroll{overflow:visible;padding:16px 12px 60px;}
+  :root{--mnav-h:56px;}
+  html,body{overflow:hidden;height:100%;}
+  header{padding:0 12px;gap:8px;}
   .sub{display:none;}
-  header{padding:0 12px;}
+  .hright{gap:8px;}
+  .logo{font-size:15px;white-space:nowrap;}
+  .layout{display:flex;flex-direction:column;height:calc(100vh - var(--header-h) - var(--mnav-h));height:calc(100dvh - var(--header-h) - var(--mnav-h));overflow:hidden;}
+  .sidebar,.main{display:none;width:100%;height:100%;border-right:none;}
+  .layout[data-mview="bank"] .sidebar{display:flex;}
+  .layout[data-mview="quiz"] .main{display:flex;}
+  .main-scroll{padding:16px 12px 28px;}
+  .panel-hdr{padding:10px 12px;}
+  #ver-badge{bottom:calc(var(--mnav-h) + 8px + env(safe-area-inset-bottom));}
+  #mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;height:var(--mnav-h);background:var(--sidebar-bg);border-top:1px solid var(--border);z-index:50;padding-bottom:env(safe-area-inset-bottom);}
+  #mobile-nav button{flex:1;background:transparent;border:none;color:var(--text-muted);font-size:11px;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-top:2px solid transparent;transition:color .15s;}
+  #mobile-nav button.on{color:var(--accent);border-top-color:var(--accent);}
+  #mobile-nav button .ic{font-size:17px;}
 }
 </style>
 </head>
@@ -218,7 +228,7 @@ pre.code .fn{color:#d2a8ff;}
     <span class="score-pill" id="score-pill">📕 錯題本 0 題</span>
   </div>
 </header>
-<div class="layout">
+<div class="layout" data-mview="quiz">
   <aside class="sidebar">
     <div class="sidebar-hdr">題庫 · 語言 × 難度 × 題型</div>
     <div class="progress-wrap">
@@ -231,6 +241,10 @@ pre.code .fn{color:#d2a8ff;}
 </div>
 <div id="modal-root"></div>
 <div id="ver-badge"></div>
+<nav id="mobile-nav" aria-label="行動版面板切換">
+  <button id="mnav-bank" onclick="setMobileView('bank')"><span class="ic">📚</span><span>題庫</span></button>
+  <button id="mnav-quiz" class="on" onclick="setMobileView('quiz')"><span class="ic">📝</span><span>練習</span></button>
+</nav>
 
 <script src="data/reading-questions.js?v=20260626a"></script>
 <script>
@@ -532,6 +546,16 @@ function renderCard(q){
 
 // ===== 導覽 =====
 function scrollTop(){const sc=document.querySelector('.main-scroll');if(sc)sc.scrollTop=0;}
+function isMobileView(){return window.matchMedia('(max-width:860px)').matches;}
+function setMobileView(v){
+  const layout=document.querySelector('.layout');
+  if(!layout)return;
+  layout.dataset.mview=v;
+  ['bank','quiz'].forEach(k=>{const b=document.getElementById('mnav-'+k);if(b)b.classList.toggle('on',k===v);});
+  if(v==='quiz')scrollTop();
+}
+// 手機版：跳到題目／練習面板（桌機無作用）
+function showQuiz(){if(isMobileView())setMobileView('quiz');}
 function goTo(i){
   const list=runList();
   if(!list.length||i>=list.length){finishRun();return;}   // 在最後一題按「完成」→ 結束回合並重置
@@ -551,8 +575,8 @@ function renderMain(){
 
 // ===== 互動 =====
 function toggleKey(k){if(expanded.has(k))expanded.delete(k);else expanded.add(k);saveUI();renderSidebar();}
-function backHome(){view='home';saveUI();renderSidebar();renderMain();scrollTop();}
-function openWrong(){view='wrong';saveUI();renderSidebar();renderMain();scrollTop();}
+function backHome(){view='home';saveUI();renderSidebar();renderMain();scrollTop();showQuiz();}
+function openWrong(){view='wrong';saveUI();renderSidebar();renderMain();scrollTop();showQuiz();}
 
 // 結束回合：清空本回合作答、回總覽（錯題本已持久保存）
 function finishRun(){
@@ -601,7 +625,7 @@ function startRun(f,n){
   sess={};saveSess();
   view='practice';
   if(run.lang!=null){expanded.add('lang::'+run.lang);if(run.level)expanded.add('lv::'+run.lang+'::'+run.level);}
-  saveUI();renderSidebar();renderMain();scrollTop();
+  saveUI();renderSidebar();renderMain();scrollTop();showQuiz();
 }
 function redraw(){if(!run.wrong)openPick(runFilter());}
 
