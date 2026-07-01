@@ -1,7 +1,7 @@
 # 互動程式教室 × APCS 練習 / Interactive Coding Classroom × APCS Practice
 
-> 從零基礎到進階：Python · C++ · C · Java 四語言、95 章互動教學，搭配 300 題 APCS 分級題庫與 1477 題程式判讀練習——全部在瀏覽器內完成，零安裝、零後端、零註冊。
-> Learn to code from zero in four languages — 95 interactive chapters, a 300-problem tiered APCS judge, and a 1477-question code-reading drill, entirely in the browser. No install, no backend, no signup.
+> 從零基礎到進階：Python · C++ · C · Java 四語言、95 章互動教學，搭配 300 題 APCS 分級題庫與 1477 題程式判讀練習，再加上 AI 拍照解題與統一錯題本——全部在瀏覽器內完成，零安裝、零後端、零註冊。
+> Learn to code from zero in four languages — 95 interactive chapters, a 300-problem tiered APCS judge, a 1477-question code-reading drill, plus an AI photo solver and a unified mistakes book, entirely in the browser. No install, no backend, no signup.
 
 📚 **程式教學 / Tutorial**：**https://yu-0312.github.io/apcs-judge/tutorial.html**
 
@@ -23,15 +23,17 @@
 
 ### 這是什麼？
 
-這個專案是一條完整的學習路徑，由三個頁面組成：
+這個專案是一條完整的學習路徑，由五個頁面組成：
 
 | 頁面 | 角色 | 內容 |
 |------|------|------|
 | 📚 **tutorial.html** | **主軸：程式教學** | 95 章互動課程，從「什麼是程式」一路教到爬蟲、資料分析、機器人、遊戲開發，以及 C++ / C / Java 各自的語言專項 |
 | 🎯 **index.html** | **實戰：APCS 練習** | 300 道分級題目、四語言官方解答、即時評分與解題思路 |
 | 🔍 **reading.html** | **判讀：程式識讀** | 1477 題「讀程式碼、選答案」的判讀練習，依 APCS 四級難度分庫、Python/C++/JavaScript/C 各語言獨立題庫，並可隨機抽題（最多 50 題），作答後即時對解＋考點解析 |
+| 🤖 **ai-solve.html** | **AI 拍照解題** | 上傳題目照片並補充卡關處，AI（Gemini）先讀題並輸出題意讓你確認；確認後才計算，模擬運行連跑三次、通過範例測資且輸出一致才給完整詳解 |
+| 📕 **mistakes.html** | **統一錯題本** | 自動收錄判讀題、實作題與 AI 解題上傳的錯題，以日期整理，可自訂標題、檢視詳解、刪除 |
 
-先在教學頁把觀念跑通，再到題庫實戰演練、用判讀頁練讀程式的速度與細節——也可以反過來，卡題時回教學頁補對應章節。
+先在教學頁把觀念跑通，再到題庫實戰演練、用判讀頁練讀程式的速度與細節——也可以反過來，卡題時回教學頁補對應章節。做錯的題目會自動進「錯題本」，卡住的題目也能到「AI 解題」拍照請 AI 帶你走一遍。
 
 ### ✨ 特色
 
@@ -40,6 +42,8 @@
 - **每章三件套**：「🎯 學習目標 → ✋ 動手試試 → 📝 程式練習」，程式練習自動比對輸出批改，通過才算完成該章；進度存在 localStorage
 - **🧠 設計動機**：十個關鍵章節附「為什麼要這樣設計」深度解析（EAFP、HTTP 無狀態、pandas 向量化、async、delta time、模運算同餘、RAII、值語意、型別擦除、JIT）
 - **雙語介面**：右上角一鍵切換繁中 / English，教材內容同步切換
+- **🤖 AI 拍照解題**：卡住的題目直接拍照上傳並補充卡關處，AI 先讀題並輸出題意讓你確認、避免會錯意，確認後才計算——還會在模擬運行中連跑三次、通過範例測資且輸出一致才給完整詳解（用你自己的 Gemini 金鑰）
+- **📕 統一錯題本**：判讀題、實作題與 AI 解題上傳的錯題自動收錄成一本，以日期整理、可自訂標題與檢視詳解，複習不漏題（存在瀏覽器 localStorage）
 - **💬 全站聊天**：每頁右下角有一顆可關閉的圓形按鈕，點開即是一個可拖曳的聊天室，內含「AI 助教」（用你自己的 Gemini 金鑰即問即答）與「大眾聊天室」（Firebase 即時互通，所有人一起討論）兩個分頁
 - **手機可用**：行動版以底部導覽列切換「章節 / 教學 / 程式」三個面板
 - **進度可攜**：完成進度與刷題紀錄存瀏覽器（localStorage），並可一鍵匯出 / 匯入 JSON 帶到其他裝置
@@ -97,6 +101,27 @@ APCS 新制包含「程式識讀」與「程式實作」兩部分；實作題本
 - **🎲 隨機抽題練習**：每個難度都有「隨機練習」入口，可自選題數（最多 50 題），按下即從該難度題庫隨機抽出一回合，並可「重新抽題」換一批
 - **即時對解**：讀程式碼、選答案，作答後立即顯示正解與考點解析；可執行的 C / C++ / Python / JavaScript 題目其答案皆以本機編譯／執行抽樣驗證
 - **進度可攜**：每個題庫與整體的作答進度即時顯示於側欄，紀錄存於瀏覽器 localStorage（重新開啟自動回到上次的題庫或隨機回合）
+
+### 🤖 AI 拍照解題（分關卡確認流程）
+
+[AI 解題頁](https://yu-0312.github.io/apcs-judge/ai-solve.html) 讓你把卡住的題目**拍照丟給 AI**，但不是丟了就直接給答案——它刻意分成幾個關卡，確保 AI 真的看懂題目才動筆：
+
+1. **拍照 ＋ 補充**：上傳題目照片（可拖曳或貼上），並可補充你卡在哪、想用哪種語言。
+2. **AI 讀題 → 你確認**：AI 先輸出它「讀到的題目」（含輸入輸出格式、範例測資），讓你核對無誤才進下一步，避免 AI 會錯意就寫錯方向。
+3. **計算 ＋ 三次驗證**：確認後才開始解題，並在模擬運行中**連跑三次**、通過範例測資且三次輸出一致，才視為可信。
+4. **完整詳解**：驗證通過後才給出思路、四語言解法與逐步解析。
+
+與其他頁面一樣，使用你自備的 Google Gemini 金鑰（只存在你這台裝置的 localStorage），全站共用。解錯或想留存的題目可一鍵送進錯題本。
+
+### 📕 統一錯題本（依日期整理）
+
+[錯題本頁](https://yu-0312.github.io/apcs-judge/mistakes.html) 把你在**程式判讀**、**APCS 實作**與 **AI 解題**三處遇到的錯題**自動收成同一本**：
+
+- **自動收錄**：判讀答錯、實作沒過、AI 解題上傳的題目都會落進錯題本，不必手動抄。
+- **依日期整理**：以日期作為預設標題分組，也可自訂每筆標題方便日後檢索。
+- **檢視與清理**：可展開看原題與完整詳解、複習後把已掌握的題目刪除。
+
+紀錄存在瀏覽器 localStorage，複習時一頁掌握所有做錯的題目。
 
 ### 💬 全站聊天（AI 助教 ＋ 大眾聊天室）
 
@@ -161,13 +186,15 @@ MIT License。題目敘述若引用自 APCS、ZeroJudge、啟思博等來源，�
 
 ### Overview
 
-This project is a complete learning path made of three pages:
+This project is a complete learning path made of five pages:
 
 | Page | Role | Content |
 |------|------|---------|
 | 📚 **tutorial.html** | **Core: coding tutorial** | 95 interactive chapters, from "what is a program" through web scraping, data analysis, chat bots and game dev, plus dedicated C++ / C / Java tracks |
 | 🎯 **index.html** | **Practice: APCS judge** | 300 tiered problems with reference solutions in four languages, instant grading and solution hints |
 | 🔍 **reading.html** | **Code reading** | 1477 "read the code, pick the answer" comprehension questions across four APCS difficulty tiers with separate Python/C++/JavaScript/C banks, plus per-level random draw (up to 50), instant reveal and per-question explanations |
+| 🤖 **ai-solve.html** | **AI photo solver** | Snap a photo of a problem and note where you're stuck; the AI (Gemini) first echoes back what it read for you to confirm, only then computes, runs the simulation three times, and gives a full walkthrough once sample tests pass with consistent output |
+| 📕 **mistakes.html** | **Unified mistakes book** | Auto-collects wrong answers from code-reading, judge problems and AI-solve uploads, grouped by date, with editable titles, expandable explanations and delete |
 
 ### Highlights
 
@@ -176,6 +203,8 @@ This project is a complete learning path made of three pages:
 - **Per-chapter loop**: learning goals → hands-on tweaks → auto-graded coding exercise; progress persists in localStorage
 - **🧠 Design Motivation** sections in ten key chapters explain *why* things are designed the way they are (EAFP, stateless HTTP, pandas vectorization, async, delta time, modular arithmetic, RAII, value semantics, type erasure, JIT)
 - **Bilingual UI**: one-click Traditional Chinese / English toggle, lesson content included
+- **🤖 AI photo solver**: snap a photo of a problem you're stuck on; the AI first echoes back the problem it read for you to confirm (so it doesn't misread), only then solves, re-running the simulation three times and requiring sample tests to pass with consistent output before it hands over a full walkthrough (uses your own Gemini key)
+- **📕 Unified mistakes book**: wrong answers from code-reading, judge problems and AI-solve uploads are auto-collected into one book, grouped by date with editable titles and expandable explanations, so nothing slips through review (stored in localStorage)
 - **💬 Site-wide chat**: a closeable floating button in the bottom-right of every page opens a draggable chat window with two tabs — an **AI tutor** (answers instantly using your own Gemini key) and a **public chat room** (real-time cross-user discussion via Firebase)
 - **Mobile-friendly**: bottom navigation switches between chapters / lesson / code panels
 - **Portable progress**: stored in localStorage, with one-click JSON export / import across devices
@@ -204,6 +233,27 @@ The [judge](https://yu-0312.github.io/apcs-judge/) hosts **300 problems** (⭐ 3
 ### Code reading
 
 The [code-reading page](https://yu-0312.github.io/apcs-judge/reading.html) drills the "trace a program / spot the bug" multiple-choice format used by **APCS code literacy** and the **statutory vocational exam (統測)**. It holds **1477 questions** (official APCS samples and past 統測 items marked "official answer", curated practice questions, and dedicated single-language banks for Python, C++, JavaScript and C — 898 C, 208 Python, 172 C++, 161 JavaScript, 38 shared), organized into a tutorial-style collapsible sidebar: each of APCS's four difficulty tiers (basic / intermediate / advanced / expert) expands to its own question banks — languages are kept in separate banks, never mixed — and clicking a bank jumps straight into practice. Each tier also has a 🎲 random-draw mode: pick how many questions (up to 50) and it deals a random round from that tier, with re-draw. Pick an answer to instantly reveal the correct option and its explanation; per-bank and overall progress show live in the sidebar (saved to localStorage, reopening returns you to your last bank or random round), and runnable C/C++/Python/JavaScript answers were spot-verified by local compilation/execution.
+
+### AI photo solver (staged confirmation flow)
+
+The [AI-solve page](https://yu-0312.github.io/apcs-judge/ai-solve.html) lets you **photograph a problem you're stuck on and hand it to the AI** — but it deliberately refuses to blurt out an answer. It splits the work into gates so the AI has to actually understand the problem before writing code:
+
+1. **Photo + context** — upload the problem image (drag or paste) and note where you're stuck and which language you want.
+2. **AI reads → you confirm** — the AI first prints back the problem *as it understood it* (I/O format, sample cases) and waits for you to confirm it's right, so a misread can't send it down the wrong path.
+3. **Compute + triple verification** — only after you confirm does it solve, then **runs the simulation three times**, requiring the sample tests to pass with all three outputs identical before the result is trusted.
+4. **Full walkthrough** — only once verified does it give the approach, four-language solutions and a step-by-step explanation.
+
+Like the rest of the site it uses your own Google Gemini key (stored only in your browser's localStorage), shared site-wide. Missed or noteworthy problems can be pushed into the mistakes book in one click.
+
+### Unified mistakes book (grouped by date)
+
+The [mistakes page](https://yu-0312.github.io/apcs-judge/mistakes.html) **auto-collects into one book** the problems you got wrong across **code reading**, **APCS practice** and the **AI solver**:
+
+- **Auto-collected** — wrong code-reading answers, failed judge submissions and AI-solve uploads all land here; no manual copying.
+- **Grouped by date** — the date is the default group title, and every entry's title is editable for easier lookup later.
+- **Review & clean up** — expand an entry to see the original problem and full explanation, and delete the ones you've mastered.
+
+Everything is stored in the browser's localStorage, so review puts every problem you've missed on a single page.
 
 ### Site-wide chat (AI tutor + public room)
 
