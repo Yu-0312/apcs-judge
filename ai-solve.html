@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 解題｜拍照 → 補充 → AI 讀題 → 你確認 → 計算 × 三次驗證 × 詳解</title>
+<meta name="description" content="上傳題目照片並補充卡關處，AI（Gemini）先讀題並輸出題目讓你確認；確認無誤後才計算，並在模擬運行中連跑三次、通過範例測資且輸出一致後才給完整詳解。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js" integrity="sha384-/TQbtLCAerC3jgaim+N78RZSDYV7ryeoBCVqTuzRrFec2akfBkHS7ACQ3PQhvMVi" crossorigin="anonymous"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0f1117;--sidebar-bg:#161b22;--panel-bg:#1c2128;
+  --border:#30363d;--text:#e6edf3;--text-muted:#8b949e;
+  --green:#3fb950;--red:#f85149;--yellow:#d29922;--blue:#58a6ff;--purple:#bc8cff;--orange:#ffa657;
+  --accent:#58a6ff;--header-h:56px;
+}
+html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);}
+a{color:inherit;}
+header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;background:var(--sidebar-bg);border-bottom:1px solid var(--border);gap:12px;position:sticky;top:0;z-index:20;}
+.logo{font-size:17px;font-weight:700;color:var(--purple);}
+.sub{font-size:12px;color:var(--text-muted);}
+.hright{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12px;flex-wrap:wrap;}
+.navlink{color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;white-space:nowrap;}
+.navlink:hover{border-color:var(--text-muted);color:var(--text);}
+
+.wrap{max-width:920px;margin:0 auto;padding:22px 18px 80px;}
+
+/* 步驟指示 */
+.stepbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.stepbar .s{flex:1;min-width:130px;display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--border);border-radius:10px;background:var(--panel-bg);font-size:12.5px;color:var(--text-muted);}
+.stepbar .s .n{width:20px;height:20px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.stepbar .s.active{border-color:var(--purple);color:var(--text);}
+.stepbar .s.active .n{background:var(--purple);color:#150a25;border-color:var(--purple);}
+.stepbar .s.done{border-color:var(--green);color:var(--green);}
+.stepbar .s.done .n{background:var(--green);color:#08131f;border-color:var(--green);}
+
+.card{background:var(--panel-bg);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:16px;}
+.card h2{font-size:14px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.card h2 .tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:rgba(88,166,255,.12);color:var(--blue);border:1px solid rgba(88,166,255,.3);}
+.hint{font-size:12px;color:var(--text-muted);line-height:1.6;}
+.hint a{color:var(--blue);}
+.field-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px;}
+label.fl{font-size:12px;color:var(--text-muted);min-width:70px;}
+input.tin,select.tin,textarea.tin{flex:1;min-width:180px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-family:inherit;font-size:13px;}
+textarea.tin{width:100%;resize:vertical;line-height:1.6;}
+input.tin:focus,select.tin:focus,textarea.tin:focus{outline:none;border-color:var(--accent);}
+.btn{background:var(--accent);color:#08131f;border:none;border-radius:8px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:filter .15s;white-space:nowrap;}
+.btn:hover{filter:brightness(1.08);}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btn.ok{background:var(--green);}
+.btn.pp{background:var(--purple);color:#150a25;}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-weight:600;}
+.btn.ghost:hover{color:var(--text);border-color:var(--text-muted);}
+.key-state{font-size:12px;font-weight:600;}
+.key-state.ok{color:var(--green);}
+.key-state.no{color:var(--yellow);}
+.collapsed .set-body{display:none;}
+
+#drop{border:2px dashed var(--border);border-radius:12px;padding:30px 18px;text-align:center;cursor:pointer;transition:.15s;background:rgba(255,255,255,.015);}
+#drop:hover,#drop.drag{border-color:var(--purple);background:rgba(188,140,255,.06);}
+#drop .big{font-size:32px;}
+#drop .t{font-size:14px;font-weight:600;margin-top:8px;}
+#drop .s{font-size:12px;color:var(--text-muted);margin-top:6px;}
+#preview{margin-top:14px;display:none;}
+#preview img{max-width:100%;max-height:300px;border-radius:10px;border:1px solid var(--border);display:block;}
+
+/* 測資編輯 */
+.tc-row{display:flex;gap:8px;margin-top:8px;align-items:flex-start;}
+.tc-row textarea{flex:1;min-height:52px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;resize:vertical;}
+.tc-row .rm{background:transparent;border:1px solid rgba(248,81,73,.4);color:#ff8a84;border-radius:8px;padding:8px 10px;cursor:pointer;font-size:13px;}
+.tc-lab{font-size:11px;color:var(--text-muted);margin-bottom:3px;}
+.tc-col{flex:1;}
+
+/* 進度 */
+#steps{}
+.step{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-top:1px solid rgba(48,54,61,.5);font-size:13px;}
+.step:first-child{border-top:none;}
+.step .ico{width:20px;text-align:center;flex-shrink:0;font-size:14px;}
+.step .body{flex:1;}
+.step .sub2{font-size:11px;color:var(--text-muted);margin-top:3px;white-space:pre-wrap;word-break:break-word;}
+.step.wait{color:var(--text-muted);}
+.step.run{color:var(--blue);}
+.step.ok{color:var(--green);}
+.step.bad{color:var(--red);}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(88,166,255,.3);border-top-color:var(--blue);border-radius:50%;animation:sp .7s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+
+.sec-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.7px;margin:2px 0 8px;}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;margin-left:8px;}
+.badge.py{background:rgba(255,209,102,.14);color:#ffd166;}
+.badge.cpp{background:rgba(88,166,255,.14);color:var(--blue);}
+.badge.c{background:rgba(139,148,158,.16);color:#c9d1d9;}
+.badge.java{background:rgba(255,166,87,.14);color:var(--orange);}
+pre.code{background:#0b0e14;border:1px solid var(--border);border-radius:10px;padding:14px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.55;white-space:pre;}
+.copy{float:right;font-size:11px;padding:3px 9px;}
+.runs{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+.runpill{font-size:12px;font-weight:700;padding:5px 12px;border-radius:8px;border:1px solid var(--border);}
+.runpill.ok{background:rgba(63,185,80,.12);color:var(--green);border-color:rgba(63,185,80,.35);}
+.runpill.bad{background:rgba(248,81,73,.12);color:var(--red);border-color:rgba(248,81,73,.35);}
+table.tc{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px;}
+table.tc th,table.tc td{border:1px solid var(--border);padding:7px 9px;text-align:left;vertical-align:top;}
+table.tc th{color:var(--text-muted);font-weight:600;background:rgba(255,255,255,.02);}
+table.tc td pre{margin:0;font-family:ui-monospace,Menlo,monospace;font-size:12px;white-space:pre-wrap;word-break:break-word;}
+.md{font-size:14px;line-height:1.8;}
+.md h1,.md h2,.md h3{margin:14px 0 8px;font-size:15px;}
+.md p{margin:8px 0;} .md ul,.md ol{margin:8px 0 8px 22px;}
+.md code{background:#0b0e14;border:1px solid var(--border);padding:1px 5px;border-radius:5px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;}
+.md pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:12px;overflow:auto;}
+.md pre code{border:none;padding:0;background:none;}
+.locked{text-align:center;padding:26px 16px;color:var(--text-muted);font-size:13px;border:1px dashed var(--border);border-radius:10px;}
+.err-box{background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.35);color:#ffb3ae;border-radius:8px;padding:12px;font-size:13px;white-space:pre-wrap;word-break:break-word;}
+.warn-box{background:rgba(210,153,34,.1);border:1px solid rgba(210,153,34,.35);color:#ffd98a;border-radius:8px;padding:12px;font-size:13px;}
+.ok-box{background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.35);color:#7ee787;border-radius:8px;padding:10px 12px;font-size:12.5px;}
+.status-line{font-size:12px;color:var(--text-muted);}
+.status-line .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--text-muted);margin-right:6px;vertical-align:middle;}
+.status-line .dot.on{background:var(--green);}
+</style>
+</head>
+<body>
+<header>
+  <div><div class="logo">🤖 AI 解題</div><div class="sub">拍照 → 補充 → 讀題確認 → 計算三次驗證 → 詳解</div></div>
+  <div class="hright">
+    <a class="navlink" href="index.html">🎯 評分系統</a>
+    <a class="navlink" href="reading.html">🔍 程式判讀</a>
+    <a class="navlink" href="mistakes.html">📕 錯題本</a>
+    <a class="navlink" href="tutorial.html">📚 基礎教學</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="stepbar" id="stepbar">
+    <div class="s active" data-s="1"><span class="n">1</span>上傳題目 + 補充</div>
+    <div class="s" data-s="2"><span class="n">2</span>AI 讀題，你確認</div>
+    <div class="s" data-s="3"><span class="n">3</span>計算 · 三次驗證</div>
+    <div class="s" data-s="4"><span class="n">4</span>完整詳解</div>
+  </div>
+
+  <!-- 設定 -->
+  <div class="card" id="set-card">
+    <h2>⚙️ Gemini 設定 <span class="tag">金鑰只存在你的瀏覽器</span>
+      <span id="key-state" class="key-state no" style="margin-left:auto;">尚未設定金鑰</span>
+    </h2>
+    <div class="set-body">
+      <p class="hint">本站是純前端（GitHub Pages），沒有伺服器可代管金鑰，需自備 Google Gemini API key，只存在你這台裝置的 <code>localStorage</code>。免費取得：<a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a></p>
+      <div class="field-row">
+        <label class="fl" for="in-key">API Key</label>
+        <input class="tin" id="in-key" type="password" placeholder="貼上你的 Gemini API key（AIza...）" autocomplete="off" spellcheck="false">
+        <button class="btn ghost" id="btn-showkey" type="button">👁</button>
+      </div>
+      <div class="field-row">
+        <label class="fl" for="in-model">模型</label>
+        <select class="tin" id="in-model">
+          <option value="gemini-2.0-flash">gemini-2.0-flash（快、免費額度、看圖）</option>
+          <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+          <option value="gemini-2.5-pro">gemini-2.5-pro（較強、較慢）</option>
+          <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+        </select>
+        <button class="btn" id="btn-savekey" type="button">儲存</button>
+        <button class="btn ghost" id="btn-clearkey" type="button">清除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 第 1 關：上傳 + 補充 -->
+  <div class="card" id="card-upload">
+    <h2>📷 第一關：上傳題目照片，並補充卡住的地方</h2>
+    <div id="drop">
+      <div class="big">🖼️</div>
+      <div class="t">點此選擇圖片，或拖曳／貼上（Ctrl+V）</div>
+      <div class="s">拍清楚整題（含範例輸入輸出）辨識更準。支援 JPG / PNG / WebP。</div>
+      <input type="file" id="file" accept="image/*" style="display:none">
+    </div>
+    <div id="preview"><img id="prev-img" alt="題目預覽"></div>
+    <div style="margin-top:14px;">
+      <label class="fl" style="display:block;margin-bottom:6px;">補充說明（選填）— 你卡在哪？題目有沒有要補充的？</label>
+      <textarea class="tin" id="in-notes" rows="3" placeholder="例如：我看不懂第 3 個範例為什麼輸出 7、我想用遞迴解、題目下半被切到了…"></textarea>
+    </div>
+    <div class="field-row">
+      <label class="fl" for="in-lang">語言</label>
+      <select class="tin" id="in-lang" style="max-width:240px;flex:none;">
+        <option value="auto">自動判斷（依題目／照片）</option>
+        <option value="py">🐍 Python</option>
+        <option value="cpp">⚡ C++</option>
+        <option value="c">🔧 C</option>
+        <option value="java">☕ Java</option>
+      </select>
+      <button class="btn pp" id="btn-read" type="button">① 讓 AI 讀題 →</button>
+      <button class="btn ghost" id="btn-reset" type="button">清空重來</button>
+    </div>
+  </div>
+
+  <!-- 讀題進度 -->
+  <div class="card" id="card-reading" style="display:none;">
+    <h2>🔎 AI 讀題中</h2>
+    <div id="reading-step"></div>
+  </div>
+
+  <!-- 第 2 關：確認題目（可編輯） -->
+  <div class="card" id="card-confirm" style="display:none;">
+    <h2>✅ 第二關：AI 讀到的題目 — 請你確認（可修改）</h2>
+    <div class="warn-box" style="margin-bottom:12px;">AI 先不計算。請確認下面的題目與範例測資是否正確，有誤可直接修改；確認無誤後再按「開始計算」。</div>
+    <div class="field-row"><label class="fl" for="cf-title">題目名稱</label><input class="tin" id="cf-title"></div>
+    <div style="margin-top:12px;"><label class="fl" style="display:block;margin-bottom:6px;">題目敘述（含輸入／輸出格式）</label>
+      <textarea class="tin" id="cf-stmt" rows="7"></textarea></div>
+    <div class="field-row"><label class="fl" for="cf-lang">解題語言</label>
+      <select class="tin" id="cf-lang" style="max-width:240px;flex:none;">
+        <option value="py">🐍 Python</option><option value="cpp">⚡ C++</option>
+        <option value="c">🔧 C</option><option value="java">☕ Java</option>
+      </select></div>
+    <div class="sec-label" style="margin-top:16px;">範例測資（驗證就以這些為準）</div>
+    <div id="tc-list"></div>
+    <button class="btn ghost" id="btn-add-tc" type="button" style="margin-top:8px;">＋ 新增一組測資</button>
+    <div class="field-row" style="margin-top:16px;">
+      <button class="btn ok" id="btn-solve" type="button">② 題目正確，開始計算 →</button>
+      <button class="btn ghost" id="btn-reread" type="button">↺ 補充後重新讀題</button>
+    </div>
+  </div>
+
+  <!-- 第 3 關：計算進度 -->
+  <div class="card" id="card-steps" style="display:none;">
+    <h2>⚙️ 第三關：計算與模擬運行三次</h2>
+    <div id="steps"></div>
+  </div>
+
+  <!-- 第 4 關：結果 -->
+  <div class="card" id="result" style="display:none;">
+    <h2 id="r-title">解題結果</h2>
+    <div id="r-body"></div>
+  </div>
+
+</div>
+
+<script src="data/mistake-book.js?v=20260701a"></script>
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  AI 解題（分關卡）：上傳+補充 → AI 讀題 → 使用者確認 → 計算+三次驗證 → 詳解
+//  純前端；沿用 index.html 的 Judge0 / Pyodide 執行管線。
+// ═══════════════════════════════════════════════════════════════════
+const LS_KEY = 'ai_solve_gemini_key';
+const LS_MODEL = 'ai_solve_gemini_model';
+const JUDGE0_LANG = { cpp: 54, c: 50, java: 62 };
+const LANG_LABEL = { py:'🐍 Python', cpp:'⚡ C++', c:'🔧 C', java:'☕ Java' };
+const VERIFY_ROUNDS = 3;
+const MAX_ATTEMPTS = 3;
+
+let imageDataUrl = null, imageB64 = null, imageMime = null;
+let readResult = null;   // AI 讀題結果
+let busy = false;
+
+const $ = id => document.getElementById(id);
+function escH(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function renderMd(s){ try{ return marked.parse(String(s||'')).replace(/<script[\s\S]*?<\/script>/gi,''); }catch(e){ return escH(s); } }
+function setPhase(n){ document.querySelectorAll('#stepbar .s').forEach(el => { const s=+el.dataset.s; el.classList.toggle('active', s===n); el.classList.toggle('done', s<n); }); }
+
+// ═══ 設定 ═══
+function loadSettings(){ $('in-key').value = localStorage.getItem(LS_KEY)||''; $('in-model').value = localStorage.getItem(LS_MODEL)||'gemini-2.0-flash'; refreshKeyState(); }
+function refreshKeyState(){ const k=(localStorage.getItem(LS_KEY)||'').trim(); const el=$('key-state');
+  if(k){ el.textContent='✓ 金鑰已設定（'+(localStorage.getItem(LS_MODEL)||'gemini-2.0-flash')+'）'; el.className='key-state ok'; }
+  else { el.textContent='尚未設定金鑰'; el.className='key-state no'; } }
+function getKey(){ return (localStorage.getItem(LS_KEY)||'').trim(); }
+function getModel(){ return localStorage.getItem(LS_MODEL)||'gemini-2.0-flash'; }
+$('btn-savekey').onclick = () => { const k=$('in-key').value.trim(); if(!k){alert('請先貼上 API key');return;} localStorage.setItem(LS_KEY,k); localStorage.setItem(LS_MODEL,$('in-model').value); refreshKeyState(); $('set-card').classList.add('collapsed'); };
+$('btn-clearkey').onclick = () => { localStorage.removeItem(LS_KEY); $('in-key').value=''; refreshKeyState(); };
+$('btn-showkey').onclick = () => { const el=$('in-key'); el.type = el.type==='password'?'text':'password'; };
+
+// ═══ 上傳 ═══
+function setImage(file){
+  if(!file||!file.type||!file.type.startsWith('image/')){ alert('請選擇圖片檔'); return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    imageDataUrl = reader.result;
+    const m = /^data:([^;]+);base64,(.*)$/.exec(imageDataUrl);
+    if(!m){ alert('讀取圖片失敗'); return; }
+    imageMime = m[1]; imageB64 = m[2];
+    $('prev-img').src = imageDataUrl; $('preview').style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+$('drop').onclick = () => $('file').click();
+$('file').onchange = e => { if(e.target.files[0]) setImage(e.target.files[0]); };
+['dragenter','dragover'].forEach(ev => $('drop').addEventListener(ev, e => { e.preventDefault(); $('drop').classList.add('drag'); }));
+['dragleave','drop'].forEach(ev => $('drop').addEventListener(ev, e => { e.preventDefault(); $('drop').classList.remove('drag'); }));
+$('drop').addEventListener('drop', e => { if(e.dataTransfer.files[0]) setImage(e.dataTransfer.files[0]); });
+window.addEventListener('paste', e => { const items=e.clipboardData&&e.clipboardData.items; if(!items)return; for(const it of items){ if(it.type&&it.type.startsWith('image/')){ setImage(it.getAsFile()); break; } } });
+$('btn-reset').onclick = () => {
+  imageDataUrl=imageB64=imageMime=null; readResult=null;
+  $('file').value=''; $('preview').style.display='none'; $('in-notes').value='';
+  $('card-reading').style.display='none'; $('card-confirm').style.display='none';
+  $('card-steps').style.display='none'; $('result').style.display='none';
+  setPhase(1);
+};
+
+// ═══ Gemini ═══
+async function callGemini(parts, schema){
+  const key=getKey(), model=getModel();
+  const url='https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent?key='+encodeURIComponent(key);
+  const body={ contents:[{role:'user',parts}], generationConfig:{ temperature:0.2, responseMimeType:'application/json', responseSchema:schema } };
+  const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!res.ok){
+    let msg='HTTP '+res.status;
+    try{ const j=await res.json(); if(j.error&&j.error.message)msg=j.error.message; }catch(e){}
+    if(res.status===400&&/API key/i.test(msg)) msg='金鑰無效或未啟用，請確認 Gemini API key。（'+msg+'）';
+    if(res.status===429) msg='已達 Gemini 速率／額度上限，請稍後再試。（'+msg+'）';
+    throw new Error(msg);
+  }
+  const data=await res.json();
+  const cand=data.candidates&&data.candidates[0];
+  const txt=cand&&cand.content&&cand.content.parts&&cand.content.parts.map(p=>p.text||'').join('');
+  if(!txt){ const fr=cand&&cand.finishReason; throw new Error('Gemini 未回傳內容'+(fr?'（finishReason: '+fr+'）':'')); }
+  try{ return JSON.parse(txt); }catch(e){ throw new Error('無法解析 AI 回傳 JSON：'+txt.slice(0,200)); }
+}
+
+const READ_SCHEMA = { type:'object', properties:{
+  is_programming:{type:'boolean'}, problem_title:{type:'string'}, problem_statement:{type:'string'},
+  language:{type:'string',enum:['py','cpp','c','java']},
+  testcases:{type:'array',items:{type:'object',properties:{input:{type:'string'},expected_output:{type:'string'}},required:['input','expected_output']}}
+}, required:['is_programming','problem_title','problem_statement','language','testcases'] };
+
+const SOLVE_SCHEMA = { type:'object', properties:{
+  approach:{type:'string'}, code:{type:'string'}, explanation:{type:'string'}
+}, required:['approach','code','explanation'] };
+
+function readPrompt(langPref, notes){
+  let p='你是一位資深競賽程式教練，協助台灣 APCS／統測考生。請仔細「閱讀並轉錄」圖片中的程式設計題目，這一步**只讀題、先不要解題、不要寫程式**。\n\n';
+  p+='請輸出：\n';
+  p+='1. is_programming：若圖片不是程式設計題目設為 false。\n';
+  p+='2. problem_title：題目名稱（沒有就自訂簡短標題）。\n';
+  p+='3. problem_statement：用中文完整、忠實重述題意，包含：題目描述、輸入格式、輸出格式、限制條件。不要加入你自己的解法。\n';
+  p+='4. language：建議解題語言，只能是 py / cpp / c / java。';
+  if(langPref&&langPref!=='auto') p+=' 使用者指定用 '+langPref+'。';
+  p+='\n5. testcases：從題目擷取所有「範例輸入／範例輸出」。input 為完整 stdin、expected_output 為完整 stdout，換行要精確。題目沒有範例就回傳 []。\n';
+  if(notes&&notes.trim()) p+='\n使用者補充（請一併理解，但仍以圖片題目為準）：\n'+notes.trim()+'\n';
+  return p;
+}
+function solvePrompt(cf, notes, repair){
+  let p='你是一位資深競賽程式教練。以下是已由使用者「確認無誤」的題目，請據此解題。\n\n';
+  p+='【題目】'+cf.title+'\n'+cf.statement+'\n\n';
+  p+='【解題語言】'+cf.language+'（務必使用此語言）\n';
+  if(cf.testcases.length){
+    p+='【範例測資】（你的程式必須全部通過）\n';
+    cf.testcases.forEach((t,i)=>{ p+='範例'+(i+1)+' 輸入:\n'+t.input+'\n範例'+(i+1)+' 輸出:\n'+t.expected_output+'\n'; });
+  } else p+='（題目沒有提供範例測資）\n';
+  if(notes&&notes.trim()) p+='\n【使用者補充／卡住的地方】\n'+notes.trim()+'\n';
+  p+='\n要求：\n';
+  p+='- approach：用中文條列解題思路（演算法、資料結構、關鍵步驟）。\n';
+  p+='- code：完整可直接編譯／執行的原始碼。務必：從 stdin 讀入、輸出到 stdout、不要印多餘提示字。Java 類別名稱一律 public class Main；Python 用 input()/print()。\n';
+  p+='- explanation：中文完整詳解（Markdown），含思路、逐步推導、程式碼重點、複雜度。\n';
+  if(repair){
+    p+='\n【重要】你先前的程式在模擬運行中沒有通過，請修正後重寫完整 code：\n先前程式碼：\n```\n'+repair.code+'\n```\n失敗詳情：\n'+repair.detail+'\n';
+  }
+  return p;
+}
+
+// ═══ 執行管線（沿用 index.html） ═══
+function normOut(s){ return String(s).replace(/\r\n/g,'\n').split('\n').map(l=>l.replace(/[ \t]+$/,'')).join('\n').replace(/\n+$/,''); }
+async function judge0Submit(code, stdin, languageId){
+  const delays=[0,1500,4000]; let lastErr=null;
+  for(let a=0;a<delays.length;a++){
+    if(delays[a]) await new Promise(r=>setTimeout(r,delays[a]));
+    let res;
+    try{ res=await fetch('https://ce.judge0.com/submissions?base64_encoded=false&wait=true',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({language_id:languageId,source_code:code,stdin:stdin||''})}); }
+    catch(e){ lastErr='網路連線失敗'; continue; }
+    if(res.status===429){ lastErr='評測服務忙碌（429）'; continue; }
+    if(res.status>=500){ lastErr='評測服務錯誤（'+res.status+'）'; continue; }
+    if(!res.ok) throw new Error('評測服務回應 '+res.status);
+    let data=await res.json();
+    for(let p=0;p<12&&data.status&&data.status.id<=2&&data.token;p++){ await new Promise(r=>setTimeout(r,1200)); try{ const r2=await fetch('https://ce.judge0.com/submissions/'+data.token+'?base64_encoded=false'); if(!r2.ok)break; data=await r2.json(); }catch(e){break;} }
+    return data;
+  }
+  throw new Error(lastErr||'評測服務無回應');
+}
+function judge0Result(data){
+  const sid=data&&data.status&&data.status.id;
+  if(!sid||sid<=2) return {ok:false,got:'',error:'評測排隊逾時'};
+  if(sid===5) return {ok:false,got:'',error:'執行逾時（TLE）'};
+  if(sid===6) return {ok:false,got:'',error:'編譯錯誤：\n'+String(data.compile_output||'').split('\n').slice(0,6).join('\n')};
+  if(sid>=13) return {ok:false,got:'',error:'評測服務內部錯誤：'+(data.status.description||sid)};
+  const stdout=data.stdout||'', stderr=data.stderr||data.compile_output||'';
+  if(sid>=7&&sid<=12) return {ok:false,got:normOut(stdout),error:'執行期錯誤（'+(data.status.description||'Runtime Error')+'）：\n'+String(stderr).split('\n').slice(0,6).join('\n')};
+  if(stderr&&!stdout) return {ok:false,got:'',error:String(stderr).split('\n').slice(0,6).join('\n')};
+  return {ok:true,got:normOut(stdout),error:null};
+}
+const PY_TIMEOUT_MS=15000; let pyWorker=null,pyReadyPromise=null,pyJobSeq=0; const pyJobs=new Map();
+const PY_WRAPPER=['import sys, io, traceback','__out = io.StringIO(); __err = io.StringIO()','__old = (sys.stdin, sys.stdout, sys.stderr)',"__t = __stdin if (__stdin == '' or __stdin.endswith('\\n')) else __stdin + '\\n'",'sys.stdin = io.StringIO(__t); sys.stdout = __out; sys.stderr = __err','try:',"    exec(compile(__code, '<user>', 'exec'), {'__name__': '__main__'})",'except SystemExit:','    pass','except BaseException:','    traceback.print_exc(file=__err)','finally:','    sys.stdin, sys.stdout, sys.stderr = __old','__r_out = __out.getvalue(); __r_err = __err.getvalue()'].join('\n');
+const PY_WORKER_SRC="importScripts('https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js');\n"+"const ready = loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/' });\n"+"ready.then(() => postMessage({ type: 'ready' }), (e) => postMessage({ type: 'ready', error: String(e) }));\n"+'const WRAP = '+JSON.stringify(PY_WRAPPER)+';\n'+'onmessage = async (e) => {\n  const { id, code, stdin } = e.data;\n  try {\n    const py = await ready;\n'+"    py.globals.set('__code', code);\n"+"    py.globals.set('__stdin', stdin);\n"+'    await py.runPythonAsync(WRAP);\n'+"    postMessage({ id, out: py.globals.get('__r_out') || '', err: py.globals.get('__r_err') || '' });\n"+'  } catch (err) {\n'+"    postMessage({ id, out: '', err: String(err) });\n"+'  }\n};\n';
+function startPyWorker(){ const blob=new Blob([PY_WORKER_SRC],{type:'text/javascript'}); pyWorker=new Worker(URL.createObjectURL(blob));
+  pyReadyPromise=new Promise((resolve,reject)=>{ pyWorker.onmessage=(e)=>{ const d=e.data||{}; if(d.type==='ready'){ if(d.error)reject(new Error(d.error)); else resolve(); return; } const job=pyJobs.get(d.id); if(job){ pyJobs.delete(d.id); clearTimeout(job.timer); job.resolve(d); } }; pyWorker.onerror=(e)=>reject(new Error((e&&e.message)||'Worker error')); }); return pyReadyPromise; }
+function killPyWorker(){ if(pyWorker)pyWorker.terminate(); pyWorker=null; pyReadyPromise=null; for(const [,job] of pyJobs){ clearTimeout(job.timer); job.reject(new Error('terminated')); } pyJobs.clear(); }
+function initPython(){ if(!pyWorker) startPyWorker().catch(()=>killPyWorker()); }
+async function runPython(code, stdin, timeoutMs){ if(!pyWorker) startPyWorker(); await pyReadyPromise; const w=pyWorker;
+  return await new Promise((resolve,reject)=>{ const id=++pyJobSeq; const timer=setTimeout(()=>{ pyJobs.delete(id); killPyWorker(); startPyWorker(); reject(new Error('PY_TIMEOUT')); },timeoutMs); pyJobs.set(id,{resolve,reject,timer}); w.postMessage({id,code,stdin}); }); }
+async function runProgram(code, lang, stdin){
+  if(lang==='py'){ try{ const r=await runPython(code,stdin,PY_TIMEOUT_MS); if(r.err&&r.err.trim()) return {ok:false,got:normOut(r.out),error:r.err.trim().split('\n').slice(-6).join('\n')}; return {ok:true,got:normOut(r.out),error:null}; }
+    catch(e){ if(e&&e.message==='PY_TIMEOUT') return {ok:false,got:'',error:'Python 執行逾時'}; return {ok:false,got:'',error:String(e.message||e)}; } }
+  const data=await judge0Submit(code, stdin, JUDGE0_LANG[lang]); return judge0Result(data);
+}
+
+// ═══ 三次驗證：三次都通過範例測資且輸出一致 ═══
+async function verifySolution(sol, onProgress){
+  const cases=Array.isArray(sol.testcases)?sol.testcases:[];
+  const hasCases=cases.length>0;
+  const testInputs=hasCases?cases.map(c=>c.input||''):[''];
+  const rounds=[];
+  for(let round=0;round<VERIFY_ROUNDS;round++){
+    if(onProgress) onProgress('第 '+(round+1)+' / '+VERIFY_ROUNDS+' 次模擬運行…');
+    const results=[];
+    for(let i=0;i<testInputs.length;i++){
+      const r=await runProgram(sol.code, sol.language, testInputs[i]);
+      const expected=hasCases?normOut(cases[i].expected_output||''):null;
+      const match=hasCases?(r.ok&&r.got===expected):r.ok;
+      results.push({ok:r.ok,got:r.got,expected,match,error:r.error});
+    }
+    const pass=results.every(r=>r.match);
+    const sig=results.map(r=>r.got).join('\u0001');
+    rounds.push({pass,sig,results});
+    if(!pass) break;
+  }
+  const allPass=rounds.length===VERIFY_ROUNDS&&rounds.every(r=>r.pass);
+  const consistent=rounds.length>=2?rounds.every(r=>r.sig===rounds[0].sig):true;
+  return {success:allPass&&consistent, allPass, consistent, hasCases, rounds, cases};
+}
+function buildRepairDetail(v){
+  const lines=[];
+  v.rounds.forEach((rd,i)=>{ lines.push('— 第 '+(i+1)+' 次運行：'+(rd.pass?'通過':'未通過'));
+    rd.results.forEach((r,j)=>{ if(r.match)return; lines.push('  測資#'+(j+1)+(r.error?' 執行錯誤：'+r.error.replace(/\n/g,' '):''));
+      if(v.hasCases){ lines.push('    輸入: '+JSON.stringify((v.cases[j]&&v.cases[j].input)||'')); lines.push('    預期: '+JSON.stringify(r.expected)); lines.push('    實得: '+JSON.stringify(r.got)); } }); });
+  if(!v.consistent) lines.push('— 三次輸出不一致（可能有未初始化變數／隨機／未定義行為）。');
+  return lines.join('\n');
+}
+
+// ═══ 進度 UI ═══
+function readingRunning(msg){ $('card-reading').style.display='block'; $('reading-step').innerHTML='<div class="step run"><div class="ico"><span class="spin"></span></div><div class="body">'+escH(msg)+'</div></div>'; }
+function readingDone(ok,msg){ $('reading-step').innerHTML='<div class="step '+(ok?'ok':'bad')+'"><div class="ico">'+(ok?'✓':'✗')+'</div><div class="body">'+escH(msg)+'</div></div>'; }
+let stepEls={};
+function initSteps(){
+  const defs=[['gen','依思路產生解答'],['run','模擬運行三次驗證'],['done','產生完整詳解']];
+  const wrap=$('steps'); wrap.innerHTML=''; stepEls={};
+  defs.forEach(([k,label])=>{ const div=document.createElement('div'); div.className='step wait'; div.innerHTML='<div class="ico">○</div><div class="body"><div class="lab">'+escH(label)+'</div><div class="sub2"></div></div>'; wrap.appendChild(div); stepEls[k]=div; });
+  $('card-steps').style.display='block';
+}
+function setStep(k,state,sub){ const el=stepEls[k]; if(!el)return; el.className='step '+state; const ico={wait:'○',run:'<span class="spin"></span>',ok:'✓',bad:'✗'}[state]||'○'; el.querySelector('.ico').innerHTML=ico; if(sub!==undefined) el.querySelector('.sub2').textContent=sub; }
+
+// ═══ 第 1→2 關：讀題 ═══
+$('btn-read').onclick = doRead;
+async function doRead(){
+  if(busy) return;
+  if(!getKey()){ alert('請先設定並儲存 Gemini API key'); $('set-card').classList.remove('collapsed'); $('in-key').focus(); return; }
+  if(!imageB64){ alert('請先上傳題目照片'); return; }
+  busy=true; $('btn-read').disabled=true; $('btn-reread').disabled=true;
+  $('card-confirm').style.display='none'; $('card-steps').style.display='none'; $('result').style.display='none';
+  setPhase(2);
+  try{
+    readingRunning('呼叫 Gemini 辨識題目中…');
+    const parts=[{text:readPrompt($('in-lang').value, $('in-notes').value)},{inline_data:{mime_type:imageMime,data:imageB64}}];
+    const r=await callGemini(parts, READ_SCHEMA);
+    if(!r.is_programming){ readingDone(false,'這張圖片看起來不是程式設計題目，請換清楚含題目敘述的照片。'); setPhase(1); return; }
+    readResult=r;
+    readingDone(true,'已辨識：'+(r.problem_title||'題目'));
+    fillConfirm(r);
+    $('card-confirm').style.display='block';
+    $('card-confirm').scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){ readingDone(false, String(e&&e.message||e)); setPhase(1); }
+  finally{ busy=false; $('btn-read').disabled=false; $('btn-reread').disabled=false; }
+}
+
+// ═══ 第 2 關：確認表單 ═══
+function fillConfirm(r){
+  $('cf-title').value=r.problem_title||'';
+  $('cf-stmt').value=r.problem_statement||'';
+  $('cf-lang').value=['py','cpp','c','java'].includes(r.language)?r.language:'py';
+  renderTC(Array.isArray(r.testcases)?r.testcases:[]);
+}
+function renderTC(list){
+  const box=$('tc-list'); box.innerHTML='';
+  if(!list.length) addTC('','');
+  else list.forEach(t=>addTC(t.input||'', t.expected_output||''));
+}
+function addTC(inp,exp){
+  const box=$('tc-list');
+  const row=document.createElement('div'); row.className='tc-row';
+  row.innerHTML='<div class="tc-col"><div class="tc-lab">輸入 (stdin)</div><textarea class="tc-in"></textarea></div>'
+    +'<div class="tc-col"><div class="tc-lab">預期輸出 (stdout)</div><textarea class="tc-exp"></textarea></div>'
+    +'<button class="rm" type="button" title="刪除">✕</button>';
+  row.querySelector('.tc-in').value=inp; row.querySelector('.tc-exp').value=exp;
+  row.querySelector('.rm').onclick=()=>row.remove();
+  box.appendChild(row);
+}
+$('btn-add-tc').onclick=()=>addTC('','');
+function collectConfirm(){
+  const testcases=[];
+  $('tc-list').querySelectorAll('.tc-row').forEach(row=>{
+    const inp=row.querySelector('.tc-in').value, exp=row.querySelector('.tc-exp').value;
+    if(inp.trim()!==''||exp.trim()!=='') testcases.push({input:inp, expected_output:exp});
+  });
+  return { title:$('cf-title').value.trim()||'題目', statement:$('cf-stmt').value.trim(), language:$('cf-lang').value, testcases };
+}
+$('btn-reread').onclick=()=>{ $('card-confirm').style.display='none'; $('in-notes').focus(); setPhase(1); doRead(); };
+
+// ═══ 第 3→4 關：計算 + 三次驗證 + 詳解 ═══
+$('btn-solve').onclick = doSolve;
+async function doSolve(){
+  if(busy) return;
+  const cf=collectConfirm();
+  if(!cf.statement){ alert('題目敘述不能空白'); return; }
+  busy=true; $('btn-solve').disabled=true; $('btn-reread').disabled=true;
+  setPhase(3);
+  initSteps(); initPython();
+  $('result').style.display='none';
+  const notes=$('in-notes').value;
+  let sol=null, verify=null, lastRepair=null;
+  try{
+    for(let attempt=1; attempt<=MAX_ATTEMPTS; attempt++){
+      setStep('gen','run', attempt===1?'呼叫 Gemini 產生解答…':'第 '+attempt+' 次：依失敗結果修正解答…');
+      const parts=[{text:solvePrompt(cf, notes, attempt>1?lastRepair:null)},{inline_data:{mime_type:imageMime,data:imageB64}}];
+      const s=await callGemini(parts, SOLVE_SCHEMA);
+      sol={ language:cf.language, testcases:cf.testcases, approach:s.approach, code:s.code, explanation:s.explanation };
+      setStep('gen','ok', LANG_LABEL[cf.language]+' 解答已產生'+(attempt>1?'（第'+attempt+'次修正）':''));
+
+      setStep('run','run','準備模擬運行…');
+      verify=await verifySolution(sol, msg=>setStep('run','run',msg));
+      if(verify.success){ setStep('run','ok', verify.hasCases?'三次運行皆通過範例測資，且輸出一致 ✓':'（無範例）三次運行皆正常且輸出一致 ✓'); break; }
+
+      lastRepair={ code:sol.code, detail:buildRepairDetail(verify) };
+      setStep('run','bad', attempt<MAX_ATTEMPTS?('第 '+attempt+' 次未通過三次驗證，讓 AI 重新修正…'):('已嘗試 '+MAX_ATTEMPTS+' 次仍無法通過三次驗證'));
+    }
+    setPhase(4);
+    if(verify&&verify.success){ setStep('done','ok','詳解已解鎖'); showResult(cf, sol, verify, true); }
+    else{ setStep('done','bad','未通過驗證，暫不提供詳解'); showResult(cf, sol, verify, false); }
+    recordMistake(cf, sol, verify);
+  }catch(e){
+    const msg=String(e&&e.message||e);
+    ['gen','run','done'].forEach(k=>{ if(stepEls[k]&&stepEls[k].classList.contains('run')) setStep(k,'bad',msg); });
+    showError(msg);
+  }finally{ busy=false; $('btn-solve').disabled=false; $('btn-reread').disabled=false; }
+}
+
+// ═══ 自動存入錯題本 ═══
+function recordMistake(cf, sol, verify){
+  if(typeof MistakeBook==='undefined') return;
+  try{
+    MistakeBook.add({
+      type:'ai',
+      title: MistakeBook.dateTitle(new Date()) + '｜' + (cf.title||'AI 題目'),
+      problemTitle: cf.title,
+      problemStatement: cf.statement,
+      language: cf.language,
+      approach: sol?sol.approach:'',
+      code: sol?sol.code:'',
+      explanation: (verify&&verify.success&&sol)?sol.explanation:'',
+      verified: !!(verify&&verify.success),
+      image: imageDataUrl || ''
+    });
+  }catch(e){}
+}
+
+// ═══ 結果渲染 ═══
+function copyBtn(text){ const id='cp'+Math.random().toString(36).slice(2);
+  setTimeout(()=>{ const b=$(id); if(b) b.onclick=()=>{ navigator.clipboard.writeText(text).then(()=>{ b.textContent='已複製'; setTimeout(()=>b.textContent='複製',1200); }); }; },0);
+  return '<button class="btn ghost copy" id="'+id+'">複製</button>'; }
+function langBadge(l){ return '<span class="badge '+l+'">'+(LANG_LABEL[l]||l)+'</span>'; }
+function showError(msg){ $('result').style.display='block'; $('r-title').textContent='❌ 發生錯誤';
+  $('r-body').innerHTML='<div class="err-box">'+escH(msg)+'</div><p class="hint" style="margin-top:10px;">常見原因：金鑰無效／未啟用、超出免費額度（429）、圖片模糊、或評測服務忙碌。可稍後重試。</p>'; }
+function showResult(cf, sol, verify, unlocked){
+  $('result').style.display='block';
+  $('r-title').innerHTML=(unlocked?'✅ ':'⚠️ ')+escH(cf.title||'解題結果')+langBadge(cf.language);
+  let html='';
+  html+='<div class="ok-box" style="margin-bottom:14px;">📕 已自動存入<a href="mistakes.html" style="color:#7ee787;font-weight:700;">錯題本</a>（以今天日期為標題，可到錯題本改名）。</div>';
+  html+='<div class="sec-label">題目（你確認的版本）</div><div class="md">'+renderMd(cf.statement)+'</div>';
+  html+='<div class="sec-label" style="margin-top:16px;">解題思路</div><div class="md">'+renderMd(sol.approach)+'</div>';
+  html+='<div class="sec-label" style="margin-top:16px;">解答程式碼 '+copyBtn(sol.code)+'</div><pre class="code">'+escH(sol.code)+'</pre>';
+  html+='<div class="sec-label" style="margin-top:16px;">模擬運行（三次）</div>';
+  if(verify){
+    const pills=verify.rounds.map((r,i)=>'<span class="runpill '+(r.pass?'ok':'bad')+'">第'+(i+1)+'次 '+(r.pass?'✓ 通過':'✗ 未過')+'</span>').join('');
+    html+='<div class="runs">'+pills+'</div>';
+    html+='<div class="status-line" style="margin-top:8px;"><span class="dot '+(verify.allPass?'on':'')+'"></span>'+(verify.hasCases?'三次皆通過範例測資':'三次皆正常執行')+'　<span class="dot '+(verify.consistent?'on':'')+'"></span>三次輸出一致</div>';
+    if(!verify.hasCases) html+='<div class="warn-box" style="margin-top:8px;">沒有範例測資，改以「三次皆正常執行且輸出一致」作為驗證條件。</div>';
+    if(verify.hasCases){
+      const last=verify.rounds[verify.rounds.length-1];
+      html+='<table class="tc"><tr><th>#</th><th>輸入</th><th>預期輸出</th><th>實際輸出</th><th>結果</th></tr>';
+      last.results.forEach((r,i)=>{ html+='<tr><td>'+(i+1)+'</td><td><pre>'+escH((verify.cases[i]&&verify.cases[i].input)||'')+'</pre></td><td><pre>'+escH(r.expected||'')+'</pre></td><td><pre>'+escH(r.error?('⚠ '+r.error):r.got)+'</pre></td><td>'+(r.match?'✓':'✗')+'</td></tr>'; });
+      html+='</table>';
+    }
+  }
+  html+='<div class="sec-label" style="margin-top:16px;">完整詳解</div>';
+  if(unlocked) html+='<div class="md">'+renderMd(sol.explanation)+'</div>';
+  else html+='<div class="locked">🔒 依規則，詳解需在模擬運行中連續三次通過（且輸出一致）後才解鎖。<br>目前解答尚未通過驗證，可回上一步修正題目／測資、換更清楚的照片，或重試。</div>';
+  $('r-body').innerHTML=html;
+  $('result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ── init ──
+loadSettings();
+if(getKey()) $('set-card').classList.add('collapsed');
+$('set-card').querySelector('h2').style.cursor='pointer';
+$('set-card').querySelector('h2').onclick=(e)=>{ if(e.target.closest('button')||e.target.closest('input'))return; $('set-card').classList.toggle('collapsed'); };
+</script>
+</body>
+</html>

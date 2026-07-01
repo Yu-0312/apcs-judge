@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>錯題本｜判讀題 × 實作題 × AI 上傳錯題（依日期整理）</title>
+<meta name="description" content="統一錯題本：自動收錄程式判讀題、實作題與 AI 解題上傳的錯題，以日期為標題，可自訂標題、檢視詳解、刪除。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📕</text></svg>">
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js" integrity="sha384-/TQbtLCAerC3jgaim+N78RZSDYV7ryeoBCVqTuzRrFec2akfBkHS7ACQ3PQhvMVi" crossorigin="anonymous"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0f1117;--sidebar-bg:#161b22;--panel-bg:#1c2128;
+  --border:#30363d;--text:#e6edf3;--text-muted:#8b949e;
+  --green:#3fb950;--red:#f85149;--yellow:#d29922;--blue:#58a6ff;--purple:#bc8cff;--orange:#ffa657;
+  --accent:#58a6ff;--header-h:56px;
+}
+html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);}
+a{color:inherit;}
+header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;background:var(--sidebar-bg);border-bottom:1px solid var(--border);gap:12px;position:sticky;top:0;z-index:20;}
+.logo{font-size:17px;font-weight:700;color:var(--red);}
+.sub{font-size:12px;color:var(--text-muted);}
+.hright{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12px;flex-wrap:wrap;}
+.navlink{color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;white-space:nowrap;}
+.navlink:hover{border-color:var(--text-muted);color:var(--text);}
+.wrap{max-width:940px;margin:0 auto;padding:20px 18px 80px;}
+
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
+.filter{display:flex;gap:6px;flex-wrap:wrap;}
+.chip{font-size:12.5px;padding:6px 13px;border:1px solid var(--border);border-radius:999px;cursor:pointer;color:var(--text-muted);background:var(--panel-bg);user-select:none;}
+.chip.on{color:#08131f;font-weight:700;}
+.chip.on[data-type="all"]{background:var(--text);border-color:var(--text);}
+.chip.on[data-type="reading"]{background:var(--blue);border-color:var(--blue);}
+.chip.on[data-type="impl"]{background:var(--green);border-color:var(--green);}
+.chip.on[data-type="ai"]{background:var(--purple);border-color:var(--purple);}
+.btn{background:var(--accent);color:#08131f;border:none;border-radius:8px;padding:8px 14px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-weight:600;}
+.btn.ghost:hover{color:var(--text);border-color:var(--text-muted);}
+.btn.danger{background:transparent;border:1px solid rgba(248,81,73,.4);color:#ff8a84;}
+.spacer{flex:1;}
+input.search{background:var(--panel-bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 12px;font-family:inherit;font-size:13px;min-width:200px;}
+
+.empty{text-align:center;padding:60px 20px;color:var(--text-muted);}
+.empty .big{font-size:44px;}
+.empty .t{font-size:15px;margin-top:12px;}
+.empty .s{font-size:13px;margin-top:8px;line-height:1.7;}
+
+.rec{background:var(--panel-bg);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden;}
+.rec-head{display:flex;align-items:center;gap:10px;padding:13px 15px;cursor:pointer;}
+.rec-head:hover{background:rgba(255,255,255,.02);}
+.type-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;flex-shrink:0;}
+.type-badge.reading{background:rgba(88,166,255,.14);color:var(--blue);}
+.type-badge.impl{background:rgba(63,185,80,.14);color:var(--green);}
+.type-badge.ai{background:rgba(188,140,255,.14);color:var(--purple);}
+.rec-title{font-weight:600;font-size:14px;flex-shrink:0;}
+.rec-title-in{background:var(--bg);border:1px solid var(--accent);color:var(--text);border-radius:6px;padding:4px 8px;font-family:inherit;font-size:14px;font-weight:600;}
+.rec-sum{font-size:12px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+.rec-meta{font-size:11px;color:var(--text-muted);white-space:nowrap;flex-shrink:0;}
+.rec-count{font-size:10px;font-weight:700;color:var(--yellow);background:rgba(210,153,34,.14);border-radius:999px;padding:2px 7px;}
+.icon-btn{background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:4px 6px;border-radius:6px;flex-shrink:0;}
+.icon-btn:hover{background:rgba(255,255,255,.06);color:var(--text);}
+.chev{font-size:11px;color:var(--text-muted);transition:transform .2s;flex-shrink:0;}
+.rec.open .chev{transform:rotate(90deg);}
+
+.rec-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border);}
+.rec.open .rec-body{display:block;}
+.sec-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin:14px 0 7px;}
+pre.code{background:#0b0e14;border:1px solid var(--border);border-radius:9px;padding:12px;overflow:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.55;white-space:pre;}
+.opt{display:block;padding:8px 12px;border:1px solid var(--border);border-radius:8px;margin-top:6px;font-size:13px;}
+.opt.correct{border-color:var(--green);background:rgba(63,185,80,.1);color:var(--green);}
+.opt.wrong{border-color:var(--red);background:rgba(248,81,73,.1);color:var(--red);}
+.md{font-size:13.5px;line-height:1.8;}
+.md code{background:#0b0e14;border:1px solid var(--border);padding:1px 5px;border-radius:5px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;}
+.md pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:12px;overflow:auto;}
+.md pre code{border:none;padding:0;background:none;}
+.md ul,.md ol{margin:6px 0 6px 20px;}
+.stmt{font-size:13.5px;line-height:1.75;white-space:pre-wrap;color:var(--text);}
+.rec-img{max-width:100%;max-height:280px;border-radius:9px;border:1px solid var(--border);margin-top:6px;}
+.kv{font-size:12.5px;color:var(--text-muted);}
+.kv b{color:var(--text);}
+</style>
+</head>
+<body>
+<header>
+  <div><div class="logo">📕 錯題本</div><div class="sub">判讀題 · 實作題 · AI 上傳錯題（依日期整理）</div></div>
+  <div class="hright">
+    <a class="navlink" href="index.html">🎯 評分系統</a>
+    <a class="navlink" href="reading.html">🔍 程式判讀</a>
+    <a class="navlink" href="ai-solve.html">🤖 AI 解題</a>
+    <a class="navlink" href="tutorial.html">📚 基礎教學</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="toolbar">
+    <div class="filter" id="filter">
+      <span class="chip on" data-type="all">全部 <b id="c-all">0</b></span>
+      <span class="chip" data-type="reading">🔍 判讀題 <b id="c-reading">0</b></span>
+      <span class="chip" data-type="impl">🎯 實作題 <b id="c-impl">0</b></span>
+      <span class="chip" data-type="ai">🤖 AI 上傳 <b id="c-ai">0</b></span>
+    </div>
+    <input class="search" id="search" type="search" placeholder="🔍 搜尋標題／題目內容">
+    <span class="spacer"></span>
+    <button class="btn ghost" id="btn-export">💾 匯出</button>
+    <button class="btn danger" id="btn-clear">🗑 清空</button>
+  </div>
+  <div id="list"></div>
+</div>
+
+<script src="data/mistake-book.js?v=20260701a"></script>
+<script>
+const $ = id => document.getElementById(id);
+function escH(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function renderMd(s){ try{ return marked.parse(String(s||'')).replace(/<script[\s\S]*?<\/script>/gi,''); }catch(e){ return escH(s); } }
+const TYPE_LABEL = { reading:'🔍 判讀題', impl:'🎯 實作題', ai:'🤖 AI 上傳' };
+const LANG_LABEL = { py:'Python', python:'Python', cpp:'C++', c:'C', java:'Java', js:'JavaScript' };
+
+let curType = 'all';
+let curSearch = '';
+
+function fmtTime(iso){
+  try{ const d = new Date(iso); const p=n=>String(n).padStart(2,'0');
+    return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes()); }
+  catch(e){ return iso; }
+}
+
+function summaryText(r){
+  if (r.type === 'reading') return (r.questionStem || r.questionText || '').replace(/\s+/g,' ').slice(0,80);
+  if (r.type === 'impl') return (r.problemTitle||'') + '　' + (r.lang?('['+(LANG_LABEL[r.lang]||r.lang)+'] '):'') + (r.passed!=null? ('通過 '+r.passed+'/'+r.total):'');
+  if (r.type === 'ai') return (r.problemStatement || r.problemTitle || '').replace(/\s+/g,' ').slice(0,80);
+  return '';
+}
+
+function refreshCounts(){
+  const all = MistakeBook.all();
+  $('c-all').textContent = all.length;
+  $('c-reading').textContent = all.filter(r=>r.type==='reading').length;
+  $('c-impl').textContent = all.filter(r=>r.type==='impl').length;
+  $('c-ai').textContent = all.filter(r=>r.type==='ai').length;
+}
+
+function render(){
+  refreshCounts();
+  let recs = MistakeBook.all();
+  if (curType !== 'all') recs = recs.filter(r => r.type === curType);
+  if (curSearch){
+    const q = curSearch.toLowerCase();
+    recs = recs.filter(r => JSON.stringify(r).toLowerCase().includes(q));
+  }
+  const list = $('list');
+  if (!recs.length){
+    list.innerHTML = '<div class="empty"><div class="big">📭</div>'
+      + '<div class="t">' + (MistakeBook.count() ? '沒有符合條件的錯題' : '錯題本還是空的') + '</div>'
+      + '<div class="s">在 <a href="reading.html" style="color:var(--blue)">程式判讀</a> 答錯、'
+      + '<a href="index.html" style="color:var(--green)">實作題</a> 未全過、'
+      + '或用 <a href="ai-solve.html" style="color:var(--purple)">AI 解題</a> 上傳題目後，<br>都會自動收錄到這裡。</div></div>';
+    return;
+  }
+  list.innerHTML = recs.map(recCard).join('');
+}
+
+function recCard(r){
+  const badge = '<span class="type-badge '+r.type+'">'+(TYPE_LABEL[r.type]||r.type)+'</span>';
+  const cnt = (r.count && r.count>1) ? '<span class="rec-count">×'+r.count+'</span>' : '';
+  return '<div class="rec" data-id="'+r.id+'">'
+    + '<div class="rec-head" data-act="toggle">'
+    +   '<span class="chev">▶</span>'
+    +   badge
+    +   '<span class="rec-title">'+escH(r.title)+'</span>'
+    +   cnt
+    +   '<span class="rec-sum">'+escH(summaryText(r))+'</span>'
+    +   '<span class="rec-meta">'+fmtTime(r.updated||r.created)+'</span>'
+    +   '<button class="icon-btn" data-act="rename" title="改標題">✏️</button>'
+    +   '<button class="icon-btn" data-act="del" title="刪除">🗑</button>'
+    + '</div>'
+    + '<div class="rec-body">'+recBody(r)+'</div>'
+    + '</div>';
+}
+
+function recBody(r){
+  if (r.type === 'reading') return readingBody(r);
+  if (r.type === 'impl') return implBody(r);
+  if (r.type === 'ai') return aiBody(r);
+  return '<pre class="code">'+escH(JSON.stringify(r,null,2))+'</pre>';
+}
+
+function readingBody(r){
+  let h = '';
+  h += '<div class="kv" style="margin-top:12px;"><b>'+escH(LANG_LABEL[r.lang]||'觀念')+'</b>'
+     + (r.level?'　難度：<b>'+escH(r.level)+'</b>':'') + '</div>';
+  h += '<div class="sec-label">題目</div>';
+  if (r.code) h += '<pre class="code">'+escH(r.code)+'</pre>';
+  if (r.questionStem) h += '<div class="stmt">'+escH(r.questionStem)+'</div>';
+  h += '<div class="sec-label">選項</div>';
+  (r.options||[]).forEach((op,i)=>{
+    let cls='opt';
+    if (i===r.answerIndex) cls+=' correct';
+    else if (i===r.chosenIndex) cls+=' wrong';
+    const tag = i===r.answerIndex ? '（正解）' : (i===r.chosenIndex ? '（你的選擇）' : '');
+    h += '<div class="'+cls+'">('+('ABCD'[i]||i)+') '+escH(op)+' '+tag+'</div>';
+  });
+  if (r.explain){ h += '<div class="sec-label">解析</div><div class="stmt">'+escH(r.explain)+'</div>'; }
+  return h;
+}
+
+function implBody(r){
+  let h = '';
+  h += '<div class="kv" style="margin-top:12px;">題目：<b>'+escH(r.problemTitle||'')+'</b>'
+     + (r.lang?'　語言：<b>'+escH(LANG_LABEL[r.lang]||r.lang)+'</b>':'')
+     + (r.passed!=null?'　最佳：<b>'+r.passed+' / '+r.total+'</b> 筆測資':'') + '</div>';
+  if (r.topic) h += '<div class="kv">主題：'+escH(r.topic)+'</div>';
+  if (r.desc){ h += '<div class="sec-label">題目敘述</div><div class="md">'+renderMd(r.desc)+'</div>'; }
+  if (r.code){ h += '<div class="sec-label">你最後提交的程式</div><pre class="code">'+escH(r.code)+'</pre>'; }
+  h += '<div class="kv" style="margin-top:12px;"><a href="index.html" style="color:var(--green)">→ 回實作題再練一次</a></div>';
+  return h;
+}
+
+function aiBody(r){
+  let h = '';
+  h += '<div class="kv" style="margin-top:12px;">語言：<b>'+escH(LANG_LABEL[r.language]||r.language||'-')+'</b>'
+     + '　驗證：<b style="color:'+(r.verified?'var(--green)':'var(--yellow)')+'">'+(r.verified?'三次通過 ✓':'未通過')+'</b></div>';
+  if (r.image) h += '<div class="sec-label">題目照片</div><img class="rec-img" src="'+r.image+'" alt="題目">';
+  if (r.problemStatement){ h += '<div class="sec-label">題目辨識</div><div class="md">'+renderMd(r.problemStatement)+'</div>'; }
+  if (r.approach){ h += '<div class="sec-label">解題思路</div><div class="md">'+renderMd(r.approach)+'</div>'; }
+  if (r.code){ h += '<div class="sec-label">解答程式碼</div><pre class="code">'+escH(r.code)+'</pre>'; }
+  if (r.explanation){ h += '<div class="sec-label">完整詳解</div><div class="md">'+renderMd(r.explanation)+'</div>'; }
+  return h;
+}
+
+// ── 事件 ──
+$('list').addEventListener('click', e => {
+  const rec = e.target.closest('.rec'); if (!rec) return;
+  const id = rec.dataset.id;
+  const act = e.target.closest('[data-act]') && e.target.closest('[data-act]').dataset.act;
+  if (act === 'del'){
+    e.stopPropagation();
+    if (confirm('確定刪除這筆錯題紀錄？')){ MistakeBook.remove(id); render(); }
+    return;
+  }
+  if (act === 'rename'){
+    e.stopPropagation();
+    const titleEl = rec.querySelector('.rec-title');
+    if (rec.querySelector('.rec-title-in')) return;
+    const cur = MistakeBook.get(id);
+    const inp = document.createElement('input');
+    inp.className = 'rec-title-in'; inp.value = cur ? cur.title : '';
+    titleEl.replaceWith(inp); inp.focus(); inp.select();
+    const commit = () => { const v = inp.value.trim() || (cur?cur.title:''); MistakeBook.update(id, { title: v }); render(); };
+    inp.addEventListener('keydown', ev => { if (ev.key==='Enter'){ commit(); } else if (ev.key==='Escape'){ render(); } });
+    inp.addEventListener('blur', commit);
+    inp.addEventListener('click', ev => ev.stopPropagation());
+    return;
+  }
+  // toggle 展開
+  rec.classList.toggle('open');
+});
+
+$('filter').addEventListener('click', e => {
+  const chip = e.target.closest('.chip'); if (!chip) return;
+  curType = chip.dataset.type;
+  $('filter').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c===chip));
+  render();
+});
+$('search').addEventListener('input', e => { curSearch = e.target.value.trim(); render(); });
+
+$('btn-clear').onclick = () => {
+  if (!MistakeBook.count()) return;
+  if (confirm('確定清空整本錯題本？此動作無法復原。')){ MistakeBook.clearAll(); render(); }
+};
+$('btn-export').onclick = () => {
+  const data = JSON.stringify(MistakeBook.all(), null, 2);
+  const blob = new Blob([data], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'apcs-錯題本-' + MistakeBook.dateTitle(new Date()) + '.json';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+};
+
+render();
+</script>
+</body>
+</html>

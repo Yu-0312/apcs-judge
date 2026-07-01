@@ -189,6 +189,8 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
   <div><div class="logo" id="logo">APCS 多語言評分系統</div><div class="sub" id="sub-line"></div></div>
   <div class="hright">
     <a href="reading.html" title="程式判讀練習（APCS 程式識讀／統測判讀題）" style="color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;">🔍 程式判讀</a>
+    <a href="ai-solve.html" title="AI 解題：拍照掃描題目、模擬運行三次驗證後給詳解" style="color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;">🤖 AI 解題</a>
+    <a href="mistakes.html" title="錯題本：判讀題／實作題／AI 上傳錯題彙整" style="color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;">📕 錯題本</a>
     <a href="tutorial.html" id="tutorial-link" style="color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;">📚 基礎教學</a>
     <button id="prog-exp-btn" class="hbtn" onclick="exportProgress()" title="匯出刷題進度（下載 JSON）">💾</button>
     <button id="prog-imp-btn" class="hbtn" onclick="importProgress()" title="匯入刷題進度">📂</button>
@@ -258,6 +260,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 
 <!-- 題目資料（拆檔以利快取與協作）；解答與英文對照於需要時才動態載入 -->
 <script src="data/judge-problems.js?v=20260621b"></script>
+<script src="data/mistake-book.js?v=20260701a"></script>
 <script>
 // ── 資料版本（更新 data/*.js 時同步調整，避免舊快取與頁面不同步） ───────────
 const DATA_VER = '20260621b';
@@ -931,9 +934,25 @@ async function runCode() {
     scores[skey] = { passed, total };
     saveScores();
   }
+  if (passed < total) recordImplMistake(prob, lang, passed, total, code);
   renderProblemList();
   if (currentProblem === prob && currentLang === lang) renderResults(results, passed, total);
   updateStatus(currentLang);
+}
+
+// 實作題未全數通過時，自動送進統一錯題本（同題會更新而非重複，記錄最後一次提交）
+function recordImplMistake(prob, lang, passed, total, code) {
+  if (typeof MistakeBook === 'undefined' || !prob) return;
+  try {
+    MistakeBook.add({
+      type: 'impl', sourceKey: 'impl::' + lang + '::' + prob.id,
+      title: MistakeBook.dateTitle(new Date()) + '｜實作 ' + (pv(prob, 'title') || prob.id),
+      problemId: prob.id, problemTitle: pv(prob, 'title'),
+      lang: lang, passed: passed, total: total,
+      topic: pv(prob, 'topic') || prob.topic || '', desc: pv(prob, 'desc') || '',
+      code: code || ''
+    });
+  } catch (e) {}
 }
 
 const JUDGE0_LANG = { cpp: 54, c: 50, java: 62 };

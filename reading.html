@@ -224,6 +224,8 @@ pre.code .fn{color:#d2a8ff;}
   <div><div class="logo">🔍 APCS 程式判讀</div><div class="sub">分級題庫 · 讀程式 · 即時對解</div></div>
   <div class="hright">
     <a class="navlink" href="index.html">🎯 評分系統</a>
+    <a class="navlink" href="ai-solve.html">🤖 AI 解題</a>
+    <a class="navlink" href="mistakes.html">📕 錯題本</a>
     <a class="navlink" href="tutorial.html">📚 基礎教學</a>
     <span class="score-pill" id="score-pill">📕 錯題本 0 題</span>
   </div>
@@ -247,6 +249,7 @@ pre.code .fn{color:#d2a8ff;}
 </nav>
 
 <script src="data/reading-questions.js?v=20260626a"></script>
+<script src="data/mistake-book.js?v=20260701a"></script>
 <script>
 const DATA_VER='20260626a';
 const SESS_KEY='apcs_reading_sess_v1';   // 本回合作答（打完即清空）
@@ -338,6 +341,17 @@ function catsIn(lang,level){return CATS.filter(c=>countQ({lang,level,cat:c})>0);
 function validWrong(){return wrong.filter(id=>QById(id));}
 function wrongCount(f){return poolFor(Object.assign({wrong:true},f)).length;}
 function addWrong(id){if(!wrong.includes(id)){wrong.push(id);saveWrong();}}
+// 答錯自動送進統一錯題本（依日期為預設標題，可到錯題本改名）
+function recordReadingMistake(q,chosen){
+  if(typeof MistakeBook==='undefined'||!q)return;
+  try{MistakeBook.add({
+    type:'reading', sourceKey:'reading::'+q.id,
+    title:MistakeBook.dateTitle(new Date())+'｜判讀 '+(q.num||q.id),
+    qid:q.id, lang:q.lang, level:q.level, topic:q.topic,
+    questionStem:q.q, code:q.code||'', options:q.options||[],
+    answerIndex:q.answer, chosenIndex:chosen, explain:q.explain||''
+  });}catch(e){}
+}
 function removeWrong(id){const i=wrong.indexOf(id);if(i>=0){wrong.splice(i,1);saveWrong();}}
 
 // ===== 抽題 =====
@@ -633,7 +647,7 @@ function answer(id,oi){
   if(sess[id]!==undefined)return;
   const q=QById(id);if(!q)return;
   sess[id]=oi;saveSess();
-  if(oi===q.answer)removeWrong(id);else addWrong(id);
+  if(oi===q.answer)removeWrong(id);else{addWrong(id);recordReadingMistake(q,oi);}
   const card=document.querySelector('.qcard[data-qid="'+CSS.escape(id)+'"]');
   if(card){const t=document.createElement('div');t.innerHTML=renderCard(q);card.replaceWith(t.firstElementChild);}
   const nb=document.getElementById('q-next');if(nb)nb.classList.add('primary');
