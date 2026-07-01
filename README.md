@@ -40,6 +40,7 @@
 - **每章三件套**：「🎯 學習目標 → ✋ 動手試試 → 📝 程式練習」，程式練習自動比對輸出批改，通過才算完成該章；進度存在 localStorage
 - **🧠 設計動機**：十個關鍵章節附「為什麼要這樣設計」深度解析（EAFP、HTTP 無狀態、pandas 向量化、async、delta time、模運算同餘、RAII、值語意、型別擦除、JIT）
 - **雙語介面**：右上角一鍵切換繁中 / English，教材內容同步切換
+- **💬 全站聊天**：每頁右下角有一顆可關閉的圓形按鈕，點開即是一個可拖曳的聊天室，內含「AI 助教」（用你自己的 Gemini 金鑰即問即答）與「大眾聊天室」（Firebase 即時互通，所有人一起討論）兩個分頁
 - **手機可用**：行動版以底部導覽列切換「章節 / 教學 / 程式」三個面板
 - **進度可攜**：完成進度與刷題紀錄存瀏覽器（localStorage），並可一鍵匯出 / 匯入 JSON 帶到其他裝置
 - **鍵盤操作**：`Ctrl/Cmd + Enter` 直接執行程式；分頁與章節列表支援 Tab + Enter
@@ -96,6 +97,26 @@ APCS 新制包含「程式識讀」與「程式實作」兩部分；實作題本
 - **🎲 隨機抽題練習**：每個難度都有「隨機練習」入口，可自選題數（最多 50 題），按下即從該難度題庫隨機抽出一回合，並可「重新抽題」換一批
 - **即時對解**：讀程式碼、選答案，作答後立即顯示正解與考點解析；可執行的 C / C++ / Python / JavaScript 題目其答案皆以本機編譯／執行抽樣驗證
 - **進度可攜**：每個題庫與整體的作答進度即時顯示於側欄，紀錄存於瀏覽器 localStorage（重新開啟自動回到上次的題庫或隨機回合）
+
+### 💬 全站聊天（AI 助教 ＋ 大眾聊天室）
+
+每個頁面右下角都有一顆浮動圓鈕（可按 ✕ 收起），點開後是一個**可拖曳**的聊天視窗，內含兩個分頁：
+
+- **🤖 AI 助教**：可即時詢問 APCS 觀念、程式判讀、除錯等問題。與「AI 解題」頁共用你自備的 Google Gemini 金鑰（只存在你這台裝置的 localStorage），設定過一次即全站可用；對話內容跨頁保留。
+- **🌐 大眾聊天室**：跨使用者的即時公共聊天，所有人都能發言互動。因為本站是純前端（GitHub Pages）沒有伺服器，這部分改由免費的 **Firebase Realtime Database** 承載。
+
+整個聊天工具是單一共用檔 `data/chat-widget.js`，每頁只以一行 `<script>` 載入。
+
+#### 站長：啟用大眾聊天室（約 2 分鐘）
+
+未設定時 AI 助教照常運作，大眾聊天室分頁會顯示設定說明；完成以下步驟即可啟用真正的公共聊天：
+
+1. 到 [Firebase 主控台](https://console.firebase.google.com) 建立專案，新增一個 **Realtime Database**（可先用測試模式）。
+2. 到「專案設定 → 一般 → 你的應用程式 → SDK 設定與配置」複製網頁 `Config`。
+3. 把它貼進 `data/chat-widget.js` 最上方的 `FIREBASE_CONFIG`（web config 可公開，安全性靠 Database 規則把關）。
+4. 上線後建議把安全規則收緊為「僅允許寫入 `rooms/global/messages`、限制欄位與長度」，避免濫用。
+
+訊息儲存在 `rooms/<房號>/messages`，前端只顯示最近 200 則；暱稱存在瀏覽器 localStorage。
 
 ### 🚀 快速開始
 
@@ -155,6 +176,7 @@ This project is a complete learning path made of three pages:
 - **Per-chapter loop**: learning goals → hands-on tweaks → auto-graded coding exercise; progress persists in localStorage
 - **🧠 Design Motivation** sections in ten key chapters explain *why* things are designed the way they are (EAFP, stateless HTTP, pandas vectorization, async, delta time, modular arithmetic, RAII, value semantics, type erasure, JIT)
 - **Bilingual UI**: one-click Traditional Chinese / English toggle, lesson content included
+- **💬 Site-wide chat**: a closeable floating button in the bottom-right of every page opens a draggable chat window with two tabs — an **AI tutor** (answers instantly using your own Gemini key) and a **public chat room** (real-time cross-user discussion via Firebase)
 - **Mobile-friendly**: bottom navigation switches between chapters / lesson / code panels
 - **Portable progress**: stored in localStorage, with one-click JSON export / import across devices
 - **Keyboard**: `Ctrl/Cmd + Enter` to run; tabs and chapter list are keyboard-accessible
@@ -182,6 +204,15 @@ The [judge](https://yu-0312.github.io/apcs-judge/) hosts **300 problems** (⭐ 3
 ### Code reading
 
 The [code-reading page](https://yu-0312.github.io/apcs-judge/reading.html) drills the "trace a program / spot the bug" multiple-choice format used by **APCS code literacy** and the **statutory vocational exam (統測)**. It holds **1477 questions** (official APCS samples and past 統測 items marked "official answer", curated practice questions, and dedicated single-language banks for Python, C++, JavaScript and C — 898 C, 208 Python, 172 C++, 161 JavaScript, 38 shared), organized into a tutorial-style collapsible sidebar: each of APCS's four difficulty tiers (basic / intermediate / advanced / expert) expands to its own question banks — languages are kept in separate banks, never mixed — and clicking a bank jumps straight into practice. Each tier also has a 🎲 random-draw mode: pick how many questions (up to 50) and it deals a random round from that tier, with re-draw. Pick an answer to instantly reveal the correct option and its explanation; per-bank and overall progress show live in the sidebar (saved to localStorage, reopening returns you to your last bank or random round), and runnable C/C++/Python/JavaScript answers were spot-verified by local compilation/execution.
+
+### Site-wide chat (AI tutor + public room)
+
+Every page has a floating button (bottom-right, dismissible) that opens a **draggable** chat window with two tabs:
+
+- **🤖 AI tutor** — ask APCS/coding/debugging questions on the spot. It shares the Google Gemini key you set on the AI-solve page (stored only in your browser's localStorage), so setting it once works site-wide; conversation persists across pages.
+- **🌐 Public room** — a real-time, cross-user chat where everyone can post. Since the site is pure front-end (GitHub Pages) with no server, this is backed by a free **Firebase Realtime Database**.
+
+The whole thing is one shared file, `data/chat-widget.js`, loaded with a single `<script>` tag per page. The AI tab works out of the box; to enable the public room, create a Firebase project, add a Realtime Database, and paste its web `Config` into `FIREBASE_CONFIG` at the top of `data/chat-widget.js` (the web config is safe to publish; lock it down with database security rules). Until configured, the public tab shows setup instructions while the AI tab keeps working.
 
 ### Quick start
 
