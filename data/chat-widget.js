@@ -21,11 +21,13 @@
    *  留空則大眾聊天室顯示「尚未設定」說明。
    * ───────────────────────────────────────────────────────────── */
   var FIREBASE_CONFIG = {
-    // apiKey: "…",
-    // authDomain: "….firebaseapp.com",
-    // databaseURL: "https://….firebasedatabase.app",
-    // projectId: "…",
-    // appId: "…"
+    apiKey: "AIzaSyCSI3TftfeSTOkeICfsckhqq-79CROjN9I",
+    authDomain: "apcs-1.firebaseapp.com",
+    databaseURL: "https://apcs-1-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "apcs-1",
+    storageBucket: "apcs-1.firebasestorage.app",
+    messagingSenderId: "1081162904291",
+    appId: "1:1081162904291:web:2a16427edf3bbd56d84bd6"
   };
   var CHAT_ROOM = 'global';          // 聊天室房號（同一房共用訊息）
   var MAX_MESSAGES = 200;            // 前端只保留最近 N 則
