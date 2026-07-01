@@ -115,7 +115,7 @@ APCS 新制包含「程式識讀」與「程式實作」兩部分；實作題本
 3. **計算 ＋ 三次驗證**：確認後才開始解題，並在模擬運行中**連跑三次**、通過範例測資且三次輸出一致，才視為可信。
 4. **完整詳解**：驗證通過後才給出思路、四語言解法與逐步解析。
 
-與其他頁面一樣，使用你自備的 Google Gemini 金鑰（只存在你這台裝置的 localStorage），全站共用。解錯或想留存的題目可一鍵送進錯題本。
+與其他頁面一樣，使用你自備的 Google Gemini 金鑰（只存在你這台裝置的 localStorage），全站共用。解完的題目會自動存入錯題本（以當天日期為標題，可再改名）。
 
 ### 📕 統一錯題本（依日期整理）
 
@@ -168,8 +168,10 @@ python3 -m http.server 8000
 | **Judge0 CE** | C / C++ / Java 雲端編譯執行（公開實例，免 API Key） |
 | **CodeMirror 5** | 語法高亮編輯器 |
 | **marked.js** | Markdown 教材與題目渲染 |
+| **Google Gemini** | AI 拍照解題與 AI 助教（瀏覽器直呼，使用者自備金鑰存於 localStorage） |
+| **Firebase Realtime Database** | 大眾聊天室的即時跨使用者同步（web config 可公開，靠安全規則把關） |
 
-純靜態網站（HTML + `data/*.js` 資料檔）、所有依賴走 CDN——無 npm、無 build step、無後端。教材與題目資料拆檔存於 `data/`，改內容不必動主程式；`node scripts/check-data.js` 可在本地驗證資料一致性（CI 亦會自動跑）。
+純靜態網站（HTML + `data/*.js` 資料檔）、所有依賴走 CDN——無 npm、無 build step、無後端。教材與題目資料拆檔存於 `data/`，改內容不必動主程式；`node scripts/check-data.js` 可在本地驗證資料一致性（CI 亦會自動跑）。錯題本以共用模組 `data/mistake-book.js` 統一各頁的 localStorage 讀寫，聊天工具則集中在 `data/chat-widget.js`。
 
 ### 🤝 貢獻
 
@@ -247,7 +249,7 @@ The [AI-solve page](https://yu-0312.github.io/apcs-judge/ai-solve.html) lets you
 3. **Compute + triple verification** — only after you confirm does it solve, then **runs the simulation three times**, requiring the sample tests to pass with all three outputs identical before the result is trusted.
 4. **Full walkthrough** — only once verified does it give the approach, four-language solutions and a step-by-step explanation.
 
-Like the rest of the site it uses your own Google Gemini key (stored only in your browser's localStorage), shared site-wide. Missed or noteworthy problems can be pushed into the mistakes book in one click.
+Like the rest of the site it uses your own Google Gemini key (stored only in your browser's localStorage), shared site-wide. Every solved problem is automatically saved to the mistakes book (titled with the day's date, renamable there).
 
 ### Unified mistakes book (grouped by date)
 
@@ -279,7 +281,7 @@ python3 -m http.server 8000
 # open http://localhost:8000/tutorial.html
 ```
 
-Pure static site (HTML + `data/*.js` data files), all dependencies from CDN — no npm, no build step, no backend (Pyodide, Judge0 CE, CodeMirror 5, marked.js). Lessons and problems live in `data/`; run `node scripts/check-data.js` to validate data consistency (also enforced in CI).
+Pure static site (HTML + `data/*.js` data files), all dependencies from CDN — no npm, no build step, no backend (Pyodide, Judge0 CE, CodeMirror 5, marked.js). The AI photo solver and AI tutor call **Google Gemini** directly from the browser with the user's own key (localStorage); the public chat room syncs across users via **Firebase Realtime Database** (public web config, locked down by security rules). Lessons and problems live in `data/`; the mistakes book shares one storage module (`data/mistake-book.js`) across pages and the chat widget lives in `data/chat-widget.js`. Run `node scripts/check-data.js` to validate data consistency (also enforced in CI).
 
 ### License
 
