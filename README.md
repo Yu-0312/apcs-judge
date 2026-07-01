@@ -9,6 +9,10 @@
 
 🔍 **程式判讀 / Code Reading**：https://yu-0312.github.io/apcs-judge/reading.html
 
+🤖 **AI 解題 / AI Solver**：https://yu-0312.github.io/apcs-judge/ai-solve.html
+
+📕 **錯題本 / Mistakes Book**：https://yu-0312.github.io/apcs-judge/mistakes.html
+
 [繁體中文](#繁體中文) · [English](#english)
 
 | 教學（桌面版） | 教學（手機版） |
