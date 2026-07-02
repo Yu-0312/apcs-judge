@@ -118,7 +118,8 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .btn-run:hover{filter:brightness(1.15);}
 .btn-run:disabled{opacity:.5;cursor:not-allowed;}
 .btn-sec{background:transparent;color:var(--text-muted);border:1px solid var(--border);}
-.btn-sec:hover{color:var(--text);border-color:var(--text-muted);}
+.btn-sec:hover:not(:disabled){color:var(--text);border-color:var(--text-muted);}
+.btn-sec:disabled{opacity:.4;cursor:not-allowed;}
 .btn-sample{background:transparent;color:var(--lang-color);border:1px solid var(--lang-color);opacity:.7;font-size:11px;padding:4px 9px;transition:all .2s;}
 .btn-sample:hover{opacity:1;}
 .editor-wrap{flex:1;overflow:hidden;}
@@ -158,7 +159,9 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
   header{padding:0 10px;gap:8px;}
   header .sub{display:none;}
   .logo{font-size:14px;white-space:nowrap;}
-  .hright{gap:6px;}
+  .hright{gap:6px;min-width:0;overflow-x:auto;scrollbar-width:none;}
+  .hright::-webkit-scrollbar{display:none;}
+  .hright>*{flex-shrink:0;}
   .hright a{padding:4px 8px;white-space:nowrap;}
   #status-text{display:none;}
   .lang-tabs{overflow-x:auto;}
@@ -239,7 +242,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
         <button class="btn btn-run" id="run-btn" onclick="runCode()" disabled>▶ 執行並評分</button>
         <button class="btn btn-sec" id="clear-btn" onclick="clearEditor()">清空</button>
         <button class="btn btn-sample" id="sample-btn" onclick="loadSample()">載入解答</button>
-        <button class="btn btn-sec" id="hint-btn" onclick="showHint()" title="顯示解題思路">💡 思路</button>
+        <button class="btn btn-sec" id="hint-btn" onclick="showHint()" title="顯示解題思路" disabled>💡 思路</button>
         <span style="flex:1"></span>
         <span id="lang-label" style="font-size:11px;color:var(--text-muted);">-</span>
       </div>
@@ -861,6 +864,8 @@ function renderProblemContent() {
   const p = currentProblem;
   const cfg = LANGS[currentLang];
   const t = T();
+  // 沒有思路可看時直接禁用按鈕（避免按了沒反應的死點）
+  document.getElementById('hint-btn').disabled = !pv(p, 'hint');
   document.getElementById('prob-badge').textContent = p.source ? `🌏 ${p.source}` : `ZeroJudge: ${p.id}`;
   const originalUrl = safeUrl(p.url);
   const samples = p.samples.map((s, i) => `
@@ -1237,6 +1242,6 @@ function safeMarkdown(text) {
 #hint-content strong {color:var(--text);}
 #hint-content p {margin-bottom:8px;}
 </style>
-<script src="data/chat-widget.js?v=20260701a"></script>
+<script src="data/chat-widget.js?v=20260702a"></script>
 </body>
 </html>

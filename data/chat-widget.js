@@ -47,13 +47,26 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
-  // 把純文字轉成安全 HTML：跳脫 + 自動連結 URL + 換行
-  function textToHtml(s) {
-    var e = esc(s);
-    e = e.replace(/(https?:\/\/[^\s<]+)/g, function (u) {
-      return '<a href="' + u + '" target="_blank" rel="noopener">' + u + '</a>';
-    });
-    return e.replace(/\n/g, '<br>');
+  // 把純文字轉成安全 HTML：先全部跳脫，再輕量渲染 ```程式區塊```、`行內碼`、
+  // **粗體**、自動連結 URL 與換行。AI 回覆常帶 Markdown，直接顯示原始符號很難讀。
+  function renderRich(s) {
+    var parts = String(s == null ? '' : s).split('```');
+    var out = '';
+    for (var i = 0; i < parts.length; i++) {
+      if (i % 2 === 1) {                       // ``` 圍住的程式碼區塊
+        var code = parts[i].replace(/^[\w+#.-]*\r?\n/, '').replace(/\n$/, '');
+        out += '<pre><code>' + esc(code) + '</code></pre>';
+      } else {
+        var seg = esc(parts[i]);
+        seg = seg.replace(/(https?:\/\/[^\s<]*[^\s<.,;:!?)\]}"'])/g, function (u) {
+          return '<a href="' + u + '" target="_blank" rel="noopener">' + u + '</a>';
+        });
+        seg = seg.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+        seg = seg.replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>');
+        out += seg.replace(/\n/g, '<br>');
+      }
+    }
+    return out;
   }
   function fbConfigured() {
     return !!(FIREBASE_CONFIG && FIREBASE_CONFIG.databaseURL && FIREBASE_CONFIG.apiKey);
@@ -80,7 +93,7 @@
     'background:#fff;border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.28);display:none;flex-direction:column;overflow:hidden;' +
     'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC",sans-serif;color:#1e293b;}' +
     '#cw-panel.cw-open{display:flex;}' +
-    '#cw-head{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:11px 14px;display:flex;align-items:center;gap:8px;cursor:move;user-select:none;}' +
+    '#cw-head{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:11px 14px;display:flex;align-items:center;gap:8px;cursor:move;user-select:none;touch-action:none;}' +
     '#cw-head .cw-title{font-weight:700;font-size:15px;flex:1;}' +
     '#cw-head button{background:rgba(255,255,255,.18);border:none;color:#fff;width:26px;height:26px;border-radius:7px;cursor:pointer;font-size:15px;line-height:1;}' +
     '#cw-head button:hover{background:rgba(255,255,255,.34);}' +
@@ -95,6 +108,11 @@
     '.cw-msg.cw-me{align-self:flex-end;background:#4f46e5;color:#fff;border-bottom-right-radius:4px;}' +
     '.cw-msg.cw-other{align-self:flex-start;background:#fff;border:1px solid #e2e8f0;border-bottom-left-radius:4px;}' +
     '.cw-msg .cw-meta{display:block;font-size:11px;opacity:.7;margin-bottom:2px;font-weight:600;}' +
+    '.cw-msg pre{background:#0b0e14;color:#e6edf3;border-radius:8px;padding:9px 11px;overflow-x:auto;margin:6px 0 2px;}' +
+    '.cw-msg pre code{background:none;padding:0;color:inherit;}' +
+    '.cw-msg code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;background:rgba(110,118,129,.22);padding:1px 4px;border-radius:4px;}' +
+    '.cw-msg.cw-me code{background:rgba(255,255,255,.22);}' +
+    '.cw-msg.cw-me pre{background:rgba(0,0,0,.3);color:#fff;}' +
     '.cw-sys{align-self:center;background:#e2e8f0;color:#475569;font-size:12px;padding:5px 10px;border-radius:10px;text-align:center;max-width:92%;}' +
     '.cw-inbar{display:flex;gap:7px;padding:9px;border-top:1px solid #e2e8f0;background:#fff;align-items:flex-end;}' +
     '.cw-inbar textarea{flex:1;resize:none;border:1px solid #cbd5e1;border-radius:10px;padding:8px 10px;font-size:13.5px;font-family:inherit;max-height:88px;line-height:1.4;outline:none;}' +
@@ -122,6 +140,7 @@
     var launcher = document.createElement('button');
     launcher.id = 'cw-launcher';
     launcher.title = '開啟聊天（AI 助教／大眾聊天室）';
+    launcher.setAttribute('aria-label', '開啟聊天：AI 助教與大眾聊天室');
     launcher.innerHTML = '<span>💬</span><span class="cw-x" title="關閉此按鈕">✕</span>';
     document.body.appendChild(launcher);
 
@@ -146,11 +165,53 @@
       '<button id="cw-pub-send">送出</button></div></div>';
     document.body.appendChild(panel);
 
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-label', '聊天室');
+
     wireLauncher(launcher, panel);
     wireDrag(panel);
     wireTabs(panel);
     wireAI(panel);
     wirePublic(panel);
+
+    layoutFloaters();
+    var rzTimer = null;
+    window.addEventListener('resize', function () {
+      clearTimeout(rzTimer); rzTimer = setTimeout(layoutFloaters, 120);
+    });
+  }
+
+  /* ═══ 浮動元素排位 ═══
+   *  1) 手機版各頁底部有 #mobile-nav 固定導覽列，圓鈕預設 bottom:22px 會壓在
+   *     導覽列上（也擋到 ai-solve 的按鈕）；偵測導覽列可見時把圓鈕與面板抬高。
+   *  2) 各頁右下角的 #ver-badge 版本徽章與圓鈕重疊：圓鈕可見時把徽章左移讓位。
+   *  3) 面板被拖曳後若視窗縮小，夾回可視範圍內。
+   */
+  function layoutFloaters() {
+    var launcher = document.getElementById('cw-launcher');
+    var panel = document.getElementById('cw-panel');
+    if (!launcher || !panel) return;
+    var nav = document.getElementById('mobile-nav');
+    var navVisible = !!(nav && getComputedStyle(nav).display !== 'none');
+    var navH = navVisible ? nav.offsetHeight : 0;
+    var launcherHidden = launcher.style.display === 'none';
+
+    launcher.style.bottom = navVisible ? (navH + 12) + 'px' : '';
+    if (!panel.style.top) {                       // 尚未被拖曳過才跟著圓鈕排
+      panel.style.bottom = navVisible ? (navH + 80) + 'px' : '';
+    } else {                                      // 拖曳過：夾回視窗內
+      var r = panel.getBoundingClientRect();
+      var nx = Math.max(4, Math.min(r.left, window.innerWidth - r.width - 4));
+      var ny = Math.max(4, Math.min(r.top, window.innerHeight - r.height - 4));
+      panel.style.left = nx + 'px'; panel.style.top = ny + 'px';
+    }
+
+    var badge = document.getElementById('ver-badge');
+    if (badge) {
+      badge.style.right = launcherHidden ? '' : '92px';            // 讓出圓鈕水平空間
+      if (navVisible) badge.style.bottom = (navH + 8) + 'px';      // 抬到導覽列上方
+      else badge.style.bottom = '';
+    }
   }
 
   /* ═══ 圓鈕開關 ═══ */
@@ -162,6 +223,7 @@
         launcher.style.display = 'none';
         panel.classList.remove('cw-open');
         sessionStorage.setItem(SS_HIDDEN, '1');
+        layoutFloaters();                          // 版本徽章歸位
         return;
       }
       panel.classList.toggle('cw-open');
@@ -230,13 +292,14 @@
   function saveAIHistory() {
     try { localStorage.setItem(LS_AIHIST, JSON.stringify(aiHistory.slice(-40))); } catch (e) {}
   }
-  function addAIBubble(role, text, cls) {
+  // isHtml=true 時 text 為內部組好的安全 HTML（僅限程式內常數，不可放使用者輸入）
+  function addAIBubble(role, text, cls, isHtml) {
     var box = document.getElementById('cw-ai-msgs');
     var div = document.createElement('div');
-    if (cls === 'sys') { div.className = 'cw-sys'; div.innerHTML = textToHtml(text); }
+    if (cls === 'sys') { div.className = 'cw-sys'; div.innerHTML = isHtml ? text : renderRich(text); }
     else {
       div.className = 'cw-msg ' + (role === 'user' ? 'cw-me' : 'cw-other');
-      div.innerHTML = (role === 'user' ? '' : '<span class="cw-meta">🤖 AI 助教</span>') + textToHtml(text);
+      div.innerHTML = (role === 'user' ? '' : '<span class="cw-meta">🤖 AI 助教</span>') + renderRich(text);
     }
     box.appendChild(div);
     scrollBottom('cw-ai-msgs');
@@ -286,7 +349,7 @@
     var text = ta.value.trim();
     if (!text) return;
     if (!getKey()) {
-      addAIBubble('model', '尚未設定 Google Gemini 金鑰。請到 <a href="ai-solve.html" target="_blank">AI 解題</a> 頁面免費取得並貼上金鑰後再回來即可使用。', 'sys');
+      addAIBubble('model', '尚未設定 Google Gemini 金鑰。請到 <a href="ai-solve.html" target="_blank">🤖 AI 解題</a> 頁面免費取得並貼上金鑰後再回來即可使用。', 'sys', true);
       return;
     }
     ta.value = ''; autoGrow(ta);
@@ -337,14 +400,16 @@
     box.innerHTML = '<div class="cw-notice">' + html + '</div>';
   }
 
-  var publicInited = false;
+  var publicIniting = false;
   async function openPublic() {
     var nickInput = document.getElementById('cw-nick');
     if (!nickInput.value) nickInput.value = localStorage.getItem(LS_NICK) || '';
-    if (publicInited) return;
-    publicInited = true;
+    if (firebaseReady && fbListening) return;   // 已連上就不重來
+    if (publicIniting) return;                  // 連線中避免重入；失敗後可再切回此分頁重試
+    publicIniting = true;
 
     if (!fbConfigured()) {
+      publicIniting = false;
       pubNotice(
         '<h4>🌐 大眾聊天室尚未啟用</h4>' +
         '這是跨使用者的即時聊天，需要站長設定一個免費的 Firebase 後端：' +
@@ -371,7 +436,9 @@
       startListening();
     } catch (err) {
       pubNotice('<h4>⚠️ 無法連線</h4>' + esc(err && err.message ? err.message : String(err)) +
-        '<br><br>請確認 <code>FIREBASE_CONFIG</code> 與 Realtime Database 安全規則設定正確。');
+        '<br><br>請確認 <code>FIREBASE_CONFIG</code> 與 Realtime Database 安全規則設定正確。<br>（切到別的分頁再切回來可重試）');
+    } finally {
+      publicIniting = false;
     }
   }
 
@@ -390,9 +457,14 @@
       var mine = m.name && myNick() && m.name === myNick();
       div.className = 'cw-msg ' + (mine ? 'cw-me' : 'cw-other');
       div.innerHTML = '<span class="cw-meta">' + esc(m.name || '訪客') +
-        (m.ts ? ' · ' + timeStr(m.ts) : '') + '</span>' + textToHtml(m.text || '');
+        (m.ts ? ' · ' + timeStr(m.ts) : '') + '</span>' + renderRich(m.text || '');
       box.appendChild(div);
       scrollBottom('cw-pub-msgs');
+    }, function (err) {
+      // 讀取被拒（多半是 Database 安全規則擋掉 .read）時明確告知，而不是永遠空白
+      fbListening = false;
+      pubNotice('<h4>⚠️ 無法讀取聊天室</h4>' + esc(err && err.message ? err.message : String(err)) +
+        '<br><br>可能是 Realtime Database 安全規則不允許讀取（<code>.read</code>），請站長檢查規則。');
     });
   }
 
@@ -405,7 +477,7 @@
     nickInput.style.borderColor = '';
     localStorage.setItem(LS_NICK, nick);
     if (!text) return;
-    if (!firebaseReady || !fbMsgRef) return;
+    if (!firebaseReady || !fbMsgRef) { openPublic(); return; }   // 尚未連上：重試連線、保留輸入
     ta.value = ''; autoGrow(ta);
     try {
       await fbMsgRef.push({ name: nick.slice(0, 16), text: text.slice(0, 800), ts: Date.now() });

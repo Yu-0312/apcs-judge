@@ -23,6 +23,15 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .hright{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12px;flex-wrap:wrap;}
 .navlink{color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;white-space:nowrap;}
 .navlink:hover{border-color:var(--text-muted);color:var(--text);}
+/* 手機：header 導覽改單列橫向滑動，不換行溢出固定高度 */
+@media(max-width:720px){
+  header{padding:0 12px;gap:8px;}
+  .sub{display:none;}
+  .logo{font-size:15px;white-space:nowrap;}
+  .hright{min-width:0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:8px;}
+  .hright::-webkit-scrollbar{display:none;}
+  .hright .navlink{flex-shrink:0;}
+}
 
 .wrap{max-width:920px;margin:0 auto;padding:22px 18px 80px;}
 
@@ -251,7 +260,14 @@ let busy = false;
 
 const $ = id => document.getElementById(id);
 function escH(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function renderMd(s){ try{ return marked.parse(String(s||'')).replace(/<script[\s\S]*?<\/script>/gi,''); }catch(e){ return escH(s); } }
+// 先整段跳脫再交給 marked（與 index.html 的 safeMarkdown 同法）：
+// AI 回傳的 Markdown 若夾帶 HTML（如 <img onerror=…>）不會被當標籤執行
+function renderMd(s){
+  try{
+    const escaped = escH(String(s||'')).replace(/~/g,'&#126;');
+    return marked.parse(escaped).replace(/&amp;(lt|gt|amp|quot|#39|#126);/g,'&$1;');
+  }catch(e){ return escH(s); }
+}
 function setPhase(n){ document.querySelectorAll('#stepbar .s').forEach(el => { const s=+el.dataset.s; el.classList.toggle('active', s===n); el.classList.toggle('done', s<n); }); }
 
 // ═══ 設定 ═══
@@ -264,6 +280,8 @@ function getModel(){ return localStorage.getItem(LS_MODEL)||'gemini-2.0-flash'; 
 $('btn-savekey').onclick = () => { const k=$('in-key').value.trim(); if(!k){alert('請先貼上 API key');return;} localStorage.setItem(LS_KEY,k); localStorage.setItem(LS_MODEL,$('in-model').value); refreshKeyState(); $('set-card').classList.add('collapsed'); };
 $('btn-clearkey').onclick = () => { localStorage.removeItem(LS_KEY); $('in-key').value=''; refreshKeyState(); };
 $('btn-showkey').onclick = () => { const el=$('in-key'); el.type = el.type==='password'?'text':'password'; };
+// 貼上金鑰後直接按 Enter 即可儲存
+$('in-key').addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); $('btn-savekey').click(); } });
 
 // ═══ 上傳 ═══
 function setImage(file){
@@ -496,7 +514,14 @@ function collectConfirm(){
   });
   return { title:$('cf-title').value.trim()||'題目', statement:$('cf-stmt').value.trim(), language:$('cf-lang').value, testcases };
 }
-$('btn-reread').onclick=()=>{ $('card-confirm').style.display='none'; $('in-notes').focus(); setPhase(1); doRead(); };
+// 「補充後重新讀題」：回到第一關讓使用者先改補充說明，改完再自己按「① 讓 AI 讀題」
+// （先前這裡直接 doRead() 會用舊補充立刻重讀，使用者根本來不及輸入）
+$('btn-reread').onclick=()=>{
+  $('card-confirm').style.display='none'; $('card-reading').style.display='none';
+  setPhase(1);
+  $('card-upload').scrollIntoView({behavior:'smooth',block:'start'});
+  $('in-notes').focus();
+};
 
 // ═══ 第 3→4 關：計算 + 三次驗證 + 詳解 ═══
 $('btn-solve').onclick = doSolve;
@@ -596,6 +621,6 @@ if(getKey()) $('set-card').classList.add('collapsed');
 $('set-card').querySelector('h2').style.cursor='pointer';
 $('set-card').querySelector('h2').onclick=(e)=>{ if(e.target.closest('button')||e.target.closest('input'))return; $('set-card').classList.toggle('collapsed'); };
 </script>
-<script src="data/chat-widget.js?v=20260701a"></script>
+<script src="data/chat-widget.js?v=20260702a"></script>
 </body>
 </html>

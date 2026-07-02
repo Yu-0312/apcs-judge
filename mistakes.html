@@ -23,6 +23,16 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .hright{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12px;flex-wrap:wrap;}
 .navlink{color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;white-space:nowrap;}
 .navlink:hover{border-color:var(--text-muted);color:var(--text);}
+/* 手機：header 導覽改單列橫向滑動；紀錄列隱藏摘要欄避免時間被切掉 */
+@media(max-width:720px){
+  header{padding:0 12px;gap:8px;}
+  .sub{display:none;}
+  .logo{font-size:15px;white-space:nowrap;}
+  .hright{min-width:0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:8px;}
+  .hright::-webkit-scrollbar{display:none;}
+  .hright .navlink{flex-shrink:0;}
+  .rec-sum{display:none;}
+}
 .wrap{max-width:940px;margin:0 auto;padding:20px 18px 80px;}
 
 .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
@@ -111,7 +121,13 @@ pre.code{background:#0b0e14;border:1px solid var(--border);border-radius:9px;pad
 <script>
 const $ = id => document.getElementById(id);
 function escH(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function renderMd(s){ try{ return marked.parse(String(s||'')).replace(/<script[\s\S]*?<\/script>/gi,''); }catch(e){ return escH(s); } }
+// 先整段跳脫再交給 marked（與 index.html 的 safeMarkdown 同法），避免紀錄中夾帶的 HTML 被執行
+function renderMd(s){
+  try{
+    const escaped = escH(String(s||'')).replace(/~/g,'&#126;');
+    return marked.parse(escaped).replace(/&amp;(lt|gt|amp|quot|#39|#126);/g,'&$1;');
+  }catch(e){ return escH(s); }
+}
 const TYPE_LABEL = { reading:'🔍 判讀題', impl:'🎯 實作題', ai:'🤖 AI 上傳' };
 const LANG_LABEL = { py:'Python', python:'Python', cpp:'C++', c:'C', java:'Java', js:'JavaScript' };
 
@@ -145,7 +161,11 @@ function render(){
   if (curType !== 'all') recs = recs.filter(r => r.type === curType);
   if (curSearch){
     const q = curSearch.toLowerCase();
-    recs = recs.filter(r => JSON.stringify(r).toLowerCase().includes(q));
+    // 只搜文字欄位；先前用 JSON.stringify 連 base64 圖片都掃，會出現亂猜的誤中
+    recs = recs.filter(r =>
+      [r.title, r.problemTitle, r.problemStatement, r.questionStem, r.topic, r.desc,
+       r.code, r.explain, r.explanation, r.approach, (r.options||[]).join(' ')]
+      .filter(Boolean).join(' ').toLowerCase().includes(q));
   }
   const list = $('list');
   if (!recs.length){
@@ -279,6 +299,6 @@ $('btn-export').onclick = () => {
 
 render();
 </script>
-<script src="data/chat-widget.js?v=20260701a"></script>
+<script src="data/chat-widget.js?v=20260702a"></script>
 </body>
 </html>

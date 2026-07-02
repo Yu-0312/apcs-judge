@@ -203,7 +203,9 @@ pre.code .fn{color:#d2a8ff;}
   html,body{overflow:hidden;height:100%;}
   header{padding:0 12px;gap:8px;}
   .sub{display:none;}
-  .hright{gap:8px;}
+  .hright{gap:8px;min-width:0;overflow-x:auto;scrollbar-width:none;}
+  .hright::-webkit-scrollbar{display:none;}
+  .hright>*{flex-shrink:0;}
   .logo{font-size:15px;white-space:nowrap;}
   .layout{display:flex;flex-direction:column;height:calc(100vh - var(--header-h) - var(--mnav-h));height:calc(100dvh - var(--header-h) - var(--mnav-h));overflow:hidden;}
   .sidebar,.main{display:none;width:100%;height:100%;border-right:none;}
@@ -738,6 +740,6 @@ document.addEventListener('keydown',e=>{
   renderMain();
 })();
 </script>
-<script src="data/chat-widget.js?v=20260701a"></script>
+<script src="data/chat-widget.js?v=20260702a"></script>
 </body>
 </html>

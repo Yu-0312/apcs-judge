@@ -181,7 +181,9 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
   header{padding:0 12px;gap:8px}
   header .sub{display:none}
   .logo{font-size:15px;white-space:nowrap}
-  .hright{gap:8px}
+  .hright{gap:8px;min-width:0;overflow-x:auto;scrollbar-width:none}
+  .hright::-webkit-scrollbar{display:none}
+  .hright>*{flex-shrink:0}
   .hright a{padding:4px 8px;white-space:nowrap}
   #status-text{display:none}
   .lang-tabs{overflow-x:auto}
@@ -1230,6 +1232,6 @@ if (uiLang === 'en') {
   document.body.appendChild(b);
 })();
 </script>
-<script src="data/chat-widget.js?v=20260701a"></script>
+<script src="data/chat-widget.js?v=20260702a"></script>
 </body>
 </html>
