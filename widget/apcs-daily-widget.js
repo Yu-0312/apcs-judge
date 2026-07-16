@@ -15,11 +15,35 @@
 
 // ===== 設定 =====
 const SCRIPT_NAME = "APCS每日一題";          // ← 必須和你在 Scriptable 幫這支腳本取的名字一致
+// 想固定只出某一種語言的題目，把 LANG 改成 "c" / "cpp" / "python" / "js"；"all" = 四語言混合。
+// 也可以「不改程式」→ 在主畫面長按 widget → 編輯小工具 → 參數(Parameter) 填 c / cpp / python / js / all，
+// 該值會覆蓋這裡的 LANG。放多個 widget、各自填不同語言，就能一次追四種語言（各自獨立的連續天數）。
+const LANG = "all";
 const SOURCES = [
   "https://raw.githubusercontent.com/Yu-0312/apcs-judge/main/data/reading-questions.js",
   "https://yu-0312.github.io/apcs-judge/data/reading-questions.js"
 ];
 const CACHE_HOURS = 12;                        // 題庫快取有效時數（過期就重抓，抓不到用舊快取）
+
+// 語言正規化：認得的回傳標準值，空字串／"all" → "all"，不認得 → null
+function normLang(v){
+  v = (v==null?"":String(v)).trim().toLowerCase();
+  if (v==="" || v==="all") return "all";
+  if (v==="c") return "c";
+  if (v==="cpp" || v==="c++") return "cpp";
+  if (v==="py" || v==="python") return "python";
+  if (v==="js" || v==="javascript") return "js";
+  return null;
+}
+// 目前生效的語言：答題回呼(?lang=) 最優先 → widget 參數 → 設定檔 LANG → 保底 "all"
+function activeLang(){
+  const q = (typeof args!=="undefined" && args.queryParameters) ? args.queryParameters.lang : null;
+  if (q!=null && String(q).trim()!==""){ const l=normLang(q); if (l) return l; }
+  const p = (typeof args!=="undefined") ? args.widgetParameter : null;
+  if (p!=null && String(p).trim()!==""){ const l=normLang(p); if (l) return l; }
+  return normLang(LANG) || "all";
+}
+function langLabelFull(l){ return ({all:"四語言",c:"C",cpp:"C++",python:"Python",js:"JavaScript"})[l] || "四語言"; }
 
 // ===== 本地檔案 =====
 const fm = FileManager.local();
@@ -40,10 +64,23 @@ function hashStr(s){                                   // FNV-1a，與網站 dai
 function readJSON(p, fallback){ try{ return JSON.parse(fm.readString(p)); }catch(e){ return fallback; } }
 function writeJSON(p, obj){ try{ fm.writeString(p, JSON.stringify(obj)); }catch(e){} }
 
-function loadState(){ const o = readJSON(F_STATE, {}); return (o && typeof o==="object") ? o : {}; }
-function saveState(o){ writeJSON(F_STATE, o); }
-function streak(){
-  const done = loadState(); let n=0; let d=new Date();
+// 狀態改為「依語言分組」：{ all:{date:{...}}, c:{...}, cpp:{...}, ... }
+// 讀取時自動把舊版（直接以日期為鍵的扁平格式）併入 "all"，不動到既有連續天數。
+function loadStore(){
+  let o = readJSON(F_STATE, {});
+  if (!o || typeof o!=="object") o = {};
+  let legacy = null; const out = {};
+  for (const k in o){
+    if (/^\d{4}-\d{2}-\d{2}$/.test(k)){ (legacy = legacy||{})[k] = o[k]; }   // 舊格式：日期鍵
+    else { out[k] = o[k]; }                                                  // 新格式：語言鍵
+  }
+  if (legacy) out.all = Object.assign({}, legacy, out.all||{});
+  return out;
+}
+function saveStore(o){ writeJSON(F_STATE, o); }
+function langState(lang){ const s = loadStore(); return s[lang] || {}; }
+function streak(lang){
+  const done = langState(lang); let n=0; let d=new Date();
   while (done[todayKey(d)]){ n++; d.setDate(d.getDate()-1); }
   return n;
 }
@@ -75,28 +112,38 @@ async function getBank(){
   if (cached && Array.isArray(cached.q) && cached.q.length) return cached.q; // 離線用舊快取
   return null;
 }
-// 依日期挑題（與網站一致）：優先用當天已鎖定 qid，否則日期雜湊
-function pickToday(bank){
-  if (!bank || !bank.length) return null;
+// 依語言篩出題池；"all" 保留全部（js 題 lang==="js"，共用觀念題 lang===""）
+function poolFor(bank, lang){
+  if (!bank || !bank.length) return [];
+  if (lang === "all") return bank;
+  return bank.filter(x => (x.lang || "") === lang);
+}
+// 依日期挑題（與網站一致）：優先用當天已鎖定 qid，否則以「日期＋語言」雜湊，
+// 讓不同語言各出各的題、彼此不混。
+function pickToday(bank, lang){
+  const pool = poolFor(bank, lang);
+  if (!pool.length) return null;
   const key = todayKey();
-  const done = loadState()[key];
+  const done = langState(lang)[key];
   if (done && done.qid){
-    const hit = bank.find(x => x.id === done.qid);
+    const hit = pool.find(x => x.id === done.qid) || bank.find(x => x.id === done.qid);
     if (hit) return hit;
   }
-  return bank[hashStr(key) % bank.length];
+  return pool[hashStr(key + "@" + lang) % pool.length];
 }
 
 // ===== 記錄作答 =====
-function commit(q, chosen){
-  const done = loadState();
+// 依「語言」分組寫入，各語言的連續天數彼此獨立、不互相覆蓋。
+function commit(q, chosen, lang){
+  const store = loadStore();
+  const bucket = store[lang] || (store[lang] = {});
   const key = todayKey();
-  if (done[key]) return done[key];                 // 今天已作答，不重複計
+  if (bucket[key]) return bucket[key];             // 今天（該語言）已作答，不重複計
   const correct = chosen === q.answer;
-  done[key] = { qid:q.id, chosen, correct };
-  saveState(done);
+  bucket[key] = { qid:q.id, chosen, correct };
+  saveStore(store);
   if (!correct) recordMistake(q, chosen);
-  return done[key];
+  return bucket[key];
 }
 function recordMistake(q, chosen){
   const list = readJSON(F_MISS, []);
@@ -117,9 +164,10 @@ const C = {
   no: new Color("#ef4444"), noBg: new Color("#fee2e2"),
   key: new Color("#4338ca"), keyBg: new Color("#eef2ff"), white: new Color("#ffffff")
 };
-function optURL(i){
+function optURL(i, lang){
   return "scriptable:///run?scriptName=" + encodeURIComponent(SCRIPT_NAME) +
-         "&answer=" + i + "&day=" + todayKey();
+         "&answer=" + i + "&day=" + todayKey() +
+         "&lang=" + encodeURIComponent(lang || "all");
 }
 function trunc(s, n){ s = String(s||""); return s.length>n ? s.slice(0,n-1)+"…" : s; }
 
@@ -137,6 +185,7 @@ async function buildWidget(){
   w.refreshAfterDate = tomorrow;
 
   const size = config.widgetFamily || "medium";
+  const lang = activeLang();
 
   if (!bank){
     const t = w.addText("📅 每日一題");
@@ -147,8 +196,16 @@ async function buildWidget(){
     return w;
   }
 
-  const q = pickToday(bank);
-  const done = loadState()[todayKey()];
+  const q = pickToday(bank, lang);
+  if (!q){   // 此語言目前題庫為空
+    const t = w.addText("📅 每日一題");
+    t.font = Font.boldSystemFont(15); t.textColor = C.key;
+    w.addSpacer(6);
+    const e = w.addText(langLabelFull(lang)+"題庫目前沒有題目，換個語言或稍後再試。");
+    e.font = Font.systemFont(12); e.textColor = C.sub;
+    return w;
+  }
+  const done = langState(lang)[todayKey()];
 
   // 標題列
   const head = w.addStack(); head.centerAlignContent();
@@ -168,9 +225,9 @@ async function buildWidget(){
     const hint = w.addText(done ? "點我看解析" : "點我作答");
     hint.font = Font.systemFont(11); hint.textColor = C.sub;
     w.addSpacer();
-    const fk = w.addText("🔥 連續 "+streak()+" 天");
+    const fk = w.addText("🔥 連續 "+streak(lang)+" 天");
     fk.font = Font.mediumSystemFont(11); fk.textColor = C.bg2;
-    w.url = optURL(-1);   // 打開 App 看完整題目
+    w.url = optURL(-1, lang);   // 打開 App 看完整題目
     return w;
   }
 
@@ -203,7 +260,7 @@ async function buildWidget(){
     kt.centerAlignText();
     const ot = row.addText(trunc(opt, optMax)); ot.font=optFont; ot.textColor=tint; ot.lineLimit=1;
 
-    if (!done) row.url = optURL(i);   // 未作答時整列可點作答
+    if (!done) row.url = optURL(i, lang);   // 未作答時整列可點作答
     w.addSpacer(size==="large"?6:4);
   });
 
@@ -218,10 +275,10 @@ async function buildWidget(){
     r.font = Font.mediumSystemFont(12); r.textColor = C.sub;
   }
   foot.addSpacer();
-  const sk = foot.addText("🔥 "+streak()+" 天");
+  const sk = foot.addText("🔥 "+streak(lang)+" 天");
   sk.font = Font.mediumSystemFont(12); sk.textColor = C.bg2;
 
-  if (done) w.url = optURL(-1);   // 已作答：點空白處看解析
+  if (done) w.url = optURL(-1, lang);   // 已作答：點空白處看解析
   return w;
 }
 
@@ -229,7 +286,8 @@ function langLabel(l){ return ({c:"C",cpp:"C++",python:"Python",js:"JavaScript"}
 
 // ===== 作答後 / App 內：顯示題目與解析（WebView）=====
 function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
-async function presentQuestion(q, chosen){
+async function presentQuestion(q, chosen, lang){
+  lang = normLang(lang) || "all";
   const answered = (typeof chosen === "number" && chosen >= 0);
   const correct = answered && chosen === q.answer;
   let opts = "";
@@ -239,7 +297,7 @@ async function presentQuestion(q, chosen){
       if (i===q.answer) cls+=" correct";
       else if (i===chosen) cls+=" wrong";
     }
-    const tap = answered ? "" : ` onclick="location.href='scriptable:///run?scriptName=${encodeURIComponent(SCRIPT_NAME)}&answer=${i}&day=${todayKey()}'"`;
+    const tap = answered ? "" : ` onclick="location.href='scriptable:///run?scriptName=${encodeURIComponent(SCRIPT_NAME)}&answer=${i}&day=${todayKey()}&lang=${encodeURIComponent(lang)}'"`;
     opts += `<button class="${cls}"${tap}><span class="k">${"ABCD".charAt(i)}</span><span>${esc(opt)}</span></button>`;
   });
   const tags = [q.lang?langLabel(q.lang):"", q.level||"", q.topic||""].filter(Boolean)
@@ -248,7 +306,7 @@ async function presentQuestion(q, chosen){
   if (answered){
     result = `<div class="res ${correct?"ok":"no"}">${correct?"✅ 答對了！":"❌ 答錯了。"}正確答案 ${"ABCD".charAt(q.answer)}${correct?"":"，你選 "+"ABCD".charAt(chosen)}．</div>`;
     if (q.explain) result += `<div class="exp"><b>解析：</b>${esc(q.explain)}</div>`;
-    result += `<div class="foot">🔥 連續作答 <b>${streak()}</b> 天　·　明天再來一題</div>`;
+    result += `<div class="foot">🔥 連續作答 <b>${streak(lang)}</b> 天　·　明天再來一題</div>`;
   } else {
     result = `<div class="foot">點一個選項作答</div>`;
   }
@@ -294,30 +352,36 @@ async function main(){
 
   // 從 widget 點選項進來：記錄答案並顯示結果
   const a = args.queryParameters || {};
+  const lang = activeLang();
   const bank = await getBank();
   if (!bank){
     const al = new Alert(); al.title="每日一題"; al.message="抓不到題庫，請確認網路後再試。";
     al.addAction("好"); await al.present(); Script.complete(); return;
   }
-  const q = pickToday(bank);
+  const q = pickToday(bank, lang);
+  if (!q){
+    const al = new Alert(); al.title="每日一題";
+    al.message = langLabelFull(lang)+"目前沒有題目，換個語言再試。";
+    al.addAction("好"); await al.present(); Script.complete(); return;
+  }
 
   if (a.answer !== undefined && a.answer !== null && a.answer !== ""){
     const chosen = parseInt(a.answer, 10);
     if (chosen >= 0){
-      const rec = commit(q, chosen);            // 若今天已答過，回傳原紀錄，不重複計
-      await presentQuestion(q, rec.chosen);
+      const rec = commit(q, chosen, lang);      // 若今天已答過，回傳原紀錄，不重複計
+      await presentQuestion(q, rec.chosen, lang);
     } else {
       // answer=-1：只是打開看題目/解析
-      const done = loadState()[todayKey()];
-      await presentQuestion(q, done ? done.chosen : -2);
+      const done = langState(lang)[todayKey()];
+      await presentQuestion(q, done ? done.chosen : -2, lang);
     }
     Script.complete();
     return;
   }
 
   // 直接在 App 內打開（測試用）：已答顯示結果，未答可作答
-  const done = loadState()[todayKey()];
-  await presentQuestion(q, done ? done.chosen : -2);
+  const done = langState(lang)[todayKey()];
+  await presentQuestion(q, done ? done.chosen : -2, lang);
   Script.complete();
 }
 
