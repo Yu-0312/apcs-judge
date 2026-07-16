@@ -262,18 +262,18 @@ pre.code .fn{color:#d2a8ff;}
   <button id="mnav-quiz" class="on" onclick="setMobileView('quiz')"><span class="ic">📝</span><span>練習</span></button>
 </nav>
 
-<script src="data/reading-questions.js?v=20260626a"></script>
+<script src="data/reading-questions.js?v=20260716b"></script>
 <script src="data/mistake-book.js?v=20260701a"></script>
 <script>
-const DATA_VER='20260626a';
+const DATA_VER='20260716b';
 const SESS_KEY='apcs_reading_sess_v1';   // 本回合作答（打完即清空）
 const WRONG_KEY='apcs_reading_wrong_v1'; // 錯題本（持久）
 const UI_KEY='apcs_reading_ui_v3';
 const LEVELS=['初級','中級','中高級','高級'];
 const LVCLASS={'初級':'lv1','中級':'lv2','中高級':'lv3','高級':'lv4'};
 const LV_COLOR={'初級':'var(--green)','中級':'var(--blue)','中高級':'var(--orange)','高級':'var(--red)'};
-const LANGS=[{key:'c',name:'C'},{key:'cpp',name:'C++'},{key:'python',name:'Python'},{key:'js',name:'JavaScript'},{key:'',name:'共同'}];
-const LANG_COLOR={c:'var(--blue)',cpp:'var(--purple)',python:'var(--green)',js:'var(--yellow)','':'var(--text-muted)'};
+const LANGS=[{key:'c',name:'C'},{key:'cpp',name:'C++'},{key:'python',name:'Python'},{key:'java',name:'Java'},{key:'js',name:'JavaScript'},{key:'',name:'共同'}];
+const LANG_COLOR={c:'var(--blue)',cpp:'var(--purple)',python:'var(--green)',java:'var(--orange)',js:'var(--yellow)','':'var(--text-muted)'};
 const CATS=['基礎','流程','迴圈','陣列字串','函式遞迴','指標記憶體','結構類別','演算法'];
 const RAND_MAX=50, DEFAULT_N=20;
 
@@ -316,8 +316,8 @@ function hlCode(code,lang){
   }
   return out;
 }
-function langLabel(l){return ({c:'C',cpp:'C++',python:'Python',js:'JavaScript'})[l]||'觀念題';}
-function langName(l){return ({c:'C',cpp:'C++',python:'Python',js:'JavaScript'})[l]!==undefined?({c:'C',cpp:'C++',python:'Python',js:'JavaScript'})[l]:'共同';}
+function langLabel(l){return ({c:'C',cpp:'C++',python:'Python',java:'Java',js:'JavaScript'})[l]||'觀念題';}
+function langName(l){return ({c:'C',cpp:'C++',python:'Python',java:'Java',js:'JavaScript'})[l]!==undefined?({c:'C',cpp:'C++',python:'Python',java:'Java',js:'JavaScript'})[l]:'共同';}
 
 // ===== 題庫結構（語言 → 難度 → 題型）=====
 const QMAP=new Map();for(const q of READING_QUESTIONS)QMAP.set(q.id,q);
@@ -448,7 +448,7 @@ function overviewHTML(){
   return `<div class="main-scroll"><div class="inner">
     <div class="intro">
       <b>程式判讀</b>是「讀懂一段程式並推出結果 / 找出錯誤」的題型，<b>APCS 程式識讀</b>與<b>統測 程式設計實習</b>都大量出現。
-      題庫依 <b>語言（C／C++／Python／JavaScript／共同）→ 難度 → 題型</b>分類；展開語言、選難度後再點<b>題型</b>（或 🎲 隨機抽題），<b>選擇題數</b>即可開始練習；每回合作答完成即<b>重置</b>，答錯的題目會自動收進<b style="color:var(--red)">📕 錯題本</b>（答對後自動移除）。
+      題庫依 <b>語言（C／C++／Python／Java／JavaScript／共同）→ 難度 → 題型</b>分類；展開語言、選難度後再點<b>題型</b>（或 🎲 隨機抽題），<b>選擇題數</b>即可開始練習；每回合作答完成即<b>重置</b>，答錯的題目會自動收進<b style="color:var(--red)">📕 錯題本</b>（答對後自動移除）。
       <div class="src">題目來源：APCS 官網範例題本（apcs.csie.ntnu.edu.tw）／技專校院入學測驗中心歷屆公告試題（tcte.edu.tw）；標註「官方解答」者為公告標準答案，其餘為依程式邏輯推得之正解。僅供練習參考。</div>
     </div>
     <div class="ov-hint">選擇語言・難度・題型開始練習 👇<span class="grow"></span><button class="ov-wrong">📕 錯題本（${wt}）</button><button class="ov-reset">清除全部紀錄</button></div>
