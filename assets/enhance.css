@@ -1,0 +1,50 @@
+/* ══════════════════════════════════════════════════════════════════
+ *  enhance.css — 全站共用的無障礙 / 效能 / 視覺一致性增強層
+ *  ─ 每頁只以一行 <link> 載入，與 chat-widget.js、mistake-book.js 一樣屬「共用模組」。
+ *  ─ 設計原則：只做「加法」，全部選擇器都用 :where() 壓到 0 特異性，
+ *    任何頁面既有的樣式一定蓋得過本檔，確保不會造成任何視覺回歸。
+ * ════════════════════════════════════════════════════════════════ */
+
+/* 1) 告訴瀏覽器這是深色頁面：表單控制項、原生捲軸、autofill 都會用深色渲染 */
+:where(html){ color-scheme: dark; }
+
+/* 2) 尊重「減少動態效果」的系統偏好（前庭功能/動暈症友善）。
+ *    保留可見性，只把動畫與轉場壓到近乎瞬間，避免大範圍位移與旋轉。 */
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 3) 一致的鍵盤焦點框：只在「鍵盤操作」時出現（滑鼠點擊不顯示），
+ *    0 特異性 → 任何頁面自訂的 :focus-visible 都優先。 */
+:where(a, button, input, select, textarea, summary, [tabindex], [role="button"]):focus-visible{
+  outline: 2px solid #58a6ff;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* 4) 深色捲軸：Firefox + WebKit 一致（避免預設亮色捲軸在深底上很突兀） */
+:where(html){ scrollbar-color: #30363d transparent; scrollbar-width: thin; }
+:where(*)::-webkit-scrollbar{ width: 10px; height: 10px; }
+:where(*)::-webkit-scrollbar-track{ background: transparent; }
+:where(*)::-webkit-scrollbar-thumb{ background: #30363d; border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+:where(*)::-webkit-scrollbar-thumb:hover{ background: #4b5563; background-clip: padding-box; }
+
+/* 5) 選取顏色與品牌一致，觸控不再有灰色閃爍 */
+:where(::selection){ background: rgba(88,166,255,.32); }
+:where(html){ -webkit-tap-highlight-color: transparent; }
+
+/* 6) 圖片與媒體不溢出容器（防呆） */
+:where(img, svg, video, canvas){ max-width: 100%; }
+
+/* 7) sticky header 底下的錨點捲動不再被標題蓋住 */
+:where(:target){ scroll-margin-top: 72px; }
+
+/* 8) 列印時隱藏浮動聊天鈕與面板，讓錯題本/詳解可乾淨列印 */
+@media print{
+  :where(#cw-launcher, #cw-panel, #mobile-nav){ display: none !important; }
+}
