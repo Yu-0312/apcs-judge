@@ -182,9 +182,14 @@ python3 -m http.server 8000
 - 修正解答或教材錯誤
 - 改善 UI/UX 與行動版體驗
 
-### 📜 授權
+### 📜 授權與政策
 
-MIT License。題目敘述若引用自 APCS、ZeroJudge、啟思博等來源，相關著作權歸原作者所有。
+- **程式碼**：[MIT License](LICENSE) — 可自由使用、修改、散布，保留著作權聲明即可。
+- **教學與題目內容**：著作權保留，非營利學習可自由使用，大量轉載或商用請先來信洽詢；引用自 APCS、ZeroJudge、啟思博、Codeforces/AtCoder/USACO 等來源的題目，著作權歸原作者所有。詳見 [授權與內容使用說明](授權與內容使用說明.md)。
+- **[免責聲明](免責聲明.md)**：教學/練習性質、AI 生成內容與第三方服務的使用須知。
+- **[隱私權政策](隱私權政策.md)**：本站無帳號、無後端；資料多存於你的裝置本地，僅 AI（Gemini）、判題（Judge0）與公開聊天室（Firebase）會對外傳輸——細節與注意事項見政策說明。
+
+聯絡：wang.yuchi.312@gmail.com ／ [GitHub Issues](https://github.com/Yu-0312/apcs-judge/issues)
 
 ---
 
@@ -283,6 +288,11 @@ python3 -m http.server 8000
 
 Pure static site (HTML + `data/*.js` data files), all dependencies from CDN — no npm, no build step, no backend (Pyodide, Judge0 CE, CodeMirror 5, marked.js). The AI photo solver and AI tutor call **Google Gemini** directly from the browser with the user's own key (localStorage); the public chat room syncs across users via **Firebase Realtime Database** (public web config, locked down by security rules). Lessons and problems live in `data/`; the mistakes book shares one storage module (`data/mistake-book.js`) across pages and the chat widget lives in `data/chat-widget.js`. Run `node scripts/check-data.js` to validate data consistency (also enforced in CI).
 
-### License
+### License & policies
 
-MIT. Problem statements referenced from APCS, ZeroJudge and other sources remain the property of their original authors.
+- **Source code**: [MIT License](LICENSE) — free to use, modify and distribute; just keep the copyright notice.
+- **Educational content** (lessons, problems, solutions): all rights reserved, free for non-commercial learning; please ask before bulk redistribution or commercial use. Problems referenced from APCS, ZeroJudge, Codeforces/AtCoder/USACO and other sources remain the property of their original authors. See [授權與內容使用說明 (Licensing)](授權與內容使用說明.md).
+- **[免責聲明 (Disclaimer)](免責聲明.md)** — terms on the educational nature of the site, AI-generated content and third-party services.
+- **[隱私權政策 (Privacy Policy)](隱私權政策.md)** — no accounts, no backend; most data stays on your device, only AI (Gemini), the judge (Judge0) and the public chat room (Firebase) transmit data externally.
+
+Contact: wang.yuchi.312@gmail.com / [GitHub Issues](https://github.com/Yu-0312/apcs-judge/issues)
