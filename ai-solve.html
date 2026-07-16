@@ -5,7 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI 解題｜拍照 → 補充 → AI 讀題 → 你確認 → 計算 × 三次驗證 × 詳解</title>
 <meta name="description" content="上傳題目照片並補充卡關處，AI（Gemini）先讀題並輸出題目讓你確認；確認無誤後才計算，並在模擬運行中連跑三次、通過範例測資且輸出一致後才給完整詳解。">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0f1117">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AI 拍照解題｜先讀題確認 × 三次驗證 × 四語言詳解">
+<meta property="og:description" content="拍照上傳卡關題目，AI 先讀題讓你確認，再連跑三次驗證通過才給完整詳解——用你自己的 Gemini 金鑰，零安裝、零註冊。">
+<meta property="og:url" content="https://yu-0312.github.io/apcs-judge/ai-solve.html">
+<meta property="og:locale" content="zh_TW">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI 拍照解題｜讀題確認 × 三次驗證 × 詳解">
+<meta name="twitter:description" content="拍照上傳、AI 先讀題確認、三次驗證通過才給詳解——零安裝、零註冊。">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="dns-prefetch" href="https://ce.judge0.com">
+<link rel="dns-prefetch" href="https://generativelanguage.googleapis.com">
+<link rel="stylesheet" href="assets/enhance.css?v=20260716a">
 <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js" integrity="sha384-/TQbtLCAerC3jgaim+N78RZSDYV7ryeoBCVqTuzRrFec2akfBkHS7ACQ3PQhvMVi" crossorigin="anonymous"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -156,7 +170,7 @@ table.tc td pre{margin:0;font-family:ui-monospace,Menlo,monospace;font-size:12px
       <div class="field-row">
         <label class="fl" for="in-key">API Key</label>
         <input class="tin" id="in-key" type="password" placeholder="貼上你的 Gemini API key（AIza...）" autocomplete="off" spellcheck="false">
-        <button class="btn ghost" id="btn-showkey" type="button">👁</button>
+        <button class="btn ghost" id="btn-showkey" type="button" aria-label="顯示／隱藏 API 金鑰">👁</button>
       </div>
       <div class="field-row">
         <label class="fl" for="in-model">模型</label>
@@ -175,8 +189,8 @@ table.tc td pre{margin:0;font-family:ui-monospace,Menlo,monospace;font-size:12px
   <!-- 第 1 關：上傳 + 補充 -->
   <div class="card" id="card-upload">
     <h2>📷 第一關：上傳題目照片，並補充卡住的地方</h2>
-    <div id="drop">
-      <div class="big">🖼️</div>
+    <div id="drop" role="button" tabindex="0" aria-label="上傳題目照片：點此選擇、或拖曳、或以 Ctrl+V 貼上圖片">
+      <div class="big" aria-hidden="true">🖼️</div>
       <div class="t">點此選擇圖片，或拖曳／貼上（Ctrl+V）</div>
       <div class="s">拍清楚整題（含範例輸入輸出）辨識更準。支援 JPG / PNG / WebP。</div>
       <input type="file" id="file" accept="image/*" style="display:none">
@@ -297,6 +311,8 @@ function setImage(file){
   reader.readAsDataURL(file);
 }
 $('drop').onclick = () => $('file').click();
+// 鍵盤操作：drop 為 role="button"，Enter / Space 等同點擊開啟選檔
+$('drop').addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); $('file').click(); } });
 $('file').onchange = e => { if(e.target.files[0]) setImage(e.target.files[0]); };
 ['dragenter','dragover'].forEach(ev => $('drop').addEventListener(ev, e => { e.preventDefault(); $('drop').classList.add('drag'); }));
 ['dragleave','drop'].forEach(ev => $('drop').addEventListener(ev, e => { e.preventDefault(); $('drop').classList.remove('drag'); }));

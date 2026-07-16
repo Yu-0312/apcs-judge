@@ -5,7 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>錯題本｜判讀題 × 實作題 × AI 上傳錯題（依日期整理）</title>
 <meta name="description" content="統一錯題本：自動收錄程式判讀題、實作題與 AI 解題上傳的錯題，以日期為標題，可自訂標題、檢視詳解、刪除。">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0f1117">
+<meta property="og:type" content="website">
+<meta property="og:title" content="統一錯題本｜判讀題 × 實作題 × AI 上傳（依日期整理）">
+<meta property="og:description" content="判讀答錯、實作沒過、AI 解題上傳的題目自動收成同一本，依日期整理、可檢視詳解——零安裝、零註冊。">
+<meta property="og:url" content="https://yu-0312.github.io/apcs-judge/mistakes.html">
+<meta property="og:locale" content="zh_TW">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="統一錯題本｜判讀 × 實作 × AI 上傳">
+<meta name="twitter:description" content="三處錯題自動收成同一本，依日期整理、可檢視詳解——零安裝、零註冊。">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📕</text></svg>">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="dns-prefetch" href="https://generativelanguage.googleapis.com">
+<link rel="stylesheet" href="assets/enhance.css?v=20260716a">
 <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js" integrity="sha384-/TQbtLCAerC3jgaim+N78RZSDYV7ryeoBCVqTuzRrFec2akfBkHS7ACQ3PQhvMVi" crossorigin="anonymous"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -37,7 +50,10 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 
 .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
 .filter{display:flex;gap:6px;flex-wrap:wrap;}
-.chip{font-size:12.5px;padding:6px 13px;border:1px solid var(--border);border-radius:999px;cursor:pointer;color:var(--text-muted);background:var(--panel-bg);user-select:none;}
+.chip{font-size:12.5px;padding:6px 13px;border:1px solid var(--border);border-radius:999px;cursor:pointer;color:var(--text-muted);background:var(--panel-bg);user-select:none;transition:border-color .15s,color .15s,background .15s;}
+.chip:not(.on):hover{border-color:var(--text-muted);color:var(--text);}
+.rec{transition:border-color .15s;}
+.rec:hover{border-color:#3d444d;}
 .chip.on{color:#08131f;font-weight:700;}
 .chip.on[data-type="all"]{background:var(--text);border-color:var(--text);}
 .chip.on[data-type="reading"]{background:var(--blue);border-color:var(--blue);}
@@ -103,13 +119,13 @@ pre.code{background:#0b0e14;border:1px solid var(--border);border-radius:9px;pad
 
 <div class="wrap">
   <div class="toolbar">
-    <div class="filter" id="filter">
-      <span class="chip on" data-type="all">全部 <b id="c-all">0</b></span>
-      <span class="chip" data-type="reading">🔍 判讀題 <b id="c-reading">0</b></span>
-      <span class="chip" data-type="impl">🎯 實作題 <b id="c-impl">0</b></span>
-      <span class="chip" data-type="ai">🤖 AI 上傳 <b id="c-ai">0</b></span>
+    <div class="filter" id="filter" role="group" aria-label="依類型篩選錯題">
+      <span class="chip on" role="button" tabindex="0" aria-pressed="true" data-type="all">全部 <b id="c-all">0</b></span>
+      <span class="chip" role="button" tabindex="0" aria-pressed="false" data-type="reading">🔍 判讀題 <b id="c-reading">0</b></span>
+      <span class="chip" role="button" tabindex="0" aria-pressed="false" data-type="impl">🎯 實作題 <b id="c-impl">0</b></span>
+      <span class="chip" role="button" tabindex="0" aria-pressed="false" data-type="ai">🤖 AI 上傳 <b id="c-ai">0</b></span>
     </div>
-    <input class="search" id="search" type="search" placeholder="🔍 搜尋標題／題目內容">
+    <input class="search" id="search" type="search" aria-label="搜尋錯題標題或題目內容" placeholder="🔍 搜尋標題／題目內容">
     <span class="spacer"></span>
     <button class="btn ghost" id="btn-export">💾 匯出</button>
     <button class="btn danger" id="btn-clear">🗑 清空</button>
@@ -190,8 +206,8 @@ function recCard(r){
     +   cnt
     +   '<span class="rec-sum">'+escH(summaryText(r))+'</span>'
     +   '<span class="rec-meta">'+fmtTime(r.updated||r.created)+'</span>'
-    +   '<button class="icon-btn" data-act="rename" title="改標題">✏️</button>'
-    +   '<button class="icon-btn" data-act="del" title="刪除">🗑</button>'
+    +   '<button class="icon-btn" data-act="rename" title="改標題" aria-label="改標題">✏️</button>'
+    +   '<button class="icon-btn" data-act="del" title="刪除" aria-label="刪除這筆錯題">🗑</button>'
     + '</div>'
     + '<div class="rec-body">'+recBody(r)+'</div>'
     + '</div>';
@@ -275,11 +291,23 @@ $('list').addEventListener('click', e => {
   rec.classList.toggle('open');
 });
 
-$('filter').addEventListener('click', e => {
-  const chip = e.target.closest('.chip'); if (!chip) return;
+function selectChip(chip){
+  if (!chip) return;
   curType = chip.dataset.type;
-  $('filter').querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c===chip));
+  $('filter').querySelectorAll('.chip').forEach(c => {
+    const on = c === chip;
+    c.classList.toggle('on', on);
+    c.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
   render();
+}
+$('filter').addEventListener('click', e => selectChip(e.target.closest('.chip')));
+// 鍵盤操作：Enter / Space 等同點擊（chip 為 role="button"）
+$('filter').addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const chip = e.target.closest('.chip'); if (!chip) return;
+  e.preventDefault();
+  selectChip(chip);
 });
 $('search').addEventListener('input', e => { curSearch = e.target.value.trim(); render(); });
 
