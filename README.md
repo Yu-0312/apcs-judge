@@ -58,7 +58,7 @@
 - **💬 全站聊天**：內含 AI 助教與預設關閉的 Firebase 大眾聊天室；Gemini 金鑰與 AI 對話只保存於分頁工作階段，公共發言須先完成 Auth、Rules、Emulator、App Check 與營運檢查，再由部署者明確開啟設定閘門
 - **手機可用**：行動版以底部導覽列切換「章節 / 教學 / 程式」三個面板
 - **進度可攜**：教學、題庫、判讀、錯題本、每日一題與學習地圖都會自動存入瀏覽器（localStorage）；完整 JSON 備份會先驗證再交易式恢復，失敗時回滾原資料，跨裝置匯入會合併兩端已完成的學習階段
-- **執行器防護**：Python Worker 可逾時重建且會釋放暫存資源；Pyodide 與 Judge0 的 stdout / stderr 均限制為 200,000 字元，截斷輸出不會被誤判為通過
+- **執行器防護**：Python Worker 可逾時重建且會釋放暫存資源；Pyodide 與 Judge0 的 stdout / stderr 均限制為 200,000 字元，截斷輸出不會被誤判為通過；C 提交自動連結 libm（`-lm`），`math.h` 的 `sqrt` 等函式在 Judge0 上不會編譯失敗
 - **鍵盤操作**：`Ctrl/Cmd + Enter` 直接執行程式；分頁與章節列表支援 Tab + Enter
 
 ### 🗺️ 課程地圖（101 章）
@@ -234,7 +234,7 @@ This project is a complete learning path made of seven pages:
 - **💬 Site-wide chat**: an AI tutor uses a session-only key/history; the Firebase public room defaults to an explicit disabled deployment flag until Auth, Rules, Emulator, App Check and operational controls have been completed
 - **Mobile-friendly**: bottom navigation switches between chapters / lesson / code panels
 - **Portable progress**: tutorial, judge, reading, mistakes, daily activity and study-plan state auto-save to localStorage; full JSON restores are validated and transactional, roll back on failure, and merge completed study stages across devices
-- **Runner safeguards**: Python workers recover from timeouts and release temporary resources; Pyodide and Judge0 stdout/stderr are capped at 200,000 characters, and truncated output is never graded as a pass
+- **Runner safeguards**: Python workers recover from timeouts and release temporary resources; Pyodide and Judge0 stdout/stderr are capped at 200,000 characters, and truncated output is never graded as a pass; C submissions link libm (`-lm`) automatically so `math.h` functions like `sqrt` compile on Judge0
 - **Keyboard**: `Ctrl/Cmd + Enter` to run; tabs and chapter list are keyboard-accessible
 
 ### Curriculum map (101 chapters)

@@ -61,6 +61,16 @@
       '.wi-note{margin-top:12px;padding:10px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;' +
       'font-size:12.5px;line-height:1.6;color:#92400e;}' +
       '.wi-hide{display:none;}' +
+      'html[data-theme="dark"] #wi-mask{background:rgba(1,4,9,.7);}' +
+      'html[data-theme="dark"] #wi-modal{background:#1c2128;color:#e6edf3;box-shadow:0 24px 70px rgba(1,4,9,.7);}' +
+      'html[data-theme="dark"] .wi-lead{color:#8b949e;}html[data-theme="dark"] .wi-lead b{color:#a5d6ff;}' +
+      'html[data-theme="dark"] .wi-a.sec{background:#252d3a;color:#a5d6ff;}html[data-theme="dark"] .wi-a.sec:hover{background:#2d3648;}' +
+      'html[data-theme="dark"] .wi-tab{background:#1c2128;border-color:#3d444d;color:#8b949e;}' +
+      'html[data-theme="dark"] .wi-tab.on{border-color:#79c0ff;background:#252d3a;color:#a5d6ff;}' +
+      'html[data-theme="dark"] .wi-steps li{border-bottom-color:#30363d;}' +
+      'html[data-theme="dark"] .wi-steps li::before{background:#252d3a;color:#a5d6ff;}' +
+      'html[data-theme="dark"] .wi-steps li b{color:#a5d6ff;}html[data-theme="dark"] .wi-steps code{background:#30363d;color:#e6edf3;}' +
+      'html[data-theme="dark"] .wi-note{background:#302a16;border-color:#6e5b1f;color:#f2cc60;}' +
       '@media(max-width:720px){#wi-btn{top:64px;right:10px;width:42px;height:42px;padding:0;justify-content:center;font-size:18px;}' +
       '#wi-btn span:last-child{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}' +
       '#wi-modal{max-height:calc(100vh - 24px);border-radius:14px;}}';

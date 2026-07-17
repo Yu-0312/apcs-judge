@@ -80,7 +80,9 @@ function compileSolution(lang, code, dir) {
   if (lang === 'c') {
     const source = path.join(dir, 'main.c'), binary = path.join(dir, 'main');
     fs.writeFileSync(source, code);
-    const result = run(process.env.CC || 'gcc', [source, '-O2', '-std=c11', '-o', binary], { timeout:20000, cwd:dir });
+    // 與 Judge0 對齊：站上 C 提交會帶 compiler_options '-lm'，本地／CI 冒煙同樣連結 libm，
+    // 避免新 glibc（libm 已併入 libc）掩蓋在 Judge0 舊 glibc 上的連結錯誤。
+    const result = run(process.env.CC || 'gcc', [source, '-O2', '-std=c11', '-o', binary, '-lm'], { timeout:20000, cwd:dir });
     if (result.status !== 0) throw new Error(failureText(result));
     return { command:binary, args:[] };
   }

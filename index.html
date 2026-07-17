@@ -1357,7 +1357,7 @@ async function judge0Submit(code, stdin, languageId) {
     try {
       res = await judge0Fetch('https://ce.judge0.com/submissions?base64_encoded=false&wait=true', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ language_id: languageId, source_code: code, stdin: stdin || '', max_file_size: 1024 })
+        body: JSON.stringify({ language_id: languageId, source_code: code, stdin: stdin || '', max_file_size: 1024, ...(languageId === JUDGE0_LANG.c ? { compiler_options: '-lm' } : {}) })
       });
     } catch(e) {
       lastErr = T().errNet;
@@ -1395,7 +1395,7 @@ async function judge0SubmitBatch(code, stdins, languageId) {
     try {
       res = await judge0Fetch('https://ce.judge0.com/submissions/batch?base64_encoded=false', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ submissions: stdins.map(stdin => ({ language_id: languageId, source_code: code, stdin: stdin || '', max_file_size: 1024 })) })
+        body: JSON.stringify({ submissions: stdins.map(stdin => ({ language_id: languageId, source_code: code, stdin: stdin || '', max_file_size: 1024, ...(languageId === JUDGE0_LANG.c ? { compiler_options: '-lm' } : {}) })) })
       });
     } catch (e) {
       lastError = e && e.message || 'network';
