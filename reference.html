@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C++ STL 速查表｜互動程式教室</title>
+<meta name="description" content="C++ STL 與常用函式速查表：vector、string、stack、queue、set、map、algorithm 等常用操作、簽名、複雜度與範例，一頁查得到。">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0f1117">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📑</text></svg>">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0f1117;--sidebar-bg:#161b22;--panel-bg:#1c2128;
+  --border:#30363d;--text:#e6edf3;--text-muted:#8b949e;
+  --green:#3fb950;--red:#f85149;--yellow:#d29922;--blue:#58a6ff;--purple:#bc8cff;--orange:#ffa657;
+  --accent:#58a6ff;--header-h:56px;
+}
+html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6;}
+a{color:inherit;text-decoration:none;}
+code,pre,.mono{font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;}
+
+header{position:sticky;top:0;z-index:20;height:var(--header-h);display:flex;align-items:center;gap:12px;padding:0 18px;background:var(--sidebar-bg);border-bottom:1px solid var(--border);}
+.logo{font-size:16px;font-weight:700;color:var(--accent);white-space:nowrap;}
+.hnav{margin-left:auto;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
+.hnav::-webkit-scrollbar{display:none;}
+.hnav a{flex-shrink:0;color:var(--text-muted);font-size:12.5px;padding:5px 10px;border:1px solid var(--border);border-radius:6px;}
+.hnav a:hover{color:var(--text);border-color:var(--text-muted);}
+
+.wrap{max-width:1080px;margin:0 auto;padding:22px 18px 80px;}
+.intro{background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:15px 18px;font-size:13.5px;color:#cdd9e5;margin-bottom:18px;}
+.intro b{color:var(--text);}
+
+.controls{position:sticky;top:var(--header-h);z-index:10;background:var(--bg);padding:12px 0;margin-bottom:6px;}
+#search{width:100%;padding:11px 14px;background:var(--panel-bg);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:14px;font-family:inherit;}
+#search:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent);}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
+.chip{font-size:12.5px;padding:5px 12px;border-radius:999px;border:1px solid var(--border);color:var(--text-muted);background:transparent;cursor:pointer;font-family:inherit;transition:.12s;}
+.chip:hover{color:var(--text);border-color:var(--text-muted);}
+.chip.on{background:rgba(88,166,255,.14);border-color:var(--accent);color:var(--accent);font-weight:600;}
+
+.group{margin-top:22px;}
+.group h2{font-size:15px;color:var(--group-c,var(--accent));border-left:3px solid var(--group-c,var(--accent));padding-left:10px;margin-bottom:12px;display:flex;align-items:baseline;gap:8px;}
+.group h2 .cnt{font-size:11.5px;color:var(--text-muted);font-weight:400;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;}
+.card{background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:13px 15px;transition:border-color .12s;}
+.card:hover{border-color:#3d444d;}
+.card .sig{font-size:13px;color:var(--blue);word-break:break-word;}
+.card .desc{font-size:13px;color:var(--text);margin-top:6px;}
+.card .ex{font-size:12.5px;color:#b9c4d0;background:#0d1117;border:1px solid var(--border);border-radius:7px;padding:8px 10px;margin-top:9px;white-space:pre-wrap;word-break:break-word;}
+.card .big{font-size:11.5px;color:var(--orange);margin-top:8px;}
+.card .big::before{content:"⏱ ";}
+.empty{text-align:center;color:var(--text-muted);padding:40px 0;font-size:14px;}
+footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:30px;}
+@media(max-width:520px){.grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">📑 C++ STL 速查</div>
+  <nav class="hnav">
+    <a href="tutorial.html">📚 教學</a>
+    <a href="index.html">🎯 題庫</a>
+    <a href="reading.html">🔍 判讀</a>
+    <a href="ai-solve.html">🤖 AI 解題</a>
+    <a href="mistakes.html">📕 錯題本</a>
+  </nav>
+</header>
+
+<div class="wrap">
+  <div class="intro">
+    <b>C++ STL 與常用函式速查表。</b>寫題時忘記某個容器有哪些操作、複雜度多少，直接在這裡搜尋。
+    輸入關鍵字（如 <code>sort</code>、<code>map</code>、<code>二分</code>）即時篩選，或點分類標籤。
+    ⏱ 標示的是平均時間複雜度。
+  </div>
+
+  <div class="controls">
+    <input id="search" type="search" placeholder="🔎 搜尋函式 / 容器 / 說明（例：sort、insert、二分搜、priority_queue）" autocomplete="off">
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div id="list"></div>
+  <footer>資料可自行擴充：編輯本檔開頭的 <code>REF</code> 陣列，加一筆物件即可。</footer>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+ *  速查資料：要新增條目，直接在此陣列加一筆物件即可（好擴展）。
+ *  欄位：{g:分類, n:名稱, sig:簽名/用法, d:說明, ex:範例, big:複雜度(可省略)}
+ * ══════════════════════════════════════════════════════════════ */
+const GROUPS = {
+  "vector":     {label:"vector 動態陣列", color:"var(--purple)"},
+  "string":     {label:"string 字串",     color:"var(--green)"},
+  "stack_queue":{label:"stack / queue / deque", color:"var(--blue)"},
+  "pq":         {label:"priority_queue 優先佇列", color:"var(--orange)"},
+  "set_map":    {label:"set / map（有序 & 雜湊）", color:"var(--yellow)"},
+  "pair":       {label:"pair / tuple",    color:"var(--blue)"},
+  "algorithm":  {label:"<algorithm> 演算法庫", color:"var(--red)"},
+  "iter":       {label:"迭代器 / 範圍",   color:"var(--text-muted)"}
+};
+const REF = [
+  // ---- vector ----
+  {g:"vector", n:"宣告 / 初始化", sig:"vector<int> v; vector<int> v(n, 0);", d:"建立動態陣列，可指定大小與初值。", ex:"vector<int> v(3, 7); // {7,7,7}"},
+  {g:"vector", n:"push_back / pop_back", sig:"v.push_back(x); v.pop_back();", d:"尾端加入 / 移除一個元素。", ex:"v.push_back(5);", big:"O(1) 攤還"},
+  {g:"vector", n:"size / empty", sig:"v.size(); v.empty();", d:"取得元素個數 / 是否為空。", ex:"if(v.empty()) ...", big:"O(1)"},
+  {g:"vector", n:"存取元素", sig:"v[i]; v.at(i); v.front(); v.back();", d:"索引存取；at 會做邊界檢查。", ex:"int x = v.back();", big:"O(1)"},
+  {g:"vector", n:"insert / erase", sig:"v.insert(v.begin()+i, x); v.erase(v.begin()+i);", d:"在指定位置插入 / 刪除。", ex:"v.erase(v.begin()); // 刪第一個", big:"O(n)"},
+  {g:"vector", n:"clear / resize", sig:"v.clear(); v.resize(n);", d:"清空 / 調整大小。", ex:"v.resize(10, 0);"},
+  {g:"vector", n:"排序 / 反轉", sig:"sort(v.begin(), v.end()); reverse(v.begin(), v.end());", d:"配合 <algorithm> 排序、反轉。", ex:"sort(v.begin(), v.end());", big:"O(n log n)"},
+
+  // ---- string ----
+  {g:"string", n:"length / size", sig:"s.length(); s.size();", d:"字串長度。", ex:"int n = s.size();", big:"O(1)"},
+  {g:"string", n:"substr", sig:"s.substr(pos, len);", d:"取子字串（從 pos 起 len 個字元）。", ex:"\"abcde\".substr(1,3) // \"bcd\"", big:"O(len)"},
+  {g:"string", n:"find", sig:"s.find(t);", d:"回傳子字串位置，找不到回傳 string::npos。", ex:"if(s.find(\"ab\")!=string::npos) ...", big:"O(n·m)"},
+  {g:"string", n:"substr / 存取字元", sig:"s[i]; s.at(i); s.front(); s.back();", d:"以索引存取單一字元。", ex:"char c = s[0];", big:"O(1)"},
+  {g:"string", n:"append / +", sig:"s += t; s.append(t);", d:"字串串接。", ex:"s += \"!\";"},
+  {g:"string", n:"轉數字 / 數字轉字串", sig:"stoi(s); stoll(s); to_string(x);", d:"字串↔數字轉換。", ex:"int x = stoi(\"42\");"},
+  {g:"string", n:"insert / erase / replace", sig:"s.insert(i,t); s.erase(i,len); s.replace(i,len,t);", d:"插入 / 刪除 / 取代子字串。", ex:"s.erase(0,1); // 刪首字元"},
+
+  // ---- stack / queue / deque ----
+  {g:"stack_queue", n:"stack 堆疊", sig:"stack<int> st; st.push(x); st.top(); st.pop();", d:"後進先出（LIFO）。", ex:"st.push(1); int t=st.top(); st.pop();", big:"O(1)"},
+  {g:"stack_queue", n:"queue 佇列", sig:"queue<int> q; q.push(x); q.front(); q.pop();", d:"先進先出（FIFO），BFS 常用。", ex:"q.push(1); int f=q.front(); q.pop();", big:"O(1)"},
+  {g:"stack_queue", n:"deque 雙端佇列", sig:"deque<int> dq; dq.push_front(x); dq.push_back(x);", d:"兩端都能加/刪，滑動視窗常用。", ex:"dq.push_front(1); dq.pop_back();", big:"O(1)"},
+  {g:"stack_queue", n:"共同：size / empty", sig:"c.size(); c.empty();", d:"元素個數 / 是否為空。", ex:"while(!q.empty()) ...", big:"O(1)"},
+
+  // ---- priority_queue ----
+  {g:"pq", n:"最大堆（預設）", sig:"priority_queue<int> pq;", d:"top() 取出最大值。", ex:"pq.push(3); pq.push(5); pq.top(); // 5", big:"push/pop O(log n)"},
+  {g:"pq", n:"最小堆", sig:"priority_queue<int, vector<int>, greater<int>> pq;", d:"top() 取出最小值（Dijkstra 常用）。", ex:"// top() 為最小值", big:"O(log n)"},
+  {g:"pq", n:"操作", sig:"pq.push(x); pq.top(); pq.pop(); pq.size();", d:"加入 / 看頂 / 移除頂 / 大小。", ex:"pq.pop();", big:"O(log n)"},
+
+  // ---- set / map ----
+  {g:"set_map", n:"set（有序、去重）", sig:"set<int> s; s.insert(x); s.count(x); s.erase(x);", d:"自動排序且不重複；紅黑樹。", ex:"s.insert(3); if(s.count(3)) ...", big:"O(log n)"},
+  {g:"set_map", n:"multiset（可重複）", sig:"multiset<int> ms;", d:"允許重複元素的有序集合。", ex:"ms.insert(3); ms.insert(3);", big:"O(log n)"},
+  {g:"set_map", n:"map（有序鍵值）", sig:"map<string,int> m; m[k]=v; m.count(k);", d:"依鍵排序的關聯容器。", ex:"m[\"a\"]++;", big:"O(log n)"},
+  {g:"set_map", n:"unordered_map（雜湊）", sig:"unordered_map<string,int> um;", d:"雜湊表，平均 O(1)，不排序。", ex:"um[\"a\"]=1;", big:"平均 O(1)"},
+  {g:"set_map", n:"lower_bound / upper_bound", sig:"s.lower_bound(x); s.upper_bound(x);", d:"有序容器上找第一個 ≥x / >x 的位置。", ex:"auto it = s.lower_bound(5);", big:"O(log n)"},
+  {g:"set_map", n:"遍歷 map", sig:"for(auto& [k,v] : m) ...", d:"C++17 結構化綁定遍歷鍵值。", ex:"for(auto&[k,v]:m) cout<<k<<v;"},
+
+  // ---- pair / tuple ----
+  {g:"pair", n:"pair", sig:"pair<int,int> p = {1,2}; p.first; p.second;", d:"綁兩個值，常當座標/邊。", ex:"p.first + p.second;"},
+  {g:"pair", n:"make_pair / tuple", sig:"make_pair(a,b); tuple<int,int,int> t;", d:"建立 pair；tuple 綁多值。", ex:"auto p = make_pair(1,2);"},
+
+  // ---- algorithm ----
+  {g:"algorithm", n:"sort", sig:"sort(v.begin(), v.end()); sort(v.begin(),v.end(),cmp);", d:"排序，可傳自訂比較函式。", ex:"sort(v.rbegin(), v.rend()); // 降序", big:"O(n log n)"},
+  {g:"algorithm", n:"reverse", sig:"reverse(v.begin(), v.end());", d:"反轉範圍。", ex:"reverse(s.begin(), s.end());", big:"O(n)"},
+  {g:"algorithm", n:"max / min / max_element", sig:"max(a,b); *max_element(v.begin(),v.end());", d:"取最大/最小值或其位置。", ex:"int mx = *max_element(v.begin(),v.end());", big:"O(n)"},
+  {g:"algorithm", n:"lower_bound（陣列二分搜）", sig:"lower_bound(v.begin(),v.end(),x);", d:"已排序陣列上找 ≥x 的第一個位置。", ex:"int i = lower_bound(v.begin(),v.end(),x)-v.begin();", big:"O(log n)"},
+  {g:"algorithm", n:"binary_search", sig:"binary_search(v.begin(),v.end(),x);", d:"已排序陣列上判斷 x 是否存在。", ex:"if(binary_search(v.begin(),v.end(),5)) ...", big:"O(log n)"},
+  {g:"algorithm", n:"unique（去重）", sig:"v.erase(unique(v.begin(),v.end()), v.end());", d:"移除相鄰重複（需先排序）。", ex:"sort+unique+erase 三連", big:"O(n)"},
+  {g:"algorithm", n:"accumulate（求和）", sig:"accumulate(v.begin(),v.end(),0);", d:"範圍求和（需 <numeric>）。", ex:"int s = accumulate(v.begin(),v.end(),0);", big:"O(n)"},
+  {g:"algorithm", n:"count / find", sig:"count(v.begin(),v.end(),x); find(v.begin(),v.end(),x);", d:"計數 / 線性尋找。", ex:"int c = count(v.begin(),v.end(),3);", big:"O(n)"},
+  {g:"algorithm", n:"next_permutation", sig:"next_permutation(v.begin(),v.end());", d:"產生下一個字典序排列（枚舉全排列）。", ex:"do{...}while(next_permutation(v.begin(),v.end()));"},
+
+  // ---- iterator / range ----
+  {g:"iter", n:"begin / end", sig:"v.begin(); v.end();", d:"起始 / 結尾（後一個）迭代器。", ex:"for(auto it=v.begin();it!=v.end();++it)"},
+  {g:"iter", n:"範圍 for", sig:"for(auto x : v) ...  for(auto& x : v) ...", d:"逐一遍歷；加 & 可修改元素。", ex:"for(auto& x : v) x *= 2;"},
+  {g:"iter", n:"auto 型別推導", sig:"auto it = v.begin();", d:"讓編譯器推導型別，少打字。", ex:"for(auto& [k,v] : mp) ..."}
+];
+
+/* ---- 渲染 ---- */
+const listEl = document.getElementById('list');
+const chipsEl = document.getElementById('chips');
+const searchEl = document.getElementById('search');
+let activeGroup = 'all';
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function buildChips(){
+  const keys = ['all', ...Object.keys(GROUPS)];
+  chipsEl.innerHTML = keys.map(k =>
+    `<button class="chip${k===activeGroup?' on':''}" data-g="${k}">${k==='all'?'全部':esc(GROUPS[k].label)}</button>`
+  ).join('');
+  chipsEl.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    activeGroup = c.getAttribute('data-g');
+    buildChips(); render();
+  }));
+}
+
+function render(){
+  const q = searchEl.value.trim().toLowerCase();
+  const items = REF.filter(r => {
+    if(activeGroup!=='all' && r.g!==activeGroup) return false;
+    if(!q) return true;
+    return (r.n+' '+r.sig+' '+r.d+' '+(r.ex||'')).toLowerCase().includes(q);
+  });
+  if(!items.length){ listEl.innerHTML = '<div class="empty">找不到符合的項目 🔍</div>'; return; }
+  let html = '';
+  for(const gkey of Object.keys(GROUPS)){
+    const gi = items.filter(r => r.g===gkey);
+    if(!gi.length) continue;
+    const G = GROUPS[gkey];
+    html += `<div class="group" style="--group-c:${G.color}"><h2>${esc(G.label)}<span class="cnt">${gi.length}</span></h2><div class="grid">`;
+    for(const r of gi){
+      html += `<div class="card">
+        <div class="sig mono">${esc(r.sig)}</div>
+        <div class="desc">${esc(r.d)}</div>
+        ${r.ex?`<div class="ex mono">${esc(r.ex)}</div>`:''}
+        ${r.big?`<div class="big">${esc(r.big)}</div>`:''}
+      </div>`;
+    }
+    html += `</div></div>`;
+  }
+  listEl.innerHTML = html;
+}
+
+searchEl.addEventListener('input', render);
+buildChips();
+render();
+</script>
+</body>
+</html>
