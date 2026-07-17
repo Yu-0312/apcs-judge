@@ -138,7 +138,7 @@ function streak(done){
   return n;
 }
 const statsManifest = (typeof CONTENT_STATS !== 'undefined') ? CONTENT_STATS : {
-  tutorial:{total:101,chapterIds:Array.from({length:101},(_,i)=>i)},judge:{total:300},reading:{total:2083}
+  tutorial:{total:101,chapterIds:Array.from({length:101},(_,i)=>i)},judge:{total:300},reading:{total:2563}
 };
 const validChapterIds=new Set(statsManifest.tutorial.chapterIds||Array.from({length:statsManifest.tutorial.total},(_,i)=>i));
 const doneChapters = new Set(((typeof LearningState!=='undefined'?LearningState.tutorialCompleted():readJSON('tut_done', [])) || []).filter(id=>validChapterIds.has(id)));

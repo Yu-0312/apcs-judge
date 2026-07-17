@@ -1,7 +1,7 @@
 # 互動程式教室 × APCS 練習 / Interactive Coding Classroom × APCS Practice
 
-> 從零基礎到進階：Python · C++ · C · Java 四語言、101 章互動教學，搭配 300 題公開範例練習與 2083 題程式判讀，再加上 AI 解題與統一錯題本——全部在瀏覽器內完成，零安裝、零註冊。
-> Learn to code in four languages with 101 interactive chapters, a 300-problem public-example checker, 2,083 code-reading questions, an AI solver and a unified mistakes book—all in the browser, with no install or signup.
+> 從零基礎到進階：Python · C++ · C · Java 四語言、101 章互動教學，搭配 300 題公開範例練習與 2563 題程式判讀，再加上 AI 解題與統一錯題本——全部在瀏覽器內完成，零安裝、零註冊。
+> Learn to code in four languages with 101 interactive chapters, a 300-problem public-example checker, 2,563 code-reading questions, an AI solver and a unified mistakes book—all in the browser, with no install or signup.
 
 📚 **程式教學 / Tutorial**：**https://yu-0312.github.io/apcs-judge/tutorial.html**
 
@@ -39,7 +39,7 @@
 | 🗺 **studyplan.html** | **學習地圖** | 零基礎入門、APCS 衝刺、進階/競賽三條讀書路線，整理每週目標、章節範圍、判讀題與題庫練習 |
 | 📊 **dashboard.html** | **我的進度** | 彙整本機的教學章節、題庫公開範例結果、累計判讀、錯題與每日一題連續天數 |
 | 🎯 **index.html** | **實戰：APCS 練習** | 300 道分級題目、四語言參考解答、公開範例檢查與解題思路 |
-| 🔍 **reading.html** | **判讀：程式識讀** | 2083 題「讀程式碼、選答案」的判讀練習，依 APCS 四級難度分庫、C/C++/Python/Java/JavaScript 各語言獨立題庫，並可隨機抽題（最多 50 題），作答後即時對解＋考點解析 |
+| 🔍 **reading.html** | **判讀：程式識讀** | 2563 題「讀程式碼、選答案」的判讀練習，依 APCS 四級難度分庫、C/C++/Python/Java/JavaScript 各語言獨立題庫，並可隨機抽題（最多 50 題），作答後即時對解＋考點解析 |
 | 🤖 **ai-solve.html** | **AI 貼題／拍照解題** | 貼上完整題目或上傳照片，由 Gemini 結構化讀題讓你確認；可選逐層提問且不給完整程式的教練模式，或明確切換完整解題並自行決定是否執行公開範例 |
 | 📕 **mistakes.html** | **統一錯題本** | 自動收錄判讀題、實作題與 AI 解題上傳的錯題，以日期整理，可自訂標題、檢視詳解、刪除 |
 
@@ -108,7 +108,7 @@ APCS 新制包含「程式識讀」與「程式實作」兩部分；實作題本
 
 [程式判讀頁](https://yu-0312.github.io/apcs-judge/reading.html) 專門練「讀懂一段程式並推出結果 / 找出錯誤」的選擇題——這正是 **APCS 程式識讀**與**統測 程式設計實習**的主力題型。
 
-- **2083 題**：APCS 官方範例題與統測歷屆判讀題（標「官方解答」）、依考點自編的精選練習題，再加上 **C / C++ / Python / Java / JavaScript 各語言獨立題庫**（C 898、Python 409、C++ 377、Java 200、JavaScript 161、共同 38）；涵蓋程式追蹤、除錯、複雜度、位元、指標、結構與類別、資料結構與演算法、各語言語法陷阱與標準庫等
+- **2563 題**：APCS 官方範例題與統測歷屆判讀題（標「官方解答」）、依考點自編的精選練習題，再加上 **C / C++ / Python / Java / JavaScript 各語言獨立題庫**（C 980、Python 494、C++ 445、Java 275、JavaScript 161、共同 208）；新增 480 題補強高級演算法、程式填空、複雜度分析、測試案例設計、樹圖與堆疊/佇列等缺口
 - **依 APCS 四級難度分庫＋語言分庫**：左側欄如教學頁般展開「初級 / 中級 / 中高級 / 高級」，每個難度底下列出各自對應的題庫——不同語言各自成庫不混雜，點進題庫即開始練習；卡片上也會標示該題難度與語言
 - **🎲 隨機抽題練習**：每個難度都有「隨機練習」入口，可自選題數（最多 50 題），按下即從該難度題庫隨機抽出一回合，並可「重新抽題」換一批
 - **即時對解**：讀程式碼、選答案，作答後立即顯示正解與考點解析；可執行的 C / C++ / Python / Java / JavaScript 題目其答案皆以本機編譯／執行抽樣驗證
@@ -215,7 +215,7 @@ This project is a complete learning path made of seven pages:
 | 🗺 **studyplan.html** | **Learning map** | Three study paths (zero-to-code, APCS sprint, advanced/contest), weekly goals, chapter ranges, reading drills and judge practice recommendations |
 | 📊 **dashboard.html** | **Progress dashboard** | Local summary of tutorial completion, public-example results, cumulative code reading, mistakes and daily streak |
 | 🎯 **index.html** | **Practice: APCS sample checker** | 300 tiered problems with four-language reference solutions, public-example checks and solution hints |
-| 🔍 **reading.html** | **Code reading** | 2083 "read the code, pick the answer" comprehension questions across four APCS difficulty tiers with separate C/C++/Python/Java/JavaScript banks, plus per-level random draw (up to 50), instant reveal and per-question explanations |
+| 🔍 **reading.html** | **Code reading** | 2563 "read the code, pick the answer" comprehension questions across four APCS difficulty tiers with separate C/C++/Python/Java/JavaScript banks, plus per-level random draw (up to 50), instant reveal and per-question explanations |
 | 🤖 **ai-solve.html** | **AI text/photo solver** | Paste a complete problem or upload a photo, confirm Gemini's structured reading, then choose a no-code layered coaching flow or explicitly enter full-solution mode with user-approved sample execution |
 | 📕 **mistakes.html** | **Unified mistakes book** | Auto-collects wrong answers from code-reading, judge problems and AI-solve uploads, grouped by date, with editable titles, expandable explanations and delete |
 
@@ -257,7 +257,7 @@ The [practice page](https://yu-0312.github.io/apcs-judge/) hosts **300 problems*
 
 ### Code reading
 
-The [code-reading page](https://yu-0312.github.io/apcs-judge/reading.html) drills the "trace a program / spot the bug" multiple-choice format used by **APCS code literacy** and the **statutory vocational exam (統測)**. It holds **2083 questions** (official APCS samples and past 統測 items marked "official answer", curated practice questions, and dedicated single-language banks for C, C++, Python, Java and JavaScript — 898 C, 409 Python, 377 C++, 200 Java, 161 JavaScript, 38 shared), organized into a tutorial-style collapsible sidebar: each of APCS's four difficulty tiers (basic / intermediate / advanced / expert) expands to its own question banks — languages are kept in separate banks, never mixed — and clicking a bank jumps straight into practice. Each tier also has a 🎲 random-draw mode: pick how many questions (up to 50) and it deals a random round from that tier, with re-draw. Pick an answer to instantly reveal the correct option and its explanation; per-bank and overall progress show live in the sidebar (saved to localStorage, reopening returns you to your last bank or random round), and runnable C/C++/Python/Java/JavaScript answers were spot-verified by local compilation/execution.
+The [code-reading page](https://yu-0312.github.io/apcs-judge/reading.html) drills the "trace a program / spot the bug" multiple-choice format used by **APCS code literacy** and the **statutory vocational exam (統測)**. It holds **2563 questions** (official APCS samples and past 統測 items marked "official answer", curated practice questions, and dedicated single-language banks for C, C++, Python, Java and JavaScript — 980 C, 494 Python, 445 C++, 275 Java, 161 JavaScript, 208 shared), including 480 gap-fill questions for advanced algorithms, code completion, complexity analysis, test-case design, trees/graphs and stack/queue topics. It is organized into a tutorial-style collapsible sidebar: each of APCS's four difficulty tiers expands to its own question banks — languages are kept in separate banks, never mixed — and clicking a bank jumps straight into practice. Each tier also has a random-draw mode: pick how many questions (up to 50) and it deals a random round from that tier, with re-draw. Pick an answer to instantly reveal the correct option and its explanation; per-bank and overall progress show live in the sidebar.
 
 ### AI text/photo solver (coaching or full solution)
 
