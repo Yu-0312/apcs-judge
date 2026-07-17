@@ -1,7 +1,7 @@
 # 互動程式教室 × APCS 練習 / Interactive Coding Classroom × APCS Practice
 
-> 從零基礎到進階：Python · C++ · C · Java 四語言、101 章互動教學，搭配 300 題 APCS 分級題庫與 2083 題程式判讀練習，再加上 AI 拍照解題與統一錯題本——全部在瀏覽器內完成，零安裝、零後端、零註冊。
-> Learn to code from zero in four languages — 101 interactive chapters, a 300-problem tiered APCS judge, a 2083-question code-reading drill, plus an AI photo solver and a unified mistakes book, entirely in the browser. No install, no backend, no signup.
+> 從零基礎到進階：Python · C++ · C · Java 四語言、101 章互動教學，搭配 300 題公開範例練習與 2083 題程式判讀，再加上 AI 解題與統一錯題本——全部在瀏覽器內完成，零安裝、零註冊。
+> Learn to code in four languages with 101 interactive chapters, a 300-problem public-example checker, 2,083 code-reading questions, an AI solver and a unified mistakes book—all in the browser, with no install or signup.
 
 📚 **程式教學 / Tutorial**：**https://yu-0312.github.io/apcs-judge/tutorial.html**
 
@@ -37,24 +37,24 @@
 |------|------|------|
 | 📚 **tutorial.html** | **主軸：程式教學** | 101 章互動課程，從「什麼是程式」一路教到爬蟲、資料分析、機器人、遊戲開發、除錯防呆，以及 C++ / C / Java 各自的語言專項 |
 | 🗺 **studyplan.html** | **學習地圖** | 零基礎入門、APCS 衝刺、進階/競賽三條讀書路線，整理每週目標、章節範圍、判讀題與題庫練習 |
-| 📊 **dashboard.html** | **我的進度** | 彙整 localStorage 裡的教學章節、題庫 AC、判讀作答、錯題本與每日一題連續天數 |
-| 🎯 **index.html** | **實戰：APCS 練習** | 300 道分級題目、四語言官方解答、即時評分與解題思路 |
+| 📊 **dashboard.html** | **我的進度** | 彙整本機的教學章節、題庫公開範例結果、累計判讀、錯題與每日一題連續天數 |
+| 🎯 **index.html** | **實戰：APCS 練習** | 300 道分級題目、四語言參考解答、公開範例檢查與解題思路 |
 | 🔍 **reading.html** | **判讀：程式識讀** | 2083 題「讀程式碼、選答案」的判讀練習，依 APCS 四級難度分庫、C/C++/Python/Java/JavaScript 各語言獨立題庫，並可隨機抽題（最多 50 題），作答後即時對解＋考點解析 |
-| 🤖 **ai-solve.html** | **AI 拍照解題** | 上傳題目照片並補充卡關處，AI（Gemini）先讀題並輸出題意讓你確認；確認後才計算，模擬運行連跑三次、通過範例測資且輸出一致才給完整詳解 |
+| 🤖 **ai-solve.html** | **AI 貼題／拍照解題** | 貼上完整題目或上傳照片，由 Gemini 結構化讀題讓你確認；可選逐層提問且不給完整程式的教練模式，或明確切換完整解題並自行決定是否執行公開範例 |
 | 📕 **mistakes.html** | **統一錯題本** | 自動收錄判讀題、實作題與 AI 解題上傳的錯題，以日期整理，可自訂標題、檢視詳解、刪除 |
 
-先在教學頁把觀念跑通，再到題庫實戰演練、用判讀頁練讀程式的速度與細節——也可以反過來，卡題時回教學頁補對應章節。做錯的題目會自動進「錯題本」，卡住的題目也能到「AI 解題」拍照請 AI 帶你走一遍。
+先在教學頁把觀念跑通，再到題庫實戰演練、用判讀頁練讀程式的速度與細節——也可以反過來，卡題時回教學頁補對應章節。做錯的題目會自動進「錯題本」，卡住的題目也能到「AI 解題」貼上題目或拍照，請 AI 用教練方式帶你推導。
 
 ### ✨ 特色
 
-- **邊讀邊跑**：每章左側是教材、右側是真的能執行的編輯器。Python 由 Pyodide（WebAssembly）在瀏覽器本地執行；C / C++ / Java 經 Judge0 CE 雲端編譯，輸出與正式環境一致
+- **邊讀邊跑**：每章左側是教材、右側是可執行的編輯器。Python 由 Pyodide（WebAssembly）在瀏覽器本地執行；C / C++ / Java 經第三方 Judge0 CE 雲端編譯，版本與正式考場或其他 OJ 仍可能不同
 - **一份課綱、四種語言**：共同章節（0–35、68–70）在每個語言模式下都有對應的教材與範例程式；切換語言分頁即可比較同一概念在不同語言的寫法
 - **每章完整學習迴圈**：「🎯 學習目標 → ✋ 動手試試 → 🌍 真實情境 → 🧠 觀念小測 → 📝 判讀快問快答 / 程式練習」，錯題自動進統一錯題本，進度存在 localStorage
 - **🧠 設計動機**：十個關鍵章節附「為什麼要這樣設計」深度解析（EAFP、HTTP 無狀態、pandas 向量化、async、delta time、模運算同餘、RAII、值語意、型別擦除、JIT）
 - **雙語介面**：右上角一鍵切換繁中 / English，教材內容同步切換
-- **🤖 AI 拍照解題**：卡住的題目直接拍照上傳並補充卡關處，AI 先讀題並輸出題意讓你確認、避免會錯意，確認後才計算——還會在模擬運行中連跑三次、通過範例測資且輸出一致才給完整詳解（用你自己的 Gemini 金鑰）
+- **🤖 AI 貼題／拍照解題**：可直接貼完整題目，不需上傳圖片；若使用圖片會先在本機縮小並重編碼。AI 結構化讀題後由你確認，再選教練模式逐層思考或完整解題；任何 AI 程式碼都要經你預覽同意才執行。公開範例相符只是一致性檢查，不等同完整正確性證明
 - **📕 統一錯題本**：判讀題、實作題與 AI 解題上傳的錯題自動收錄成一本，以日期整理、可自訂標題與檢視詳解，複習不漏題（存在瀏覽器 localStorage）
-- **💬 全站聊天**：每頁右下角有一顆可關閉的圓形按鈕，點開即是一個可拖曳的聊天室，內含「AI 助教」（用你自己的 Gemini 金鑰即問即答）與「大眾聊天室」（Firebase 即時互通，所有人一起討論）兩個分頁
+- **💬 全站聊天**：內含 AI 助教與預設關閉的 Firebase 大眾聊天室；Gemini 金鑰與 AI 對話只保存於分頁工作階段，公共發言須先完成 Auth、Rules、Emulator、App Check 與營運檢查，再由部署者明確開啟設定閘門
 - **手機可用**：行動版以底部導覽列切換「章節 / 教學 / 程式」三個面板
 - **進度可攜**：完成進度與刷題紀錄存瀏覽器（localStorage），並可一鍵匯出 / 匯入 JSON 帶到其他裝置
 - **鍵盤操作**：`Ctrl/Cmd + Enter` 直接執行程式；分頁與章節列表支援 Tab + Enter
@@ -77,14 +77,14 @@
 | 進階觀念 | 95–97 | 物件模型、函式參數進階、如何讀官方文件 |
 | 除錯與防呆 | 98–100 | 常見錯誤訊息、print / 二分定位 bug、輸入驗證與防呆 |
 
-> 切換語言分頁時會自動顯示該語言適用的章節：Python 模式 71 章（含應用篇），C++ / C / Java 模式各 47 章（共同基礎 + 該語言專項 + APCS 衝刺）。
+> 切換語言分頁時會自動顯示該語言適用的章節：Python 模式 77 章（含應用篇與 Python 進階觀念），C++ / C / Java 模式各 51 章（共同基礎 + 該語言專項 + APCS 衝刺 + 共通除錯章）。
 
 ### 🎯 APCS 練習（題庫）
 
 學完概念之後，到 [題庫頁](https://yu-0312.github.io/apcs-judge/) 實戰：
 
-- **300 道題目**，每題附四語言（Python / C++ / C / Java）官方解答
-- **即時評分**：自動跑全部測資，顯示 AC/WA 與逐字元 diff
+- **300 道題目**，每題附四語言（Python / C++ / C / Java）參考解答
+- **公開範例檢查**：執行題面列出的 samples，顯示逐筆結果與 diff；不會把範例通過誤標為 AC
 - **💡 解題思路**：「題目關鍵字 → 該用什麼演算法」對照、核心一行、常見陷阱與進階優化
 
 #### 難度分布
@@ -114,16 +114,16 @@ APCS 新制包含「程式識讀」與「程式實作」兩部分；實作題本
 - **即時對解**：讀程式碼、選答案，作答後立即顯示正解與考點解析；可執行的 C / C++ / Python / Java / JavaScript 題目其答案皆以本機編譯／執行抽樣驗證
 - **進度可攜**：每個題庫與整體的作答進度即時顯示於側欄，紀錄存於瀏覽器 localStorage（重新開啟自動回到上次的題庫或隨機回合）
 
-### 🤖 AI 拍照解題（分關卡確認流程）
+### 🤖 AI 貼題／拍照解題（教練或完整解題）
 
-[AI 解題頁](https://yu-0312.github.io/apcs-judge/ai-solve.html) 讓你把卡住的題目**拍照丟給 AI**，但不是丟了就直接給答案——它刻意分成幾個關卡，確保 AI 真的看懂題目才動筆：
+[AI 解題頁](https://yu-0312.github.io/apcs-judge/ai-solve.html) 讓你把卡住的題目**直接貼上完整文字，或拍照交給 AI**。無論哪種來源，都會先走結構化讀題與人工確認，不會一收到內容就直接執行程式：
 
-1. **拍照 ＋ 補充**：上傳題目照片（可拖曳或貼上），並可補充你卡在哪、想用哪種語言。
+1. **貼題／拍照 ＋ 補充**：可貼上完整題目文字、上傳題目照片，或兩者一起提供；兩者至少一項。純文字不會建立圖片，也不要求圖片傳送同意。
 2. **AI 讀題 → 你確認**：AI 先輸出它「讀到的題目」（含輸入輸出格式、範例測資），讓你核對無誤才進下一步，避免 AI 會錯意就寫錯方向。
-3. **計算 ＋ 三次驗證**：確認後才開始解題，並在模擬運行中**連跑三次**、通過範例測資且三次輸出一致，才視為可信。
-4. **完整詳解**：驗證通過後才給出思路、四語言解法與逐步解析。
+3. **選擇學習模式**：完整解題會產生程式預覽；教練模式則先提供三層提示與引導問題，每一層都要先寫下自己的想法，不提供完整程式，也不啟動任何執行環境。
+4. **由你決定下一步**：完成三層教練引導後，才會顯示「切換到完整解題」按鈕。即使進入完整解題，AI 程式碼仍需你逐次明確允許才會執行；公開範例重複相符不代表通過隱藏或邊界測資。
 
-與其他頁面一樣，使用你自備的 Google Gemini 金鑰（只存在你這台裝置的 localStorage），全站共用。解完的題目會自動存入錯題本（以當天日期為標題，可再改名）。
+使用你自備的 Google Gemini 金鑰；金鑰只存於目前分頁的 `sessionStorage`／記憶體，關閉分頁後失效，舊版 localStorage 金鑰會移除。解題紀錄寫入本機錯題本時一律不標示 `verified`；是否保留處理後縮圖由你選擇。
 
 ### 📕 統一錯題本（依日期整理）
 
@@ -137,23 +137,25 @@ APCS 新制包含「程式識讀」與「程式實作」兩部分；實作題本
 
 ### 💬 全站聊天（AI 助教 ＋ 大眾聊天室）
 
-每個頁面右下角都有一顆浮動圓鈕（可按 ✕ 收起），點開後是一個**可拖曳**的聊天視窗，內含兩個分頁：
+題庫、教學、判讀、AI 解題與錯題本頁面的右下角有一顆浮動圓鈕（可按 ✕ 收起），點開後是一個**可拖曳**的聊天視窗，內含兩個分頁：
 
-- **🤖 AI 助教**：可即時詢問 APCS 觀念、程式判讀、除錯等問題。與「AI 解題」頁共用你自備的 Google Gemini 金鑰（只存在你這台裝置的 localStorage），設定過一次即全站可用；對話內容跨頁保留。
-- **🌐 大眾聊天室**：跨使用者的即時公共聊天，所有人都能發言互動。因為本站是純前端（GitHub Pages）沒有伺服器，這部分改由免費的 **Firebase Realtime Database** 承載。
+- **🤖 AI 助教**：可詢問 APCS、程式判讀與除錯；金鑰和對話只留在目前分頁工作階段，避免長期明文保存。
+- **🌐 大眾聊天室**：由 **Firebase Realtime Database** 承載，但版本庫預設 `publicChat.enabled: false`。前端無法判斷後端是否仍為測試規則，因此不會以連線成功當作安全證明；只有部署者完成檢查並明確開啟旗標後才載入 Firebase SDK 與匿名登入。
 
-整個聊天工具是單一共用檔 `data/chat-widget.js`，每頁只以一行 `<script>` 載入。
+聊天工具集中在 `data/chat-widget.js`，模型、端點與部署閘門則集中在先載入的 `data/service-config.js`。
 
-#### 站長：啟用大眾聊天室（約 2 分鐘）
+#### 站長：安全啟用大眾聊天室
 
-未設定時 AI 助教照常運作，大眾聊天室分頁會顯示設定說明；完成以下步驟即可啟用真正的公共聊天：
+AI 助教不受此旗標影響。大眾聊天室預設 fail closed；完成下列全部步驟後，才可由部署者手動開啟：
 
-1. 到 [Firebase 主控台](https://console.firebase.google.com) 建立專案，新增一個 **Realtime Database**（可先用測試模式）。
-2. 到「專案設定 → 一般 → 你的應用程式 → SDK 設定與配置」複製網頁 `Config`。
-3. 把它貼進 `data/chat-widget.js` 最上方的 `FIREBASE_CONFIG`（web config 可公開，安全性靠 Database 規則把關）。
-4. 上線後建議把安全規則收緊為「僅允許寫入 `rooms/global/messages`、限制欄位與長度」，避免濫用。
+1. 在 Firebase 建立 Realtime Database，**不要使用長期測試模式**，並啟用 Anonymous Authentication。
+2. 將網頁 `Config` 填入 `data/chat-widget.js`；web config 可公開，但不是授權機制。
+3. 檢查並部署版本庫內的 `firebase.database.rules.json`；確認正式專案不再使用測試規則，也稽核／清除測試期間留下的資料。
+4. 以 Firebase Emulator 驗證未登入、欄位不符、超長訊息、額外欄位與竄改／刪除訊息均被拒絕，再部署正式環境。現有 Rules **沒有**實作發言速率限制。
+5. 完成 App Check 客戶端整合並在 Firebase 強制執行，同時配置真正的後端限流、檢舉／封鎖、保留期限、配額／預算警報與營運監控。
+6. 完成上線檢查後，把 `data/service-config.js` 的 `publicChat.enabled` 明確改為 `true`，並同步更新該檔 `cacheVersion` 與所有載入標籤；若有疑慮立即改回 `false`。
 
-訊息儲存在 `rooms/<房號>/messages`，前端只顯示最近 200 則；暱稱存在瀏覽器 localStorage。
+訊息儲存在 `rooms/<房號>/messages`，前端只顯示最近 200 則；暱稱存在瀏覽器 localStorage。瀏覽器內的 2.5 秒送出節流只改善操作體驗，可被繞過，**不是安全控制或後端限流**。
 
 ### 🚀 快速開始
 
@@ -176,10 +178,10 @@ python3 -m http.server 8000
 | **Judge0 CE** | C / C++ / Java 雲端編譯執行（公開實例，免 API Key） |
 | **CodeMirror 5** | 語法高亮編輯器 |
 | **marked.js** | Markdown 教材與題目渲染 |
-| **Google Gemini** | AI 拍照解題與 AI 助教（瀏覽器直呼，使用者自備金鑰存於 localStorage） |
-| **Firebase Realtime Database** | 大眾聊天室的即時跨使用者同步（web config 可公開，靠安全規則把關） |
+| **Google Gemini** | AI 貼題／拍照解題與 AI 助教（瀏覽器直呼，自備金鑰只存於目前分頁工作階段） |
+| **Firebase Realtime Database** | 大眾聊天室同步；需搭配 Auth、版本化 Rules、App Check 與營運限額 |
 
-純靜態網站（HTML + `data/*.js` 資料檔）、所有依賴走 CDN——無 npm、無 build step、無後端。教材與題目資料拆檔存於 `data/`，改內容不必動主程式；`node scripts/check-data.js` 可在本地驗證資料一致性（CI 亦會自動跑）。錯題本以共用模組 `data/mistake-book.js` 統一各頁的 localStorage 讀寫，聊天工具則集中在 `data/chat-widget.js`。
+主要學習介面是純靜態網站（HTML + `data/*.js` 資料檔），沒有自營帳號後端；瀏覽器會依功能直接連到 Pyodide／Judge0／Gemini／Firebase。Runtime 不需 npm build，內容維護則有產物與 CI 檢查腳本。教材與題目資料拆檔存於 `data/`；`node scripts/check-data.js` 可在本地驗證資料一致性（CI 亦會自動跑）。錯題本以共用模組 `data/mistake-book.js` 統一各頁的 localStorage 讀寫，聊天工具則集中在 `data/chat-widget.js`。完整上線檢查見 [`DEPLOYMENT.md`](DEPLOYMENT.md)。
 
 ### 🤝 貢獻
 
@@ -211,22 +213,22 @@ This project is a complete learning path made of seven pages:
 |------|------|---------|
 | 📚 **tutorial.html** | **Core: coding tutorial** | 101 interactive chapters, from "what is a program" through web scraping, data analysis, chat bots, game dev, debugging, input validation, plus dedicated C++ / C / Java tracks |
 | 🗺 **studyplan.html** | **Learning map** | Three study paths (zero-to-code, APCS sprint, advanced/contest), weekly goals, chapter ranges, reading drills and judge practice recommendations |
-| 📊 **dashboard.html** | **Progress dashboard** | LocalStorage summary of completed tutorial chapters, accepted judge problems, code-reading attempts, mistakes and daily streak |
-| 🎯 **index.html** | **Practice: APCS judge** | 300 tiered problems with reference solutions in four languages, instant grading and solution hints |
+| 📊 **dashboard.html** | **Progress dashboard** | Local summary of tutorial completion, public-example results, cumulative code reading, mistakes and daily streak |
+| 🎯 **index.html** | **Practice: APCS sample checker** | 300 tiered problems with four-language reference solutions, public-example checks and solution hints |
 | 🔍 **reading.html** | **Code reading** | 2083 "read the code, pick the answer" comprehension questions across four APCS difficulty tiers with separate C/C++/Python/Java/JavaScript banks, plus per-level random draw (up to 50), instant reveal and per-question explanations |
-| 🤖 **ai-solve.html** | **AI photo solver** | Snap a photo of a problem and note where you're stuck; the AI (Gemini) first echoes back what it read for you to confirm, only then computes, runs the simulation three times, and gives a full walkthrough once sample tests pass with consistent output |
+| 🤖 **ai-solve.html** | **AI text/photo solver** | Paste a complete problem or upload a photo, confirm Gemini's structured reading, then choose a no-code layered coaching flow or explicitly enter full-solution mode with user-approved sample execution |
 | 📕 **mistakes.html** | **Unified mistakes book** | Auto-collects wrong answers from code-reading, judge problems and AI-solve uploads, grouped by date, with editable titles, expandable explanations and delete |
 
 ### Highlights
 
-- **Read and run**: every chapter pairs a lesson with a live editor. Python runs locally via Pyodide (WebAssembly); C / C++ / Java compile in the cloud via Judge0 CE
+- **Read and run**: every chapter pairs a lesson with a live editor. Python runs locally via Pyodide (WebAssembly); C / C++ / Java compile through third-party Judge0 CE, whose versions may differ from an exam environment or another OJ
 - **One curriculum, four languages**: shared chapters (0–35, 68–70) carry language-specific lessons and examples — switch tabs to compare the same concept across languages
 - **Per-chapter loop**: learning goals → hands-on tweaks → real-life example → concept quiz → embedded code-reading drill / auto-graded coding exercise; wrong answers go into the unified mistakes book and progress persists in localStorage
 - **🧠 Design Motivation** sections in ten key chapters explain *why* things are designed the way they are (EAFP, stateless HTTP, pandas vectorization, async, delta time, modular arithmetic, RAII, value semantics, type erasure, JIT)
 - **Bilingual UI**: one-click Traditional Chinese / English toggle, lesson content included
-- **🤖 AI photo solver**: snap a photo of a problem you're stuck on; the AI first echoes back the problem it read for you to confirm (so it doesn't misread), only then solves, re-running the simulation three times and requiring sample tests to pass with consistent output before it hands over a full walkthrough (uses your own Gemini key)
+- **🤖 AI text/photo solver**: paste the full problem without creating an image, or upload an image that is resized and re-encoded locally. After confirming the structured reading, choose layered coaching with no complete code or full-solution mode; generated code still requires explicit approval before every run
 - **📕 Unified mistakes book**: wrong answers from code-reading, judge problems and AI-solve uploads are auto-collected into one book, grouped by date with editable titles and expandable explanations, so nothing slips through review (stored in localStorage)
-- **💬 Site-wide chat**: a closeable floating button in the bottom-right of every page opens a draggable chat window with two tabs — an **AI tutor** (answers instantly using your own Gemini key) and a **public chat room** (real-time cross-user discussion via Firebase)
+- **💬 Site-wide chat**: an AI tutor uses a session-only key/history; the Firebase public room defaults to an explicit disabled deployment flag until Auth, Rules, Emulator, App Check and operational controls have been completed
 - **Mobile-friendly**: bottom navigation switches between chapters / lesson / code panels
 - **Portable progress**: stored in localStorage, with one-click JSON export / import across devices
 - **Keyboard**: `Ctrl/Cmd + Enter` to run; tabs and chapter list are keyboard-accessible
@@ -251,22 +253,22 @@ This project is a complete learning path made of seven pages:
 
 ### APCS practice
 
-The [judge](https://yu-0312.github.io/apcs-judge/) hosts **300 problems** (⭐ 36 / ⭐⭐ 84 / ⭐⭐⭐ 53 / ⭐⭐⭐⭐ 127) with four-language reference solutions, instant grading with per-character diff, and keyword→algorithm solution hints. Sources include official APCS past exams, ZeroJudge, and Codeforces / CF Gym / USACO for advanced training.
+The [practice page](https://yu-0312.github.io/apcs-judge/) hosts **300 problems** (⭐ 36 / ⭐⭐ 84 / ⭐⭐⭐ 53 / ⭐⭐⭐⭐ 127) with four-language reference solutions, public-example output comparison, and keyword→algorithm hints. Passing these visible examples is deliberately labelled “Sample Passed”, not AC.
 
 ### Code reading
 
 The [code-reading page](https://yu-0312.github.io/apcs-judge/reading.html) drills the "trace a program / spot the bug" multiple-choice format used by **APCS code literacy** and the **statutory vocational exam (統測)**. It holds **2083 questions** (official APCS samples and past 統測 items marked "official answer", curated practice questions, and dedicated single-language banks for C, C++, Python, Java and JavaScript — 898 C, 409 Python, 377 C++, 200 Java, 161 JavaScript, 38 shared), organized into a tutorial-style collapsible sidebar: each of APCS's four difficulty tiers (basic / intermediate / advanced / expert) expands to its own question banks — languages are kept in separate banks, never mixed — and clicking a bank jumps straight into practice. Each tier also has a 🎲 random-draw mode: pick how many questions (up to 50) and it deals a random round from that tier, with re-draw. Pick an answer to instantly reveal the correct option and its explanation; per-bank and overall progress show live in the sidebar (saved to localStorage, reopening returns you to your last bank or random round), and runnable C/C++/Python/Java/JavaScript answers were spot-verified by local compilation/execution.
 
-### AI photo solver (staged confirmation flow)
+### AI text/photo solver (coaching or full solution)
 
-The [AI-solve page](https://yu-0312.github.io/apcs-judge/ai-solve.html) lets you **photograph a problem you're stuck on and hand it to the AI** — but it deliberately refuses to blurt out an answer. It splits the work into gates so the AI has to actually understand the problem before writing code:
+The [AI-solve page](https://yu-0312.github.io/apcs-judge/ai-solve.html) accepts either a **complete pasted problem or a problem photo**. Both sources go through structured reading and user confirmation before any solution path begins:
 
-1. **Photo + context** — upload the problem image (drag or paste) and note where you're stuck and which language you want.
+1. **Text/photo + context** — paste the full statement, upload a photo, or provide both, then note where you're stuck and which language you want. Text-only input neither creates an image nor requires image-transfer consent.
 2. **AI reads → you confirm** — the AI first prints back the problem *as it understood it* (I/O format, sample cases) and waits for you to confirm it's right, so a misread can't send it down the wrong path.
-3. **Compute + triple verification** — only after you confirm does it solve, then **runs the simulation three times**, requiring the sample tests to pass with all three outputs identical before the result is trusted.
-4. **Full walkthrough** — only once verified does it give the approach, four-language solutions and a step-by-step explanation.
+3. **Choose a learning mode** — full-solution mode produces a code preview; coaching mode instead gives three levels of hints and one guiding question at a time, requires the learner's own thought before the next level, and never produces or executes a complete program.
+4. **You choose the next step** — only after the final coaching level does an explicit switch-to-full-solution button appear. Full-solution code still runs only after explicit approval, and repeated visible-sample matches are not hidden-test proof.
 
-Like the rest of the site it uses your own Google Gemini key (stored only in your browser's localStorage), shared site-wide. Every solved problem is automatically saved to the mistakes book (titled with the day's date, renamable there).
+It uses your own Google Gemini key, held only in sessionStorage/memory for the current tab and removed when the tab closes. Legacy localStorage keys are deleted during migration. AI-solve records are never marked `verified`; saving a processed thumbnail in the local mistakes book is opt-in.
 
 ### Unified mistakes book (grouped by date)
 
@@ -280,12 +282,12 @@ Everything is stored in the browser's localStorage, so review puts every problem
 
 ### Site-wide chat (AI tutor + public room)
 
-Every page has a floating button (bottom-right, dismissible) that opens a **draggable** chat window with two tabs:
+The practice, tutorial, code-reading, AI-solve and mistakes pages have a bottom-right floating button that opens a **draggable** chat window with two tabs:
 
-- **🤖 AI tutor** — ask APCS/coding/debugging questions on the spot. It shares the Google Gemini key you set on the AI-solve page (stored only in your browser's localStorage), so setting it once works site-wide; conversation persists across pages.
-- **🌐 Public room** — a real-time, cross-user chat where everyone can post. Since the site is pure front-end (GitHub Pages) with no server, this is backed by a free **Firebase Realtime Database**.
+- **🤖 AI tutor** — ask APCS/coding/debugging questions using a key and history scoped to the current tab session.
+- **🌐 Public room** — a Firebase Realtime Database room guarded by `publicChat.enabled: false` by default. The browser cannot determine whether production still has test rules, so a successful connection is never treated as proof of security.
 
-The whole thing is one shared file, `data/chat-widget.js`, loaded with a single `<script>` tag per page. The AI tab works out of the box; to enable the public room, create a Firebase project, add a Realtime Database, and paste its web `Config` into `FIREBASE_CONFIG` at the top of `data/chat-widget.js` (the web config is safe to publish; lock it down with database security rules). Until configured, the public tab shows setup instructions while the AI tab keeps working.
+The widget lives in `data/chat-widget.js`. Before changing the flag to `true`, configure Anonymous Auth, deploy and audit `firebase.database.rules.json`, test unauthenticated/invalid/oversized/extra-field/update/delete denials in the Emulator, integrate and enforce App Check, and establish backend rate limiting, moderation, retention, budget alerts and monitoring. The client-side 2.5-second throttle is UX only and can be bypassed; the current Rules do not enforce posting frequency. With the flag left `false`, the widget does not load Firebase SDKs, sign in anonymously, read or write the room.
 
 ### Quick start
 
@@ -298,7 +300,7 @@ python3 -m http.server 8000
 # open http://localhost:8000/tutorial.html
 ```
 
-Pure static site (HTML + `data/*.js` data files), all dependencies from CDN — no npm, no build step, no backend (Pyodide, Judge0 CE, CodeMirror 5, marked.js). The AI photo solver and AI tutor call **Google Gemini** directly from the browser with the user's own key (localStorage); the public chat room syncs across users via **Firebase Realtime Database** (public web config, locked down by security rules). Lessons and problems live in `data/`; the mistakes book shares one storage module (`data/mistake-book.js`) across pages and the chat widget lives in `data/chat-widget.js`. Run `node scripts/check-data.js` to validate data consistency (also enforced in CI).
+The main learning UI is static HTML plus `data/*.js`, with no first-party account backend. The browser connects directly to Pyodide/Judge0, Gemini and the optional Firebase room. Learning state and mistakes use shared modules; `node scripts/check-data.js` validates syntax, schemas and quality budgets in CI. See [`DEPLOYMENT.md`](DEPLOYMENT.md) for production boundaries and release checks.
 
 ### License & policies
 

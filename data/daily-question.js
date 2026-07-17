@@ -127,7 +127,8 @@
       '.dq-foot{margin-top:12px;display:flex;align-items:center;gap:8px;font-size:12px;color:#64748b;}' +
       '.dq-foot .dq-streak{font-weight:700;color:#7c3aed;}' +
       '.dq-empty{padding:24px 12px;text-align:center;color:#64748b;font-size:13.5px;}' +
-      '@media(max-width:480px){#dq-panel{left:8px;right:8px;width:auto;bottom:84px;max-height:74vh;}}';
+      '@media(max-width:720px){#dq-launcher{left:12px;width:46px;height:46px;font-size:20px;}' +
+      '#dq-panel{left:8px;right:8px;width:auto;bottom:76px;max-height:72vh;}}';
     document.head.appendChild(st);
   }
 
@@ -141,14 +142,19 @@
     launcher.id = 'dq-launcher';
     launcher.title = '每日一題（程式判讀選擇題）';
     launcher.setAttribute('aria-label', '開啟每日一題');
+    launcher.setAttribute('aria-haspopup', 'dialog');
+    launcher.setAttribute('aria-expanded', 'false');
     launcher.innerHTML = '<span>📅</span><span class="dq-dot" style="display:none">1</span><span class="dq-x" title="關閉此按鈕">✕</span>';
     document.body.appendChild(launcher);
     dot = launcher.querySelector('.dq-dot');
 
     panel = document.createElement('div');
     panel.id = 'dq-panel';
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-modal', 'false');
+    panel.setAttribute('aria-labelledby', 'dq-panel-title');
     panel.innerHTML =
-      '<div id="dq-head"><div><div class="dq-title">📅 每日一題</div>' +
+      '<div id="dq-head"><div><div class="dq-title" id="dq-panel-title">📅 每日一題</div>' +
       '<div class="dq-sub" id="dq-date"></div></div>' +
       '<button class="dq-close" title="收起" aria-label="收起">▾</button></div>' +
       '<div id="dq-body"></div>';
@@ -161,6 +167,8 @@
       togglePanel();
     });
     panel.querySelector('.dq-close').addEventListener('click', function () { closePanel(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && panel.classList.contains('dq-open')) closePanel(); });
+    window.addEventListener('apcs:overlay-open', function (e) { if (e.detail !== 'daily-question') closePanel(); });
 
     refreshDot();
     adjustForMobileNav();
@@ -196,10 +204,17 @@
     else openPanel();
   }
   function openPanel() {
+    window.dispatchEvent(new CustomEvent('apcs:overlay-open', { detail: 'daily-question' }));
     render();
     panel.classList.add('dq-open');
+    launcher.setAttribute('aria-expanded', 'true');
+    panel.querySelector('.dq-close').focus();
   }
-  function closePanel() { panel.classList.remove('dq-open'); }
+  function closePanel() {
+    if (!panel) return;
+    panel.classList.remove('dq-open');
+    if (launcher) launcher.setAttribute('aria-expanded', 'false');
+  }
 
   /* ═══ 渲染題目 ═══ */
   var selected = -1;
@@ -273,7 +288,7 @@
     submit.style.display = 'none';
 
     var after = body.querySelector('#dq-after');
-    var h = '<div class="dq-result ' + (correct ? 'ok' : 'no') + '">' +
+    var h = '<div class="dq-result ' + (correct ? 'ok' : 'no') + '" role="status" aria-live="polite">' +
       (correct ? '✅ 答對了！正確答案是 ' : '❌ 答錯了，正確答案是 ') +
       'ABCD'.charAt(q.answer) + '．' +
       (correct ? '' : '你選的是 ' + 'ABCD'.charAt(chosen) + '．') + '</div>';

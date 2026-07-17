@@ -1,0 +1,21 @@
+{
+  "duplicateSampleDebt": 60,
+  "duplicateSampleGroups": {
+    "1aa36c74a4e048d4": ["src143_APCSOnline_C3_ring", "src185_202007P3"],
+    "322b88fdefae82e4": ["p118", "src243_usaco_861", "src275_usaco_717", "src291_cses_1196"],
+    "350728350087cfa5": ["p116", "src179_201906P3", "src183_202101P3", "src186_201610P3", "src187_201806P3", "src189_202310P3", "src194_202210P3", "src196_201603P3", "src198_202001P3", "src203_202206P3"],
+    "4ba953129c6691e4": ["ia_knapsack", "src140_APCSOnline_C2_nqueen", "src212_201902P4", "src214_202410P4", "src224_202210P4", "src226_202001P4", "src228_201802P4", "src233_cses_1635", "src236_cf_977F", "src240_cses_1135", "src254_cses_1745", "src261_cses_1678", "src264_ac_subsetSumQueries", "src268_cf_687C", "src288_usaco_921", "src290_ac_exactlyKSteps", "src299_usaco_970"],
+    "54646c8b7a0c6623": ["src137_f640", "src182_201902P3"],
+    "56ffd326a53ae00d": ["p119", "src266_cses_1137"],
+    "68189d79291e1915": ["p117", "src260_cses_1675", "src267_usaco_531"],
+    "8acd40323a2ab152": ["src147_f314", "src184_202010P3"],
+    "92c29d3b05c5398c": ["src134_h027", "src167_202001P2"],
+    "96f5163f320684e5": ["p106", "src300_usaco_838"],
+    "b6e65ba13fc4d81a": ["ia_dsu_groups", "src232_usaco_646", "src256_usaco_789", "src272_usaco_245", "src274_ys_UnionFind", "src276_usaco_992", "src286_ac_choosetwo"],
+    "dfbe4a1eaa52018d": ["p122", "src148_e465", "src257_cf_1418C", "src271_cses_1073", "src278_usaco_622", "src282_sapo_14_genghis", "src296_cf_1582F1"],
+    "e50bc692e32aeee9": ["ia_range_sum", "src135_b965", "src136_j607", "src159_202501P2", "src165_202101P2", "src168_201603P2", "src174_202210P2", "src175_202406P2"],
+    "ed68833257905cf0": ["src149_g278", "src213_202310P4", "src222_202109P4"],
+    "f98bac6f0bc0c6e3": ["ia_toposort_courses", "src237_cses_1679", "src239_cf_1385E", "src258_kattis_quantumsuperposition"]
+  },
+  "cacheVersionDrift": {}
+}

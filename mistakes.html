@@ -104,13 +104,14 @@ pre.code{background:#0b0e14;border:1px solid var(--border);border-radius:9px;pad
 .rec-img{max-width:100%;max-height:280px;border-radius:9px;border:1px solid var(--border);margin-top:6px;}
 .kv{font-size:12.5px;color:var(--text-muted);}
 .kv b{color:var(--text);}
+.toolbar-status{width:100%;font-size:12px;color:var(--text-muted);min-height:1.5em}
 </style>
 </head>
 <body>
 <header>
   <div><div class="logo">📕 錯題本</div><div class="sub">判讀題 · 實作題 · AI 上傳錯題（依日期整理）</div></div>
   <div class="hright">
-    <a class="navlink" href="index.html">🎯 評分系統</a>
+    <a class="navlink" href="index.html">🎯 實作題庫</a>
     <a class="navlink" href="reading.html">🔍 程式判讀</a>
     <a class="navlink" href="ai-solve.html">🤖 AI 解題</a>
     <a class="navlink" href="tutorial.html">📚 基礎教學</a>
@@ -131,20 +132,46 @@ pre.code{background:#0b0e14;border:1px solid var(--border);border-radius:9px;pad
     <input class="search" id="search" type="search" aria-label="搜尋錯題標題或題目內容" placeholder="🔍 搜尋標題／題目內容">
     <span class="spacer"></span>
     <button class="btn ghost" id="btn-export">💾 匯出</button>
+    <button class="btn ghost" id="btn-import">📂 匯入</button>
     <button class="btn danger" id="btn-clear">🗑 清空</button>
+    <input type="file" id="import-file" accept=".json,application/json" hidden>
+    <div class="toolbar-status" id="toolbar-status" role="status" aria-live="polite"></div>
   </div>
-  <div id="list"></div>
+  <div id="list" aria-live="polite"></div>
 </div>
 
-<script src="data/mistake-book.js?v=20260701a"></script>
+<script src="data/learning-state.js?v=20260717e"></script>
+<script src="data/mistake-book.js?v=20260717c"></script>
 <script>
 const $ = id => document.getElementById(id);
 function escH(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-// 先整段跳脫再交給 marked（與 index.html 的 safeMarkdown 同法），避免紀錄中夾帶的 HTML 被執行
+const SAFE_MD_TAGS = new Set(['P','BR','STRONG','B','EM','I','UL','OL','LI','CODE','PRE','H1','H2','H3','H4','H5','H6','BLOCKQUOTE','HR','TABLE','THEAD','TBODY','TR','TH','TD','A']);
+function safeHttpUrl(raw){
+  try{const u=new URL(String(raw||''),location.href);return(u.protocol==='http:'||u.protocol==='https:')?u.href:null;}
+  catch(e){return null;}
+}
+function safeImageDataUrl(raw){
+  const value=String(raw||'');
+  return /^data:image\/(?:png|jpeg|webp);base64,[a-z0-9+/=\s]+$/i.test(value)?value:null;
+}
+// Persisted AI Markdown is untrusted.  Mirror the AI page's local allow-list
+// sanitizer so the mistake book remains safe even when a CDN is unavailable.
+function sanitizeHtml(html){
+  const doc=new DOMParser().parseFromString('<div>'+String(html||'')+'</div>','text/html');
+  const root=doc.body.firstElementChild;
+  [...root.querySelectorAll('*')].forEach(el=>{
+    if(!SAFE_MD_TAGS.has(el.tagName)){el.replaceWith(doc.createTextNode(el.textContent||''));return;}
+    const href=el.tagName==='A'?safeHttpUrl(el.getAttribute('href')):null;
+    [...el.attributes].forEach(a=>el.removeAttribute(a.name));
+    if(el.tagName==='A'&&href){el.setAttribute('href',href);el.setAttribute('target','_blank');el.setAttribute('rel','noopener noreferrer');}
+    else if(el.tagName==='A'){el.replaceWith(doc.createTextNode(el.textContent||''));}
+  });
+  return root.innerHTML;
+}
 function renderMd(s){
   try{
     const escaped = escH(String(s||'')).replace(/~/g,'&#126;');
-    return marked.parse(escaped).replace(/&amp;(lt|gt|amp|quot|#39|#126);/g,'&$1;');
+    return sanitizeHtml(marked.parse(escaped));
   }catch(e){ return escH(s); }
 }
 const TYPE_LABEL = { reading:'🔍 判讀題', impl:'🎯 實作題', ai:'🤖 AI 上傳' };
@@ -199,10 +226,13 @@ function render(){
 }
 
 function recCard(r){
-  const badge = '<span class="type-badge '+r.type+'">'+(TYPE_LABEL[r.type]||r.type)+'</span>';
-  const cnt = (r.count && r.count>1) ? '<span class="rec-count">×'+r.count+'</span>' : '';
-  return '<div class="rec" data-id="'+r.id+'">'
-    + '<div class="rec-head" data-act="toggle">'
+  const typeKey=['reading','impl','ai'].includes(r.type)?r.type:'unknown';
+  const badge = '<span class="type-badge '+typeKey+'">'+escH(TYPE_LABEL[r.type]||r.type||'其他')+'</span>';
+  const count=Number(r.count)||0;
+  const cnt = count>1 ? '<span class="rec-count">×'+count+'</span>' : '';
+  const domId='rec-body-'+String(r.id||'').replace(/[^a-zA-Z0-9_-]/g,'');
+  return '<div class="rec" data-id="'+escH(r.id)+'">'
+    + '<div class="rec-head" data-act="toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="'+domId+'">'
     +   '<span class="chev">▶</span>'
     +   badge
     +   '<span class="rec-title">'+escH(r.title)+'</span>'
@@ -212,7 +242,7 @@ function recCard(r){
     +   '<button class="icon-btn" data-act="rename" title="改標題" aria-label="改標題">✏️</button>'
     +   '<button class="icon-btn" data-act="del" title="刪除" aria-label="刪除這筆錯題">🗑</button>'
     + '</div>'
-    + '<div class="rec-body">'+recBody(r)+'</div>'
+    + '<div class="rec-body" id="'+domId+'">'+recBody(r)+'</div>'
     + '</div>';
 }
 
@@ -227,6 +257,12 @@ function readingBody(r){
   let h = '';
   h += '<div class="kv" style="margin-top:12px;"><b>'+escH(LANG_LABEL[r.lang]||'觀念')+'</b>'
      + (r.level?'　難度：<b>'+escH(r.level)+'</b>':'') + '</div>';
+  if(r.masteryState){
+    const label={learning:'學習中',review:'複習中',mastered:'已熟練'}[r.masteryState]||r.masteryState;
+    h += '<div class="kv">狀態：<b>'+escH(label)+'</b>'
+      +(r.masteryState==='review'?'　連續答對：<b>'+Number(r.correctStreak||0)+' / 2</b>':'')
+      +(r.nextReviewAt?'　建議複習：<b>'+escH(fmtTime(r.nextReviewAt).slice(0,10))+'</b>':'')+'</div>';
+  }
   h += '<div class="sec-label">題目</div>';
   if (r.code) h += '<pre class="code">'+escH(r.code)+'</pre>';
   if (r.questionStem) h += '<div class="stmt">'+escH(r.questionStem)+'</div>';
@@ -244,9 +280,11 @@ function readingBody(r){
 
 function implBody(r){
   let h = '';
+  const passed=Number.isFinite(Number(r.passed))?Number(r.passed):null;
+  const total=Number.isFinite(Number(r.total))?Number(r.total):null;
   h += '<div class="kv" style="margin-top:12px;">題目：<b>'+escH(r.problemTitle||'')+'</b>'
      + (r.lang?'　語言：<b>'+escH(LANG_LABEL[r.lang]||r.lang)+'</b>':'')
-     + (r.passed!=null?'　最佳：<b>'+r.passed+' / '+r.total+'</b> 筆測資':'') + '</div>';
+     + (passed!=null&&total!=null?'　最佳：<b>'+passed+' / '+total+'</b> 筆公開範例':'') + '</div>';
   if (r.topic) h += '<div class="kv">主題：'+escH(r.topic)+'</div>';
   if (r.desc){ h += '<div class="sec-label">題目敘述</div><div class="md">'+renderMd(r.desc)+'</div>'; }
   if (r.code){ h += '<div class="sec-label">你最後提交的程式</div><pre class="code">'+escH(r.code)+'</pre>'; }
@@ -256,9 +294,12 @@ function implBody(r){
 
 function aiBody(r){
   let h = '';
+  const checkLabel=r.sampleChecked?'公開範例相符（非 AC）':(r.verified?'已驗證':'未驗證');
+  const checkColor=(r.sampleChecked||r.verified)?'var(--green)':'var(--yellow)';
   h += '<div class="kv" style="margin-top:12px;">語言：<b>'+escH(LANG_LABEL[r.language]||r.language||'-')+'</b>'
-     + '　驗證：<b style="color:'+(r.verified?'var(--green)':'var(--yellow)')+'">'+(r.verified?'三次通過 ✓':'未通過')+'</b></div>';
-  if (r.image) h += '<div class="sec-label">題目照片</div><img class="rec-img" src="'+r.image+'" alt="題目">';
+     + '　檢查：<b style="color:'+checkColor+'">'+checkLabel+'</b></div>';
+  const imageUrl=safeImageDataUrl(r.image);
+  if (imageUrl) h += '<div class="sec-label">題目照片</div><img class="rec-img" src="'+escH(imageUrl)+'" alt="題目">';
   if (r.problemStatement){ h += '<div class="sec-label">題目辨識</div><div class="md">'+renderMd(r.problemStatement)+'</div>'; }
   if (r.approach){ h += '<div class="sec-label">解題思路</div><div class="md">'+renderMd(r.approach)+'</div>'; }
   if (r.code){ h += '<div class="sec-label">解答程式碼</div><pre class="code">'+escH(r.code)+'</pre>'; }
@@ -292,6 +333,12 @@ $('list').addEventListener('click', e => {
   }
   // toggle 展開
   rec.classList.toggle('open');
+  const head=rec.querySelector('.rec-head');if(head)head.setAttribute('aria-expanded',rec.classList.contains('open')?'true':'false');
+});
+$('list').addEventListener('keydown',e=>{
+  if((e.key!=='Enter'&&e.key!==' ')||e.target.closest('button,input'))return;
+  const head=e.target.closest('.rec-head');if(!head)return;
+  e.preventDefault();head.click();
 });
 
 function selectChip(chip){
@@ -316,20 +363,45 @@ $('search').addEventListener('input', e => { curSearch = e.target.value.trim(); 
 
 $('btn-clear').onclick = () => {
   if (!MistakeBook.count()) return;
-  if (confirm('確定清空整本錯題本？此動作無法復原。')){ MistakeBook.clearAll(); render(); }
+  if (confirm('確定清空整本錯題本？此動作無法復原。')){
+    const cleared=MistakeBook.clearAll();render();
+    $('toolbar-status').textContent=cleared?'錯題本已清空。':'儲存空間異常，錯題本未能清空。請先匯出備份。';
+  }
 };
 $('btn-export').onclick = () => {
-  const data = JSON.stringify(MistakeBook.all(), null, 2);
+  const data = JSON.stringify({app:'apcs-mistake-book',version:2,exportedAt:new Date().toISOString(),records:MistakeBook.all()}, null, 2);
   const blob = new Blob([data], { type:'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'apcs-錯題本-' + MistakeBook.dateTitle(new Date()) + '.json';
   a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+  $('toolbar-status').textContent='錯題本已匯出；檔案不包含 API 金鑰。';
 };
+$('btn-import').onclick=()=>$('import-file').click();
+$('import-file').addEventListener('change',async e=>{
+  const file=e.target.files[0];e.target.value='';if(!file)return;
+  if(file.size>12*1024*1024){$('toolbar-status').textContent='匯入失敗：檔案超過 12 MB。';return;}
+  try{
+    const data=JSON.parse(await file.text());
+    let records=Array.isArray(data)?data:(data&&Array.isArray(data.records)?data.records:null);
+    // Also accept the complete learning backup exported from dashboard.html.
+    if(!records&&data&&data.app==='apcs-learning-backup'&&data.storage&&typeof data.storage[MistakeBook.LS]==='string')records=JSON.parse(data.storage[MistakeBook.LS]);
+    if(!Array.isArray(records))throw new Error('bad format');
+    const added=MistakeBook.importRecords(records);const report=MistakeBook.getLastImportReport?MistakeBook.getLastImportReport():{added,skipped:0};render();
+    $('toolbar-status').textContent=`匯入完成，新增 ${added} 筆；同題紀錄已合併${report.skipped?`，略過 ${report.skipped} 筆過大或格式不符資料`:''}。`;
+  }catch(err){$('toolbar-status').textContent='匯入失敗：請選擇本站匯出的錯題本或完整學習備份。';}
+});
+
+window.addEventListener('apcs:mistake-storage-warning',e=>{
+  const d=e.detail||{};
+  if(d.code==='IMAGES_REMOVED')$('toolbar-status').textContent=`儲存空間不足：已移除 ${d.count||0} 張較大的題目圖片，其餘錯題已保留。`;
+  else if(d.code==='WRITE_FAILED')$('toolbar-status').textContent='儲存空間不足，這次變更未能保存。請先匯出備份並刪除不需要的紀錄。';
+});
 
 render();
 </script>
-<script src="data/chat-widget.js?v=20260702a"></script>
+<script src="data/service-config.js?v=20260717e"></script>
+<script src="data/chat-widget.js?v=20260717e"></script>
 </body>
 </html>

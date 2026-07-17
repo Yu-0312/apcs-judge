@@ -539,7 +539,7 @@ samples:[{"input":"3\n5 8\n2 4\n3 9\n","output":"2\n"},{"input":"2\n1 5\n5 10\n"
 desc:"售票員有 N 張票（各有價格）。M 位顧客依序進場，每位有最高願付價 m。對每位顧客，售出價格 ≤ m 的「最高價票」並從庫存移除；若無則輸出 -1。",
 input_desc:"第一行 N M（1≤N,M≤2×10⁵）；第二行 N 張票價；第三行 M 位顧客上限。",
 output_desc:"M 行，每位顧客實際買到的價格或 -1。",
-samples:[{"input":"5 3\n5 3 7 8 5\n4 8 3\n","output":"3\n8\n-1\n"}],hint:"**關鍵字**：「找 ≤ m 的最大值」「需刪除」→ 用多重集合。\n**Python**：`sortedcontainers.SortedList` + `bisect_right` 取上界前一個。\n**C++**：`multiset::upper_bound`。\n**Java**：`TreeMap<Integer,Integer>` 記次數，`floorKey(m)` 取得。"},
+samples:[{"input":"5 3\n5 3 7 8 5\n4 8 3\n","output":"3\n8\n-1\n"}],hint:"**關鍵字**：「找 ≤ m 的最大值」「需刪除」→ 排序後反覆找前一個仍未售的位置。\n**Python（純標準庫）**：票價排序；用 `bisect_right` 找上界，再以 DSU／並查集把已售位置連到前一個未售位置。\n**C++**：`multiset::upper_bound`。\n**Java**：`TreeMap<Integer,Integer>` 記次數，`floorKey(m)` 取得。"},
 {id:"p114",title:"公寓配對",topic:"貪心、雙指針",date:"延伸題",source:"CSES",diff:"medium",
 desc:"N 位申請人各有期望坪數 aᵢ，M 間公寓各有實際坪數 bⱼ。第 i 位申請人可接受坪數在 [aᵢ-K, aᵢ+K] 的公寓，且每間公寓只能配給一人。求最大配對數。",
 input_desc:"第一行 N M K（1≤N,M≤2×10⁵，0≤K≤10⁹）；第二行 N 個整數；第三行 M 個整數。",

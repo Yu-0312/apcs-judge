@@ -1,11 +1,23 @@
-// 依驗證結果，將「可同步」判讀題寫入 data/reading-questions.js，
-// 並輸出「攔下題目審查報告」txt（答案錯誤／UB／自我修正／殘缺 + 實作題說明）。
+// 依指定的驗證結果產生「可同步」判讀題與審查報告。
+// 預設只預覽；必須加 --write 才會修改題庫，避免重複或誤匯入。
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const r = require('./validate5-results.json');
-const BANK = path.join(__dirname, '../data/reading-questions.js');
+const argv = process.argv.slice(2);
+function valueOf(flag) { const i = argv.indexOf(flag); return i >= 0 ? argv[i + 1] : ''; }
+const RESULTS = valueOf('--results');
+const BANK = valueOf('--bank') || path.join(__dirname, '../data/reading-questions.js');
+const REPORT = valueOf('--report') || path.join(os.tmpdir(), 'apcs-question-review.txt');
+const WRITE = argv.includes('--write');
+if (!RESULTS || !fs.existsSync(RESULTS)) {
+  console.error('用法：node scripts/build-sync5.js --results <validate-results.json> [--bank <reading-questions.js>] [--report <report.txt>] [--write]');
+  process.exit(2);
+}
+const r = JSON.parse(fs.readFileSync(RESULTS, 'utf-8'));
+for (const key of ['correct','wrong','review','incomplete','impl']) {
+  if (!Array.isArray(r[key])) throw new Error('驗證結果缺少陣列：' + key);
+}
 
 // 章節 → 題型(cat) / 主題(topic)
 const SEC = {
@@ -57,14 +69,20 @@ const objs = syncable.map(e => {
   };
 });
 
-// 寫入題庫：在結尾 `];` 前插入
+// 準備題庫變更：在結尾 `];` 前插入，並先阻止重複 id。
 let bank = fs.readFileSync(BANK, 'utf-8');
+const duplicates = objs.filter(o => bank.includes('id:' + JSON.stringify(o.id)) || bank.includes('"id":' + JSON.stringify(o.id)));
+if (duplicates.length) throw new Error('題庫已存在相同 id，停止匯入：' + duplicates.map(o => o.id).join(', '));
 const insertion = objs.map(o => ' ' + JSON.stringify(o)).join(',\n');
 const marker = /\n\];\s*$/;
 if (!marker.test(bank)) throw new Error('找不到題庫結尾 `];`');
 bank = bank.replace(marker, ',\n' + insertion + '\n];\n');
-fs.writeFileSync(BANK, bank);
-console.log('已同步', objs.length, '題至 data/reading-questions.js');
+if (WRITE) {
+  fs.writeFileSync(BANK, bank);
+  console.log('已同步', objs.length, '題至', path.resolve(BANK));
+} else {
+  console.log('預覽：可同步', objs.length, '題；尚未修改題庫（確認後加 --write）');
+}
 
 // ---- 產生審查報告 ----
 function block(e, showCorrect) {
@@ -87,7 +105,7 @@ out.push('驗證方式：每一道「判讀題」皆以 gcc 實際編譯並執�
 out.push('          取得真實輸出後與原檔標示答案逐題比對。');
 out.push('');
 out.push(`✅ 已同步入題庫（答案經執行驗證正確）：${objs.length} 題`);
-out.push(`⛔ 攔下未同步：${r.wrong.length + r.review.length + 5 + 2} 題（詳列於下）`);
+out.push(`⛔ 攔下未同步：${r.wrong.length + r.review.length + r.incomplete.length} 題（詳列於下）`);
 out.push(`📝 實作題（非選擇題，未納入判讀題庫）：${r.impl.length} 題`);
 out.push('');
 
@@ -152,7 +170,6 @@ out.push('============================================================');
 out.push('報告結束');
 out.push('============================================================');
 
-const reportPath = path.join(os.homedir(), 'Downloads/題目審查報告.txt');
-fs.writeFileSync(reportPath, out.join('\n'), 'utf-8');
-console.log('已輸出審查報告：', reportPath);
+fs.writeFileSync(REPORT, out.join('\n'), 'utf-8');
+console.log('已輸出審查報告：', path.resolve(REPORT));
 console.log('攔下統計：答案錯誤', r.wrong.length, '/ UB', r.review.length, '/ 自我修正', doubt.length, '/ 殘缺', missing.length);

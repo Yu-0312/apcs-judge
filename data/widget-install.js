@@ -61,7 +61,9 @@
       '.wi-note{margin-top:12px;padding:10px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;' +
       'font-size:12.5px;line-height:1.6;color:#92400e;}' +
       '.wi-hide{display:none;}' +
-      '@media(max-width:520px){#wi-btn{top:10px;right:10px;padding:7px 11px;font-size:12px;}}';
+      '@media(max-width:720px){#wi-btn{top:64px;right:10px;width:42px;height:42px;padding:0;justify-content:center;font-size:18px;}' +
+      '#wi-btn span:last-child{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}' +
+      '#wi-modal{max-height:calc(100vh - 24px);border-radius:14px;}}';
     document.head.appendChild(st);
   }
 
@@ -74,13 +76,16 @@
     btn.id = 'wi-btn';
     btn.innerHTML = '<span>📲</span><span>每日一題 Widget</span>';
     btn.title = '把每日一題裝成 iPhone / Mac 桌面小工具';
+    btn.setAttribute('aria-haspopup', 'dialog');
+    btn.setAttribute('aria-expanded', 'false');
     document.body.appendChild(btn);
 
     mask = document.createElement('div');
     mask.id = 'wi-mask';
+    mask.setAttribute('aria-hidden', 'true');
     mask.innerHTML =
-      '<div id="wi-modal">' +
-        '<div id="wi-head"><span>📲</span><span class="wi-t">每日一題 Widget</span>' +
+      '<div id="wi-modal" role="dialog" aria-modal="true" aria-labelledby="wi-title">' +
+        '<div id="wi-head"><span>📲</span><span class="wi-t" id="wi-title">每日一題 Widget</span>' +
           '<button class="wi-close" aria-label="關閉">✕</button></div>' +
         '<div id="wi-body">' +
           '<p class="wi-lead">把「每日一題」放到 <b>iPhone / Mac 桌面</b>，每天自動出一題、可直接作答。' +
@@ -118,6 +123,8 @@
     btn.addEventListener('click', open);
     mask.querySelector('.wi-close').addEventListener('click', close);
     mask.addEventListener('click', function(e){ if (e.target === mask) close(); });
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && mask.classList.contains('on')) close(); });
+    window.addEventListener('apcs:overlay-open', function(e){ if(e.detail !== 'widget-install') close(); });
     mask.querySelector('#wi-copy').addEventListener('click', doCopy);
     mask.querySelectorAll('.wi-tab').forEach(function(t){
       t.addEventListener('click', function(){ switchTab(t.getAttribute('data-tab')); });
@@ -146,12 +153,22 @@
   }
 
   function open(){
+    window.dispatchEvent(new CustomEvent('apcs:overlay-open', { detail: 'widget-install' }));
     mask.classList.add('on');
+    mask.setAttribute('aria-hidden', 'false');
+    var launch = document.getElementById('wi-btn'); if (launch) launch.setAttribute('aria-expanded', 'true');
+    var closeBtn = mask.querySelector('.wi-close'); if (closeBtn) closeBtn.focus();
     fetchScript().catch(function(){
       var c = mask.querySelector('#wi-copy'); c.textContent='⚠️ 抓不到程式碼，稍後再試';
     });
   }
-  function close(){ mask.classList.remove('on'); }
+  function close(){
+    if (!mask) return;
+    mask.classList.remove('on');
+    mask.setAttribute('aria-hidden', 'true');
+    var launch = document.getElementById('wi-btn');
+    if (launch) { launch.setAttribute('aria-expanded', 'false'); launch.focus(); }
+  }
 
   function doCopy(){
     var btn = mask.querySelector('#wi-copy');

@@ -1503,7 +1503,7 @@ const PROBLEMS_EN = {
   "desc": "A clerk has N tickets (each with a price). M customers come in order; each has a maximum willing price m. For each customer, sell the most expensive ticket with price ≤ m and remove it from stock; if none, output -1.",
   "input_desc": "First line: N M (1≤N,M≤2×10⁵); second line: N ticket prices; third line: M customer limits.",
   "output_desc": "M lines, the price each customer actually buys or -1.",
-  "hint": "**Keyword**: \"find the largest value ≤ m\", \"needs deletion\" → use a multiset.\n**Python**: `sortedcontainers.SortedList` + `bisect_right` to take the element before the upper bound.\n**C++**: `multiset::upper_bound`.\n**Java**: `TreeMap<Integer,Integer>` of counts, `floorKey(m)`."
+  "hint": "**Keyword**: \"find the largest value ≤ m\", \"needs deletion\" → sort, then repeatedly find the previous unsold position.\n**Python (standard library only)**: sort prices, use `bisect_right` for the upper bound, and a DSU / union-find predecessor structure to jump over sold positions.\n**C++**: `multiset::upper_bound`.\n**Java**: `TreeMap<Integer,Integer>` of counts, `floorKey(m)`."
  },
  "p114": {
   "title": "Apartment Matching",

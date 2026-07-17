@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>我的學習進度｜APCS 互動程式教室</title>
-<meta name="description" content="彙整 APCS 互動程式教室的本機學習進度：教學章節、題庫 AC、判讀作答、錯題本與每日一題連續天數。">
+<meta name="description" content="彙整 APCS 互動程式教室的本機學習進度：教學章節、公開範例檢查結果、判讀作答、錯題本與每日一題連續天數。公開範例通過不等於完整 AC。">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0f1117">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
@@ -41,14 +41,23 @@ header{position:sticky;top:0;z-index:20;height:var(--header-h);display:flex;alig
 .mini{height:7px;background:#0d1117;border:1px solid var(--border);border-radius:999px;overflow:hidden}
 .mini i{display:block;height:100%;background:var(--green)}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 11px;border-radius:7px;border:1px solid var(--border);font-size:12.5px;color:var(--text-muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 11px;border-radius:7px;border:1px solid var(--border);font:inherit;font-size:12.5px;color:var(--text-muted);background:transparent;cursor:pointer}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#0d1117;font-weight:700}
+.btn.danger{color:#ff8a84;border-color:rgba(248,81,73,.45)}
 .btn:hover{border-color:var(--text-muted);color:var(--text)}
 .btn.primary:hover{filter:brightness(1.12);color:#0d1117}
 .today{display:flex;flex-direction:column;gap:10px}
 .pill{display:flex;justify-content:space-between;gap:10px;background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px}
 .pill span{color:var(--text-muted)}
 .hint{font-size:13px;color:#cdd9e5;background:rgba(210,153,34,.08);border-left:3px solid var(--yellow);border-radius:0 6px 6px 0;padding:10px 12px}
+.backup-status{font-size:12px;color:var(--text-muted);margin-top:9px;min-height:1.5em}
+.quality{margin:16px 0}
+.quality[hidden]{display:none}
+.quality-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.quality-item{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:12px}
+.quality-item b{display:block;font-size:12px;color:var(--text-muted);margin-bottom:3px}
+.quality-value{font-size:24px;font-weight:800;line-height:1.2}
+.quality-note{font-size:11px;color:var(--text-muted);margin-top:10px}
 footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:28px}
 @media(max-width:780px){.grid{grid-template-columns:1fr}.row{grid-template-columns:1fr}.row span{text-align:left}}
 </style>
@@ -69,10 +78,16 @@ footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:28px}
 <main class="wrap">
   <section class="intro">
     <h1>把分散在各頁的進度收回同一張桌面。</h1>
-    <p>所有資料都存在你的瀏覽器 localStorage：教學完成章數、題庫 AC、判讀作答、錯題本與每日一題連續天數。沒有帳號、沒有後端。</p>
+    <p>所有資料都存在你的瀏覽器 localStorage：教學完成章數、公開範例通過、判讀作答、錯題本與每日一題連續天數。公開範例只檢查題面資料，不代表完整 AC；本站沒有帳號或後端。</p>
   </section>
 
   <section class="stats" id="stats"></section>
+
+  <section class="panel quality" id="quality" aria-labelledby="quality-title" hidden>
+    <h2 id="quality-title">學習品質</h2>
+    <div class="quality-grid" id="quality-grid"></div>
+    <p class="quality-note">只統計這台裝置的新式題庫紀錄；公開範例通過不代表完整 AC。</p>
+  </section>
 
   <section class="grid">
     <div class="panel">
@@ -83,6 +98,13 @@ footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:28px}
         <a class="btn" href="studyplan.html">查看讀書計畫</a>
         <a class="btn" href="index.html">練題庫</a>
       </div>
+      <div class="actions" aria-label="學習資料備份">
+        <button class="btn" id="backup-export" type="button">💾 匯出全部學習資料</button>
+        <button class="btn" id="backup-import" type="button">📂 匯入</button>
+        <button class="btn danger" id="backup-clear" type="button">🗑 清除全部學習資料</button>
+        <input type="file" id="backup-file" accept=".json,application/json" hidden>
+      </div>
+      <div class="backup-status" id="backup-status" role="status" aria-live="polite">備份只包含學習進度與錯題，不包含任何 API 金鑰。</div>
     </div>
     <aside class="panel today">
       <h2>今日狀態</h2>
@@ -90,13 +112,12 @@ footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:28px}
       <div class="hint" id="hint"></div>
     </aside>
   </section>
-  <footer>清除瀏覽器資料會清掉本頁統計；需要換裝置時，請先在教學頁與題庫頁匯出進度 JSON。</footer>
+  <footer><a href="privacy.html">隱私權政策</a> · <a href="disclaimer.html">免責聲明</a> · 資料只存在這台裝置；換裝置或清除瀏覽器資料前，請先匯出完整學習備份。</footer>
 </main>
 
-<script src="data/tutorial-chapters-zh.js?v=20260717a"></script>
-<script src="data/judge-problems.js?v=20260621b"></script>
-<script src="data/reading-questions.js?v=20260612"></script>
-<script src="data/mistake-book.js?v=20260702a"></script>
+<script src="data/content-stats.js?v=20260717a"></script>
+<script src="data/learning-state.js?v=20260717e"></script>
+<script src="data/mistake-book.js?v=20260717c"></script>
 <script>
 function readJSON(key, fallback){
   try { const v = JSON.parse(localStorage.getItem(key) || 'null'); return v == null ? fallback : v; }
@@ -116,57 +137,106 @@ function streak(done){
   }
   return n;
 }
-const doneChapters = new Set((readJSON('tut_done', []) || []).filter(Number.isInteger));
-const judgeScores = readJSON('apcs_judge_scores_v1', {}) || {};
-const readingSess = readJSON('apcs_reading_sess_v1', {}) || {};
-const readingWrong = readJSON('apcs_reading_wrong_v1', []) || [];
+const statsManifest = (typeof CONTENT_STATS !== 'undefined') ? CONTENT_STATS : {
+  tutorial:{total:101,chapterIds:Array.from({length:101},(_,i)=>i)},judge:{total:300},reading:{total:2083}
+};
+const validChapterIds=new Set(statsManifest.tutorial.chapterIds||Array.from({length:statsManifest.tutorial.total},(_,i)=>i));
+const doneChapters = new Set(((typeof LearningState!=='undefined'?LearningState.tutorialCompleted():readJSON('tut_done', [])) || []).filter(id=>validChapterIds.has(id)));
+const currentJudgeResults = readJSON('apcs_judge_sample_results_v2', null);
+const judgeScores = currentJudgeResults && typeof currentJudgeResults==='object' && !Array.isArray(currentJudgeResults) ? currentJudgeResults : (readJSON('apcs_judge_scores_v1', {}) || {});
 const dailyDone = readJSON('apcs_daily_done_v1', {}) || {};
 const mistakes = (typeof MistakeBook !== 'undefined') ? MistakeBook.all() : (readJSON('apcs_mistake_book_v1', []) || []);
-const judgeSolved = Object.values(judgeScores).filter(s => s && s.passed === s.total).length;
-const readingAnswered = Object.keys(readingSess).length;
+const readingProgress = (typeof LearningState!=='undefined') ? LearningState.readingStats() : {attempted:Object.keys(readJSON('apcs_reading_sess_v1', {})||{}).length,runs:0};
+const judgeQuality = (typeof LearningState!=='undefined'&&typeof LearningState.judgeStats==='function') ? LearningState.judgeStats() : {records:{},attempted:0,firstAttemptCorrect:0,solutionLoads:0};
+
+// Score keys are `${language}_${problemId}`.  A problem solved in two
+// languages is one completed problem, not two completed problems.
+const solvedProblemIds = new Set();
+Object.entries(judgeScores).forEach(([key, score])=>{
+  if(!score||!(Number(score.total)>0)||Number(score.passed)!==Number(score.total))return;
+  const match=key.match(/^(?:py|cpp|c|java)_(.+)$/);
+  if(match&&match[1])solvedProblemIds.add(match[1]);
+});
+const judgeSolved = Math.min(statsManifest.judge.total,solvedProblemIds.size);
+const readingAnswered = Math.min(statsManifest.reading.total,readingProgress.attempted||0);
+const readingMistakes = mistakes.filter(r=>r&&r.type==='reading');
 const dailyStreak = streak(dailyDone);
 
 const cards = [
-  {t:'教學章節', n:doneChapters.size, d:CHAPTERS.length, c:'var(--green)', sub:'完成章數'},
-  {t:'題庫 AC', n:judgeSolved, d:PROBLEMS.length, c:'var(--blue)', sub:'已全測資通過'},
-  {t:'判讀作答', n:readingAnswered, d:READING_QUESTIONS.length, c:'var(--purple)', sub:'本機作答紀錄'},
-  {t:'錯題本', n:mistakes.length, d:Math.max(mistakes.length, 1), c:'var(--red)', sub:'待複習項目'},
+  {t:'教學章節', n:doneChapters.size, d:statsManifest.tutorial.total, c:'var(--green)', sub:'完成章數'},
+  {t:'公開範例通過', n:judgeSolved, d:statsManifest.judge.total, c:'var(--blue)', sub:'僅題面範例'},
+  {t:'判讀作答', n:readingAnswered, d:statsManifest.reading.total, c:'var(--purple)', sub:`累計作答 · ${readingProgress.runs||0} 回合`},
+  {t:'錯題本', n:mistakes.length, d:20, c:'var(--red)', sub:'待複習項目', backlog:true},
   {t:'每日一題', n:dailyStreak, d:7, c:'var(--orange)', sub:'連續天數'}
 ];
 document.getElementById('stats').innerHTML = cards.map(x => {
-  const p = x.t === '錯題本' ? 100 : Math.min(100, pct(x.n, x.d));
-  return `<article class="card"><h2>${x.t}</h2><div class="num">${x.n}${x.t === '每日一題' ? ' 天' : ''}</div><div class="sub">${x.sub}${x.t !== '每日一題' && x.t !== '錯題本' ? ` · ${x.n} / ${x.d}` : ''}</div><div class="meter"><i style="width:${p}%;background:${x.c}"></i></div></article>`;
+  const p = x.backlog ? (x.n ? Math.min(100,pct(x.n,x.d)) : 0) : Math.min(100,pct(x.n,x.d));
+  const detail = x.t!=='每日一題'&&!x.backlog ? ` · ${x.n} / ${x.d}` : '';
+  return `<article class="card"><h2>${x.t}</h2><div class="num">${x.n}${x.t==='每日一題'?' 天':''}</div><div class="sub">${x.sub}${detail}</div><div class="meter" role="progressbar" aria-label="${x.t}" aria-valuemin="0" aria-valuemax="${Math.max(x.d,x.n)}" aria-valuenow="${x.n}"><i style="width:${p}%;background:${x.c}"></i></div></article>`;
 }).join('');
 
+const qualityRecords=judgeQuality.records||{};
+const attemptedJudgeKeys=Object.keys(qualityRecords).filter(key=>Number(qualityRecords[key]&&qualityRecords[key].attempts)>0);
+const qualityItems=[];
+if(attemptedJudgeKeys.length){
+  const firstCorrect=attemptedJudgeKeys.filter(key=>qualityRecords[key].firstAttemptCorrect===true).length;
+  qualityItems.push({label:'首次範例全過率',value:`${pct(firstCorrect,attemptedJudgeKeys.length)}%`,sub:`${firstCorrect} / ${attemptedJudgeKeys.length} 筆題目 × 語言紀錄`});
+  const unhinted=attemptedJudgeKeys.filter(key=>Number(qualityRecords[key].hintLevelMax)===0&&Number(qualityRecords[key].solutionLoaded)===0);
+  if(unhinted.length){
+    const unhintedPassed=unhinted.filter(key=>{const score=judgeScores[key];return score&&Number(score.total)>0&&Number(score.passed)===Number(score.total);}).length;
+    qualityItems.push({label:'未看提示通過率',value:`${pct(unhintedPassed,unhinted.length)}%`,sub:`${unhintedPassed} / ${unhinted.length} 筆未使用提示或解答紀錄`});
+  }
+  qualityItems.push({label:'載入完整解答次數',value:String(judgeQuality.solutionLoads||0),sub:'跨題目 × 語言累計'});
+}else if(Number(judgeQuality.solutionLoads)>0){
+  qualityItems.push({label:'載入完整解答次數',value:String(judgeQuality.solutionLoads),sub:'尚無可計算通過率的執行紀錄'});
+}
+if(qualityItems.length){
+  document.getElementById('quality-grid').innerHTML=qualityItems.map(item=>`<article class="quality-item"><b>${item.label}</b><div class="quality-value">${item.value}</div><div class="sub">${item.sub}</div></article>`).join('');
+  document.getElementById('quality').hidden=false;
+}
+
 const tracks = [
-  ['基礎入門', 0, 10],
-  ['演算法資料結構', 11, 26],
-  ['實用程式', 27, 35],
-  ['Python 專項', 36, 67],
-  ['APCS 高級題', 68, 70],
-  ['C++ 專項', 71, 78],
-  ['C 專項', 79, 86],
-  ['Java 專項', 87, 94],
-  ['進階觀念', 95, 97],
-  ['除錯與防呆', 98, 100]
+  ['基礎入門',0,10],['演算法資料結構',11,26],['實用程式',27,35],['Python 專項',36,67],
+  ['APCS 高級題',68,70],['C++ 專項',71,78],['C 專項',79,86],['Java 專項',87,94],
+  ['進階觀念',95,97],['除錯與防呆',98,100]
 ];
-document.getElementById('tracks').innerHTML = tracks.map(([name, a, b]) => {
-  const total = CHAPTERS.filter(c => c.id >= a && c.id <= b).length;
-  const done = CHAPTERS.filter(c => c.id >= a && c.id <= b && doneChapters.has(c.id)).length;
-  const p = pct(done, total);
-  return `<div class="row"><b>${name}</b><div class="mini"><i style="width:${p}%"></i></div><span>${done}/${total}</span></div>`;
+const chapterIds=statsManifest.tutorial.chapterIds||Array.from({length:statsManifest.tutorial.total},(_,i)=>i);
+document.getElementById('tracks').innerHTML = tracks.map(([name,a,b])=>{
+  const ids=chapterIds.filter(id=>id>=a&&id<=b),total=ids.length,done=ids.filter(id=>doneChapters.has(id)).length,p=pct(done,total);
+  return `<div class="row"><b>${name}</b><div class="mini" role="progressbar" aria-label="${name}" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${done}"><i style="width:${p}%"></i></div><span>${done}/${total}</span></div>`;
 }).join('');
 
 const didDaily = !!dailyDone[todayKey()];
 const didAny = doneChapters.size || judgeSolved || readingAnswered || mistakes.length;
 document.getElementById('today').innerHTML = `
-  <div class="pill"><b>每日一題</b><span>${didDaily ? '今天已完成' : '今天尚未完成'}</span></div>
-  <div class="pill"><b>判讀錯題</b><span>${readingWrong.length} 題</span></div>
-  <div class="pill"><b>總錯題本</b><span>${mistakes.length} 筆</span></div>
-`;
+  <div class="pill"><b>每日一題</b><span>${didDaily?'今天已完成':'今天尚未完成'}</span></div>
+  <div class="pill"><b>判讀錯題</b><span>${readingMistakes.length} 題</span></div>
+  <div class="pill"><b>總錯題本</b><span>${mistakes.length} 筆</span></div>`;
 document.getElementById('hint').textContent = didAny
-  ? (mistakes.length ? '建議先從錯題本挑 3 題重做，再接著推進一章教學。' : '目前沒有錯題壓力，可以照學習地圖推進下一個區塊。')
+  ? (mistakes.length?'建議先從錯題本挑 3 題重做，再接著推進一章教學。':'目前沒有錯題壓力，可以照學習地圖推進下一個區塊。')
   : '還沒有本機紀錄。先從學習地圖選一條路線，完成第 0 章和第一題判讀。';
+
+const backupStatus=document.getElementById('backup-status');
+document.getElementById('backup-export').addEventListener('click',()=>{
+  if(typeof LearningState==='undefined')return;
+  const blob=new Blob([JSON.stringify(LearningState.exportBackup(),null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`apcs-learning-backup-${todayKey()}.json`;a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);backupStatus.textContent='備份已匯出；API 金鑰未包含在檔案中。';
+});
+document.getElementById('backup-import').addEventListener('click',()=>document.getElementById('backup-file').click());
+document.getElementById('backup-file').addEventListener('change',async e=>{
+  const file=e.target.files[0];e.target.value='';if(!file)return;
+  if(file.size>12*1024*1024){backupStatus.textContent='匯入失敗：檔案超過 12 MB。';return;}
+  try{LearningState.importBackup(JSON.parse(await file.text()));backupStatus.textContent='匯入完成，正在更新統計…';setTimeout(()=>location.reload(),350);}
+  catch(err){backupStatus.textContent='匯入失敗：請選擇本站匯出的完整學習備份。';}
+});
+document.getElementById('backup-clear').addEventListener('click',()=>{
+  if(!confirm('確定清除教學、題庫、判讀、每日一題與錯題本的全部本機學習資料？此動作無法復原。'))return;
+  try{
+    if(!LearningState.clearAll())throw new Error('CLEAR_FAILED');
+    backupStatus.textContent='全部學習資料已清除，正在更新…';setTimeout(()=>location.reload(),350);
+  }catch(err){backupStatus.textContent='清除失敗：瀏覽器未能更新本機儲存，請確認儲存空間或權限後再試。';}
+});
 </script>
 </body>
 </html>
