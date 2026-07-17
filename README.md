@@ -52,12 +52,13 @@
 - **每章完整學習迴圈**：「🎯 學習目標 → ✋ 動手試試 → 🌍 真實情境 → 🧠 觀念小測 → 📝 判讀快問快答 / 程式練習」，錯題自動進統一錯題本，進度存在 localStorage
 - **🧠 設計動機**：十個關鍵章節附「為什麼要這樣設計」深度解析（EAFP、HTTP 無狀態、pandas 向量化、async、delta time、模運算同餘、RAII、值語意、型別擦除、JIT）
 - **雙語介面**：右上角一鍵切換繁中 / English，教材內容同步切換
-- **Light / Dark 主題**：全站可切換淺色與深色，第一次跟隨系統偏好，之後會在目前瀏覽器記住選擇
+- **Light / Dark 主題**：全站與浮動學習工具皆可切換淺色／深色，第一次跟隨系統偏好，之後會在目前瀏覽器記住並同步到其他分頁
 - **🤖 AI 貼題／拍照解題**：可直接貼完整題目，不需上傳圖片；若使用圖片會先在本機縮小並重編碼。AI 結構化讀題後由你確認，再選教練模式逐層思考或完整解題；任何 AI 程式碼都要經你預覽同意才執行。公開範例相符只是一致性檢查，不等同完整正確性證明
 - **📕 統一錯題本**：判讀題、實作題與 AI 解題上傳的錯題自動收錄成一本，以日期整理、可自訂標題與檢視詳解，複習不漏題（存在瀏覽器 localStorage）
 - **💬 全站聊天**：內含 AI 助教與預設關閉的 Firebase 大眾聊天室；Gemini 金鑰與 AI 對話只保存於分頁工作階段，公共發言須先完成 Auth、Rules、Emulator、App Check 與營運檢查，再由部署者明確開啟設定閘門
 - **手機可用**：行動版以底部導覽列切換「章節 / 教學 / 程式」三個面板
-- **進度可攜**：教學、題庫、判讀、錯題本、每日一題與學習地圖都會自動存入瀏覽器（localStorage）；可下載完整 JSON 備份，再於同站上傳恢復到其他裝置
+- **進度可攜**：教學、題庫、判讀、錯題本、每日一題與學習地圖都會自動存入瀏覽器（localStorage）；完整 JSON 備份會先驗證再交易式恢復，失敗時回滾原資料，跨裝置匯入會合併兩端已完成的學習階段
+- **執行器防護**：Python Worker 可逾時重建且會釋放暫存資源；Pyodide 與 Judge0 的 stdout / stderr 均限制為 200,000 字元，截斷輸出不會被誤判為通過
 - **鍵盤操作**：`Ctrl/Cmd + Enter` 直接執行程式；分頁與章節列表支援 Tab + Enter
 
 ### 🗺️ 課程地圖（101 章）
@@ -182,7 +183,7 @@ python3 -m http.server 8000
 | **Google Gemini** | AI 貼題／拍照解題與 AI 助教（瀏覽器直呼，自備金鑰只存於目前分頁工作階段） |
 | **Firebase Realtime Database** | 大眾聊天室同步；需搭配 Auth、版本化 Rules、App Check 與營運限額 |
 
-主要學習介面是純靜態網站（HTML + `data/*.js` 資料檔），沒有自營帳號後端；瀏覽器會依功能直接連到 Pyodide／Judge0／Gemini／Firebase。Runtime 不需 npm build，內容維護則有產物與 CI 檢查腳本。教材與題目資料拆檔存於 `data/`；`node scripts/check-data.js` 可在本地驗證資料一致性（CI 亦會自動跑）。學習狀態與完整備份集中在 `data/learning-state.js`，全站 Light / Dark 由 `data/theme.js` 與 `assets/theme.css` 共用，錯題本由 `data/mistake-book.js` 統一讀寫，聊天工具則集中在 `data/chat-widget.js`。完整上線檢查見 [`DEPLOYMENT.md`](DEPLOYMENT.md)。
+主要學習介面是純靜態網站（HTML + `data/*.js` 資料檔），沒有自營帳號後端；瀏覽器會依功能直接連到 Pyodide／Judge0／Gemini／Firebase。Runtime 不需 npm build，內容維護則有產物與 CI 檢查腳本。教材與題目資料拆檔存於 `data/`；`node scripts/check-data.js` 可在本地驗證資料一致性（CI 亦會自動跑）。學習狀態與完整備份集中在 `data/learning-state.js`，匯入／清除採快照回滾且穩定狀態不會在每次載入時重寫；全站 Light / Dark 由 `data/theme.js` 與 `assets/theme.css` 共用，錯題本由 `data/mistake-book.js` 統一讀寫，聊天工具則集中在 `data/chat-widget.js`。完整上線檢查見 [`DEPLOYMENT.md`](DEPLOYMENT.md)。
 
 ### 🤝 貢獻
 
@@ -227,12 +228,13 @@ This project is a complete learning path made of seven pages:
 - **Per-chapter loop**: learning goals → hands-on tweaks → real-life example → concept quiz → embedded code-reading drill / auto-graded coding exercise; wrong answers go into the unified mistakes book and progress persists in localStorage
 - **🧠 Design Motivation** sections in ten key chapters explain *why* things are designed the way they are (EAFP, stateless HTTP, pandas vectorization, async, delta time, modular arithmetic, RAII, value semantics, type erasure, JIT)
 - **Bilingual UI**: one-click Traditional Chinese / English toggle, lesson content included
-- **Light / Dark themes**: site-wide toggle, system preference on first visit, then remembered in the current browser
+- **Light / Dark themes**: site-wide toggle including floating learning tools, system preference on first visit, then remembered and synchronized across tabs
 - **🤖 AI text/photo solver**: paste the full problem without creating an image, or upload an image that is resized and re-encoded locally. After confirming the structured reading, choose layered coaching with no complete code or full-solution mode; generated code still requires explicit approval before every run
 - **📕 Unified mistakes book**: wrong answers from code-reading, judge problems and AI-solve uploads are auto-collected into one book, grouped by date with editable titles and expandable explanations, so nothing slips through review (stored in localStorage)
 - **💬 Site-wide chat**: an AI tutor uses a session-only key/history; the Firebase public room defaults to an explicit disabled deployment flag until Auth, Rules, Emulator, App Check and operational controls have been completed
 - **Mobile-friendly**: bottom navigation switches between chapters / lesson / code panels
-- **Portable progress**: tutorial, judge, reading, mistakes, daily activity and study-plan state auto-save to localStorage; download one full JSON backup and upload it on another device to resume
+- **Portable progress**: tutorial, judge, reading, mistakes, daily activity and study-plan state auto-save to localStorage; full JSON restores are validated and transactional, roll back on failure, and merge completed study stages across devices
+- **Runner safeguards**: Python workers recover from timeouts and release temporary resources; Pyodide and Judge0 stdout/stderr are capped at 200,000 characters, and truncated output is never graded as a pass
 - **Keyboard**: `Ctrl/Cmd + Enter` to run; tabs and chapter list are keyboard-accessible
 
 ### Curriculum map (101 chapters)
@@ -302,7 +304,7 @@ python3 -m http.server 8000
 # open http://localhost:8000/tutorial.html
 ```
 
-The main learning UI is static HTML plus `data/*.js`, with no first-party account backend. The browser connects directly to Pyodide/Judge0, Gemini and the optional Firebase room. Learning state and mistakes use shared modules; `node scripts/check-data.js` validates syntax, schemas and quality budgets in CI. See [`DEPLOYMENT.md`](DEPLOYMENT.md) for production boundaries and release checks.
+The main learning UI is static HTML plus `data/*.js`, with no first-party account backend. The browser connects directly to Pyodide/Judge0, Gemini and the optional Firebase room. Learning state and mistakes use shared modules; backup restore/clear operations use snapshot rollback, while settled state avoids redundant full rewrites on page load. `node scripts/check-data.js` validates syntax, schemas and quality budgets in CI. See [`DEPLOYMENT.md`](DEPLOYMENT.md) for production boundaries and release checks.
 
 ### License & policies
 

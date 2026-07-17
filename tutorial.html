@@ -16,7 +16,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#0f1117">
-<script src="data/theme.js?v=20260717a"></script>
+<script src="data/theme.js?v=20260717b"></script>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="dns-prefetch" href="https://ce.judge0.com">
@@ -315,7 +315,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 <script src="data/tutorial-chapter-meta.js?v=20260717b"></script>
 <script src="data/tutorial-lang-content-zh.js?v=20260717b"></script>
 <script src="data/tutorial-multi-examples.js?v=20260717b"></script>
-<script src="data/learning-state.js?v=20260717e"></script>
+<script src="data/learning-state.js?v=20260717f"></script>
 <script src="data/mistake-book.js?v=20260717c"></script>
 <script src="data/tutorial-reading-drills.js?v=20260717b"></script>
 <script src="data/tutorial-reallife.js?v=20260717b"></script>
@@ -399,7 +399,9 @@ const PY_WORKER_SRC =
 
 function startPyWorker() {
   const blob = new Blob([PY_WORKER_SRC], { type: 'text/javascript' });
-  pyWorker = new Worker(URL.createObjectURL(blob));
+  const workerUrl = URL.createObjectURL(blob);
+  try { pyWorker = new Worker(workerUrl); }
+  finally { URL.revokeObjectURL(workerUrl); }
   pyReady = false;
   pyReadyPromise = new Promise((resolve, reject) => {
     pyWorker.onmessage = (e) => {
@@ -440,7 +442,9 @@ async function runPython(code, stdin, timeoutMs) {
     w.postMessage({ id, code, stdin });
   });
 }
-let uiLang = (localStorage.getItem('apcs_ui_lang') || 'zh'); // 'zh' | 'en'
+function readUiLang(){try{const value=localStorage.getItem('apcs_ui_lang');return value==='en'?'en':'zh';}catch(e){return 'zh';}}
+function saveUiLang(value){try{localStorage.setItem('apcs_ui_lang',value);return true;}catch(e){return false;}}
+let uiLang = readUiLang(); // 'zh' | 'en'
 function chEN(chap){ return CHAPTERS_EN_MAP ? CHAPTERS_EN_MAP[chap.id] : undefined; }
 function hasEN(chap){ return uiLang === 'en' && !!chEN(chap); }
 const UI_STR = {
@@ -482,7 +486,7 @@ const UI_STR = {
     progExport:'下載完整學習備份', progImport:'上傳備份並恢復',
     readCompleteTitle:'完成本章', readCompleteHelp:'本章沒有程式評測。讀完教材並完成你需要的隨堂練習後，可勾選完成。',
     readCompleteCheck:'我已閱讀並完成本章', completedAnnounce:'本章已標記完成', uncompletedAnnounce:'本章已改為未完成',
-    progImportOk:'已匯入！目前共完成 {n} 章', backupImportOk:'完整學習備份已恢復，頁面將重新載入。', progImportTooLarge:'匯入失敗：檔案超過 12 MB。', progImportBad:'檔案格式不符，無法匯入（請選擇本站下載的備份 JSON）'
+    progImportOk:'已匯入！目前共完成 {n} 章', backupImportOk:'完整學習備份已恢復，頁面將重新載入。', backupExportFail:'下載失敗：瀏覽器無法讀取本機進度。', backupStorageFail:'恢復失敗：瀏覽器儲存空間不足或未授權，原有進度已保留。', storageSaveFail:'無法保存完成進度，請檢查瀏覽器儲存空間或權限。', progImportTooLarge:'匯入失敗：檔案超過 12 MB。', progImportBad:'檔案格式不符，無法匯入（請選擇本站下載的備份 JSON）'
   },
   en: {
     logo:'📚 Coding Tutorial × APCS Practice', subtitle1:'chapters · coding tutorial + APCS prep + tiered practice + code literacy',
@@ -522,7 +526,7 @@ const UI_STR = {
     progExport:'Download full learning backup', progImport:'Upload and restore backup',
     readCompleteTitle:'Complete this chapter', readCompleteHelp:'This chapter has no coding check. Mark it complete after reading and doing the practice you need.',
     readCompleteCheck:'I have read and completed this chapter', completedAnnounce:'Chapter marked complete', uncompletedAnnounce:'Chapter marked incomplete',
-    progImportOk:'Imported! {n} chapters completed in total', backupImportOk:'Full learning backup restored. The page will now reload.', progImportTooLarge:'Import failed: the file exceeds 12 MB.', progImportBad:'Unrecognized file — please choose a backup JSON downloaded from this site'
+    progImportOk:'Imported! {n} chapters completed in total', backupImportOk:'Full learning backup restored. The page will now reload.', backupExportFail:'Download failed: the browser could not read local progress.', backupStorageFail:'Restore failed: browser storage is full or unavailable. Existing progress was preserved.', storageSaveFail:'Could not save completion progress. Check browser storage space or permissions.', progImportTooLarge:'Import failed: the file exceeds 12 MB.', progImportBad:'Unrecognized file — please choose a backup JSON downloaded from this site'
   }
 };
 function T(){ return UI_STR[uiLang]; }
@@ -585,7 +589,7 @@ async function toggleUiLang(){
     }
   }
   uiLang = next;
-  localStorage.setItem('apcs_ui_lang', uiLang);
+  saveUiLang(uiLang);
   applyUiLang();
 }
 
@@ -792,7 +796,8 @@ function translateError(raw){
 }
 
 // ── 進度與新手模式 ────────────────────────────────────────────────────────
-let beginnerMode = (localStorage.getItem('tut_beginner') ?? '1') === '1';
+let beginnerMode = true;
+try{beginnerMode=(localStorage.getItem('tut_beginner')??'1')==='1';}catch(e){}
 // 損壞的 localStorage 不能讓整頁掛掉：解析失敗就當作沒有進度
 let completed = new Set();
 try {
@@ -800,9 +805,12 @@ try {
   if (Array.isArray(_done)) completed = new Set(_done.filter(Number.isInteger));
 } catch(e) {}
 function saveState(){
-  localStorage.setItem('tut_beginner', beginnerMode ? '1' : '0');
-  localStorage.setItem('tut_done', JSON.stringify([...completed]));
-  if(typeof LearningState!=='undefined')LearningState.setTutorialCompleted([...completed]);
+  try{localStorage.setItem('tut_beginner',beginnerMode?'1':'0');}catch(e){}
+  let saved=false;
+  if(typeof LearningState!=='undefined')saved=LearningState.setTutorialCompleted([...completed])!==null;
+  else try{localStorage.setItem('tut_done',JSON.stringify([...completed]));saved=true;}catch(e){}
+  if(!saved)announceTutorial(T().storageSaveFail);
+  return saved;
 }
 function announceTutorial(msg){const el=document.getElementById('tutorial-status');if(el)el.textContent=msg||'';}
 
@@ -867,15 +875,17 @@ function loadDraftInto(chap){
 
 // ── 進度匯出 / 匯入（換裝置、清快取時可帶走進度） ─────────────────────────
 function exportProgress(){
-  flushDraft(); // 草稿一併打包，換裝置時寫到一半的程式碼帶得走
-  const isFull = typeof LearningState!=='undefined'&&typeof LearningState.exportBackup==='function';
-  const data = isFull ? LearningState.exportBackup() : { app:'apcs-tutorial', v:2, exportedAt:new Date().toISOString(), done:[...completed], drafts };
-  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = isFull ? `apcs-learning-backup-${new Date().toISOString().slice(0,10)}.json` : 'tutorial-progress.json';
-  a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+  try{
+    flushDraft(); // 草稿一併打包，換裝置時寫到一半的程式碼帶得走
+    const isFull = typeof LearningState!=='undefined'&&typeof LearningState.exportBackup==='function';
+    const data = isFull ? LearningState.exportBackup() : { app:'apcs-tutorial', v:2, exportedAt:new Date().toISOString(), done:[...completed], drafts };
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = isFull ? `apcs-learning-backup-${new Date().toISOString().slice(0,10)}.json` : 'tutorial-progress.json';
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+  }catch(err){alert(T().backupExportFail);}
 }
 function importProgress(){ document.getElementById('prog-file').click(); }
 document.getElementById('prog-file').addEventListener('change', async e=>{
@@ -903,19 +913,19 @@ document.getElementById('prog-file').addEventListener('change', async e=>{
       }
       try { localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts)); } catch(e) {}
     }
-    saveState();
+    if(!saveState())throw new Error('STORAGE_FULL');
     updateProgress();
     renderChapList();
     alert(T().progImportOk.replace('{n}', String(completed.size)));
   }catch(err){
-    alert(T().progImportBad);
+    alert(err&&(/^(?:STORAGE_|BACKUP_TOO_LARGE)/.test(err.message||''))?T().backupStorageFail:T().progImportBad);
   }
 });
 function markDone(id){
   if(!completed.has(id)){
     completed.add(id);
-    if(typeof LearningState!=='undefined')LearningState.markTutorial(id,true);
-    saveState();
+    const saved=typeof LearningState!=='undefined'?LearningState.markTutorial(id,true)!==null:saveState();
+    if(!saved){completed.delete(id);announceTutorial(T().storageSaveFail);return;}
     updateProgress();
     renderChapList();
     announceTutorial(T().completedAnnounce);
@@ -925,8 +935,9 @@ function toggleChapterComplete(id, checked){
   const meta=CHAPTER_META[id];
   if(meta&&meta.code)return;
   if(checked)completed.add(id);else completed.delete(id);
-  if(typeof LearningState!=='undefined')LearningState.markTutorial(id,checked);
-  saveState();updateProgress();renderChapList();
+  const saved=typeof LearningState!=='undefined'?LearningState.markTutorial(id,checked)!==null:saveState();
+  if(!saved){if(checked)completed.delete(id);else completed.add(id);announceTutorial(T().storageSaveFail);renderChapList();return;}
+  updateProgress();renderChapList();
   announceTutorial(checked?T().completedAnnounce:T().uncompletedAnnounce);
   if(currentChap&&currentChap.id===id)selectChap(id,{preserveEditor:true});
 }
@@ -1559,7 +1570,7 @@ if (uiLang === 'en') {
   document.body.appendChild(b);
 })();
 </script>
-<script src="data/service-config.js?v=20260717e"></script>
-<script src="data/chat-widget.js?v=20260717e"></script>
+<script src="data/service-config.js?v=20260717f"></script>
+<script src="data/chat-widget.js?v=20260717f"></script>
 </body>
 </html>

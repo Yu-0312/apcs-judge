@@ -39,10 +39,13 @@
   }
 
   function loadDone() {
-    try { var o = JSON.parse(localStorage.getItem(LS_DONE)); return (o && typeof o === 'object') ? o : {}; }
+    try { var o = JSON.parse(localStorage.getItem(LS_DONE)); return (o && typeof o === 'object' && !Array.isArray(o)) ? o : {}; }
     catch (e) { return {}; }
   }
-  function saveDone(o) { try { localStorage.setItem(LS_DONE, JSON.stringify(o)); } catch (e) {} }
+  function saveDone(o) {
+    try { localStorage.setItem(LS_DONE, JSON.stringify(o)); return true; }
+    catch (e) { return false; }
+  }
 
   // 連續作答天數（含今天，往回連續有紀錄的天數）
   function streak() {
@@ -127,6 +130,13 @@
       '.dq-foot{margin-top:12px;display:flex;align-items:center;gap:8px;font-size:12px;color:#64748b;}' +
       '.dq-foot .dq-streak{font-weight:700;color:#7c3aed;}' +
       '.dq-empty{padding:24px 12px;text-align:center;color:#64748b;font-size:13.5px;}' +
+      'html[data-theme="dark"] #dq-panel{background:#1c2128;border-color:#30363d;color:#e6edf3;}' +
+      'html[data-theme="dark"] .dq-opt{background:#1c2128;border-color:#3d444d;color:#e6edf3;}' +
+      'html[data-theme="dark"] .dq-opt:hover:not(:disabled),html[data-theme="dark"] .dq-opt.sel{background:#242b36;border-color:#79c0ff;}' +
+      'html[data-theme="dark"] .dq-opt.correct{background:#132a1b;border-color:#3fb950;}html[data-theme="dark"] .dq-opt.wrong{background:#341b1d;border-color:#f85149;}' +
+      'html[data-theme="dark"] .dq-explain{background:#161b22;border-color:#30363d;color:#c9d1d9;}' +
+      'html[data-theme="dark"] .dq-tag{background:#252d3a;color:#a5d6ff;}html[data-theme="dark"] .dq-tag.lv{background:#332b16;color:#f2cc60;}html[data-theme="dark"] .dq-tag.cat{background:#172b1d;color:#7ee787;}' +
+      'html[data-theme="dark"] .dq-foot{color:#8b949e;}html[data-theme="dark"] .dq-foot .dq-streak{color:#d2a8ff;}' +
       '@media(max-width:720px){#dq-launcher{left:12px;width:46px;height:46px;font-size:20px;}' +
       '#dq-panel{left:8px;right:8px;width:auto;bottom:76px;max-height:72vh;}}';
     document.head.appendChild(st);
@@ -174,7 +184,12 @@
     adjustForMobileNav();
     window.addEventListener('resize', adjustForMobileNav);
 
-    if (sessionStorage.getItem(SS_HIDDEN) === '1') launcher.style.display = 'none';
+    try { if (sessionStorage.getItem(SS_HIDDEN) === '1') launcher.style.display = 'none'; } catch (e) {}
+    window.addEventListener('storage', function (e) {
+      if (e.key !== LS_DONE) return;
+      refreshDot();
+      if (panel.classList.contains('dq-open')) render();
+    });
   }
 
   function hideLauncher() {
@@ -269,14 +284,14 @@
       });
       submit.addEventListener('click', function () {
         if (selected < 0) return;
-        commit(q, selected);
-        reveal(q, selected, optBtns, submit, true);
+        var persisted = commit(q, selected);
+        reveal(q, selected, optBtns, submit, true, !persisted);
       });
     }
   }
 
   // 顯示對錯、解析；justAnswered=true 代表剛作答（會捲動解析進畫面）
-  function reveal(q, chosen, optBtns, submit, justAnswered) {
+  function reveal(q, chosen, optBtns, submit, justAnswered, saveFailed) {
     var correct = chosen === q.answer;
     optBtns.forEach(function (btn) {
       var i = +btn.getAttribute('data-i');
@@ -293,6 +308,7 @@
       'ABCD'.charAt(q.answer) + '．' +
       (correct ? '' : '你選的是 ' + 'ABCD'.charAt(chosen) + '．') + '</div>';
     if (q.explain) h += '<div class="dq-explain"><b>解析：</b>' + esc(q.explain) + '</div>';
+    if (saveFailed) h += '<div class="dq-result no" role="status">作答結果未能保存。請檢查瀏覽器儲存空間或權限後再試。</div>';
     after.innerHTML = h;
 
     // 更新腳註連續天數
@@ -310,8 +326,9 @@
     var done = loadDone();
     var correct = chosen === q.answer;
     done[todayKey()] = { qid: q.id, chosen: chosen, correct: correct };
-    saveDone(done);
+    var persisted = saveDone(done);
     if (!correct) recordMistake(q, chosen);
+    return persisted;
   }
 
   // 與 reading.html 相同的錯題本紀錄格式，可在「錯題本」頁面統一複習

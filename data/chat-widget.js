@@ -115,6 +115,8 @@
   }
   function ssGet(k) { try { return sessionStorage.getItem(k) || ''; } catch (e) { return ''; } }
   function ssSet(k, v) { try { sessionStorage.setItem(k, v); return true; } catch (e) { return false; } }
+  function lsGet(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
   function migrateLegacyStorage() {
     var oldKey = '', oldHistory = '';
     try {
@@ -206,6 +208,16 @@
     '.cw-nickbar input:focus{border-color:#4f46e5;}' +
     '.cw-typing{align-self:flex-start;color:#64748b;font-size:12.5px;padding:2px 4px;}' +
     '.cw-safety{padding:6px 9px;background:#fffbeb;color:#92400e;border-bottom:1px solid #fde68a;font-size:11px;line-height:1.4;}' +
+    'html[data-theme="dark"] #cw-panel{background:#1c2128;color:#e6edf3;border:1px solid #30363d;}' +
+    'html[data-theme="dark"] #cw-tabs,html[data-theme="dark"] .cw-policy{background:#161b22;border-color:#30363d;}' +
+    'html[data-theme="dark"] #cw-tabs button{color:#8b949e;}html[data-theme="dark"] #cw-tabs button.cw-active{background:#1c2128;color:#79c0ff;border-bottom-color:#79c0ff;}' +
+    'html[data-theme="dark"] .cw-policy{color:#8b949e;}html[data-theme="dark"] .cw-policy a{color:#79c0ff;}' +
+    'html[data-theme="dark"] .cw-msgs{background:#0f1117;}html[data-theme="dark"] .cw-msg.cw-other{background:#1c2128;border-color:#30363d;}' +
+    'html[data-theme="dark"] .cw-sys{background:#30363d;color:#c9d1d9;}' +
+    'html[data-theme="dark"] .cw-inbar,html[data-theme="dark"] .cw-nickbar{background:#161b22;border-color:#30363d;color:#8b949e;}' +
+    'html[data-theme="dark"] .cw-inbar textarea,html[data-theme="dark"] .cw-nickbar input{background:#0f1117;border-color:#3d444d;color:#e6edf3;}' +
+    'html[data-theme="dark"] .cw-notice{color:#c9d1d9;}html[data-theme="dark"] .cw-notice h4{color:#e6edf3;}html[data-theme="dark"] .cw-notice code{background:#30363d;}' +
+    'html[data-theme="dark"] .cw-safety{background:#302a16;color:#f2cc60;border-color:#6e5b1f;}' +
     '@media(max-width:480px){#cw-launcher{right:12px;width:48px;height:48px;font-size:22px;}#cw-panel{right:8px;left:8px;width:auto;bottom:calc(76px + env(safe-area-inset-bottom));height:min(66vh,500px);max-height:calc(100vh - 100px - env(safe-area-inset-bottom));border-radius:13px;}}';
 
   /* ═══ 建立 DOM ═══ */
@@ -537,7 +549,7 @@
   var publicIniting = false;
   async function openPublic() {
     var nickInput = document.getElementById('cw-nick');
-    if (!nickInput.value) nickInput.value = localStorage.getItem(LS_NICK) || '';
+    if (!nickInput.value) nickInput.value = lsGet(LS_NICK);
     if (!PUBLIC_CHAT_ENABLED) {
       setPublicWritable(false, '大眾聊天室尚未通過部署安全檢查');
       pubNotice('<h4>🔒 大眾聊天室尚未開放</h4>' +
@@ -645,7 +657,7 @@
     if (isReservedNick(nick)) { nickInput.focus(); nickInput.style.borderColor = '#ef4444'; nickInput.title = '暱稱不可冒用官方、站長或管理員身分'; return; }
     nickInput.style.borderColor = '';
     nickInput.removeAttribute('title'); nickInput.value = nick;
-    localStorage.setItem(LS_NICK, nick);
+    lsSet(LS_NICK, nick);
     if (!text) return;
     if (!PUBLIC_CHAT_ENABLED || !publicWritable || !firebaseReady || !fbMsgRef || !fbAuth || !fbAuth.currentUser) { openPublic(); return; }
     var now = Date.now();
@@ -678,10 +690,10 @@
   function wirePublic() {
     var ta = document.getElementById('cw-pub-in');
     var nick = document.getElementById('cw-nick');
-    nick.value = localStorage.getItem(LS_NICK) || '';
+    nick.value = lsGet(LS_NICK);
     nick.addEventListener('change', function () {
       var safe = cleanNick(nick.value);
-      if (safe && !isReservedNick(safe)) { nick.value = safe; localStorage.setItem(LS_NICK, safe); }
+      if (safe && !isReservedNick(safe)) { nick.value = safe; lsSet(LS_NICK, safe); }
     });
     ta.addEventListener('input', function () { autoGrow(ta); });
     ta.addEventListener('keydown', function (e) {

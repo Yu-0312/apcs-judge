@@ -13,22 +13,31 @@ const assert = (condition, message) => { if (!condition) fail(message); };
 
 function makeStorage() {
   const values = new Map();
+  let shouldThrowGet = () => false;
   let shouldThrow = () => false;
   let shouldThrowRemove = () => false;
+  let successfulSets = 0;
   return {
-    getItem(key) { return values.has(String(key)) ? values.get(String(key)) : null; },
+    getItem(key) {
+      key = String(key);
+      if (shouldThrowGet(key)) { const error = new Error('blocked'); error.name = 'SecurityError'; throw error; }
+      return values.has(key) ? values.get(key) : null;
+    },
     setItem(key, value) {
       key = String(key); value = String(value);
       if (shouldThrow(key, value)) { const error = new Error('quota'); error.name = 'QuotaExceededError'; throw error; }
       values.set(key, value);
+      successfulSets++;
     },
     removeItem(key) {
       key = String(key);
       if (shouldThrowRemove(key)) { const error = new Error('blocked'); error.name = 'SecurityError'; throw error; }
       values.delete(key);
     },
+    setGetFailure(predicate) { shouldThrowGet = predicate || (() => false); },
     setFailure(predicate) { shouldThrow = predicate || (() => false); },
     setRemoveFailure(predicate) { shouldThrowRemove = predicate || (() => false); },
+    setCount() { return successfulSets; },
     raw(key) { return values.get(key); }
   };
 }
@@ -137,6 +146,69 @@ console.log('— LearningState 備份邊界與儲存失敗 —');
   pass('備份排除秘密資料，匯入／寫入／清除失敗皆有明確訊號');
 }
 
+console.log('— LearningState 交易回滾與啟動效能 —');
+{
+  const unavailableStorage = makeStorage();
+  unavailableStorage.setGetFailure(() => true);
+  let unavailableState = null;
+  try { unavailableState = loadLearningState(unavailableStorage); } catch (error) {}
+  assert(unavailableState && unavailableState.get().version === 3, 'localStorage 讀取被拒時，共用狀態模組仍應可啟動');
+
+  const stableStorage = makeStorage();
+  loadLearningState(stableStorage);
+  const writesAfterFirstLoad = stableStorage.setCount();
+  loadLearningState(stableStorage);
+  assert(stableStorage.setCount() === writesAfterFirstLoad, '已完成遷移的狀態不應在每次載入時整份重寫');
+
+  const malformedRunStorage = makeStorage();
+  malformedRunStorage.setItem('apcs_learning_state_v2', JSON.stringify({ reading: { answers: {}, runs: ['invalid', { id: 'valid-run' }] } }));
+  const malformedRunState = loadLearningState(malformedRunStorage);
+  assert(malformedRunState.readingStats().runs === 1, '損壞或偽造的判讀回合不得計入累積進度');
+
+  const failedRunStorage = makeStorage();
+  const failedRunState = loadLearningState(failedRunStorage);
+  failedRunStorage.setFailure(key => key === failedRunState.KEY);
+  assert(failedRunState.recordReadingRun({ answered: 1, correct: 1, questionIds: ['q1'] }) === null, '判讀回合寫入失敗時不得回傳已保存紀錄');
+  assert(failedRunState.readingStats().runs === 0, '判讀回合寫入失敗不得污染持久進度');
+
+  const importStorage = makeStorage();
+  importStorage.setItem('tut_done', '[0]');
+  importStorage.setItem('apcs_study_plan_v2', JSON.stringify({ version: 2, planId: 'starter', language: 'py', startDate: '2026-07-17', done: { starter: [0], apcs: [], advanced: [] } }));
+  const importState = loadLearningState(importStorage);
+  importStorage.setFailure(key => key === 'apcs_study_plan_v2');
+  let importRolledBack = false;
+  try {
+    importState.importBackup({ app: 'apcs-learning-backup', version: 1, storage: {
+      tut_done: '[1]',
+      apcs_study_plan_v2: JSON.stringify({ version: 2, planId: 'apcs', language: 'cpp', startDate: '2026-07-01', done: { starter: [1], apcs: [0], advanced: [] } })
+    } });
+  } catch (error) { importRolledBack = error.message === 'STORAGE_FULL'; }
+  assert(importRolledBack && importStorage.raw('tut_done') === '[0]', '備份中途寫入失敗時必須還原先前已寫入的欄位');
+
+  importStorage.setFailure(() => false);
+  importState.importBackup({ app: 'apcs-learning-backup', version: 1, storage: {
+    apcs_study_plan_v2: JSON.stringify({ version: 2, planId: 'apcs', language: 'cpp', startDate: '2026-07-01', done: { starter: [1], apcs: [0], advanced: [] } })
+  } });
+  const mergedPlan = JSON.parse(importStorage.raw('apcs_study_plan_v2'));
+  assert(mergedPlan.planId === 'apcs' && mergedPlan.language === 'cpp' && mergedPlan.done.starter.join(',') === '0,1', '跨裝置恢復應採用備份設定並合併兩端完成進度');
+
+  const beforeCorrupt = importStorage.raw('tut_done');
+  let corruptRejected = false;
+  try { importState.importBackup({ app: 'apcs-learning-backup', version: 1, storage: { tut_done: '{' } }); }
+  catch (error) { corruptRejected = error.message === 'INVALID_BACKUP'; }
+  assert(corruptRejected && importStorage.raw('tut_done') === beforeCorrupt, '損壞的備份欄位必須整批拒絕且不得改動現有資料');
+
+  const clearStorage = makeStorage();
+  clearStorage.setItem('tut_done', '[2]');
+  clearStorage.setItem('apcs_study_plan_v2', JSON.stringify({ version: 2, planId: 'starter', language: 'py', startDate: '2026-07-17', done: { starter: [0], apcs: [], advanced: [] } }));
+  const clearState = loadLearningState(clearStorage);
+  clearStorage.setRemoveFailure(key => key === 'apcs_study_plan_v2');
+  let clearRolledBack = false;
+  try { clearState.clearAll(); } catch (error) { clearRolledBack = error.message === 'STORAGE_FAILURE'; }
+  assert(clearRolledBack && clearStorage.raw('tut_done') === '[2]' && clearStorage.raw('apcs_study_plan_v2'), '清除中途失敗時必須恢復先前已移除的學習資料');
+  pass('備份匯入／清除具備交易回滾，且穩定狀態不做無效重寫');
+}
+
 console.log('— 判讀舊錯題遷移契約 —');
 {
   const source = fs.readFileSync(path.join(ROOT, 'reading.html'), 'utf8');
@@ -146,6 +218,22 @@ console.log('— 判讀舊錯題遷移契約 —');
   assert(source.includes('if(migratingLegacyWrong)return true;'), '遷移期間不得以部分新資料覆寫舊索引');
   assert(source.includes("原資料已保留"), '遷移失敗必須向使用者明確說明舊資料仍保留');
   pass('遷移過程不會因同步事件或儲存失敗截斷舊錯題');
+}
+
+console.log('— 跨分頁同步與每日一題容錯 —');
+{
+  const themeSource = fs.readFileSync(path.join(ROOT, 'data', 'theme.js'), 'utf8');
+  const planSource = fs.readFileSync(path.join(ROOT, 'studyplan.html'), 'utf8');
+  const dailySource = fs.readFileSync(path.join(ROOT, 'data', 'daily-question.js'), 'utf8');
+  const chatSource = fs.readFileSync(path.join(ROOT, 'data', 'chat-widget.js'), 'utf8');
+  assert(themeSource.includes("global.addEventListener('storage'") && themeSource.includes('event.key !== STORAGE_KEY'), 'Light / Dark 選擇必須同步到其他分頁');
+  assert(planSource.includes("window.addEventListener('storage'") && planSource.includes('event.key!==PLAN_KEY'), '學習地圖進度必須同步到其他分頁');
+  assert(planSource.includes('function validPlanDate') && planSource.includes("date.toISOString().slice(0,10)===value"), '學習地圖必須拒絕不存在的日期');
+  assert(dailySource.includes("typeof o === 'object' && !Array.isArray(o)"), '每日一題必須拒絕陣列形狀的損壞進度，避免假保存');
+  assert(dailySource.includes('var persisted = commit(q, selected);') && dailySource.includes('!persisted') && dailySource.includes('作答結果未能保存'), '每日一題寫入失敗時不得假裝進度已保存');
+  assert(/function saveDone\(o\)[\s\S]*return true;[\s\S]*return false;/.test(dailySource), '每日一題儲存函式必須回報成功或失敗');
+  assert(dailySource.includes('html[data-theme="dark"] #dq-panel') && chatSource.includes('html[data-theme="dark"] #cw-panel'), '浮動學習工具必須跟隨全站深色主題');
+  pass('主題／計畫可跨分頁同步，每日一題不再誤報保存成功');
 }
 
 console.log(`\n結果：${errors} 錯誤`);

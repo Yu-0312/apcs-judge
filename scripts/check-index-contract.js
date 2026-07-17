@@ -50,6 +50,7 @@ const consentAt = runCode.indexOf('if (!ensureJudge0Consent()) return;');
 const runningAt = runCode.indexOf('running = true;');
 assert(consentAt >= 0 && runningAt > consentAt, 'Judge0 disclosure cancel path must run before submission state starts');
 assert(runCode.includes('code.length > JUDGE0_MAX_SOURCE_CHARS') && runCode.includes('s.input.length > JUDGE0_MAX_STDIN_CHARS'), 'Judge0 payload limits must be checked before submission');
+assert(/finally\s*\{[\s\S]*running = false;[\s\S]*btn\.textContent = T\(\)\.btnRun;/.test(runCode), 'unexpected runner failures must always unlock and restore the run button');
 
 const batch = section('async function judge0SubmitBatch', '// 輸出正規化');
 assert(batch.includes('res.status === 404 || res.status === 405'), 'batch support must only be disabled for 404/405');
