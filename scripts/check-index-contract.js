@@ -135,7 +135,11 @@ assert.throws(() => failingImport.api.importBackup({ app:'apcs-learning-backup',
 const dashboard = fs.readFileSync(path.join(__dirname, '..', 'dashboard.html'), 'utf8');
 assert(dashboard.includes('id="quality"') && dashboard.includes('首次範例全過率') && dashboard.includes('未看提示通過率') && dashboard.includes('載入完整解答次數'), 'dashboard learning-quality summary is missing');
 assert(dashboard.includes('if(qualityItems.length)') && dashboard.includes('id="quality" aria-labelledby="quality-title" hidden'), 'dashboard must hide quality percentages when there is no denominator');
-assert(dashboard.includes("if(!LearningState.clearAll())throw") && dashboard.includes("catch(err){backupStatus.textContent='清除失敗"), 'dashboard must not report a failed clear as success');
+assert(
+  dashboard.includes("if(!LearningState.clearAll())throw") &&
+  /catch\(err\)\{setBackupStatus\('清除失敗：[^']+','error'\);\}/.test(dashboard),
+  'dashboard must not report a failed clear as success'
+);
 
 for (const id of ['onboard-goal', 'onboard-lang', 'onboard-time', 'onboard-date', 'onboard-tutorial', 'onboard-reading', 'onboard-judge', 'onboard-plan']) {
   assert(source.includes(`id="${id}"`), `onboarding field/link missing: ${id}`);

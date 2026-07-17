@@ -14,8 +14,9 @@
 <meta name="twitter:title" content="APCS 練習題庫｜四語言範例檢查">
 <meta name="twitter:description" content="300 道分級題目、公開範例檢查與解題思路——零安裝、零註冊。">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#0f1117">
+<script src="data/theme.js?v=20260717a"></script>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="dns-prefetch" href="https://ce.judge0.com">
@@ -47,7 +48,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .hbtn{background:transparent;border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:5px;cursor:pointer;font-family:inherit;font-size:12px;}
 .hbtn:hover{border-color:var(--text-muted);}
 .hbtn:disabled{opacity:.5;cursor:wait;}
-.ldbar{display:inline-block;width:72px;height:4px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden;vertical-align:middle;margin-left:6px;}
+.ldbar{display:inline-block;width:72px;height:4px;border-radius:2px;background:var(--track-bg);overflow:hidden;vertical-align:middle;margin-left:6px;}
 .ldbar i{display:block;width:40%;height:100%;background:var(--yellow);border-radius:2px;animation:ldslide 1.2s ease-in-out infinite;}
 @keyframes ldslide{0%{transform:translateX(-110%)}100%{transform:translateX(260%)}}
 .status-dot{width:7px;height:7px;border-radius:50%;background:var(--yellow);display:inline-block;margin-right:4px;animation:pulse 1.5s infinite;}
@@ -65,19 +66,19 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .onboard-field{display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--text-muted);}
 .onboard-field select,.onboard-field input{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px 8px;font:inherit;color-scheme:dark;}
 .onboard-actions{display:flex;align-items:center;gap:8px;margin-top:12px;}
-.onboard-save{background:var(--green);color:#071108;border:0;border-radius:6px;padding:7px 12px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;}
+.onboard-save{background:var(--green);color:var(--button-on-accent);border:0;border-radius:6px;padding:7px 12px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;}
 .onboard-next{margin-top:12px;padding-top:11px;border-top:1px solid var(--border);}
 .onboard-next[hidden]{display:none;}
 .onboard-message{font-size:12px;line-height:1.55;margin-bottom:8px;}
 .onboard-links{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-.onboard-links a{border:1px solid var(--border);border-radius:6px;padding:7px 8px;color:var(--text);text-decoration:none;font-size:11px;background:rgba(255,255,255,.025);}
+.onboard-links a{border:1px solid var(--border);border-radius:6px;padding:7px 8px;color:var(--text);text-decoration:none;font-size:11px;background:var(--surface-tint);}
 .onboard-links a.primary{border-color:var(--lang-color);color:var(--lang-color);background:rgba(63,185,80,.07);}
 .sample-scope-note{font-size:10px;color:var(--yellow);white-space:nowrap;}
 
 /* Language tabs */
 .lang-tabs{height:var(--tab-h);display:flex;align-items:stretch;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0;}
 .lang-tab{display:flex;align-items:center;gap:7px;padding:0 20px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text-muted);border-bottom:2px solid transparent;transition:all .15s;}
-.lang-tab:hover{color:var(--text);background:rgba(255,255,255,.03);}
+.lang-tab:hover{color:var(--text);background:var(--hover-bg);}
 .lang-tab.active-py{color:var(--py);border-color:var(--py);background:rgba(63,185,80,.05);}
 .lang-tab.active-cpp{color:var(--cpp);border-color:var(--cpp);background:rgba(121,192,255,.05);}
 .lang-tab.active-c{color:var(--c);border-color:var(--c);background:rgba(255,166,87,.05);}
@@ -100,12 +101,12 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .problem-group{padding-bottom:8px;border-bottom:1px solid rgba(48,54,61,.45);}
 .level-header{position:relative;margin:0 8px 6px;padding:13px 12px 14px 16px;border-radius:7px;background:linear-gradient(135deg,var(--level-bg),rgba(22,27,34,.94));border:1px solid var(--level-border);border-left:4px solid var(--level-color);box-shadow:0 8px 18px rgba(0,0,0,.12);}
 .level-title-row{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:750;color:var(--text);}
-.level-title-row .count{margin-left:auto;font-size:10px;color:var(--level-color);background:rgba(255,255,255,.06);border:1px solid var(--level-border);border-radius:999px;padding:1px 7px;font-weight:700;}
+.level-title-row .count{margin-left:auto;font-size:10px;color:var(--level-color);background:var(--track-bg);border:1px solid var(--level-border);border-radius:999px;padding:1px 7px;font-weight:700;}
 .level-desc{margin-top:6px;font-size:11px;color:var(--text-muted);line-height:1.45;}
 .problem-item{display:block;padding:9px 14px 10px 18px;cursor:pointer;border-bottom:1px solid rgba(48,54,61,.38);transition:background .12s,border-color .12s;font-size:12px;border-left:3px solid transparent;}
-.problem-item:hover{background:rgba(255,255,255,.03);}
+.problem-item:hover{background:var(--hover-bg);}
 .problem-item:focus-visible{outline:2px solid var(--lang-color);outline-offset:-2px;}
-.problem-item.active{background:rgba(255,255,255,.07);border-left-color:var(--level-color);}
+.problem-item.active{background:var(--strong-hover-bg);border-left-color:var(--level-color);}
 .problem-item .pmeta{font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:.3px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .problem-row{display:flex;align-items:center;gap:8px;}
 .problem-item .ptitle{flex:1;font-weight:650;font-size:13px;color:var(--text);line-height:1.35;min-width:0;}
@@ -121,27 +122,27 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .problem-content{overflow-y:auto;flex:1;padding:18px;}
 .problem-title-h{font-size:21px;font-weight:700;margin-bottom:4px;}
 .problem-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
-.badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500;background:rgba(255,255,255,.06);color:var(--text-muted);border:1px solid var(--border);}
-.badge.lang{background:rgba(255,255,255,.08);color:var(--lang-color);border-color:var(--lang-color);transition:all .2s;}
+.badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500;background:var(--track-bg);color:var(--text-muted);border:1px solid var(--border);}
+.badge.lang{background:var(--strong-hover-bg);color:var(--lang-color);border-color:var(--lang-color);transition:all .2s;}
 .badge.topic{color:#bc8cff;background:rgba(188,140,255,.1);border-color:rgba(188,140,255,.3);}
 .section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text-muted);margin:14px 0 6px;}
-.desc-text{font-size:13px;line-height:1.7;color:#cdd9e5;}
+.desc-text{font-size:13px;line-height:1.7;color:var(--text-soft);}
 .desc-text p{margin-bottom:8px;}
-.desc-text code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px;}
+.desc-text code{background:var(--strong-hover-bg);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px;}
 .sample-block{background:var(--bg);border:1px solid var(--border);border-radius:6px;margin-bottom:10px;overflow:hidden;}
-.sample-block-hdr{padding:7px 12px;background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);font-size:11px;color:var(--text-muted);}
+.sample-block-hdr{padding:7px 12px;background:var(--surface-tint);border-bottom:1px solid var(--border);font-size:11px;color:var(--text-muted);}
 .sample-inner{display:grid;grid-template-columns:1fr 1fr;}
 .sample-col{padding:10px 12px;}
 .sample-col+.sample-col{border-left:1px solid var(--border);}
 .sample-col-label{font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:5px;letter-spacing:.5px;}
-.sample-col pre{font-family:monospace;font-size:11px;color:#cdd9e5;white-space:pre-wrap;line-height:1.5;}
+.sample-col pre{font-family:monospace;font-size:11px;color:var(--text-soft);white-space:pre-wrap;line-height:1.5;}
 
 /* Editor panel */
 .editor-panel{display:flex;flex-direction:column;overflow:hidden;}
 .editor-toolbar{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--panel-bg);flex-shrink:0;}
 .btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;border:none;transition:all .15s;}
 .btn:focus-visible{outline:2px solid var(--lang-color);outline-offset:-2px;}
-.btn-run{background:var(--lang-color);color:#000;transition:background .2s;}
+.btn-run{background:var(--lang-color);color:var(--button-on-accent);transition:background .2s;}
 .btn-run:hover{filter:brightness(1.15);}
 .btn-run:disabled{opacity:.5;cursor:not-allowed;}
 .btn-sec{background:transparent;color:var(--text-muted);border:1px solid var(--border);}
@@ -215,6 +216,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
   #mobile-nav button .ic{font-size:16px;}
 }
 </style>
+<link rel="stylesheet" href="assets/theme.css?v=20260717a">
 </head>
 <body>
 <header>
@@ -228,8 +230,8 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
     <a href="dashboard.html" title="我的學習進度儀表板" style="color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;">📊 進度</a>
     <a href="reference.html" title="C++ STL 與常用函式速查表" style="color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;">📑 速查</a>
     <button id="onboard-open" class="hbtn" type="button" onclick="openOnboarding(true)" title="今天下一步">✨</button>
-    <button id="prog-exp-btn" class="hbtn" onclick="exportProgress()" title="匯出刷題進度（下載 JSON）">💾</button>
-    <button id="prog-imp-btn" class="hbtn" onclick="importProgress()" title="匯入刷題進度">📂</button>
+    <button id="prog-exp-btn" class="hbtn" onclick="exportProgress()" title="下載完整學習備份">💾</button>
+    <button id="prog-imp-btn" class="hbtn" onclick="importProgress()" title="上傳備份並恢復">📂</button>
     <input type="file" id="prog-file" accept=".json,application/json" style="display:none">
     <button id="ui-lang-btn" class="hbtn" onclick="toggleUiLang()">🌐 EN</button>
     <span role="status" aria-live="polite"><span class="status-dot" id="status-dot"></span><span id="status-text">待命</span><span class="ldbar" id="py-ldbar" style="display:none"><i></i></span></span>
@@ -414,7 +416,7 @@ const UI_STR = {
     logo:n=>`APCS 多級 ${n} 範例檢查`,
     sub:t=>`${t} 題 · 執行題面公開範例 · Python / C++ / C / Java`,
     tutorialLink:'📚 基礎教學',
-    progExport:'匯出刷題進度（下載 JSON）', progImport:'匯入刷題進度',
+    progExport:'下載完整學習備份', progImport:'上傳備份並恢復',
     langToggleTitle:'切換為英文 / Switch to English',
     statusPyIdle:'Python 將於首次執行時載入',
     statusPyLoading:'下載 Python 環境中（首次約 10–20 秒）...',
@@ -456,8 +458,9 @@ const UI_STR = {
     alertSolLoadFail:'解答資料載入失敗，請確認網路後再試',
     confirmLoadSol:'確定要載入完整參考解答？這會覆蓋目前編輯器內容，並記錄為已載入解答。',
     importOk:n=>`已匯入！目前共 ${n} 筆語言 × 題目紀錄通過公開範例`,
+    backupImportOk:'完整學習備份已恢復，頁面將重新載入。',
     importTooLarge:'匯入失敗：檔案超過 12 MB。',
-    importBad:'檔案格式不符，無法匯入（請選擇本站匯出的 judge-progress.json）',
+    importBad:'檔案格式不符，無法匯入（請選擇本站下載的備份 JSON）',
     enLoadFail:'英文內容載入失敗，請確認網路後再試 / Failed to load English content',
     hintTitle:'💡 解題思路',
     hintLevel:(n,t)=>`提示第 ${n} / ${t} 層`, hintNext:'再看一層', hintDone:'先自己試試', hintCloseLabel:'關閉提示',
@@ -484,7 +487,7 @@ const UI_STR = {
     logo:n=>`APCS ${n} Sample Checker`,
     sub:t=>`${t} problems · public examples only · Python / C++ / C / Java`,
     tutorialLink:'📚 Tutorial',
-    progExport:'Export progress (download JSON)', progImport:'Import progress',
+    progExport:'Download full learning backup', progImport:'Upload and restore backup',
     langToggleTitle:'切換為中文 / Switch to Chinese',
     statusPyIdle:'Python loads on the first run',
     statusPyLoading:'Downloading Python runtime (~10–20 s first time)...',
@@ -526,8 +529,9 @@ const UI_STR = {
     alertSolLoadFail:'Failed to load solutions — please check your network and retry',
     confirmLoadSol:'Load the full reference solution? This replaces the editor and records that the solution was loaded.',
     importOk:n=>`Imported! ${n} language–problem records pass their public examples`,
+    backupImportOk:'Full learning backup restored. The page will now reload.',
     importTooLarge:'Import failed: the file exceeds 12 MB.',
-    importBad:'Unrecognized file — please pick a judge-progress.json exported from this site',
+    importBad:'Unrecognized file — please choose a backup JSON downloaded from this site',
     enLoadFail:'英文內容載入失敗 / Failed to load English content, please check your network',
     hintTitle:'💡 Approach',
     hintLevel:(n,t)=>`Hint layer ${n} of ${t}`, hintNext:'Show one more layer', hintDone:'Try it myself', hintCloseLabel:'Close hint',
@@ -826,11 +830,12 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 // ── 進度匯出 / 匯入（換裝置、清快取時可帶走刷題進度） ─────────────────────
 function exportProgress() {
   flushDraft(); // 草稿一併打包，換裝置時寫到一半的程式碼帶得走
-  const data = { app:'apcs-judge', v:2, exportedAt:new Date().toISOString(), sampleResults, drafts, onboarding:loadOnboarding() };
-  const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
+  const isFull = typeof LearningState!=='undefined'&&typeof LearningState.exportBackup==='function';
+  const data = isFull ? LearningState.exportBackup() : { app:'apcs-judge', v:2, exportedAt:new Date().toISOString(), sampleResults, drafts, onboarding:loadOnboarding() };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'judge-progress.json';
+  a.download = isFull ? `apcs-learning-backup-${new Date().toISOString().slice(0,10)}.json` : 'judge-progress.json';
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
@@ -843,6 +848,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (f.size > PROGRESS_IMPORT_MAX_BYTES) { alert(T().importTooLarge); return; }
     try {
       const data = JSON.parse(await f.text());
+      if(data.app==='apcs-learning-backup'){
+        if(typeof LearningState==='undefined'||typeof LearningState.importBackup!=='function')throw new Error('backup unavailable');
+        LearningState.importBackup(data);
+        alert(T().backupImportOk);
+        location.reload();
+        return;
+      }
       if (data.app !== 'apcs-judge') throw new Error('bad format');
       const incomingRaw = data.sampleResults || data.scores; // v2 語意 key；v1 匯出檔向後相容
       if (!incomingRaw || typeof incomingRaw !== 'object') throw new Error('bad format');
@@ -876,10 +888,13 @@ document.addEventListener('DOMContentLoaded', () => {
 // ── Init ──────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
-    mode: 'python', theme: 'dracula', lineNumbers: true,
+    mode: 'python', theme: (window.APCSTheme&&APCSTheme.current()==='light')?'default':'dracula', lineNumbers: true,
     indentUnit: 4, tabSize: 4, indentWithTabs: false,
     extraKeys: { 'Tab': cm => cm.execCommand('indentMore'), 'Ctrl-Enter': runCode, 'Cmd-Enter': runCode },
     styleActiveLine: true
+  });
+  window.addEventListener('apcs:theme-changed', event => {
+    if(editor) editor.setOption('theme', event.detail.theme==='light'?'default':'dracula');
   });
   editor.on('change', scheduleDraftSave);
   // 鍵盤可及性：語言分頁與題目列表支援 Tab + Enter/Space
@@ -1703,7 +1718,7 @@ function safeMarkdown(text) {
       <button id="hint-close" type="button" onclick="hideHint()" aria-label="關閉提示" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;line-height:1;">×</button>
     </div>
     <div id="hint-level-status" role="status" aria-live="polite" style="padding:10px 20px 0;font-size:11px;color:var(--text-muted);"></div>
-    <div id="hint-content" style="padding:20px;font-size:13px;line-height:1.8;color:#cdd9e5;"></div>
+    <div id="hint-content" style="padding:20px;font-size:13px;line-height:1.8;color:var(--text-soft);"></div>
     <div class="hint-actions">
       <button id="hint-next" class="btn btn-run" type="button" onclick="revealNextHint()">再看一層</button>
       <button id="hint-done" class="btn btn-sec" type="button" onclick="hideHint()">先自己試試</button>
@@ -1712,7 +1727,7 @@ function safeMarkdown(text) {
   </div>
 </div>
 <style>
-#hint-content code {background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px;color:var(--lang-color);}
+#hint-content code {background:var(--strong-hover-bg);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px;color:var(--lang-color);}
 #hint-content strong {color:var(--text);}
 #hint-content p {margin-bottom:8px;}
 .hint-layer+.hint-layer{border-top:1px solid var(--border);margin-top:14px;padding-top:14px;}

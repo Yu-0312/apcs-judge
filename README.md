@@ -36,8 +36,8 @@
 | 頁面 | 角色 | 內容 |
 |------|------|------|
 | 📚 **tutorial.html** | **主軸：程式教學** | 101 章互動課程，從「什麼是程式」一路教到爬蟲、資料分析、機器人、遊戲開發、除錯防呆，以及 C++ / C / Java 各自的語言專項 |
-| 🗺 **studyplan.html** | **學習地圖** | 零基礎入門、APCS 衝刺、進階/競賽三條讀書路線，整理每週目標、章節範圍、判讀題與題庫練習 |
-| 📊 **dashboard.html** | **我的進度** | 彙整本機的教學章節、題庫公開範例結果、累計判讀、錯題與每日一題連續天數 |
+| 🗺 **studyplan.html** | **學習地圖** | 零基礎入門、APCS 衝刺、進階/競賽三條讀書路線；路線、語言、日期與完成階段會自動存於本機，下次開啟可直接續接 |
+| 📊 **dashboard.html** | **我的進度** | 彙整教學、題庫、判讀、錯題與每日一題，並提供完整進度備份下載、上傳恢復與跨裝置搬移 |
 | 🎯 **index.html** | **實戰：APCS 練習** | 300 道分級題目、四語言參考解答、公開範例檢查與解題思路 |
 | 🔍 **reading.html** | **判讀：程式識讀** | 2563 題「讀程式碼、選答案」的判讀練習，依 APCS 四級難度分庫、C/C++/Python/Java/JavaScript 各語言獨立題庫，並可隨機抽題（最多 50 題），作答後即時對解＋考點解析 |
 | 🤖 **ai-solve.html** | **AI 貼題／拍照解題** | 貼上完整題目或上傳照片，由 Gemini 結構化讀題讓你確認；可選逐層提問且不給完整程式的教練模式，或明確切換完整解題並自行決定是否執行公開範例 |
@@ -52,11 +52,12 @@
 - **每章完整學習迴圈**：「🎯 學習目標 → ✋ 動手試試 → 🌍 真實情境 → 🧠 觀念小測 → 📝 判讀快問快答 / 程式練習」，錯題自動進統一錯題本，進度存在 localStorage
 - **🧠 設計動機**：十個關鍵章節附「為什麼要這樣設計」深度解析（EAFP、HTTP 無狀態、pandas 向量化、async、delta time、模運算同餘、RAII、值語意、型別擦除、JIT）
 - **雙語介面**：右上角一鍵切換繁中 / English，教材內容同步切換
+- **Light / Dark 主題**：全站可切換淺色與深色，第一次跟隨系統偏好，之後會在目前瀏覽器記住選擇
 - **🤖 AI 貼題／拍照解題**：可直接貼完整題目，不需上傳圖片；若使用圖片會先在本機縮小並重編碼。AI 結構化讀題後由你確認，再選教練模式逐層思考或完整解題；任何 AI 程式碼都要經你預覽同意才執行。公開範例相符只是一致性檢查，不等同完整正確性證明
 - **📕 統一錯題本**：判讀題、實作題與 AI 解題上傳的錯題自動收錄成一本，以日期整理、可自訂標題與檢視詳解，複習不漏題（存在瀏覽器 localStorage）
 - **💬 全站聊天**：內含 AI 助教與預設關閉的 Firebase 大眾聊天室；Gemini 金鑰與 AI 對話只保存於分頁工作階段，公共發言須先完成 Auth、Rules、Emulator、App Check 與營運檢查，再由部署者明確開啟設定閘門
 - **手機可用**：行動版以底部導覽列切換「章節 / 教學 / 程式」三個面板
-- **進度可攜**：完成進度與刷題紀錄存瀏覽器（localStorage），並可一鍵匯出 / 匯入 JSON 帶到其他裝置
+- **進度可攜**：教學、題庫、判讀、錯題本、每日一題與學習地圖都會自動存入瀏覽器（localStorage）；可下載完整 JSON 備份，再於同站上傳恢復到其他裝置
 - **鍵盤操作**：`Ctrl/Cmd + Enter` 直接執行程式；分頁與章節列表支援 Tab + Enter
 
 ### 🗺️ 課程地圖（101 章）
@@ -181,7 +182,7 @@ python3 -m http.server 8000
 | **Google Gemini** | AI 貼題／拍照解題與 AI 助教（瀏覽器直呼，自備金鑰只存於目前分頁工作階段） |
 | **Firebase Realtime Database** | 大眾聊天室同步；需搭配 Auth、版本化 Rules、App Check 與營運限額 |
 
-主要學習介面是純靜態網站（HTML + `data/*.js` 資料檔），沒有自營帳號後端；瀏覽器會依功能直接連到 Pyodide／Judge0／Gemini／Firebase。Runtime 不需 npm build，內容維護則有產物與 CI 檢查腳本。教材與題目資料拆檔存於 `data/`；`node scripts/check-data.js` 可在本地驗證資料一致性（CI 亦會自動跑）。錯題本以共用模組 `data/mistake-book.js` 統一各頁的 localStorage 讀寫，聊天工具則集中在 `data/chat-widget.js`。完整上線檢查見 [`DEPLOYMENT.md`](DEPLOYMENT.md)。
+主要學習介面是純靜態網站（HTML + `data/*.js` 資料檔），沒有自營帳號後端；瀏覽器會依功能直接連到 Pyodide／Judge0／Gemini／Firebase。Runtime 不需 npm build，內容維護則有產物與 CI 檢查腳本。教材與題目資料拆檔存於 `data/`；`node scripts/check-data.js` 可在本地驗證資料一致性（CI 亦會自動跑）。學習狀態與完整備份集中在 `data/learning-state.js`，全站 Light / Dark 由 `data/theme.js` 與 `assets/theme.css` 共用，錯題本由 `data/mistake-book.js` 統一讀寫，聊天工具則集中在 `data/chat-widget.js`。完整上線檢查見 [`DEPLOYMENT.md`](DEPLOYMENT.md)。
 
 ### 🤝 貢獻
 
@@ -212,8 +213,8 @@ This project is a complete learning path made of seven pages:
 | Page | Role | Content |
 |------|------|---------|
 | 📚 **tutorial.html** | **Core: coding tutorial** | 101 interactive chapters, from "what is a program" through web scraping, data analysis, chat bots, game dev, debugging, input validation, plus dedicated C++ / C / Java tracks |
-| 🗺 **studyplan.html** | **Learning map** | Three study paths (zero-to-code, APCS sprint, advanced/contest), weekly goals, chapter ranges, reading drills and judge practice recommendations |
-| 📊 **dashboard.html** | **Progress dashboard** | Local summary of tutorial completion, public-example results, cumulative code reading, mistakes and daily streak |
+| 🗺 **studyplan.html** | **Learning map** | Three study paths with auto-saved route, language, start date and completed stages, ready to resume on the next visit |
+| 📊 **dashboard.html** | **Progress dashboard** | Full local summary plus complete JSON backup download, upload/restore and manual transfer across devices |
 | 🎯 **index.html** | **Practice: APCS sample checker** | 300 tiered problems with four-language reference solutions, public-example checks and solution hints |
 | 🔍 **reading.html** | **Code reading** | 2563 "read the code, pick the answer" comprehension questions across four APCS difficulty tiers with separate C/C++/Python/Java/JavaScript banks, plus per-level random draw (up to 50), instant reveal and per-question explanations |
 | 🤖 **ai-solve.html** | **AI text/photo solver** | Paste a complete problem or upload a photo, confirm Gemini's structured reading, then choose a no-code layered coaching flow or explicitly enter full-solution mode with user-approved sample execution |
@@ -226,11 +227,12 @@ This project is a complete learning path made of seven pages:
 - **Per-chapter loop**: learning goals → hands-on tweaks → real-life example → concept quiz → embedded code-reading drill / auto-graded coding exercise; wrong answers go into the unified mistakes book and progress persists in localStorage
 - **🧠 Design Motivation** sections in ten key chapters explain *why* things are designed the way they are (EAFP, stateless HTTP, pandas vectorization, async, delta time, modular arithmetic, RAII, value semantics, type erasure, JIT)
 - **Bilingual UI**: one-click Traditional Chinese / English toggle, lesson content included
+- **Light / Dark themes**: site-wide toggle, system preference on first visit, then remembered in the current browser
 - **🤖 AI text/photo solver**: paste the full problem without creating an image, or upload an image that is resized and re-encoded locally. After confirming the structured reading, choose layered coaching with no complete code or full-solution mode; generated code still requires explicit approval before every run
 - **📕 Unified mistakes book**: wrong answers from code-reading, judge problems and AI-solve uploads are auto-collected into one book, grouped by date with editable titles and expandable explanations, so nothing slips through review (stored in localStorage)
 - **💬 Site-wide chat**: an AI tutor uses a session-only key/history; the Firebase public room defaults to an explicit disabled deployment flag until Auth, Rules, Emulator, App Check and operational controls have been completed
 - **Mobile-friendly**: bottom navigation switches between chapters / lesson / code panels
-- **Portable progress**: stored in localStorage, with one-click JSON export / import across devices
+- **Portable progress**: tutorial, judge, reading, mistakes, daily activity and study-plan state auto-save to localStorage; download one full JSON backup and upload it on another device to resume
 - **Keyboard**: `Ctrl/Cmd + Enter` to run; tabs and chapter list are keyboard-accessible
 
 ### Curriculum map (101 chapters)

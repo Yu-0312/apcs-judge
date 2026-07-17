@@ -14,8 +14,9 @@
 <meta name="twitter:title" content="程式教學 × APCS 練習｜四語言互動教室">
 <meta name="twitter:description" content="95 章互動課程，瀏覽器內直接執行程式碼——零安裝、零註冊。">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#0f1117">
+<script src="data/theme.js?v=20260717a"></script>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="dns-prefetch" href="https://ce.judge0.com">
@@ -42,12 +43,12 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .logo{font-size:17px;font-weight:700;color:var(--lang-color);transition:color .2s}
 .lang-tabs{height:var(--tab-h);display:flex;align-items:stretch;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0}
 .lang-tab{display:flex;align-items:center;gap:6px;padding:0 16px;cursor:pointer;font-size:12px;font-weight:500;color:var(--text-muted);border-bottom:2px solid transparent;transition:all .15s}
-.lang-tab:hover{color:var(--text);background:rgba(255,255,255,.03)}
+.lang-tab:hover{color:var(--text);background:var(--hover-bg)}
 .lang-tab.active-py{color:var(--py);border-color:var(--py);background:rgba(63,185,80,.05)}
 .lang-tab.active-cpp{color:var(--cpp);border-color:var(--cpp);background:rgba(121,192,255,.05)}
 .lang-tab.active-c{color:var(--c-col);border-color:var(--c-col);background:rgba(255,166,87,.05)}
 .lang-tab.active-java{color:var(--java);border-color:var(--java);background:rgba(210,168,255,.05)}
-.btn-run{background:var(--lang-color);color:#000;transition:background .2s}
+.btn-run{background:var(--lang-color);color:var(--button-on-accent);transition:background .2s}
 .sub{font-size:12px;color:var(--text-muted)}
 .hright{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:12px;color:var(--text-muted)}
 .hright a{color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px}
@@ -56,7 +57,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .hbtn:hover{border-color:var(--text-muted)}
 .status-dot{width:7px;height:7px;border-radius:50%;background:var(--yellow);display:inline-block;margin-right:4px;animation:pulse 1.5s infinite}
 .status-dot.ready{background:var(--green);animation:none}
-.ldbar{display:inline-block;width:72px;height:4px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden;vertical-align:middle;margin-left:6px}
+.ldbar{display:inline-block;width:72px;height:4px;border-radius:2px;background:var(--track-bg);overflow:hidden;vertical-align:middle;margin-left:6px}
 .ldbar i{display:block;width:40%;height:100%;background:var(--yellow);border-radius:2px;animation:ldslide 1.2s ease-in-out infinite}
 @keyframes ldslide{0%{transform:translateX(-110%)}100%{transform:translateX(260%)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
@@ -67,16 +68,16 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .chap{padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(48,54,61,.5);font-size:13px;transition:background .12s}
 .sec-header{margin:14px 0 6px;padding:8px 10px;background:linear-gradient(90deg,rgba(88,166,255,.12),transparent);border-left:3px solid var(--py);border-radius:4px}
 .sec-header:first-child{margin-top:0}
-.sec-label{font-size:12px;font-weight:700;color:#e6edf3;letter-spacing:.3px}
+.sec-label{font-size:12px;font-weight:700;color:var(--text);letter-spacing:.3px}
 .sec-desc{font-size:10.5px;color:var(--text-muted);margin-top:2px;line-height:1.4}
 
-.chap:hover{background:rgba(255,255,255,.03)}
-.chap.active{background:rgba(255,255,255,.05);border-left:2px solid var(--lang-color);padding-left:12px;transition:border-color .2s}
+.chap:hover{background:var(--hover-bg)}
+.chap.active{background:var(--strong-hover-bg);border-left:2px solid var(--lang-color);padding-left:12px;transition:border-color .2s}
 .chap-num{font-size:10px;color:var(--text-muted);font-weight:600}
 .chap-title{font-weight:500;margin-top:2px}
 .lesson-panel{border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
 .panel-hdr{padding:10px 18px;border-bottom:1px solid var(--border);background:var(--panel-bg);font-size:12px;color:var(--text-muted);display:flex;align-items:center;justify-content:space-between}
-.lesson-body{overflow-y:auto;flex:1;padding:20px 24px;line-height:1.7;font-size:14px;color:#cdd9e5}
+.lesson-body{overflow-y:auto;flex:1;padding:20px 24px;line-height:1.7;font-size:14px;color:var(--text-soft)}
 .lesson-body h1{font-size:24px;color:var(--text);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
 .lesson-body h2{font-size:18px;color:var(--lang-color);margin:22px 0 8px;transition:color .2s}
 .lesson-body h3{font-size:15px;color:var(--text);margin:16px 0 6px}
@@ -88,13 +89,13 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .lesson-body p{margin-bottom:10px}
 .lesson-body ul,.lesson-body ol{margin:8px 0 12px 22px}
 .lesson-body li{margin:4px 0}
-.lesson-body code{background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-family:'SFMono-Regular',Consolas,monospace;font-size:12.5px;color:#ffa657}
-.lesson-body pre{background:#0d1117;border:1px solid var(--border);padding:12px 14px;border-radius:6px;overflow-x:auto;margin:10px 0}
-.lesson-body pre code{background:transparent;padding:0;color:#cdd9e5;font-size:12.5px}
+.lesson-body code{background:var(--strong-hover-bg);padding:1px 6px;border-radius:3px;font-family:'SFMono-Regular',Consolas,monospace;font-size:12.5px;color:var(--orange)}
+.lesson-body pre{background:var(--code-bg);border:1px solid var(--border);padding:12px 14px;border-radius:6px;overflow-x:auto;margin:10px 0}
+.lesson-body pre code{background:transparent;padding:0;color:var(--text-soft);font-size:12.5px}
 .lesson-body table{border-collapse:collapse;margin:10px 0;font-size:13px}
 .lesson-body th,.lesson-body td{padding:6px 12px;border:1px solid var(--border);text-align:left}
 .lesson-body th{background:var(--panel-bg);font-weight:600}
-.lesson-body blockquote{border-left:3px solid var(--yellow);padding:8px 12px;margin:10px 0;background:rgba(210,153,34,.08);color:#cdd9e5;border-radius:0 4px 4px 0}
+.lesson-body blockquote{border-left:3px solid var(--yellow);padding:8px 12px;margin:10px 0;background:rgba(210,153,34,.08);color:var(--text-soft);border-radius:0 4px 4px 0}
 .lesson-body .demo-btn{display:inline-block;background:var(--py);color:#000;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;margin:6px 0;text-decoration:none;border:none}
 .editor-panel{display:flex;flex-direction:column;overflow:hidden}
 .editor-toolbar{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--panel-bg);flex-shrink:0}
@@ -105,12 +106,12 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .btn-sec:hover{color:var(--text);border-color:var(--text-muted)}
 .editor-wrap{flex:1;overflow:hidden}
 .CodeMirror{height:100%!important;font-size:13px!important;font-family:'SFMono-Regular',Consolas,monospace!important;line-height:1.6!important}
-.output-panel{border-top:1px solid var(--border);height:200px;overflow-y:auto;background:#0d1117;padding:10px 14px}
+.output-panel{border-top:1px solid var(--border);height:200px;overflow-y:auto;background:var(--code-bg);padding:10px 14px}
 .output-hdr{font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.output-body{font-family:'SFMono-Regular',Consolas,monospace;font-size:12px;color:#cdd9e5;white-space:pre-wrap;line-height:1.5}
+.output-body{font-family:'SFMono-Regular',Consolas,monospace;font-size:12px;color:var(--text-soft);white-space:pre-wrap;line-height:1.5}
 .input-area{padding:8px 14px;border-top:1px solid var(--border);background:var(--panel-bg);display:flex;gap:8px;align-items:center}
 .input-area label{font-size:11px;color:var(--text-muted);font-weight:600}
-.input-area textarea{flex:1;background:#0d1117;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-family:monospace;font-size:11px;resize:vertical;min-height:32px;max-height:80px}
+.input-area textarea{flex:1;background:var(--code-bg);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-family:monospace;font-size:11px;resize:vertical;min-height:32px;max-height:80px}
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-thumb{background:#30363d;border-radius:3px}
 .lesson-section{margin-bottom:18px}
@@ -124,8 +125,8 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .mode-toggle.on{background:rgba(63,185,80,.12);border-color:var(--py);color:var(--py)}
 .mode-toggle .dot{width:6px;height:6px;border-radius:50%;background:var(--text-muted);transition:background .2s}
 .mode-toggle.on .dot{background:var(--py)}
-.progress-wrap{padding:10px 14px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
-.progress-bar{height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.progress-wrap{padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface-tint)}
+.progress-bar{height:6px;background:var(--track-bg);border-radius:3px;overflow:hidden}
 .progress-fill{height:100%;background:linear-gradient(90deg,var(--py),#56d364);width:0%;transition:width .4s ease}
 .progress-text{display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-top:6px;letter-spacing:.3px}
 .chap{position:relative}
@@ -136,22 +137,22 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .learn-box{background:rgba(121,192,255,.06);border-left:3px solid var(--cpp);padding:10px 14px;margin:14px 0;border-radius:0 5px 5px 0}
 .learn-box .lh{font-size:11px;color:var(--cpp);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
 .learn-box ul{margin:4px 0 0 18px}
-.learn-box li{font-size:13.5px;color:#cdd9e5;margin:3px 0}
+.learn-box li{font-size:13.5px;color:var(--text-soft);margin:3px 0}
 .try-box{background:rgba(210,153,34,.07);border-left:3px solid var(--yellow);padding:10px 14px;margin:14px 0;border-radius:0 5px 5px 0}
 .try-box .lh{font-size:11px;color:var(--yellow);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
 .try-box ol{margin:4px 0 0 22px}
-.try-box li{font-size:13px;color:#cdd9e5;margin:5px 0;line-height:1.55}
-.try-box code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;font-size:12px;color:#ffa657}
+.try-box li{font-size:13px;color:var(--text-soft);margin:5px 0;line-height:1.55}
+.try-box code{background:var(--strong-hover-bg);padding:1px 5px;border-radius:3px;font-size:12px;color:var(--orange)}
 .real-box{background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.25);padding:14px;margin:16px 0;border-radius:6px}
 .real-box .lh{font-size:11px;color:var(--cpp);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
-.real-box p{font-size:13.5px;color:#cdd9e5;margin:0 0 10px}
-.real-code{background:#0d1117;border:1px solid var(--border);border-radius:5px;padding:10px 12px;overflow-x:auto;font-size:12px;color:#cdd9e5;white-space:pre}
+.real-box p{font-size:13.5px;color:var(--text-soft);margin:0 0 10px}
+.real-code{background:var(--code-bg);border:1px solid var(--border);border-radius:5px;padding:10px 12px;overflow-x:auto;font-size:12px;color:var(--text-soft);white-space:pre}
 .quiz-box{background:rgba(63,185,80,.05);border:1px solid rgba(63,185,80,.25);padding:14px;margin:20px 0;border-radius:6px}
 .quiz-box .lh{font-size:11px;color:var(--py);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
-.quiz-q{margin:14px 0 8px;font-weight:600;color:#e6edf3;font-size:13.5px}
+.quiz-q{margin:14px 0 8px;font-weight:600;color:var(--text);font-size:13.5px}
 .quiz-q:first-of-type{margin-top:0}
-.quiz-opt{display:block;width:100%;text-align:left;background:rgba(255,255,255,.03);border:1px solid var(--border);padding:8px 12px;border-radius:5px;margin:4px 0;color:#cdd9e5;font-size:13px;cursor:pointer;transition:all .15s;font-family:inherit}
-.quiz-opt:hover:not(.locked){border-color:var(--text-muted);background:rgba(255,255,255,.06)}
+.quiz-opt{display:block;width:100%;text-align:left;background:var(--surface-tint);border:1px solid var(--border);padding:8px 12px;border-radius:5px;margin:4px 0;color:var(--text-soft);font-size:13px;cursor:pointer;transition:all .15s;font-family:inherit}
+.quiz-opt:hover:not(.locked){border-color:var(--text-muted);background:var(--hover-bg)}
 .quiz-opt.correct{background:rgba(63,185,80,.18);border-color:var(--py);color:#fff}
 .quiz-opt.wrong{background:rgba(248,81,73,.15);border-color:var(--red);color:#fff}
 .quiz-opt.locked{cursor:default}
@@ -159,15 +160,15 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .quiz-status{font-size:12px;margin-top:12px;padding:8px 12px;border-radius:4px;text-align:center;font-weight:600}
 .quiz-status.pass{background:rgba(63,185,80,.18);color:var(--py)}
 .quiz-status.fail{background:rgba(248,81,73,.12);color:var(--red)}
-.cq-task{font-size:13.5px;line-height:1.6;color:#e6edf3;margin-bottom:12px}
+.cq-task{font-size:13.5px;line-height:1.6;color:var(--text);margin-bottom:12px}
 .cq-pyhint{background:rgba(255,193,7,.1);border-left:3px solid #ffc107;padding:8px 12px;margin-bottom:10px;font-size:12.5px;color:#f0d878;border-radius:4px;line-height:1.5}
-.cq-task code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;font-size:12.5px}
+.cq-task code{background:var(--strong-hover-bg);padding:1px 5px;border-radius:3px;font-size:12.5px}
 .cq-row{display:flex;gap:10px;margin-bottom:10px}
 .cq-col{flex:1;min-width:0}
 .cq-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.cq-io{background:rgba(0,0,0,.3);border:1px solid var(--border);padding:6px 10px;border-radius:4px;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#cdd9e5;margin:0;white-space:pre;overflow-x:auto}
+.cq-io{background:var(--code-bg);border:1px solid var(--border);padding:6px 10px;border-radius:4px;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--text-soft);margin:0;white-space:pre;overflow-x:auto}
 .cq-none{font-size:12px;color:var(--text-muted)}
-.cq-btn{background:var(--py);color:#0d1117;border:none;padding:8px 16px;border-radius:5px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;margin-top:4px}
+.cq-btn{background:var(--py);color:var(--button-on-accent);border:none;padding:8px 16px;border-radius:5px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;margin-top:4px}
 .cq-btn:hover:not(:disabled){filter:brightness(1.1)}
 .cq-btn:disabled{opacity:.6;cursor:wait}
 .quiz-status.fail pre.cq-io{margin-top:6px}
@@ -184,14 +185,14 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .reading-drill summary::after{content:"▾";float:right;color:var(--text-muted);transition:transform .15s}
 .reading-drill[open] summary::after{transform:rotate(180deg)}
 .reading-body{padding:0 14px 14px}
-.reading-code{background:#0d1117;border:1px solid var(--border);border-radius:5px;padding:9px 10px;overflow-x:auto;font-size:11.5px;color:#cdd9e5;white-space:pre;margin:8px 0}
+.reading-code{background:var(--code-bg);border:1px solid var(--border);border-radius:5px;padding:9px 10px;overflow-x:auto;font-size:11.5px;color:var(--text-soft);white-space:pre;margin:8px 0}
 .reading-meta{font-size:11px;color:var(--text-muted);margin-top:4px}
 .intro-card{background:linear-gradient(135deg,rgba(63,185,80,.08),rgba(121,192,255,.06));border:1px solid rgba(63,185,80,.3);padding:16px 18px;border-radius:8px;margin:14px 0}
 .intro-card h3{margin-top:0;color:var(--py)}
 .intro-card p{font-size:13.5px;margin:6px 0}
 .chapter-complete{display:flex;align-items:flex-start;gap:10px;background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.28);border-radius:7px;padding:12px 14px;margin:20px 0}
 .chapter-complete input{margin-top:3px;width:17px;height:17px;accent-color:var(--green)}
-.chapter-complete label{font-size:13px;color:#cdd9e5;cursor:pointer;line-height:1.55}
+.chapter-complete label{font-size:13px;color:var(--text-soft);cursor:pointer;line-height:1.55}
 .chapter-complete label b{display:block;color:var(--text);font-size:13.5px}
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 
@@ -233,6 +234,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
   #mobile-nav button .ic{font-size:16px}
 }
 </style>
+<link rel="stylesheet" href="assets/theme.css?v=20260717a">
 </head>
 <body>
 <header>
@@ -245,8 +247,8 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
     <a href="studyplan.html">🗺 學習地圖</a>
     <a href="dashboard.html">📊 進度</a>
     <a href="reference.html">📑 速查</a>
-    <button id="prog-exp-btn" class="hbtn" onclick="exportProgress()" title="匯出進度（下載 JSON）">💾</button>
-    <button id="prog-imp-btn" class="hbtn" onclick="importProgress()" title="匯入進度">📂</button>
+    <button id="prog-exp-btn" class="hbtn" onclick="exportProgress()" title="下載完整學習備份">💾</button>
+    <button id="prog-imp-btn" class="hbtn" onclick="importProgress()" title="上傳備份並恢復">📂</button>
     <input type="file" id="prog-file" accept=".json,application/json" style="display:none">
     <button id="ui-lang-btn" class="hbtn" onclick="toggleUiLang()">🌐 EN</button>
     <span><span class="status-dot" id="status-dot"></span><span id="status-text">Python 首次執行時載入</span><span class="ldbar" id="py-ldbar" style="display:none"><i></i></span></span>
@@ -477,10 +479,10 @@ const UI_STR = {
     cqDiffAt:'差異從第 {n} 行開始', cqDiffExpected:'此行預期', cqDiffMissing:'（缺少此行）', cqDiffExtra:'（多出此行）',
     cqPyHint:'💡 本章程式練習以 Python 為基準（涉及檔案 / 模組 / OOP / API 等 Python 慣用法）。請先切到 Python 嘗試，或直接讀左邊教材的概念。',
     mnavChap:'章節', mnavLesson:'教學', mnavCode:'程式',
-    progExport:'匯出進度（下載 JSON）', progImport:'匯入進度',
+    progExport:'下載完整學習備份', progImport:'上傳備份並恢復',
     readCompleteTitle:'完成本章', readCompleteHelp:'本章沒有程式評測。讀完教材並完成你需要的隨堂練習後，可勾選完成。',
     readCompleteCheck:'我已閱讀並完成本章', completedAnnounce:'本章已標記完成', uncompletedAnnounce:'本章已改為未完成',
-    progImportOk:'已匯入！目前共完成 {n} 章', progImportTooLarge:'匯入失敗：檔案超過 12 MB。', progImportBad:'檔案格式不符，無法匯入（請選擇本站匯出的 tutorial-progress.json）'
+    progImportOk:'已匯入！目前共完成 {n} 章', backupImportOk:'完整學習備份已恢復，頁面將重新載入。', progImportTooLarge:'匯入失敗：檔案超過 12 MB。', progImportBad:'檔案格式不符，無法匯入（請選擇本站下載的備份 JSON）'
   },
   en: {
     logo:'📚 Coding Tutorial × APCS Practice', subtitle1:'chapters · coding tutorial + APCS prep + tiered practice + code literacy',
@@ -517,10 +519,10 @@ const UI_STR = {
     cqDiffAt:'First difference at line {n}', cqDiffExpected:'expected here', cqDiffMissing:'(missing line)', cqDiffExtra:'(extra line)',
     cqPyHint:'💡 This exercise is Python-based (it uses files / modules / OOP / API idioms). Switch to Python to try it, or just read the lesson concepts on the left.',
     mnavChap:'Chapters', mnavLesson:'Lesson', mnavCode:'Code',
-    progExport:'Export progress (download JSON)', progImport:'Import progress',
+    progExport:'Download full learning backup', progImport:'Upload and restore backup',
     readCompleteTitle:'Complete this chapter', readCompleteHelp:'This chapter has no coding check. Mark it complete after reading and doing the practice you need.',
     readCompleteCheck:'I have read and completed this chapter', completedAnnounce:'Chapter marked complete', uncompletedAnnounce:'Chapter marked incomplete',
-    progImportOk:'Imported! {n} chapters completed in total', progImportTooLarge:'Import failed: the file exceeds 12 MB.', progImportBad:'Unrecognized file — please pick a tutorial-progress.json exported from this site'
+    progImportOk:'Imported! {n} chapters completed in total', backupImportOk:'Full learning backup restored. The page will now reload.', progImportTooLarge:'Import failed: the file exceeds 12 MB.', progImportBad:'Unrecognized file — please choose a backup JSON downloaded from this site'
   }
 };
 function T(){ return UI_STR[uiLang]; }
@@ -618,9 +620,12 @@ function initPython() {
 
 function initEditor() {
   cm = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
-    mode:'python', theme:'dracula', lineNumbers:true, indentUnit:4,
+    mode:'python', theme:(window.APCSTheme&&APCSTheme.current()==='light')?'default':'dracula', lineNumbers:true, indentUnit:4,
     tabSize:4, indentWithTabs:false, lineWrapping:true,
     extraKeys:{'Ctrl-Enter':()=>runCode(), 'Cmd-Enter':()=>runCode()}
+  });
+  window.addEventListener('apcs:theme-changed', event => {
+    if(cm) cm.setOption('theme', event.detail.theme==='light'?'default':'dracula');
   });
   cm.setValue('# 從左側選一個章節開始\nprint("Hello APCS!")\n');
   cm.on('change', scheduleDraftSave);
@@ -863,11 +868,12 @@ function loadDraftInto(chap){
 // ── 進度匯出 / 匯入（換裝置、清快取時可帶走進度） ─────────────────────────
 function exportProgress(){
   flushDraft(); // 草稿一併打包，換裝置時寫到一半的程式碼帶得走
-  const data = { app:'apcs-tutorial', v:2, exportedAt:new Date().toISOString(), done:[...completed], drafts };
-  const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
+  const isFull = typeof LearningState!=='undefined'&&typeof LearningState.exportBackup==='function';
+  const data = isFull ? LearningState.exportBackup() : { app:'apcs-tutorial', v:2, exportedAt:new Date().toISOString(), done:[...completed], drafts };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'tutorial-progress.json';
+  a.download = isFull ? `apcs-learning-backup-${new Date().toISOString().slice(0,10)}.json` : 'tutorial-progress.json';
   a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
 }
@@ -879,6 +885,13 @@ document.getElementById('prog-file').addEventListener('change', async e=>{
   if(f.size>PROGRESS_IMPORT_MAX_BYTES){alert(T().progImportTooLarge);return;}
   try{
     const data = JSON.parse(await f.text());
+    if(data.app==='apcs-learning-backup'){
+      if(typeof LearningState==='undefined'||typeof LearningState.importBackup!=='function')throw new Error('backup unavailable');
+      LearningState.importBackup(data);
+      alert(T().backupImportOk);
+      location.reload();
+      return;
+    }
     if(data.app !== 'apcs-tutorial' || !Array.isArray(data.done)) throw new Error('bad format');
     if(data.done.length>CHAPTERS.length||data.done.some(id=>!Number.isInteger(id)||!VALID_TUTORIAL_CHAPTER_IDS.has(id)))throw new Error('bad chapters');
     data.done.forEach(id=>completed.add(id));

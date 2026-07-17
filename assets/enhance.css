@@ -5,8 +5,8 @@
  *    任何頁面既有的樣式一定蓋得過本檔，確保不會造成任何視覺回歸。
  * ════════════════════════════════════════════════════════════════ */
 
-/* 1) 告訴瀏覽器這是深色頁面：表單控制項、原生捲軸、autofill 都會用深色渲染 */
-:where(html){ color-scheme: dark; }
+/* 1) 頁面預設為深色；theme.js 會依偏好切換 html[data-theme]。 */
+:where(html){ color-scheme: dark light; }
 
 /* 2) 尊重「減少動態效果」的系統偏好（前庭功能/動暈症友善）。
  *    保留可見性，只把動畫與轉場壓到近乎瞬間，避免大範圍位移與旋轉。 */
@@ -27,12 +27,12 @@
   border-radius: 4px;
 }
 
-/* 4) 深色捲軸：Firefox + WebKit 一致（避免預設亮色捲軸在深底上很突兀） */
-:where(html){ scrollbar-color: #30363d transparent; scrollbar-width: thin; }
+/* 4) 捲軸沿用主題色票；未載入 theme.css 時仍有深色 fallback。 */
+:where(html){ scrollbar-color: var(--border,#30363d) transparent; scrollbar-width: thin; }
 :where(*)::-webkit-scrollbar{ width: 10px; height: 10px; }
 :where(*)::-webkit-scrollbar-track{ background: transparent; }
-:where(*)::-webkit-scrollbar-thumb{ background: #30363d; border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
-:where(*)::-webkit-scrollbar-thumb:hover{ background: #4b5563; background-clip: padding-box; }
+:where(*)::-webkit-scrollbar-thumb{ background: var(--border,#30363d); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+:where(*)::-webkit-scrollbar-thumb:hover{ background: var(--text-muted,#4b5563); background-clip: padding-box; }
 
 /* 5) 選取顏色與品牌一致，觸控不再有灰色閃爍 */
 :where(::selection){ background: rgba(88,166,255,.32); }
