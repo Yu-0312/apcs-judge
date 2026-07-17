@@ -7,7 +7,7 @@
 <meta name="description" content="彙整 APCS 互動程式教室的本機學習進度：教學章節、公開範例檢查結果、判讀作答、錯題本與每日一題連續天數。公開範例通過不等於完整 AC。">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#0f1117">
-<script src="data/theme.js?v=20260717a"></script>
+<script src="data/theme.js?v=20260717b"></script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -56,6 +56,8 @@ header{position:sticky;top:0;z-index:20;height:var(--header-h);display:flex;alig
 .backup-copy{max-width:720px;font-size:13px;color:var(--text-muted);margin-top:3px}
 .storage-state{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;padding:5px 9px;border:1px solid rgba(63,185,80,.35);border-radius:999px;color:var(--green);font-size:11.5px;font-weight:700}
 .storage-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(63,185,80,.12)}
+.storage-state[data-state="error"]{color:var(--red);border-color:rgba(248,81,73,.4)}
+.storage-state[data-state="error"] .storage-dot{background:var(--red);box-shadow:0 0 0 3px rgba(248,81,73,.12)}
 .backup-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .backup-status{font-size:12px;color:var(--text-muted);margin-top:9px;min-height:1.5em}
 .backup-status[data-state="ok"]{color:var(--green)}
@@ -122,7 +124,7 @@ footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:28px}
         <h2 id="backup-title">進度備份與恢復</h2>
         <p class="backup-copy">備份包含教學、題庫、判讀、錯題本、每日一題與學習地圖。換裝置時下載 JSON，再回到這裡上傳即可接續。</p>
       </div>
-      <div class="storage-state"><span class="storage-dot" aria-hidden="true"></span>已自動儲存於這台裝置</div>
+      <div class="storage-state" id="storage-state"><span class="storage-dot" aria-hidden="true"></span><span id="storage-state-text">已自動儲存於這台裝置</span></div>
     </div>
     <div class="backup-actions" aria-label="學習資料備份">
       <button class="btn primary" id="backup-export" type="button">下載進度備份</button>
@@ -136,7 +138,7 @@ footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:28px}
 </main>
 
 <script src="data/content-stats.js?v=20260717a"></script>
-<script src="data/learning-state.js?v=20260717e"></script>
+<script src="data/learning-state.js?v=20260717f"></script>
 <script src="data/mistake-book.js?v=20260717c"></script>
 <script>
 function readJSON(key, fallback){
@@ -189,7 +191,7 @@ const planMeta = {
 };
 const activePlan = planState&&planMeta[planState.planId] ? planMeta[planState.planId] : null;
 const activePlanDone = activePlan&&planState.done&&Array.isArray(planState.done[planState.planId])
-  ? Math.min(activePlan.steps,new Set(planState.done[planState.planId].filter(Number.isInteger)).size) : 0;
+  ? new Set(planState.done[planState.planId].filter(i=>Number.isInteger(i)&&i>=0&&i<activePlan.steps)).size : 0;
 
 const cards = [
   {t:'教學章節', n:doneChapters.size, d:statsManifest.tutorial.total, c:'var(--green)', sub:'完成章數'},
@@ -247,9 +249,25 @@ document.getElementById('hint').textContent = didAny
   : '還沒有本機紀錄。先從學習地圖選一條路線，完成第 0 章和第一題判讀。';
 
 const backupStatus=document.getElementById('backup-status');
+const storageState=document.getElementById('storage-state');
+const storageStateText=document.getElementById('storage-state-text');
 function setBackupStatus(message,state){
   backupStatus.textContent=message;
   if(state)backupStatus.dataset.state=state;else delete backupStatus.dataset.state;
+}
+function storageErrorMessage(err,action){
+  const code=String(err&&err.message||'');
+  if(code==='BACKUP_TOO_LARGE')return `${action}失敗：備份內容超過 12 MB。`;
+  if(/^STORAGE_/.test(code))return `${action}失敗：瀏覽器儲存空間不足或未授權，原有進度已保留。`;
+  return `${action}失敗：請選擇本站下載且未損壞的完整進度備份。`;
+}
+try{
+  const probe=`__apcs_storage_probe_${Date.now()}__`;
+  localStorage.setItem(probe,'1');localStorage.removeItem(probe);
+}catch(err){
+  storageState.dataset.state='error';
+  storageStateText.textContent='目前無法寫入本機進度';
+  setBackupStatus('瀏覽器目前不允許寫入進度；仍可嘗試下載既有資料。','error');
 }
 document.getElementById('backup-export').addEventListener('click',()=>{
   if(typeof LearningState==='undefined'){setBackupStatus('目前無法建立備份，請重新整理後再試。','error');return;}
@@ -258,14 +276,16 @@ document.getElementById('backup-export').addEventListener('click',()=>{
     const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`apcs-learning-backup-${todayKey()}.json`;a.click();
     setTimeout(()=>URL.revokeObjectURL(a.href),1000);
     setBackupStatus('備份已下載。下次可按「上傳備份並恢復」接續學習。','ok');
-  }catch(err){setBackupStatus('下載失敗：瀏覽器無法建立備份檔案。','error');}
+  }catch(err){setBackupStatus(storageErrorMessage(err,'下載'),'error');}
 });
 document.getElementById('backup-import').addEventListener('click',()=>document.getElementById('backup-file').click());
 document.getElementById('backup-file').addEventListener('change',async e=>{
   const file=e.target.files[0];e.target.value='';if(!file)return;
   if(file.size>12*1024*1024){setBackupStatus('恢復失敗：檔案超過 12 MB。','error');return;}
-  try{LearningState.importBackup(JSON.parse(await file.text()));setBackupStatus('備份已恢復，正在更新進度…','ok');setTimeout(()=>location.reload(),350);}
-  catch(err){setBackupStatus('恢復失敗：請選擇本站下載的完整進度備份。','error');}
+  try{
+    if(typeof LearningState==='undefined')throw new Error('STORAGE_FAILURE');
+    LearningState.importBackup(JSON.parse(await file.text()));setBackupStatus('備份已恢復，正在更新進度…','ok');setTimeout(()=>location.reload(),350);
+  }catch(err){setBackupStatus(storageErrorMessage(err,'恢復'),'error');}
 });
 document.getElementById('backup-clear').addEventListener('click',()=>{
   if(!confirm('確定清除教學、題庫、判讀、每日一題與錯題本的全部本機學習資料？此動作無法復原。'))return;

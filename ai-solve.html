@@ -7,7 +7,7 @@
 <meta name="description" content="直接貼上完整題目或上傳照片，讓 AI 結構化讀題後由你確認；可選教練模式逐層思考，或明確選擇完整解題並預覽程式。公開範例檢查不代表 AC。">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#0f1117">
-<script src="data/theme.js?v=20260717a"></script>
+<script src="data/theme.js?v=20260717b"></script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="AI 貼題／拍照解題｜教練引導 × 完整解題">
 <meta property="og:description" content="貼上題目文字或上傳照片，先確認 AI 讀到的內容；教練模式逐層提示、不直接給程式，完整解題仍須預覽同意才執行。">
@@ -324,7 +324,7 @@ table.tc td pre{margin:0;font-family:ui-monospace,Menlo,monospace;font-size:12px
 </div>
 
 <script src="data/mistake-book.js?v=20260717c"></script>
-<script src="data/service-config.js?v=20260717e"></script>
+<script src="data/service-config.js?v=20260717f"></script>
 <script>
 // ═══════════════════════════════════════════════════════════════════
 //  AI 解題（分關卡）：上傳+補充 → AI 讀題 → 使用者確認 → 預覽 → 公開範例一致性檢查
@@ -381,6 +381,7 @@ const ALLOWED_IMAGE_MIME = ['image/jpeg','image/png','image/webp'];
 const MAX_PROBLEM_TEXT_CHARS = 30000;
 const MAX_COACH_THOUGHT_CHARS = 4000;
 const MAX_COACH_LEVELS = 3;
+const EXEC_OUTPUT_MAX_CHARS = 200000;
 
 let imageDataUrl = null, imageB64 = null, imageMime = null;
 let readResult = null;   // AI 讀題結果
@@ -647,6 +648,10 @@ function solvePrompt(cf, notes, repair){
 
 // ═══ 執行管線（沿用 index.html） ═══
 function normOut(s){ return String(s).replace(/\r\n/g,'\n').split('\n').map(l=>l.replace(/[ \t]+$/,'')).join('\n').replace(/\n+$/,''); }
+function boundedExecutionText(value, forcedTruncated){
+  const raw=String(value||''),truncated=!!forcedTruncated||raw.length>EXEC_OUTPUT_MAX_CHARS;
+  return {text:truncated?raw.slice(0,EXEC_OUTPUT_MAX_CHARS):raw,truncated};
+}
 async function judge0Submit(code, stdin, languageId){
   if(String(code||'').length>100000) throw new Error('程式碼超過 100,000 字元，已停止傳送');
   if(String(stdin||'').length>50000) throw new Error('單組測資超過 50,000 字元，已停止傳送');
@@ -669,24 +674,25 @@ function judge0Result(data){
   const sid=data&&data.status&&data.status.id;
   if(!sid||sid<=2) return {ok:false,got:'',error:'評測排隊逾時'};
   if(sid===5) return {ok:false,got:'',error:'執行逾時（TLE）'};
-  if(sid===6) return {ok:false,got:'',error:'編譯錯誤：\n'+String(data.compile_output||'').split('\n').slice(0,6).join('\n')};
+  const stdout=boundedExecutionText(data&&data.stdout),stderr=boundedExecutionText(data&&(data.stderr||data.compile_output));
+  if(sid===6) return {ok:false,got:'',error:'編譯錯誤：\n'+stderr.text.split('\n').slice(0,6).join('\n')+(stderr.truncated?'\n輸出過長，已截斷。':'')};
   if(sid>=13) return {ok:false,got:'',error:'評測服務內部錯誤：'+(data.status.description||sid)};
-  const stdout=data.stdout||'', stderr=data.stderr||data.compile_output||'';
-  if(sid>=7&&sid<=12) return {ok:false,got:normOut(stdout),error:'執行期錯誤（'+(data.status.description||'Runtime Error')+'）：\n'+String(stderr).split('\n').slice(0,6).join('\n')};
-  if(stderr&&!stdout) return {ok:false,got:'',error:String(stderr).split('\n').slice(0,6).join('\n')};
-  return {ok:true,got:normOut(stdout),error:null};
+  if(sid>=7&&sid<=12) return {ok:false,got:normOut(stdout.text),error:'執行期錯誤（'+(data.status.description||'Runtime Error')+'）：\n'+stderr.text.split('\n').slice(0,6).join('\n')+(stdout.truncated||stderr.truncated?'\n輸出過長，已截斷。':'')};
+  if(stdout.truncated||stderr.truncated) return {ok:false,got:normOut(stdout.text),error:'程式輸出超過 200,000 字元，已截斷並停止判定'};
+  if(stderr.text&&!stdout.text) return {ok:false,got:'',error:stderr.text.split('\n').slice(0,6).join('\n')};
+  return {ok:true,got:normOut(stdout.text),error:null};
 }
 const PY_TIMEOUT_MS=15000; let pyWorker=null,pyReadyPromise=null,pyJobSeq=0; const pyJobs=new Map();
-const PY_WRAPPER=['import sys, io, traceback','class _LimitedIO(io.StringIO):','    def write(self, s):','        s = str(s)','        left = 200000 - self.tell()','        if left <= 0: return len(s)','        super().write(s[:left])','        return len(s)','__out = _LimitedIO(); __err = _LimitedIO()','__old = (sys.stdin, sys.stdout, sys.stderr)',"__t = __stdin if (__stdin == '' or __stdin.endswith('\\n')) else __stdin + '\\n'",'sys.stdin = io.StringIO(__t); sys.stdout = __out; sys.stderr = __err','try:',"    exec(compile(__code, '<user>', 'exec'), {'__name__': '__main__'})",'except SystemExit:','    pass','except BaseException:','    traceback.print_exc(file=__err)','finally:','    sys.stdin, sys.stdout, sys.stderr = __old','__r_out = __out.getvalue(); __r_err = __err.getvalue()'].join('\n');
-const PY_WORKER_SRC="importScripts('https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js');\n"+"const ready = loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/' });\n"+"ready.then(() => postMessage({ type: 'ready' }), (e) => postMessage({ type: 'ready', error: String(e) }));\n"+'const WRAP = '+JSON.stringify(PY_WRAPPER)+';\n'+'onmessage = async (e) => {\n  const { id, code, stdin } = e.data;\n  try {\n    const py = await ready;\n'+"    py.globals.set('__code', code);\n"+"    py.globals.set('__stdin', stdin);\n"+'    await py.runPythonAsync(WRAP);\n'+"    postMessage({ id, out: py.globals.get('__r_out') || '', err: py.globals.get('__r_err') || '' });\n"+'  } catch (err) {\n'+"    postMessage({ id, out: '', err: String(err) });\n"+'  }\n};\n';
-function startPyWorker(){ const blob=new Blob([PY_WORKER_SRC],{type:'text/javascript'}); pyWorker=new Worker(URL.createObjectURL(blob));
+const PY_WRAPPER=['import sys, io, traceback','class _LimitedIO(io.StringIO):','    def __init__(self):','        super().__init__(); self.truncated = False','    def write(self, s):','        s = str(s)','        left = 200000 - self.tell()','        if left <= 0: self.truncated = True; return len(s)','        if len(s) > left: self.truncated = True','        super().write(s[:left])','        return len(s)','__out = _LimitedIO(); __err = _LimitedIO()','__old = (sys.stdin, sys.stdout, sys.stderr)',"__t = __stdin if (__stdin == '' or __stdin.endswith('\\n')) else __stdin + '\\n'",'sys.stdin = io.StringIO(__t); sys.stdout = __out; sys.stderr = __err','try:',"    exec(compile(__code, '<user>', 'exec'), {'__name__': '__main__'})",'except SystemExit:','    pass','except BaseException:','    traceback.print_exc(file=__err)','finally:','    sys.stdin, sys.stdout, sys.stderr = __old','__r_out = __out.getvalue(); __r_err = __err.getvalue()','__r_out_truncated = __out.truncated; __r_err_truncated = __err.truncated'].join('\n');
+const PY_WORKER_SRC="importScripts('https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js');\n"+"const ready = loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/' });\n"+"ready.then(() => postMessage({ type: 'ready' }), (e) => postMessage({ type: 'ready', error: String(e) }));\n"+'const WRAP = '+JSON.stringify(PY_WRAPPER)+';\n'+'onmessage = async (e) => {\n  const { id, code, stdin } = e.data;\n  try {\n    const py = await ready;\n'+"    py.globals.set('__code', code);\n"+"    py.globals.set('__stdin', stdin);\n"+'    await py.runPythonAsync(WRAP);\n'+"    postMessage({ id, out: py.globals.get('__r_out') || '', err: py.globals.get('__r_err') || '', outTruncated: !!py.globals.get('__r_out_truncated'), errTruncated: !!py.globals.get('__r_err_truncated') });\n"+'  } catch (err) {\n'+"    postMessage({ id, out: '', err: String(err), outTruncated: false, errTruncated: false });\n"+'  }\n};\n';
+  function startPyWorker(){ const blob=new Blob([PY_WORKER_SRC],{type:'text/javascript'}); const workerUrl=URL.createObjectURL(blob); try{pyWorker=new Worker(workerUrl);}finally{URL.revokeObjectURL(workerUrl);}
   pyReadyPromise=new Promise((resolve,reject)=>{ pyWorker.onmessage=(e)=>{ const d=e.data||{}; if(d.type==='ready'){ if(d.error)reject(new Error(d.error)); else resolve(); return; } const job=pyJobs.get(d.id); if(job){ pyJobs.delete(d.id); clearTimeout(job.timer); job.resolve(d); } }; pyWorker.onerror=(e)=>reject(new Error((e&&e.message)||'Worker error')); }); return pyReadyPromise; }
 function killPyWorker(){ if(pyWorker)pyWorker.terminate(); pyWorker=null; pyReadyPromise=null; for(const [,job] of pyJobs){ clearTimeout(job.timer); job.reject(new Error('terminated')); } pyJobs.clear(); }
 function initPython(){ if(!pyWorker) startPyWorker().catch(()=>killPyWorker()); }
 async function runPython(code, stdin, timeoutMs){ if(!pyWorker) startPyWorker(); await pyReadyPromise; const w=pyWorker;
-  return await new Promise((resolve,reject)=>{ const id=++pyJobSeq; const timer=setTimeout(()=>{ pyJobs.delete(id); killPyWorker(); startPyWorker(); reject(new Error('PY_TIMEOUT')); },timeoutMs); pyJobs.set(id,{resolve,reject,timer}); w.postMessage({id,code,stdin}); }); }
+  return await new Promise((resolve,reject)=>{ const id=++pyJobSeq; const timer=setTimeout(()=>{ pyJobs.delete(id); killPyWorker(); initPython(); reject(new Error('PY_TIMEOUT')); },timeoutMs); pyJobs.set(id,{resolve,reject,timer}); w.postMessage({id,code,stdin}); }); }
 async function runProgram(code, lang, stdin){
-  if(lang==='py'){ try{ const r=await runPython(code,stdin,PY_TIMEOUT_MS); if(r.err&&r.err.trim()) return {ok:false,got:normOut(r.out),error:r.err.trim().split('\n').slice(-6).join('\n')}; return {ok:true,got:normOut(r.out),error:null}; }
+  if(lang==='py'){ try{ const r=await runPython(code,stdin,PY_TIMEOUT_MS); const stdout=boundedExecutionText(r.out,r.outTruncated),stderr=boundedExecutionText(r.err,r.errTruncated); if(stdout.truncated||stderr.truncated)return {ok:false,got:normOut(stdout.text),error:'程式輸出超過 200,000 字元，已截斷並停止判定'}; if(stderr.text&&stderr.text.trim()) return {ok:false,got:normOut(stdout.text),error:stderr.text.trim().split('\n').slice(-6).join('\n')}; return {ok:true,got:normOut(stdout.text),error:null}; }
     catch(e){ if(e&&e.message==='PY_TIMEOUT') return {ok:false,got:'',error:'Python 執行逾時'}; return {ok:false,got:'',error:String(e.message||e)}; } }
   const data=await judge0Submit(code, stdin, JUDGE0_LANG[lang]); return judge0Result(data);
 }
@@ -1060,6 +1066,6 @@ if(getKey()) $('set-card').classList.add('collapsed');
 $('set-card').querySelector('h2').style.cursor='pointer';
 $('set-card').querySelector('h2').onclick=(e)=>{ if(e.target.closest('button')||e.target.closest('input'))return; $('set-card').classList.toggle('collapsed'); };
 </script>
-<script src="data/chat-widget.js?v=20260717e"></script>
+<script src="data/chat-widget.js?v=20260717f"></script>
 </body>
 </html>

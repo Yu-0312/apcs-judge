@@ -16,7 +16,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#0f1117">
-<script src="data/theme.js?v=20260717a"></script>
+<script src="data/theme.js?v=20260717b"></script>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="dns-prefetch" href="https://ce.judge0.com">
@@ -329,7 +329,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 
 <!-- 題目資料（拆檔以利快取與協作）；解答與英文對照於需要時才動態載入 -->
 <script src="data/judge-problems.js?v=20260717d"></script>
-<script src="data/learning-state.js?v=20260717e"></script>
+<script src="data/learning-state.js?v=20260717f"></script>
 <script src="data/mistake-book.js?v=20260717c"></script>
 <script>
 // ── 資料版本（更新 data/*.js 時同步調整，避免舊快取與頁面不同步） ───────────
@@ -408,7 +408,9 @@ function completeSampleResultCount() {
 }
 
 // ── 介面語言（與 tutorial.html 共用 apcs_ui_lang，跨頁面記住選擇） ───────────
-let uiLang = (localStorage.getItem('apcs_ui_lang') || 'zh'); // 'zh' | 'en'
+function readUiLang(){try{const value=localStorage.getItem('apcs_ui_lang');return value==='en'?'en':'zh';}catch(e){return 'zh';}}
+function saveUiLang(value){try{localStorage.setItem('apcs_ui_lang',value);return true;}catch(e){return false;}}
+let uiLang = readUiLang(); // 'zh' | 'en'
 
 const UI_STR = {
   zh: {
@@ -458,7 +460,7 @@ const UI_STR = {
     alertSolLoadFail:'解答資料載入失敗，請確認網路後再試',
     confirmLoadSol:'確定要載入完整參考解答？這會覆蓋目前編輯器內容，並記錄為已載入解答。',
     importOk:n=>`已匯入！目前共 ${n} 筆語言 × 題目紀錄通過公開範例`,
-    backupImportOk:'完整學習備份已恢復，頁面將重新載入。',
+    backupImportOk:'完整學習備份已恢復，頁面將重新載入。', backupExportFail:'下載失敗：瀏覽器無法讀取本機進度。', backupStorageFail:'恢復失敗：瀏覽器儲存空間不足或未授權，原有進度已保留。',
     importTooLarge:'匯入失敗：檔案超過 12 MB。',
     importBad:'檔案格式不符，無法匯入（請選擇本站下載的備份 JSON）',
     enLoadFail:'英文內容載入失敗，請確認網路後再試 / Failed to load English content',
@@ -529,7 +531,7 @@ const UI_STR = {
     alertSolLoadFail:'Failed to load solutions — please check your network and retry',
     confirmLoadSol:'Load the full reference solution? This replaces the editor and records that the solution was loaded.',
     importOk:n=>`Imported! ${n} language–problem records pass their public examples`,
-    backupImportOk:'Full learning backup restored. The page will now reload.',
+    backupImportOk:'Full learning backup restored. The page will now reload.', backupExportFail:'Download failed: the browser could not read local progress.', backupStorageFail:'Restore failed: browser storage is full or unavailable. Existing progress was preserved.',
     importTooLarge:'Import failed: the file exceeds 12 MB.',
     importBad:'Unrecognized file — please choose a backup JSON downloaded from this site',
     enLoadFail:'英文內容載入失敗 / Failed to load English content, please check your network',
@@ -703,7 +705,7 @@ async function toggleUiLang(){
     finally { if (btn) btn.disabled = false; }
   }
   uiLang = next;
-  localStorage.setItem('apcs_ui_lang', uiLang);
+  saveUiLang(uiLang);
   applyUiLang();
 }
 
@@ -829,15 +831,17 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 
 // ── 進度匯出 / 匯入（換裝置、清快取時可帶走刷題進度） ─────────────────────
 function exportProgress() {
-  flushDraft(); // 草稿一併打包，換裝置時寫到一半的程式碼帶得走
-  const isFull = typeof LearningState!=='undefined'&&typeof LearningState.exportBackup==='function';
-  const data = isFull ? LearningState.exportBackup() : { app:'apcs-judge', v:2, exportedAt:new Date().toISOString(), sampleResults, drafts, onboarding:loadOnboarding() };
-  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = isFull ? `apcs-learning-backup-${new Date().toISOString().slice(0,10)}.json` : 'judge-progress.json';
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  try {
+    flushDraft(); // 草稿一併打包，換裝置時寫到一半的程式碼帶得走
+    const isFull = typeof LearningState!=='undefined'&&typeof LearningState.exportBackup==='function';
+    const data = isFull ? LearningState.exportBackup() : { app:'apcs-judge', v:2, exportedAt:new Date().toISOString(), sampleResults, drafts, onboarding:loadOnboarding() };
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = isFull ? `apcs-learning-backup-${new Date().toISOString().slice(0,10)}.json` : 'judge-progress.json';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  } catch (err) { alert(T().backupExportFail); }
 }
 function importProgress() { document.getElementById('prog-file').click(); }
 document.addEventListener('DOMContentLoaded', () => {
@@ -880,7 +884,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderProblemList();
       alert(T().importOk(completeSampleResultCount()));
     } catch (err) {
-      alert(T().importBad);
+      alert(err&&(/^(?:STORAGE_|BACKUP_TOO_LARGE)/.test(err.message||''))?T().backupStorageFail:T().importBad);
     }
   });
 });
@@ -1020,7 +1024,9 @@ const PY_WORKER_SRC =
 
 function startPyWorker() {
   const blob = new Blob([PY_WORKER_SRC], { type: 'text/javascript' });
-  pyWorker = new Worker(URL.createObjectURL(blob));
+  const workerUrl = URL.createObjectURL(blob);
+  try { pyWorker = new Worker(workerUrl); }
+  finally { URL.revokeObjectURL(workerUrl); }
   pyReady = false;
   pyReadyPromise = new Promise((resolve, reject) => {
     pyWorker.onmessage = (e) => {
@@ -1240,6 +1246,7 @@ async function runCode() {
   btn.textContent = lang === 'java' ? T().btnRunningJava : T().btnRunning;
 
   const results = [];
+  try {
   // C/C++/Java 多筆測資優先走 Judge0 批次（一次提交全部）；不支援或失敗時退回逐筆
   if (lang !== 'py' && prob.samples.length > 1 && _j0BatchOk) {
     try {
@@ -1260,9 +1267,6 @@ async function runCode() {
     }
   }
 
-  running = false;
-  btn.textContent = T().btnRun;
-
   const passed = results.filter(r => r.pass).length;
   const total = results.length;
   if (typeof LearningState !== 'undefined') LearningState.recordJudgeAttempt(prob.id, lang, total > 0 && passed === total, hintLevelUsed);
@@ -1276,7 +1280,16 @@ async function runCode() {
   if (passed < total) recordImplMistake(prob, lang, passed, total, code);
   renderProblemList();
   if (currentProblem === prob && currentLang === lang) renderResults(results, passed, total);
-  updateStatus(currentLang);
+  } catch (error) {
+    if (currentProblem === prob && currentLang === lang) {
+      const body=document.getElementById('results-body');
+      body.textContent=(uiLang==='en'?'Unexpected execution error: ':'執行發生非預期錯誤：')+String(error&&error.message||error);
+    }
+  } finally {
+    running = false;
+    btn.textContent = T().btnRun;
+    updateStatus(currentLang);
+  }
 }
 
 // 實作題未全數通過時，自動送進統一錯題本（同題會更新而非重複，記錄最後一次提交）
@@ -1734,7 +1747,7 @@ function safeMarkdown(text) {
 .hint-actions{display:flex;gap:8px;justify-content:flex-end;padding:0 20px 14px;}
 .hint-actions [hidden]{display:none;}
 </style>
-<script src="data/service-config.js?v=20260717e"></script>
-<script src="data/chat-widget.js?v=20260717e"></script>
+<script src="data/service-config.js?v=20260717f"></script>
+<script src="data/chat-widget.js?v=20260717f"></script>
 </body>
 </html>

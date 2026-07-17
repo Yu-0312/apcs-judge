@@ -86,6 +86,12 @@
     else if (typeof media.addListener === 'function') media.addListener(followSystem);
   }
 
+  global.addEventListener('storage', function (event) {
+    if (event.key !== STORAGE_KEY) return;
+    var theme = event.newValue === LIGHT || event.newValue === DARK ? event.newValue : systemTheme();
+    if (theme !== currentTheme()) applyTheme(theme, false, true);
+  });
+
   global.APCSTheme = {
     STORAGE_KEY: STORAGE_KEY,
     current: currentTheme,

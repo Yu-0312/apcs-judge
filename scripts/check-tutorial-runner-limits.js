@@ -20,19 +20,19 @@ function section(start, end) {
   return source.slice(from, to);
 }
 
-function extractArrayLiteral(name) {
+function extractArrayLiteral(name, pageSource = source, label = 'tutorial.html') {
   const marker = `const ${name}`;
-  const declaration = source.indexOf(marker);
+  const declaration = pageSource.indexOf(marker);
   assert(declaration >= 0, `${name} declaration is missing`);
 
-  const equals = source.indexOf('=', declaration + marker.length);
-  const start = source.indexOf('[', equals + 1);
+  const equals = pageSource.indexOf('=', declaration + marker.length);
+  const start = pageSource.indexOf('[', equals + 1);
   assert(equals >= 0 && start >= 0, `${name} array literal is missing`);
 
   let depth = 0;
   let quote = null;
-  for (let i = start; i < source.length; i++) {
-    const char = source[i];
+  for (let i = start; i < pageSource.length; i++) {
+    const char = pageSource[i];
     if (quote) {
       if (char === '\\') i++;
       else if (char === quote) quote = null;
@@ -40,9 +40,9 @@ function extractArrayLiteral(name) {
     }
     if (char === "'" || char === '"' || char === '`') quote = char;
     else if (char === '[') depth++;
-    else if (char === ']' && --depth === 0) return source.slice(start, i + 1);
+    else if (char === ']' && --depth === 0) return pageSource.slice(start, i + 1);
   }
-  throw new assert.AssertionError({ message: `${name} array literal is unterminated` });
+  throw new assert.AssertionError({ message: `${label} ${name} array literal is unterminated` });
 }
 
 const outputLimitMatch = source.match(/const OUTPUT_LIMIT_CHARS\s*=\s*(\d+)\s*;/);
@@ -118,6 +118,34 @@ assert(maxFileSizeMatch, 'Judge0 payload must set max_file_size');
 const maxFileSize = Number(maxFileSizeMatch[1]);
 assert(Number.isSafeInteger(maxFileSize) && maxFileSize > 0, 'Judge0 max_file_size must be a positive integer');
 
-console.log('tutorial.html runner-limit contracts: OK');
+const aiSource = fs.readFileSync(path.join(__dirname, '..', 'ai-solve.html'), 'utf8');
+const aiLimitMatch = aiSource.match(/const EXEC_OUTPUT_MAX_CHARS\s*=\s*(\d+)\s*;/);
+assert(aiLimitMatch && Number(aiLimitMatch[1]) === outputLimit, 'AI solver output cap must match the tutorial runner cap');
+const aiWrapperLines = vm.runInNewContext(`(${extractArrayLiteral('PY_WRAPPER', aiSource, 'ai-solve.html')})`, Object.create(null), {
+  filename: 'ai-solve.html#PY_WRAPPER', timeout: 1000
+});
+const aiWrapper = aiWrapperLines.join('\n');
+assert(aiWrapper.includes('__r_out_truncated = __out.truncated') && aiWrapper.includes('__r_err_truncated = __err.truncated'), 'AI Python runner must report truncated stdout and stderr separately');
+const aiHarness = [
+  'import json, sys',
+  `__code = ${JSON.stringify(`import sys\nsys.stdout.write('O' * ${outputLimit + 257})\nsys.stderr.write('E' * ${outputLimit + 257})`)}`,
+  "__stdin = ''",
+  `exec(${JSON.stringify(aiWrapper)})`,
+  "print(json.dumps({'out_len': len(__r_out), 'err_len': len(__r_err), 'out_truncated': bool(__r_out_truncated), 'err_truncated': bool(__r_err_truncated)}))"
+].join('\n');
+const aiResult = spawnSync('python3', ['-c', aiHarness], { encoding:'utf8', maxBuffer:1024 * 1024, timeout:15000 });
+assert.strictEqual(aiResult.status, 0, `AI Python wrapper harness failed: ${String(aiResult.stderr).trim()}`);
+assert.deepStrictEqual(JSON.parse(aiResult.stdout.trim()), {
+  out_len: outputLimit, err_len: outputLimit, out_truncated: true, err_truncated: true
+}, 'AI Python output must be capped and explicitly marked as truncated');
+assert(aiSource.includes('boundedExecutionText(r.out,r.outTruncated)') && aiSource.includes('boundedExecutionText(data&&data.stdout)'), 'AI Python and Judge0 output must both pass through local caps');
+assert(aiSource.includes("error:'程式輸出超過 200,000 字元，已截斷並停止判定'"), 'AI solver must reject truncated output instead of grading it');
+
+for (const page of ['index.html', 'tutorial.html', 'ai-solve.html']) {
+  const pageSource = fs.readFileSync(path.join(__dirname, '..', page), 'utf8');
+  assert(pageSource.includes('URL.revokeObjectURL(workerUrl)'), `${page} must release temporary Python worker Blob URLs`);
+}
+
+console.log('tutorial / AI runner-limit contracts: OK');
 console.log(`  Python stdout/stderr cap: ${outputLimit} chars (boundary preserved, overflow truncated + reported)`);
-console.log(`  Judge0 payload max_file_size: ${maxFileSize}; stdout/stderr/compiler/combined output are capped`);
+console.log(`  Judge0 payload max_file_size: ${maxFileSize}; tutorial and AI outputs are capped`);
