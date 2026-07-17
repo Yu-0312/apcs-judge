@@ -42,6 +42,9 @@ for (const page of pages) {
   if (!/<html\b[^>]*\blang=["'][^"']+["']/i.test(markup)) fail(`${page} 缺 html lang`);
   if (!/<title>[^<]+<\/title>/i.test(markup)) fail(`${page} 缺非空 title`);
   if (!/<meta\b[^>]*name=["']viewport["'][^>]*>/i.test(markup)) fail(`${page} 缺 viewport meta`);
+  if (!/<meta\b[^>]*name=["']color-scheme["'][^>]*content=["'][^"']*light[^"']*dark[^"']*["']/i.test(markup)) fail(`${page} 未宣告 light / dark color-scheme`);
+  if (!/<script\b[^>]*src=["']data\/theme\.js(?:\?[^"']*)?["'][^>]*><\/script>/i.test(source)) fail(`${page} 未載入共用主題腳本`);
+  if (!/<link\b[^>]*href=["']assets\/theme\.css(?:\?[^"']*)?["'][^>]*>/i.test(markup)) fail(`${page} 未載入共用主題樣式`);
 
   const ids = [...markup.matchAll(/\bid=["']([^"']+)["']/gi)].map(match => match[1]);
   const seen = new Set();
@@ -56,7 +59,7 @@ for (const page of pages) {
     if (!/\bnoopener\b/i.test(rel)) fail(`${page} 的 target="_blank" 連結缺 rel="noopener"`);
   }
 }
-if (!errors) pass(`${pages.length} 個頁面皆有 lang、title、viewport，且無靜態重複 id`);
+if (!errors) pass(`${pages.length} 個頁面皆有基本 meta、Light / Dark 主題與唯一 id`);
 
 console.log('— 本機連結與資產 —');
 for (const page of pages) {

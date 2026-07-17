@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>我的學習進度｜APCS 互動程式教室</title>
 <meta name="description" content="彙整 APCS 互動程式教室的本機學習進度：教學章節、公開範例檢查結果、判讀作答、錯題本與每日一題連續天數。公開範例通過不等於完整 AC。">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#0f1117">
+<script src="data/theme.js?v=20260717a"></script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -23,44 +24,53 @@ header{position:sticky;top:0;z-index:20;height:var(--header-h);display:flex;alig
 .wrap{max-width:1120px;margin:0 auto;padding:24px 18px 84px}
 .intro{background:linear-gradient(135deg,rgba(63,185,80,.1),rgba(88,166,255,.08));border:1px solid rgba(88,166,255,.28);border-radius:10px;padding:18px 20px;margin-bottom:16px}
 .intro h1{font-size:25px;line-height:1.25;margin-bottom:6px;letter-spacing:0}
-.intro p{font-size:14px;color:#cdd9e5}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:16px 0}
-.card{background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:15px}
+.intro p{font-size:14px;color:var(--text-soft)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:16px 0}
+.card{background:var(--panel-bg);border:1px solid var(--border);border-radius:8px;padding:15px}
 .card h2{font-size:13px;color:var(--text-muted);font-weight:700;margin-bottom:8px}
 .num{font-size:30px;line-height:1.1;font-weight:800;color:var(--text)}
 .sub{font-size:12px;color:var(--text-muted);margin-top:5px}
-.meter{height:7px;background:#0d1117;border:1px solid var(--border);border-radius:999px;overflow:hidden;margin-top:10px}
+.meter{height:7px;background:var(--code-bg);border:1px solid var(--border);border-radius:999px;overflow:hidden;margin-top:10px}
 .meter i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.45fr);gap:14px;margin-top:18px}
-.panel{background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:16px}
+.panel{background:var(--panel-bg);border:1px solid var(--border);border-radius:8px;padding:16px}
 .panel h2{font-size:16px;margin-bottom:12px}
 .row{display:grid;grid-template-columns:130px 1fr 58px;gap:10px;align-items:center;padding:9px 0;border-top:1px solid rgba(48,54,61,.65)}
 .row:first-of-type{border-top:0}
 .row b{font-size:13px;color:var(--text)}
 .row span{font-size:12px;color:var(--text-muted);text-align:right}
-.mini{height:7px;background:#0d1117;border:1px solid var(--border);border-radius:999px;overflow:hidden}
+.mini{height:7px;background:var(--code-bg);border:1px solid var(--border);border-radius:999px;overflow:hidden}
 .mini i{display:block;height:100%;background:var(--green)}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 11px;border-radius:7px;border:1px solid var(--border);font:inherit;font-size:12.5px;color:var(--text-muted);background:transparent;cursor:pointer}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#0d1117;font-weight:700}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--button-on-accent);font-weight:700}
 .btn.danger{color:#ff8a84;border-color:rgba(248,81,73,.45)}
 .btn:hover{border-color:var(--text-muted);color:var(--text)}
-.btn.primary:hover{filter:brightness(1.12);color:#0d1117}
+.btn.primary:hover{filter:brightness(1.12);color:var(--button-on-accent)}
 .today{display:flex;flex-direction:column;gap:10px}
-.pill{display:flex;justify-content:space-between;gap:10px;background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px}
+.pill{display:flex;justify-content:space-between;gap:10px;background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px}
 .pill span{color:var(--text-muted)}
-.hint{font-size:13px;color:#cdd9e5;background:rgba(210,153,34,.08);border-left:3px solid var(--yellow);border-radius:0 6px 6px 0;padding:10px 12px}
+.hint{font-size:13px;color:var(--text-soft);background:rgba(210,153,34,.08);border-left:3px solid var(--yellow);border-radius:0 6px 6px 0;padding:10px 12px}
+.backup-panel{margin-top:14px;scroll-margin-top:calc(var(--header-h) + 14px)}
+.backup-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}
+.backup-copy{max-width:720px;font-size:13px;color:var(--text-muted);margin-top:3px}
+.storage-state{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;padding:5px 9px;border:1px solid rgba(63,185,80,.35);border-radius:999px;color:var(--green);font-size:11.5px;font-weight:700}
+.storage-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(63,185,80,.12)}
+.backup-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .backup-status{font-size:12px;color:var(--text-muted);margin-top:9px;min-height:1.5em}
+.backup-status[data-state="ok"]{color:var(--green)}
+.backup-status[data-state="error"]{color:var(--red)}
 .quality{margin:16px 0}
 .quality[hidden]{display:none}
 .quality-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
-.quality-item{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:12px}
+.quality-item{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:12px}
 .quality-item b{display:block;font-size:12px;color:var(--text-muted);margin-bottom:3px}
 .quality-value{font-size:24px;font-weight:800;line-height:1.2}
 .quality-note{font-size:11px;color:var(--text-muted);margin-top:10px}
 footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:28px}
-@media(max-width:780px){.grid{grid-template-columns:1fr}.row{grid-template-columns:1fr}.row span{text-align:left}}
+@media(max-width:780px){.grid{grid-template-columns:1fr}.row{grid-template-columns:1fr}.row span{text-align:left}.backup-head{flex-direction:column}.storage-state{align-self:flex-start}}
 </style>
+<link rel="stylesheet" href="assets/theme.css?v=20260717a">
 </head>
 <body>
 <header>
@@ -78,7 +88,7 @@ footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:28px}
 <main class="wrap">
   <section class="intro">
     <h1>把分散在各頁的進度收回同一張桌面。</h1>
-    <p>所有資料都存在你的瀏覽器 localStorage：教學完成章數、公開範例通過、判讀作答、錯題本與每日一題連續天數。公開範例只檢查題面資料，不代表完整 AC；本站沒有帳號或後端。</p>
+    <p>教學、題庫、判讀、錯題本、每日一題與學習地圖都會自動存在這台裝置。公開範例只檢查題面資料，不代表完整 AC；本站沒有帳號雲端同步。</p>
   </section>
 
   <section class="stats" id="stats"></section>
@@ -98,13 +108,6 @@ footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:28px}
         <a class="btn" href="studyplan.html">查看讀書計畫</a>
         <a class="btn" href="index.html">練題庫</a>
       </div>
-      <div class="actions" aria-label="學習資料備份">
-        <button class="btn" id="backup-export" type="button">💾 匯出全部學習資料</button>
-        <button class="btn" id="backup-import" type="button">📂 匯入</button>
-        <button class="btn danger" id="backup-clear" type="button">🗑 清除全部學習資料</button>
-        <input type="file" id="backup-file" accept=".json,application/json" hidden>
-      </div>
-      <div class="backup-status" id="backup-status" role="status" aria-live="polite">備份只包含學習進度與錯題，不包含任何 API 金鑰。</div>
     </div>
     <aside class="panel today">
       <h2>今日狀態</h2>
@@ -112,7 +115,24 @@ footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:28px}
       <div class="hint" id="hint"></div>
     </aside>
   </section>
-  <footer><a href="privacy.html">隱私權政策</a> · <a href="disclaimer.html">免責聲明</a> · 資料只存在這台裝置；換裝置或清除瀏覽器資料前，請先匯出完整學習備份。</footer>
+
+  <section class="panel backup-panel" id="backup" aria-labelledby="backup-title">
+    <div class="backup-head">
+      <div>
+        <h2 id="backup-title">進度備份與恢復</h2>
+        <p class="backup-copy">備份包含教學、題庫、判讀、錯題本、每日一題與學習地圖。換裝置時下載 JSON，再回到這裡上傳即可接續。</p>
+      </div>
+      <div class="storage-state"><span class="storage-dot" aria-hidden="true"></span>已自動儲存於這台裝置</div>
+    </div>
+    <div class="backup-actions" aria-label="學習資料備份">
+      <button class="btn primary" id="backup-export" type="button">下載進度備份</button>
+      <button class="btn" id="backup-import" type="button">上傳備份並恢復</button>
+      <button class="btn danger" id="backup-clear" type="button">清除本機資料</button>
+      <input type="file" id="backup-file" accept=".json,application/json" hidden>
+    </div>
+    <div class="backup-status" id="backup-status" role="status" aria-live="polite">備份不包含 Gemini API 金鑰或聊天室身分。</div>
+  </section>
+  <footer><a href="privacy.html">隱私權政策</a> · <a href="disclaimer.html">免責聲明</a> · 本站沒有帳號雲端同步；換裝置前請下載進度備份。</footer>
 </main>
 
 <script src="data/content-stats.js?v=20260717a"></script>
@@ -145,6 +165,7 @@ const doneChapters = new Set(((typeof LearningState!=='undefined'?LearningState.
 const currentJudgeResults = readJSON('apcs_judge_sample_results_v2', null);
 const judgeScores = currentJudgeResults && typeof currentJudgeResults==='object' && !Array.isArray(currentJudgeResults) ? currentJudgeResults : (readJSON('apcs_judge_scores_v1', {}) || {});
 const dailyDone = readJSON('apcs_daily_done_v1', {}) || {};
+const planState = readJSON('apcs_study_plan_v2', null);
 const mistakes = (typeof MistakeBook !== 'undefined') ? MistakeBook.all() : (readJSON('apcs_mistake_book_v1', []) || []);
 const readingProgress = (typeof LearningState!=='undefined') ? LearningState.readingStats() : {attempted:Object.keys(readJSON('apcs_reading_sess_v1', {})||{}).length,runs:0};
 const judgeQuality = (typeof LearningState!=='undefined'&&typeof LearningState.judgeStats==='function') ? LearningState.judgeStats() : {records:{},attempted:0,firstAttemptCorrect:0,solutionLoads:0};
@@ -161,6 +182,14 @@ const judgeSolved = Math.min(statsManifest.judge.total,solvedProblemIds.size);
 const readingAnswered = Math.min(statsManifest.reading.total,readingProgress.attempted||0);
 const readingMistakes = mistakes.filter(r=>r&&r.type==='reading');
 const dailyStreak = streak(dailyDone);
+const planMeta = {
+  starter:{label:'零基礎入門',steps:4},
+  apcs:{label:'APCS 衝刺',steps:6},
+  advanced:{label:'進階／競賽',steps:6}
+};
+const activePlan = planState&&planMeta[planState.planId] ? planMeta[planState.planId] : null;
+const activePlanDone = activePlan&&planState.done&&Array.isArray(planState.done[planState.planId])
+  ? Math.min(activePlan.steps,new Set(planState.done[planState.planId].filter(Number.isInteger)).size) : 0;
 
 const cards = [
   {t:'教學章節', n:doneChapters.size, d:statsManifest.tutorial.total, c:'var(--green)', sub:'完成章數'},
@@ -207,8 +236,9 @@ document.getElementById('tracks').innerHTML = tracks.map(([name,a,b])=>{
 }).join('');
 
 const didDaily = !!dailyDone[todayKey()];
-const didAny = doneChapters.size || judgeSolved || readingAnswered || mistakes.length;
+const didAny = doneChapters.size || judgeSolved || readingAnswered || mistakes.length || activePlan;
 document.getElementById('today').innerHTML = `
+  <div class="pill"><b>目前路線</b><span>${activePlan?`${activePlan.label} · ${activePlanDone}/${activePlan.steps} 階段`:'尚未建立'}</span></div>
   <div class="pill"><b>每日一題</b><span>${didDaily?'今天已完成':'今天尚未完成'}</span></div>
   <div class="pill"><b>判讀錯題</b><span>${readingMistakes.length} 題</span></div>
   <div class="pill"><b>總錯題本</b><span>${mistakes.length} 筆</span></div>`;
@@ -217,25 +247,32 @@ document.getElementById('hint').textContent = didAny
   : '還沒有本機紀錄。先從學習地圖選一條路線，完成第 0 章和第一題判讀。';
 
 const backupStatus=document.getElementById('backup-status');
+function setBackupStatus(message,state){
+  backupStatus.textContent=message;
+  if(state)backupStatus.dataset.state=state;else delete backupStatus.dataset.state;
+}
 document.getElementById('backup-export').addEventListener('click',()=>{
-  if(typeof LearningState==='undefined')return;
-  const blob=new Blob([JSON.stringify(LearningState.exportBackup(),null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`apcs-learning-backup-${todayKey()}.json`;a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),1000);backupStatus.textContent='備份已匯出；API 金鑰未包含在檔案中。';
+  if(typeof LearningState==='undefined'){setBackupStatus('目前無法建立備份，請重新整理後再試。','error');return;}
+  try{
+    const blob=new Blob([JSON.stringify(LearningState.exportBackup(),null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`apcs-learning-backup-${todayKey()}.json`;a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    setBackupStatus('備份已下載。下次可按「上傳備份並恢復」接續學習。','ok');
+  }catch(err){setBackupStatus('下載失敗：瀏覽器無法建立備份檔案。','error');}
 });
 document.getElementById('backup-import').addEventListener('click',()=>document.getElementById('backup-file').click());
 document.getElementById('backup-file').addEventListener('change',async e=>{
   const file=e.target.files[0];e.target.value='';if(!file)return;
-  if(file.size>12*1024*1024){backupStatus.textContent='匯入失敗：檔案超過 12 MB。';return;}
-  try{LearningState.importBackup(JSON.parse(await file.text()));backupStatus.textContent='匯入完成，正在更新統計…';setTimeout(()=>location.reload(),350);}
-  catch(err){backupStatus.textContent='匯入失敗：請選擇本站匯出的完整學習備份。';}
+  if(file.size>12*1024*1024){setBackupStatus('恢復失敗：檔案超過 12 MB。','error');return;}
+  try{LearningState.importBackup(JSON.parse(await file.text()));setBackupStatus('備份已恢復，正在更新進度…','ok');setTimeout(()=>location.reload(),350);}
+  catch(err){setBackupStatus('恢復失敗：請選擇本站下載的完整進度備份。','error');}
 });
 document.getElementById('backup-clear').addEventListener('click',()=>{
   if(!confirm('確定清除教學、題庫、判讀、每日一題與錯題本的全部本機學習資料？此動作無法復原。'))return;
   try{
     if(!LearningState.clearAll())throw new Error('CLEAR_FAILED');
-    backupStatus.textContent='全部學習資料已清除，正在更新…';setTimeout(()=>location.reload(),350);
-  }catch(err){backupStatus.textContent='清除失敗：瀏覽器未能更新本機儲存，請確認儲存空間或權限後再試。';}
+    setBackupStatus('本機學習資料已清除，正在更新…','ok');setTimeout(()=>location.reload(),350);
+  }catch(err){setBackupStatus('清除失敗：瀏覽器未能更新本機儲存，請確認儲存空間或權限後再試。','error');}
 });
 </script>
 </body>

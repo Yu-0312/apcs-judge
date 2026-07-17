@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI 解題｜貼題或拍照 → 讀題確認 → 教練引導／完整解題</title>
 <meta name="description" content="直接貼上完整題目或上傳照片，讓 AI 結構化讀題後由你確認；可選教練模式逐層思考，或明確選擇完整解題並預覽程式。公開範例檢查不代表 AC。">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#0f1117">
+<script src="data/theme.js?v=20260717a"></script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="AI 貼題／拍照解題｜教練引導 × 完整解題">
 <meta property="og:description" content="貼上題目文字或上傳照片，先確認 AI 讀到的內容；教練模式逐層提示、不直接給程式，完整解題仍須預覽同意才執行。">
@@ -54,9 +55,9 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .stepbar .s{flex:1;min-width:130px;display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--border);border-radius:10px;background:var(--panel-bg);font-size:12.5px;color:var(--text-muted);}
 .stepbar .s .n{width:20px;height:20px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
 .stepbar .s.active{border-color:var(--purple);color:var(--text);}
-.stepbar .s.active .n{background:var(--purple);color:#150a25;border-color:var(--purple);}
+.stepbar .s.active .n{background:var(--purple);color:var(--button-on-accent);border-color:var(--purple);}
 .stepbar .s.done{border-color:var(--green);color:var(--green);}
-.stepbar .s.done .n{background:var(--green);color:#08131f;border-color:var(--green);}
+.stepbar .s.done .n{background:var(--green);color:var(--button-on-accent);border-color:var(--green);}
 
 .card{background:var(--panel-bg);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:16px;}
 .card h2{font-size:14px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
@@ -68,11 +69,11 @@ label.fl{font-size:12px;color:var(--text-muted);min-width:70px;}
 input.tin,select.tin,textarea.tin{flex:1;min-width:180px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-family:inherit;font-size:13px;}
 textarea.tin{width:100%;resize:vertical;line-height:1.6;}
 input.tin:focus,select.tin:focus,textarea.tin:focus{outline:none;border-color:var(--accent);}
-.btn{background:var(--accent);color:#08131f;border:none;border-radius:8px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:filter .15s;white-space:nowrap;}
+.btn{background:var(--accent);color:var(--button-on-accent);border:none;border-radius:8px;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:filter .15s;white-space:nowrap;}
 .btn:hover{filter:brightness(1.08);}
 .btn:disabled{opacity:.5;cursor:not-allowed;}
 .btn.ok{background:var(--green);}
-.btn.pp{background:var(--purple);color:#150a25;}
+.btn.pp{background:var(--purple);color:var(--button-on-accent);}
 .btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-weight:600;}
 .btn.ghost:hover{color:var(--text);border-color:var(--text-muted);}
 .key-state{font-size:12px;font-weight:600;}
@@ -80,7 +81,7 @@ input.tin:focus,select.tin:focus,textarea.tin:focus{outline:none;border-color:va
 .key-state.no{color:var(--yellow);}
 .collapsed .set-body{display:none;}
 
-#drop{border:2px dashed var(--border);border-radius:12px;padding:30px 18px;text-align:center;cursor:pointer;transition:.15s;background:rgba(255,255,255,.015);}
+#drop{border:2px dashed var(--border);border-radius:12px;padding:30px 18px;text-align:center;cursor:pointer;transition:.15s;background:var(--surface-tint);}
 #drop:hover,#drop.drag{border-color:var(--purple);background:rgba(188,140,255,.06);}
 #drop .big{font-size:32px;}
 #drop .t{font-size:14px;font-weight:600;margin-top:8px;}
@@ -93,11 +94,11 @@ input.tin:focus,select.tin:focus,textarea.tin:focus{outline:none;border-color:va
 .mode-picker{margin-top:16px;padding:12px;border:1px solid var(--border);border-radius:10px;}
 .mode-picker legend{padding:0 6px;color:var(--text-muted);font-size:12px;font-weight:700;}
 .mode-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;}
-.mode-choice{display:flex;align-items:flex-start;gap:8px;padding:10px;border:1px solid var(--border);border-radius:9px;cursor:pointer;background:rgba(255,255,255,.015);font-size:13px;line-height:1.45;}
+.mode-choice{display:flex;align-items:flex-start;gap:8px;padding:10px;border:1px solid var(--border);border-radius:9px;cursor:pointer;background:var(--surface-tint);font-size:13px;line-height:1.45;}
 .mode-choice:has(input:checked){border-color:var(--purple);background:rgba(188,140,255,.08);}
 .mode-choice input{margin-top:3px;flex-shrink:0;}
 .mode-choice small{display:block;color:var(--text-muted);margin-top:2px;}
-.coach-layer{border:1px solid var(--border);border-radius:10px;padding:13px;margin-top:10px;background:rgba(255,255,255,.015);}
+.coach-layer{border:1px solid var(--border);border-radius:10px;padding:13px;margin-top:10px;background:var(--surface-tint);}
 .coach-layer h3{font-size:13px;color:var(--purple);margin-bottom:7px;}
 .coach-question{margin-top:10px;padding:10px;border-left:3px solid var(--blue);background:rgba(88,166,255,.07);border-radius:0 8px 8px 0;}
 .coach-answer{margin-top:9px;color:var(--text-muted);font-size:12.5px;white-space:pre-wrap;word-break:break-word;}
@@ -130,7 +131,7 @@ input.tin:focus,select.tin:focus,textarea.tin:focus{outline:none;border-color:va
 .badge.cpp{background:rgba(88,166,255,.14);color:var(--blue);}
 .badge.c{background:rgba(139,148,158,.16);color:#c9d1d9;}
 .badge.java{background:rgba(255,166,87,.14);color:var(--orange);}
-pre.code{background:#0b0e14;border:1px solid var(--border);border-radius:10px;padding:14px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.55;white-space:pre;}
+pre.code{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.55;white-space:pre;}
 .copy{float:right;font-size:11px;padding:3px 9px;}
 .runs{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
 .runpill{font-size:12px;font-weight:700;padding:5px 12px;border-radius:8px;border:1px solid var(--border);}
@@ -138,13 +139,13 @@ pre.code{background:#0b0e14;border:1px solid var(--border);border-radius:10px;pa
 .runpill.bad{background:rgba(248,81,73,.12);color:var(--red);border-color:rgba(248,81,73,.35);}
 table.tc{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px;}
 table.tc th,table.tc td{border:1px solid var(--border);padding:7px 9px;text-align:left;vertical-align:top;}
-table.tc th{color:var(--text-muted);font-weight:600;background:rgba(255,255,255,.02);}
+table.tc th{color:var(--text-muted);font-weight:600;background:var(--surface-tint);}
 table.tc td pre{margin:0;font-family:ui-monospace,Menlo,monospace;font-size:12px;white-space:pre-wrap;word-break:break-word;}
 .md{font-size:14px;line-height:1.8;}
 .md h1,.md h2,.md h3{margin:14px 0 8px;font-size:15px;}
 .md p{margin:8px 0;} .md ul,.md ol{margin:8px 0 8px 22px;}
-.md code{background:#0b0e14;border:1px solid var(--border);padding:1px 5px;border-radius:5px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;}
-.md pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:12px;overflow:auto;}
+.md code{background:var(--code-bg);border:1px solid var(--border);padding:1px 5px;border-radius:5px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;}
+.md pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:12px;overflow:auto;}
 .md pre code{border:none;padding:0;background:none;}
 .locked{text-align:center;padding:26px 16px;color:var(--text-muted);font-size:13px;border:1px dashed var(--border);border-radius:10px;}
 .err-box{background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.35);color:#ffb3ae;border-radius:8px;padding:12px;font-size:13px;white-space:pre-wrap;word-break:break-word;}
@@ -157,6 +158,7 @@ table.tc td pre{margin:0;font-family:ui-monospace,Menlo,monospace;font-size:12px
 .privacy-choice input{margin-top:3px;flex-shrink:0;}
 .review-code{max-height:360px;overflow:auto;white-space:pre-wrap;word-break:break-word;}
 </style>
+<link rel="stylesheet" href="assets/theme.css?v=20260717a">
 </head>
 <body>
 <header>

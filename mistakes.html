@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>錯題本｜判讀題 × 實作題 × AI 上傳錯題（依日期整理）</title>
 <meta name="description" content="統一錯題本：自動收錄程式判讀題、實作題與 AI 解題上傳的錯題，以日期為標題，可自訂標題、檢視詳解、刪除。">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#0f1117">
+<script src="data/theme.js?v=20260717a"></script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="統一錯題本｜判讀題 × 實作題 × AI 上傳（依日期整理）">
 <meta property="og:description" content="判讀答錯、實作沒過、AI 解題上傳的題目自動收成同一本，依日期整理、可檢視詳解——零安裝、零註冊。">
@@ -73,7 +74,7 @@ input.search{background:var(--panel-bg);border:1px solid var(--border);color:var
 
 .rec{background:var(--panel-bg);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden;}
 .rec-head{display:flex;align-items:center;gap:10px;padding:13px 15px;cursor:pointer;}
-.rec-head:hover{background:rgba(255,255,255,.02);}
+.rec-head:hover{background:var(--surface-tint);}
 .type-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;flex-shrink:0;}
 .type-badge.reading{background:rgba(88,166,255,.14);color:var(--blue);}
 .type-badge.impl{background:rgba(63,185,80,.14);color:var(--green);}
@@ -84,20 +85,20 @@ input.search{background:var(--panel-bg);border:1px solid var(--border);color:var
 .rec-meta{font-size:11px;color:var(--text-muted);white-space:nowrap;flex-shrink:0;}
 .rec-count{font-size:10px;font-weight:700;color:var(--yellow);background:rgba(210,153,34,.14);border-radius:999px;padding:2px 7px;}
 .icon-btn{background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:4px 6px;border-radius:6px;flex-shrink:0;}
-.icon-btn:hover{background:rgba(255,255,255,.06);color:var(--text);}
+.icon-btn:hover{background:var(--hover-bg);color:var(--text);}
 .chev{font-size:11px;color:var(--text-muted);transition:transform .2s;flex-shrink:0;}
 .rec.open .chev{transform:rotate(90deg);}
 
 .rec-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border);}
 .rec.open .rec-body{display:block;}
 .sec-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin:14px 0 7px;}
-pre.code{background:#0b0e14;border:1px solid var(--border);border-radius:9px;padding:12px;overflow:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.55;white-space:pre;}
+pre.code{background:var(--code-bg);border:1px solid var(--border);border-radius:9px;padding:12px;overflow:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.55;white-space:pre;}
 .opt{display:block;padding:8px 12px;border:1px solid var(--border);border-radius:8px;margin-top:6px;font-size:13px;}
 .opt.correct{border-color:var(--green);background:rgba(63,185,80,.1);color:var(--green);}
 .opt.wrong{border-color:var(--red);background:rgba(248,81,73,.1);color:var(--red);}
 .md{font-size:13.5px;line-height:1.8;}
-.md code{background:#0b0e14;border:1px solid var(--border);padding:1px 5px;border-radius:5px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;}
-.md pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:12px;overflow:auto;}
+.md code{background:var(--code-bg);border:1px solid var(--border);padding:1px 5px;border-radius:5px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;}
+.md pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:12px;overflow:auto;}
 .md pre code{border:none;padding:0;background:none;}
 .md ul,.md ol{margin:6px 0 6px 20px;}
 .stmt{font-size:13.5px;line-height:1.75;white-space:pre-wrap;color:var(--text);}
@@ -106,6 +107,7 @@ pre.code{background:#0b0e14;border:1px solid var(--border);border-radius:9px;pad
 .kv b{color:var(--text);}
 .toolbar-status{width:100%;font-size:12px;color:var(--text-muted);min-height:1.5em}
 </style>
+<link rel="stylesheet" href="assets/theme.css?v=20260717a">
 </head>
 <body>
 <header>

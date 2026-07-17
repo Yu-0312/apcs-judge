@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>學習地圖與讀書計畫｜APCS 互動程式教室</title>
 <meta name="description" content="APCS 互動程式教室的站內學習地圖：零基礎入門、APCS 衝刺、進階競賽三條讀書路線，搭配教學章節、判讀題與題庫練習。">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#0f1117">
+<script src="data/theme.js?v=20260717a"></script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗺</text></svg>">
 <link rel="stylesheet" href="assets/enhance.css?v=20260717b">
 <style>
@@ -28,28 +29,32 @@ header{position:sticky;top:0;z-index:20;height:var(--header-h);display:flex;alig
 .hnav a:hover,.hnav a.on{color:var(--text);border-color:var(--accent)}
 .wrap{max-width:1120px;margin:0 auto;padding:24px 18px 84px}
 .intro{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,.6fr);gap:18px;align-items:stretch;margin-bottom:18px}
-.intro-main{background:linear-gradient(135deg,rgba(88,166,255,.12),rgba(63,185,80,.06));border:1px solid rgba(88,166,255,.32);border-radius:10px;padding:18px 20px}
+.intro-main{background:linear-gradient(135deg,rgba(88,166,255,.12),rgba(63,185,80,.06));border:1px solid rgba(88,166,255,.32);border-radius:8px;padding:18px 20px}
 .intro-main h1{font-size:26px;line-height:1.25;margin-bottom:8px;letter-spacing:0}
-.intro-main p{font-size:14px;color:#cdd9e5}
-.progress-panel{background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:16px}
+.intro-main p{font-size:14px;color:var(--text-soft)}
+.progress-panel{background:var(--panel-bg);border:1px solid var(--border);border-radius:8px;padding:16px}
 .progress-panel h2{font-size:14px;color:var(--text);margin-bottom:10px}
-.meter{height:8px;background:#0d1117;border:1px solid var(--border);border-radius:999px;overflow:hidden;margin:8px 0}
+.meter{height:8px;background:var(--code-bg);border:1px solid var(--border);border-radius:999px;overflow:hidden;margin:8px 0}
 .meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--blue));transition:width .25s}
 .stat{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--text-muted)}
-.planner{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr);gap:14px;margin:18px 0;padding:16px;background:var(--panel-bg);border:1px solid var(--border);border-radius:10px}
+.stat a{color:var(--accent);font-weight:700}
+.planner{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr);gap:14px;margin:18px 0;padding:16px;background:var(--panel-bg);border:1px solid var(--border);border-radius:8px}
 .planner h2{font-size:16px;margin-bottom:4px}.planner p{font-size:13px;color:var(--text-muted)}
 .planner-fields{display:grid;grid-template-columns:repeat(3,minmax(120px,1fr));gap:10px;margin-top:12px}
 .field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11px;color:var(--text-muted);font-weight:700}
-.field select,.field input{width:100%;min-height:38px;padding:7px 9px;color:var(--text);background:#0d1117;border:1px solid var(--border);border-radius:7px;font:inherit;font-size:13px}
-.planner-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.field select,.field input{width:100%;min-height:38px;padding:7px 9px;color:var(--text);background:var(--code-bg);border:1px solid var(--border);border-radius:7px;font:inherit;font-size:13px}
+.planner-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.save-state{display:inline-flex;align-items:center;gap:7px;min-height:34px;margin-left:auto;padding:0 9px;color:var(--green);font-size:11.5px;font-weight:700}
+.save-state[data-state="error"]{color:var(--red)}
+.save-dot{width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 0 3px rgba(63,185,80,.12)}
 .today-card{display:flex;flex-direction:column;justify-content:space-between;gap:10px;padding:13px;background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.35);border-radius:8px}
-.today-card b{font-size:13px}.today-card span{font-size:12.5px;color:#cdd9e5}
+.today-card b{font-size:13px}.today-card span{font-size:12.5px;color:var(--text-soft)}
 .controls{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
 .chip{font-size:13px;padding:7px 13px;border-radius:999px;border:1px solid var(--border);color:var(--text-muted);background:transparent;cursor:pointer;font-family:inherit}
 .chip:hover{color:var(--text);border-color:var(--text-muted)}
 .chip.on{color:var(--accent);border-color:var(--accent);background:rgba(88,166,255,.12);font-weight:700}
 .plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
-.plan{background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.plan{background:var(--panel-bg);border:1px solid var(--border);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:12px}
 .plan.selected{box-shadow:0 0 0 2px rgba(88,166,255,.45)}
 .plan[data-kind="starter"]{border-top:3px solid var(--green)}
 .plan[data-kind="apcs"]{border-top:3px solid var(--blue)}
@@ -57,38 +62,39 @@ header{position:sticky;top:0;z-index:20;height:var(--header-h);display:flex;alig
 .plan-h{display:flex;align-items:flex-start;gap:10px}
 .plan-ic{font-size:22px;line-height:1}
 .plan h2{font-size:18px;line-height:1.25}
-.plan .desc{font-size:13.5px;color:#cdd9e5}
+.plan .desc{font-size:13.5px;color:var(--text-soft)}
 .facts{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.fact{background:#0d1117;border:1px solid var(--border);border-radius:7px;padding:8px 10px}
+.fact{background:var(--code-bg);border:1px solid var(--border);border-radius:7px;padding:8px 10px}
 .fact b{display:block;font-size:11px;color:var(--text-muted);font-weight:600}
 .fact span{display:block;font-size:13px;color:var(--text);margin-top:2px}
 .weeks{display:flex;flex-direction:column;gap:8px}
-.week{display:grid;grid-template-columns:auto 1fr;gap:8px;border-left:3px solid var(--accent);background:rgba(255,255,255,.025);padding:8px 10px;border-radius:0 6px 6px 0}
+.week{display:grid;grid-template-columns:auto 1fr;gap:8px;border-left:3px solid var(--accent);background:var(--surface-tint);padding:8px 10px;border-radius:0 6px 6px 0}
 .week input{width:17px;height:17px;margin-top:2px;accent-color:var(--green)}
 .week.done{opacity:.72;border-left-color:var(--green)}
 .week.done b,.week.done span{text-decoration:line-through;text-decoration-thickness:1px}
 .week b{display:block;font-size:12.5px;color:var(--text);margin-bottom:2px}
-.week span{font-size:12.5px;color:#cdd9e5}
+.week span{font-size:12.5px;color:var(--text-soft)}
 .week-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}.week-links a{font-size:11.5px;color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 11px;border-radius:7px;border:1px solid var(--border);font-size:12.5px;color:var(--text-muted)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#0d1117;font-weight:700}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--button-on-accent);font-weight:700}
 .btn:hover{border-color:var(--text-muted);color:var(--text)}
-.btn.primary:hover{filter:brightness(1.12);color:#0d1117}
-.map{margin-top:24px;background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:16px}
+.btn.primary:hover{filter:brightness(1.12);color:var(--button-on-accent)}
+.map{margin-top:24px;background:var(--panel-bg);border:1px solid var(--border);border-radius:8px;padding:16px}
 .map h2{font-size:16px;margin-bottom:12px}
 .track{display:grid;grid-template-columns:120px 1fr;gap:10px;padding:10px 0;border-top:1px solid rgba(48,54,61,.65)}
 .track:first-of-type{border-top:0;padding-top:0}
 .track b{font-size:13px;color:var(--accent)}
-.track p{font-size:13px;color:#cdd9e5}
+.track p{font-size:13px;color:var(--text-soft)}
 footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:28px}
 @media(max-width:760px){
   .intro{grid-template-columns:1fr}
-  .planner{grid-template-columns:1fr}.planner-fields{grid-template-columns:1fr}
+  .planner{grid-template-columns:1fr}.planner-fields{grid-template-columns:1fr}.save-state{width:100%;margin-left:0;padding-left:0}
   .facts{grid-template-columns:1fr}
   .track{grid-template-columns:1fr;gap:2px}
 }
 </style>
+<link rel="stylesheet" href="assets/theme.css?v=20260717a">
 </head>
 <body>
 <header>
@@ -111,25 +117,26 @@ footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:28px}
       <p>這頁把教學章節、APCS 題庫、程式判讀與 C++ 速查整理成三條可執行路線。先選一條路線，照週次完成章節與練習，再回到題庫補強錯題。</p>
     </div>
     <aside class="progress-panel">
-      <h2>本機教學進度</h2>
-      <div class="stat"><span id="done-label">已完成 0 / 101 章</span><span id="pct-label">0%</span></div>
+      <h2>目前路線進度</h2>
+      <div class="stat"><strong id="route-name">零基礎入門</strong><span id="pct-label">0%</span></div>
       <div class="meter"><i id="meter-fill"></i></div>
-      <div class="stat"><span>資料來自瀏覽器 localStorage</span><span class="mono">tut_done</span></div>
+      <div class="stat"><span id="done-label">已完成 0 / 4 個階段</span><a href="dashboard.html#backup">備份到其他裝置</a></div>
     </aside>
   </section>
 
   <section class="planner" aria-labelledby="planner-title">
     <div>
       <h2 id="planner-title">建立可追蹤的讀書計畫</h2>
-      <p>選擇路線、主力語言與開始日期；每週完成後勾選，進度只儲存在這台裝置。</p>
+      <p>選擇路線、主力語言與開始日期；設定與完成勾選會自動儲存在這台裝置。</p>
       <div class="planner-fields">
         <div class="field"><label for="plan-select">學習路線</label><select id="plan-select"></select></div>
         <div class="field"><label for="language-select">主力語言</label><select id="language-select"><option value="py">Python</option><option value="cpp">C++</option><option value="c">C</option><option value="java">Java</option></select></div>
         <div class="field"><label for="start-date">開始日期</label><input id="start-date" type="date"></div>
       </div>
       <div class="planner-actions">
-        <button class="btn primary" type="button" id="save-plan">儲存計畫</button>
+        <button class="btn primary" type="button" id="save-plan">儲存設定</button>
         <button class="btn" type="button" id="reset-plan">重設勾選</button>
+        <div class="save-state" id="plan-save-state" role="status" aria-live="polite"><span class="save-dot" aria-hidden="true"></span><span id="plan-save-text">正在載入本機計畫</span></div>
       </div>
     </div>
     <div class="today-card" aria-live="polite">
@@ -152,7 +159,7 @@ footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:28px}
     <div class="track"><b>95–97 進階</b><p>物件模型、函式參數、讀官方文件，適合開始寫較大程式前補觀念。</p></div>
     <div class="track"><b>98–100 除錯</b><p>常見錯誤訊息、系統化除錯、輸入驗證與防禦式程式設計。</p></div>
   </section>
-  <footer><a href="privacy.html">隱私權政策</a> · <a href="disclaimer.html">免責聲明</a> · 計畫與勾選紀錄僅保存在本機。</footer>
+  <footer><a href="privacy.html">隱私權政策</a> · <a href="disclaimer.html">免責聲明</a> · 計畫會自動保存；換裝置前可到<a href="dashboard.html#backup">進度備份</a>下載。</footer>
 </main>
 
 <script>
@@ -203,6 +210,7 @@ const PLANS = [
 ];
 const PLAN_KEY = 'apcs_study_plan_v2';
 let active = 'all';
+let loadedPlanFromStorage = false;
 let planState = loadPlanState();
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function todayISO(){
@@ -218,10 +226,28 @@ function loadPlanState(){
     value.startDate = /^\d{4}-\d{2}-\d{2}$/.test(value.startDate||'') ? value.startDate : todayISO();
     value.done = value.done && typeof value.done === 'object' ? value.done : fallback.done;
     PLANS.forEach(p=>{ value.done[p.id] = Array.isArray(value.done[p.id]) ? [...new Set(value.done[p.id].filter(i=>Number.isInteger(i)&&i>=0&&i<p.weeks.length))] : []; });
+    loadedPlanFromStorage = true;
     return value;
   }catch(e){ return fallback; }
 }
-function savePlanState(){ localStorage.setItem(PLAN_KEY, JSON.stringify(planState)); }
+function updateSaveStatus(message,state){
+  const el=document.getElementById('plan-save-state');
+  const text=document.getElementById('plan-save-text');
+  if(!el||!text)return;
+  text.textContent=message;
+  if(state)el.dataset.state=state;else delete el.dataset.state;
+}
+function savePlanState(message){
+  try{
+    localStorage.setItem(PLAN_KEY, JSON.stringify(planState));
+    loadedPlanFromStorage=true;
+    updateSaveStatus(message||'已自動儲存於這台裝置','saved');
+    return true;
+  }catch(e){
+    updateSaveStatus('無法儲存，請檢查瀏覽器儲存權限','error');
+    return false;
+  }
+}
 function planHref(week,type){
   if(type==='tutorial'){
     let chapter=week[2];
@@ -269,24 +295,22 @@ function renderPlans(){
   document.querySelectorAll('.choose-plan').forEach(button=>button.addEventListener('click',()=>{
     planState.planId=button.dataset.plan;
     document.getElementById('plan-select').value=planState.planId;
-    savePlanState(); renderPlans(); renderPlanner();
+    savePlanState('路線已自動儲存'); renderPlans(); renderPlanner();
   }));
   document.querySelectorAll('.week input').forEach(box=>box.addEventListener('change',()=>{
     const list=planState.done[box.dataset.plan]||[];
     const i=Number(box.dataset.week);
     planState.done[box.dataset.plan]=box.checked?[...new Set([...list,i])]:list.filter(v=>v!==i);
-    savePlanState(); renderPlans(); renderPlanner();
+    savePlanState('完成進度已自動儲存'); renderPlans(); renderPlanner();
   }));
 }
-function renderProgress(){
-  let done = [];
-  try {
-    const raw = JSON.parse(localStorage.getItem('tut_done') || '[]');
-    if(Array.isArray(raw)) done = raw.filter(Number.isInteger);
-  } catch(e) {}
-  const total = 101;
-  const pct = Math.min(100, Math.round(done.length / total * 100));
-  document.getElementById('done-label').textContent = `已完成 ${done.length} / ${total} 章`;
+function renderPlanProgress(){
+  const plan=PLANS.find(p=>p.id===planState.planId) || PLANS[0];
+  const total=plan.weeks.length;
+  const done=(planState.done[plan.id]||[]).length;
+  const pct=total?Math.min(100,Math.round(done/total*100)):0;
+  document.getElementById('route-name').textContent=plan.title;
+  document.getElementById('done-label').textContent = `已完成 ${done} / ${total} 個階段`;
   document.getElementById('pct-label').textContent = `${pct}%`;
   document.getElementById('meter-fill').style.width = `${pct}%`;
 }
@@ -308,26 +332,32 @@ function renderPlanner(){
   const action=document.getElementById('today-action');
   action.href=next<0?'mistakes.html':planHref(week,'tutorial');
   action.textContent=next<0?'複習錯題':'開始本週教學';
+  renderPlanProgress();
 }
 function initPlanner(){
   const select=document.getElementById('plan-select');
+  const language=document.getElementById('language-select');
+  const startDate=document.getElementById('start-date');
   select.innerHTML=PLANS.map(p=>`<option value="${p.id}">${esc(p.title)}</option>`).join('');
   renderPlanner();
-  document.getElementById('save-plan').addEventListener('click',()=>{
+  const saveSettings=()=>{
     planState.planId=select.value;
-    planState.language=document.getElementById('language-select').value;
-    planState.startDate=document.getElementById('start-date').value||todayISO();
-    savePlanState(); active=planState.planId; renderFilters(); renderPlans(); renderPlanner();
-  });
+    planState.language=language.value;
+    planState.startDate=startDate.value||todayISO();
+    savePlanState('計畫設定已自動儲存'); active=planState.planId; renderFilters(); renderPlans(); renderPlanner();
+  };
+  document.getElementById('save-plan').addEventListener('click',saveSettings);
+  [select,language,startDate].forEach(control=>control.addEventListener('change',saveSettings));
   document.getElementById('reset-plan').addEventListener('click',()=>{
     if(!confirm('要清除目前路線的週次勾選嗎？')) return;
-    planState.done[planState.planId]=[]; savePlanState(); renderPlans(); renderPlanner();
+    planState.done[planState.planId]=[]; savePlanState('目前路線的勾選已重設'); renderPlans(); renderPlanner();
   });
+  if(loadedPlanFromStorage)updateSaveStatus('已載入上次的學習進度','saved');
+  else savePlanState('已建立並自動儲存學習計畫');
 }
 initPlanner();
 renderFilters();
 renderPlans();
-renderProgress();
 </script>
 </body>
 </html>
