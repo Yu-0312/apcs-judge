@@ -68,6 +68,7 @@ const pyWrapper = vm.runInNewContext(pyWrapperSource + '\n;PY_WRAPPER;');
 const pyLimitCheck = spawnSync(process.env.PYTHON_BIN || 'python3', ['-c', `__stdin=''; __code="print('x'*200100)"\n${pyWrapper}\nassert __r_out_truncated and len(__r_out) <= 200000\nassert not __r_err_truncated`], { encoding:'utf8', timeout:10000 });
 assert(pyLimitCheck.status === 0, `Python output limiter failed: ${pyLimitCheck.stderr || pyLimitCheck.error || pyLimitCheck.status}`);
 assert((source.match(/max_file_size: 1024/g) || []).length >= 2, 'single and batch Judge0 requests need max_file_size');
+assert((source.match(/languageId === JUDGE0_LANG\.c \? \{ compiler_options: '-lm' \}/g) || []).length >= 2, "single and batch Judge0 C submissions must link libm via compiler_options ('-lm')");
 assert(source.includes('boundedExecutionText(data.stdout)') && source.includes("boundedExecutionText(data.stderr || data.compile_output || '')"), 'Judge0 stdout/stderr must be clipped locally');
 
 const deepLinkSource = section('function parsePracticeDeepLink', '// 題目內容的英文對照');

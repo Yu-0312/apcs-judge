@@ -144,6 +144,8 @@ assert(aiSource.includes("error:'程式輸出超過 200,000 字元，已截斷�
 for (const page of ['index.html', 'tutorial.html', 'ai-solve.html']) {
   const pageSource = fs.readFileSync(path.join(__dirname, '..', page), 'utf8');
   assert(pageSource.includes('URL.revokeObjectURL(workerUrl)'), `${page} must release temporary Python worker Blob URLs`);
+  // Judge0 的 C 編譯指令是 `gcc %s main.c`（舊 glibc），math.h 需明確連結 -lm。
+  assert(/compiler_options:\s*'-lm'/.test(pageSource), `${page} must link libm for Judge0 C submissions (compiler_options '-lm')`);
 }
 
 console.log('tutorial / AI runner-limit contracts: OK');

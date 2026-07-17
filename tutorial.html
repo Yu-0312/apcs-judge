@@ -1424,7 +1424,7 @@ async function judge0Submit(code, stdin, languageId) {
     try {
       res = await fetchWithTimeout('https://ce.judge0.com/submissions?base64_encoded=false&wait=true', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ language_id: languageId, source_code: code, stdin: stdin || '', cpu_time_limit:5, wall_time_limit:10, memory_limit:262144, max_file_size:1024 })
+        body: JSON.stringify({ language_id: languageId, source_code: code, stdin: stdin || '', cpu_time_limit:5, wall_time_limit:10, memory_limit:262144, max_file_size:1024, ...(languageId === 50 ? { compiler_options: '-lm' } : {}) })
       },20000);
     } catch(e) {
       lastErr = T().errNet;

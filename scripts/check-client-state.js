@@ -233,6 +233,10 @@ console.log('— 跨分頁同步與每日一題容錯 —');
   assert(dailySource.includes('var persisted = commit(q, selected);') && dailySource.includes('!persisted') && dailySource.includes('作答結果未能保存'), '每日一題寫入失敗時不得假裝進度已保存');
   assert(/function saveDone\(o\)[\s\S]*return true;[\s\S]*return false;/.test(dailySource), '每日一題儲存函式必須回報成功或失敗');
   assert(dailySource.includes('html[data-theme="dark"] #dq-panel') && chatSource.includes('html[data-theme="dark"] #cw-panel'), '浮動學習工具必須跟隨全站深色主題');
+  const widgetSource = fs.readFileSync(path.join(ROOT, 'data', 'widget-install.js'), 'utf8');
+  assert(widgetSource.includes('html[data-theme="dark"] #wi-modal') && widgetSource.includes('html[data-theme="dark"] .wi-note'), 'Widget 安裝面板必須跟隨全站深色主題');
+  const readingSource = fs.readFileSync(path.join(ROOT, 'reading.html'), 'utf8');
+  assert(readingSource.includes('const runSaved=LearningState.recordReadingRun(') && readingSource.includes('回合統計未能保存'), '判讀回合結束時寫入失敗必須告知使用者');
   pass('主題／計畫可跨分頁同步，每日一題不再誤報保存成功');
 }
 

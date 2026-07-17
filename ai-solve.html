@@ -659,7 +659,7 @@ async function judge0Submit(code, stdin, languageId){
   for(let a=0;a<delays.length;a++){
     if(delays[a]) await new Promise(r=>setTimeout(r,delays[a]));
     let res;
-    try{ res=await fetchWithTimeout(JUDGE0_API_BASE+'/submissions?base64_encoded=false&wait=true',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({language_id:languageId,source_code:code,stdin:stdin||'',cpu_time_limit:5,wall_time_limit:10,memory_limit:262144,max_file_size:1024})},JUDGE0_TIMEOUT_MS); }
+    try{ res=await fetchWithTimeout(JUDGE0_API_BASE+'/submissions?base64_encoded=false&wait=true',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({language_id:languageId,source_code:code,stdin:stdin||'',cpu_time_limit:5,wall_time_limit:10,memory_limit:262144,max_file_size:1024,...(languageId===50?{compiler_options:'-lm'}:{})})},JUDGE0_TIMEOUT_MS); }
     catch(e){ lastErr=e&&e.message==='REQUEST_TIMEOUT'?'評測服務連線逾時':'網路連線失敗'; continue; }
     if(res.status===429){ lastErr='評測服務忙碌（429）'; continue; }
     if(res.status>=500){ lastErr='評測服務錯誤（'+res.status+'）'; continue; }

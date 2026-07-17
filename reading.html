@@ -677,12 +677,13 @@ function finishRun(){
   const list=runList();
   const answered=list.filter(q=>sess[q.id]!==undefined);
   if(typeof LearningState!=='undefined'&&answered.length){
-    LearningState.recordReadingRun({
+    const runSaved=LearningState.recordReadingRun({
       answered:answered.length,
       correct:answered.filter(q=>sess[q.id]===q.answer).length,
       questionIds:answered.map(q=>q.id),
       mode:run.wrong?'wrong':'practice',lang:run.lang,level:run.level,cat:run.cat
     });
+    if(!runSaved)announce('回合已結束，但回合統計未能保存；請先釋放瀏覽器儲存空間');
   }
   sess={};saveSess();
   view='home';run={wrong:false,lang:null,level:null,cat:null,ids:[],idx:0,count:run.count};
@@ -880,6 +881,6 @@ function applyDeepLink(){
 <script src="data/service-config.js?v=20260717f"></script>
 <script src="data/chat-widget.js?v=20260717f"></script>
 <script src="data/daily-question.js?v=20260717b"></script>
-<script src="data/widget-install.js?v=20260716b"></script>
+<script src="data/widget-install.js?v=20260717a"></script>
 </body>
 </html>
