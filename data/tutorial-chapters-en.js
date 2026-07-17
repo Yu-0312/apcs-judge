@@ -11173,4 +11173,178 @@ print("a,b,c,d".split(",", 2))
 
 # dir() to find names
 print(dir(str)[-10:])`}
+,
+{id:98,title:"Common Errors and Reading Compiler Messages",tag:"Debugging",content:`
+# Chapter 98: Common Errors and Reading Compiler Messages
+
+An error message is not a scolding. It is the computer leaving clues. Read it by finding three things first:
+
+1. **Which file and line failed**
+2. **What kind of error it is**
+3. **The first error is usually more useful than the later ones**
+
+## 98.1 Common Python errors
+
+| Error | Meaning | Usual fix |
+|------|------|---------|
+| SyntaxError | invalid syntax | check colons, brackets, quotes |
+| NameError | name does not exist | check spelling and assignment order |
+| TypeError | wrong type usage | convert with int() / str() first |
+| IndexError | index out of range | check len() and loop bounds |
+| ValueError | invalid value format | check whether input can become a number |
+
+## 98.2 Common C / C++ / Java errors
+
+| Error | Meaning | Usual fix |
+|------|------|---------|
+| expected ';' | missing semicolon | check the current or previous line |
+| undeclared identifier | variable/function not declared | check spelling, include, scope |
+| cannot convert | incompatible types | change the type or cast explicitly |
+| segmentation fault | invalid memory access | check pointers and array bounds |
+| NullPointerException | Java object is null | initialize or check before use |
+
+## 98.3 Reading order
+
+Do not guess from the last line. Use this order:
+
+- read the **first error**
+- find the file and line
+- identify the error type
+- inspect the previous line too
+- fix one thing, then run again
+
+## 98.4 Practice: make errors on purpose
+
+Change a variable name in the editor and observe NameError. Then remove a bracket and observe SyntaxError.
+`,example:`total_score = 100
+
+# This line intentionally misspells total_score.
+# Fix it so the program prints 100.
+print(totla_score)
+`},
+{id:99,title:"Debugging Techniques: From print to Binary Search",tag:"Debugging",content:`
+# Chapter 99: Debugging Techniques — From print to Binary Search
+
+Debugging is not staring at code and hoping. Treat it like an experiment: keep shrinking the area where the bug can hide.
+
+## 99.1 Minimal reproducible example
+
+Reduce the big program:
+
+- keep the input that fails
+- remove unrelated features
+- make the failure repeat reliably
+
+## 99.2 print debugging
+
+Print variables at key points:
+
+\`\`\`python
+print("i =", i, "total =", total)
+\`\`\`
+
+Do not print everything. Print to answer questions:
+
+- how many times did the loop run?
+- did the condition execute?
+- at which step did the value become wrong?
+
+## 99.3 Binary-search the bug
+
+If a program has 100 lines, do not guess line by line. Print in the middle:
+
+\`\`\`python
+print("checkpoint A")
+\`\`\`
+
+If everything before A is fine and after A is wrong, inspect the second half; otherwise inspect the first half. It is the same idea as binary search.
+
+## 99.4 Check edge cases
+
+Common APCS edge cases:
+
+- n = 0 or n = 1
+- all values equal
+- already sorted / reverse sorted
+- maximum and minimum values
+- empty string, one-character string
+
+## 99.5 Keep a bug note
+
+After each fix, write one sentence:
+
+> Cause: the loop skipped the last item. Fix: range(n-1) became range(n).
+
+Next time, you will recognize the same pattern faster.
+`,example:`nums = [3, 1, 4, 1, 5]
+total = 0
+
+for i, x in enumerate(nums):
+    print("before", i, total)
+    total = x   # bug: this should add, not overwrite
+    print("after ", i, total)
+
+print(total)
+`},
+{id:100,title:"Input Validation and Defensive Checks",tag:"Debugging",content:`
+# Chapter 100: Input Validation and Defensive Checks
+
+Real programs cannot assume users always enter valid data. Input validation checks format and range before data reaches the core logic.
+
+## 100.1 Check format before conversion
+
+\`\`\`python
+s = input().strip()
+if s.isdigit():
+    n = int(s)
+else:
+    print("Please enter an integer")
+\`\`\`
+
+If you call \`int(input())\` directly, \`abc\` raises ValueError.
+
+## 100.2 Check ranges
+
+\`\`\`python
+if 0 <= score <= 100:
+    print("valid score")
+else:
+    print("score out of range")
+\`\`\`
+
+APCS problems usually promise valid input, but projects, tools, and websites do not.
+
+## 100.3 Defensive design
+
+Defensive checks do not hide errors. They make errors earlier and clearer:
+
+- bad input → tell the user what is wrong
+- invalid boundary → give a safe default or reject it
+- invalid state → do not run a dangerous operation
+
+## 100.4 Validate functions too
+
+\`\`\`python
+def average(nums):
+    if not nums:
+        return 0
+    return sum(nums) / len(nums)
+\`\`\`
+
+An empty list cannot be divided by its length. Guard it first to avoid division by zero.
+
+## 100.5 Practice: accept only valid scores
+
+The editor example accepts only integers from 0 to 100; other inputs report a clear error.
+`,example:`raw = input().strip()
+
+if raw.isdigit():
+    score = int(raw)
+    if 0 <= score <= 100:
+        print("OK")
+    else:
+        print("BAD")
+else:
+    print("BAD")
+`}
 ];
