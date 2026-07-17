@@ -80,6 +80,11 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .lesson-body h1{font-size:24px;color:var(--text);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
 .lesson-body h2{font-size:18px;color:var(--lang-color);margin:22px 0 8px;transition:color .2s}
 .lesson-body h3{font-size:15px;color:var(--text);margin:16px 0 6px}
+.lesson-body h1,.lesson-body h2,.lesson-body h3{position:relative}
+.heading-anchor{margin-left:8px;border:0;background:transparent;color:var(--text-muted);cursor:pointer;font-size:.72em;opacity:0;transition:opacity .12s,color .12s;vertical-align:middle}
+.lesson-body h1:hover .heading-anchor,.lesson-body h2:hover .heading-anchor,.lesson-body h3:hover .heading-anchor,.heading-anchor:focus-visible{opacity:1}
+.heading-anchor:hover{color:var(--lang-color)}
+.heading-anchor.copied{opacity:1;color:var(--green)}
 .lesson-body p{margin-bottom:10px}
 .lesson-body ul,.lesson-body ol{margin:8px 0 12px 22px}
 .lesson-body li{margin:4px 0}
@@ -137,6 +142,10 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .try-box ol{margin:4px 0 0 22px}
 .try-box li{font-size:13px;color:#cdd9e5;margin:5px 0;line-height:1.55}
 .try-box code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;font-size:12px;color:#ffa657}
+.real-box{background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.25);padding:14px;margin:16px 0;border-radius:6px}
+.real-box .lh{font-size:11px;color:var(--cpp);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+.real-box p{font-size:13.5px;color:#cdd9e5;margin:0 0 10px}
+.real-code{background:#0d1117;border:1px solid var(--border);border-radius:5px;padding:10px 12px;overflow-x:auto;font-size:12px;color:#cdd9e5;white-space:pre}
 .quiz-box{background:rgba(63,185,80,.05);border:1px solid rgba(63,185,80,.25);padding:14px;margin:20px 0;border-radius:6px}
 .quiz-box .lh{font-size:11px;color:var(--py);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
 .quiz-q{margin:14px 0 8px;font-weight:600;color:#e6edf3;font-size:13.5px}
@@ -169,6 +178,14 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .cq-diff-at{font-size:11px;margin-top:6px;text-align:left;font-weight:400}
 .err-hint{margin-top:10px;padding:10px 12px;background:rgba(248,81,73,.08);border-left:3px solid var(--red);border-radius:0 4px 4px 0;font-size:12px;color:#ffb1ad;line-height:1.55}
 .err-hint b{color:#ffd1ce}
+.reading-drill{background:rgba(188,140,255,.05);border:1px solid rgba(188,140,255,.28);border-radius:6px;margin:20px 0;overflow:hidden}
+.reading-drill summary{cursor:pointer;padding:12px 14px;color:var(--purple);font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;list-style:none}
+.reading-drill summary::-webkit-details-marker{display:none}
+.reading-drill summary::after{content:"▾";float:right;color:var(--text-muted);transition:transform .15s}
+.reading-drill[open] summary::after{transform:rotate(180deg)}
+.reading-body{padding:0 14px 14px}
+.reading-code{background:#0d1117;border:1px solid var(--border);border-radius:5px;padding:9px 10px;overflow-x:auto;font-size:11.5px;color:#cdd9e5;white-space:pre;margin:8px 0}
+.reading-meta{font-size:11px;color:var(--text-muted);margin-top:4px}
 .intro-card{background:linear-gradient(135deg,rgba(63,185,80,.08),rgba(121,192,255,.06));border:1px solid rgba(63,185,80,.3);padding:16px 18px;border-radius:8px;margin:14px 0}
 .intro-card h3{margin-top:0;color:var(--py)}
 .intro-card p{font-size:13.5px;margin:6px 0}
@@ -220,6 +237,8 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
     <a href="reading.html">🔍 程式判讀</a>
     <a href="ai-solve.html">🤖 AI 解題</a>
     <a href="mistakes.html">📕 錯題本</a>
+    <a href="studyplan.html">🗺 學習地圖</a>
+    <a href="dashboard.html">📊 進度</a>
     <a href="reference.html">📑 速查</a>
     <button id="prog-exp-btn" class="hbtn" onclick="exportProgress()" title="匯出進度（下載 JSON）">💾</button>
     <button id="prog-imp-btn" class="hbtn" onclick="importProgress()" title="匯入進度">📂</button>
@@ -284,10 +303,13 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 
 <!-- 教材資料（拆檔以利快取與協作；順序不拘，僅需先於主程式）。
      英文版兩檔共 443KB，改為切換到 EN 時才動態載入（見 ensureEnData） -->
-<script src="data/tutorial-chapters-zh.js?v=20260612"></script>
-<script src="data/tutorial-chapter-meta.js?v=20260612"></script>
-<script src="data/tutorial-lang-content-zh.js?v=20260612"></script>
-<script src="data/tutorial-multi-examples.js?v=20260612"></script>
+<script src="data/tutorial-chapters-zh.js?v=20260717a"></script>
+<script src="data/tutorial-chapter-meta.js?v=20260717a"></script>
+<script src="data/tutorial-lang-content-zh.js?v=20260717a"></script>
+<script src="data/tutorial-multi-examples.js?v=20260717a"></script>
+<script src="data/mistake-book.js?v=20260702a"></script>
+<script src="data/reading-questions.js?v=20260612"></script>
+<script src="data/tutorial-reallife.js?v=20260717a"></script>
 <script>
 // CHAPTERS 已抽出至 data/tutorial-chapters-zh.js
 
@@ -298,7 +320,7 @@ let _enDataLoading = null;
 function ensureEnData(){
   if (CHAPTERS_EN_MAP) return Promise.resolve();
   if (_enDataLoading) return _enDataLoading;
-  _enDataLoading = Promise.all(['data/tutorial-chapters-en.js?v=20260612', 'data/tutorial-lang-content-en.js?v=20260612'].map(src =>
+  _enDataLoading = Promise.all(['data/tutorial-chapters-en.js?v=20260717a', 'data/tutorial-lang-content-en.js?v=20260717a'].map(src =>
     new Promise((res, rej) => {
       const s = document.createElement('script');
       s.src = src;
@@ -844,8 +866,31 @@ function updateStaticCounts(){
 // ── 小測驗渲染與互動 ──────────────────────────────────────────────────────
 let codeQuizState = {}; // {chapId: {status:'pass'|'fail', got:string}}
 let mcqState = {}; // {chapId: {qIdx: pickedOptIdx}}
+let readingQuizState = {}; // {chapId: {questionId: pickedOptIdx}}
 function answerMcq(chapId, qi, oi){
   (mcqState[chapId] = mcqState[chapId] || {})[qi] = oi;
+  if(currentChap && currentChap.id === chapId) selectChap(chapId, {preserveEditor:true});
+}
+function answerReadingQuiz(chapId, qid, oi){
+  const q = getReadingDrill(chapId).find(x => x.id === qid);
+  if(!q) return;
+  (readingQuizState[chapId] = readingQuizState[chapId] || {})[qid] = oi;
+  if(oi !== q.answer && typeof MistakeBook !== 'undefined'){
+    try {
+      MistakeBook.add({
+        source:'reading',
+        sourceKey:'tutorial-reading-' + q.id,
+        title:MistakeBook.dateTitle(new Date()) + '｜隨堂判讀 ' + (q.num || q.id),
+        question:q.q,
+        code:q.code || '',
+        options:q.options,
+        answer:q.answer,
+        chosenIndex:oi,
+        explanation:q.explain || '',
+        detail:'教學第 ' + chapId + ' 章的隨堂小測'
+      });
+    } catch(e) {}
+  }
   if(currentChap && currentChap.id === chapId) selectChap(chapId, {preserveEditor:true});
 }
 function renderMeta(chap){
@@ -859,6 +904,7 @@ function renderMeta(chap){
   if(meta.try?.length){
     html += `<div class="try-box"><div class="lh">${t.metaTry}</div><ol>${meta.try.map(x=>`<li>${x}</li>`).join('')}</ol></div>`;
   }
+  html += renderRealLife(chap);
   if(meta.quiz?.length){
     const mst = mcqState[chap.id] || {};
     html += `<div class="quiz-box"><div class="lh">${t.metaMcq}</div>`;
@@ -901,9 +947,133 @@ function renderMeta(chap){
     }
     html += `</div>`;
   }
+  html += renderReadingDrill(chap);
   return html;
 }
 function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function renderRealLife(chap){
+  const item = (typeof TUTORIAL_REAL_LIFE !== 'undefined') && TUTORIAL_REAL_LIFE[chap.id];
+  if(!item) return '';
+  const lang = currentLang === 'py' ? 'py' : currentLang;
+  const text = (uiLang === 'en' && item.en) ? item.en : item.zh;
+  const code = (item.code && (item.code[lang] || item.code.py)) || '';
+  const title = uiLang === 'en' ? '🌍 Real-life example' : '🌍 真實情境';
+  return `<div class="real-box"><div class="lh">${title}</div><p>${escapeHtml(text)}</p>${code ? `<pre class="real-code">${escapeHtml(code)}</pre>` : ''}</div>`;
+}
+function readingCatForChapter(id){
+  if(id <= 3) return ['基礎'];
+  if(id <= 5) return ['流程','基礎'];
+  if(id <= 8) return ['陣列字串'];
+  if(id <= 10) return ['基礎','結構類別'];
+  if(id <= 26 || (id >= 68 && id <= 70)) return ['演算法','函式遞迴','陣列字串'];
+  if(id >= 98) return ['基礎','流程'];
+  return ['基礎','流程','陣列字串'];
+}
+const _readingDrillCache = new Map();
+function getReadingDrill(chapId){
+  const key = chapId + ':' + currentLang;
+  if(_readingDrillCache.has(key)) return _readingDrillCache.get(key);
+  if(typeof READING_QUESTIONS === 'undefined') return [];
+  const langMap = {py:'python', cpp:'cpp', c:'c', java:'java'};
+  const lang = langMap[currentLang] || '';
+  const cats = readingCatForChapter(chapId);
+  const pool = READING_QUESTIONS.filter(q => {
+    const langOk = !q.lang || q.lang === lang || (currentLang !== 'py' && q.lang === 'c' && (q.cat === '基礎' || q.cat === '流程'));
+    return langOk && cats.includes(q.cat) && q.options && q.options.length === 4;
+  });
+  const fallback = READING_QUESTIONS.filter(q => (!q.lang || q.lang === lang) && q.options && q.options.length === 4);
+  const src = pool.length >= 3 ? pool : fallback;
+  const picked = [];
+  for(let i = 0; i < src.length && picked.length < 3; i++){
+    const q = src[(chapId * 7 + i * 13) % src.length];
+    if(!picked.some(x => x.id === q.id)) picked.push(q);
+  }
+  _readingDrillCache.set(key, picked);
+  return picked;
+}
+function renderReadingDrill(chap){
+  const qs = getReadingDrill(chap.id);
+  if(!qs.length) return '';
+  const tTitle = uiLang === 'en' ? '📝 Quick code-reading drill (3 questions)' : '📝 隨堂小測（判讀 3 題）';
+  const st = readingQuizState[chap.id] || {};
+  let html = `<details class="reading-drill"><summary>${tTitle}</summary><div class="reading-body">`;
+  qs.forEach((q, qi) => {
+    const picked = st[q.id];
+    html += `<div class="quiz-q">Q${qi + 1}. ${escapeHtml(q.q)}</div>`;
+    if(q.code) html += `<pre class="reading-code">${escapeHtml(q.code)}</pre>`;
+    html += `<div class="reading-meta">${escapeHtml([q.level, q.cat, q.topic].filter(Boolean).join(' · '))}</div>`;
+    q.options.forEach((op, oi) => {
+      let cls = 'quiz-opt', click = ` onclick="answerReadingQuiz(${chap.id},'${escapeHtml(q.id)}',${oi})"`;
+      if(picked !== undefined){
+        cls += ' locked'; click = '';
+        if(oi === q.answer) cls += ' correct';
+        else if(oi === picked) cls += ' wrong';
+      }
+      html += `<button class="${cls}"${click}>${escapeHtml(op)}</button>`;
+    });
+    if(picked !== undefined){
+      const prefix = picked === q.answer ? (uiLang === 'en' ? '✅ Correct!' : '✅ 答對了！') : (uiLang === 'en' ? '❌ Not quite. Added to mistakes book.' : '❌ 不對喔，已加入錯題本。');
+      html += `<div class="quiz-explain">${prefix} ${escapeHtml(q.explain || '')}</div>`;
+    }
+  });
+  return html + '</div></details>';
+}
+
+function slugifyHeading(text){
+  const base = String(text || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, '-')
+    .replace(/^-+|-+$/g, '');
+  return base || 'section';
+}
+function chapterIdFromHash(){
+  const m = decodeURIComponent(location.hash || '').match(/^#ch(\d+)-/);
+  return m ? Number(m[1]) : null;
+}
+function getInitialChapterId(){
+  const fromHash = chapterIdFromHash();
+  return Number.isInteger(fromHash) && CHAPTERS.some(c => c.id === fromHash) ? fromHash : 0;
+}
+function enhanceLessonAnchors(body, chap){
+  if(!body || !chap) return;
+  const used = new Map();
+  body.querySelectorAll('h1,h2,h3').forEach(h => {
+    const raw = h.textContent.replace(/\s*🔗\s*$/, '');
+    const slug = slugifyHeading(raw);
+    const n = used.get(slug) || 0;
+    used.set(slug, n + 1);
+    const id = `ch${chap.id}-${slug}${n ? '-' + (n + 1) : ''}`;
+    h.id = id;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'heading-anchor';
+    btn.textContent = '🔗';
+    btn.title = uiLang === 'en' ? 'Copy link to this section' : '複製此小節連結';
+    btn.setAttribute('aria-label', btn.title);
+    btn.addEventListener('click', async e => {
+      e.preventDefault();
+      e.stopPropagation();
+      const url = `${location.origin}${location.pathname}${location.search}#${id}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        history.replaceState(null, '', `#${id}`);
+        btn.classList.add('copied');
+        btn.textContent = '✓';
+        setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '🔗'; }, 1100);
+      } catch(err) {
+        prompt(uiLang === 'en' ? 'Copy this link:' : '請手動複製連結：', url);
+      }
+    });
+    h.appendChild(btn);
+  });
+}
+function scrollToCurrentHash(body, chap){
+  const hashId = decodeURIComponent((location.hash || '').slice(1));
+  if(!hashId || !hashId.startsWith(`ch${chap.id}-`)) return;
+  const target = body.querySelector('#' + CSS.escape(hashId));
+  if(target) setTimeout(() => target.scrollIntoView({block:'start'}), 0);
+}
 
 // 逐行比對使用者輸出與預期輸出，差異行標紅並附「此行預期」提示
 function renderOutputDiff(got, expect, t){
@@ -1017,6 +1187,8 @@ function selectChap(id, opts) {
   document.getElementById('lesson-title').textContent = T().chapPrefixFull(chapDisplayNum(currentChap.id), _title);
   document.getElementById('lesson-tag').textContent = _tag;
   body.innerHTML = marked.parse(getContent(currentChap)) + renderMeta(currentChap);
+  enhanceLessonAnchors(body, currentChap);
+  scrollToCurrentHash(body, currentChap);
   if(!opts.preserveEditor){
     loadDraftInto(currentChap);
     document.getElementById('stdin-input').value = getStdin(currentChap);
@@ -1211,7 +1383,15 @@ switchLang('py');
 applyUiLang();
 initPython();
 updateProgress();
-selectChap(0);
+selectChap(getInitialChapterId());
+window.addEventListener('hashchange', () => {
+  const id = chapterIdFromHash();
+  if(Number.isInteger(id) && (!currentChap || currentChap.id !== id)){
+    selectChap(id, {forceTop:true});
+  } else if(currentChap){
+    scrollToCurrentHash(document.getElementById('lesson-body'), currentChap);
+  }
+});
 // 上次使用英文介面：背景載入英文資料，到位後重繪（未動過編輯器才換英文範例）
 if (uiLang === 'en') {
   const _zhExample = cm.getValue();

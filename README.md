@@ -1,7 +1,7 @@
 # 互動程式教室 × APCS 練習 / Interactive Coding Classroom × APCS Practice
 
-> 從零基礎到進階：Python · C++ · C · Java 四語言、95 章互動教學，搭配 300 題 APCS 分級題庫與 2083 題程式判讀練習，再加上 AI 拍照解題與統一錯題本——全部在瀏覽器內完成，零安裝、零後端、零註冊。
-> Learn to code from zero in four languages — 95 interactive chapters, a 300-problem tiered APCS judge, a 2083-question code-reading drill, plus an AI photo solver and a unified mistakes book, entirely in the browser. No install, no backend, no signup.
+> 從零基礎到進階：Python · C++ · C · Java 四語言、101 章互動教學，搭配 300 題 APCS 分級題庫與 2083 題程式判讀練習，再加上 AI 拍照解題與統一錯題本——全部在瀏覽器內完成，零安裝、零後端、零註冊。
+> Learn to code from zero in four languages — 101 interactive chapters, a 300-problem tiered APCS judge, a 2083-question code-reading drill, plus an AI photo solver and a unified mistakes book, entirely in the browser. No install, no backend, no signup.
 
 📚 **程式教學 / Tutorial**：**https://yu-0312.github.io/apcs-judge/tutorial.html**
 
@@ -12,6 +12,10 @@
 🤖 **AI 解題 / AI Solver**：https://yu-0312.github.io/apcs-judge/ai-solve.html
 
 📕 **錯題本 / Mistakes Book**：https://yu-0312.github.io/apcs-judge/mistakes.html
+
+🗺 **學習地圖 / Study Plan**：https://yu-0312.github.io/apcs-judge/studyplan.html
+
+📊 **我的進度 / Dashboard**：https://yu-0312.github.io/apcs-judge/dashboard.html
 
 [繁體中文](#繁體中文) · [English](#english)
 
@@ -27,11 +31,13 @@
 
 ### 這是什麼？
 
-這個專案是一條完整的學習路徑，由五個頁面組成：
+這個專案是一條完整的學習路徑，由七個頁面組成：
 
 | 頁面 | 角色 | 內容 |
 |------|------|------|
-| 📚 **tutorial.html** | **主軸：程式教學** | 95 章互動課程，從「什麼是程式」一路教到爬蟲、資料分析、機器人、遊戲開發，以及 C++ / C / Java 各自的語言專項 |
+| 📚 **tutorial.html** | **主軸：程式教學** | 101 章互動課程，從「什麼是程式」一路教到爬蟲、資料分析、機器人、遊戲開發、除錯防呆，以及 C++ / C / Java 各自的語言專項 |
+| 🗺 **studyplan.html** | **學習地圖** | 零基礎入門、APCS 衝刺、進階/競賽三條讀書路線，整理每週目標、章節範圍、判讀題與題庫練習 |
+| 📊 **dashboard.html** | **我的進度** | 彙整 localStorage 裡的教學章節、題庫 AC、判讀作答、錯題本與每日一題連續天數 |
 | 🎯 **index.html** | **實戰：APCS 練習** | 300 道分級題目、四語言官方解答、即時評分與解題思路 |
 | 🔍 **reading.html** | **判讀：程式識讀** | 2083 題「讀程式碼、選答案」的判讀練習，依 APCS 四級難度分庫、C/C++/Python/Java/JavaScript 各語言獨立題庫，並可隨機抽題（最多 50 題），作答後即時對解＋考點解析 |
 | 🤖 **ai-solve.html** | **AI 拍照解題** | 上傳題目照片並補充卡關處，AI（Gemini）先讀題並輸出題意讓你確認；確認後才計算，模擬運行連跑三次、通過範例測資且輸出一致才給完整詳解 |
@@ -43,7 +49,7 @@
 
 - **邊讀邊跑**：每章左側是教材、右側是真的能執行的編輯器。Python 由 Pyodide（WebAssembly）在瀏覽器本地執行；C / C++ / Java 經 Judge0 CE 雲端編譯，輸出與正式環境一致
 - **一份課綱、四種語言**：共同章節（0–35、68–70）在每個語言模式下都有對應的教材與範例程式；切換語言分頁即可比較同一概念在不同語言的寫法
-- **每章三件套**：「🎯 學習目標 → ✋ 動手試試 → 📝 程式練習」，程式練習自動比對輸出批改，通過才算完成該章；進度存在 localStorage
+- **每章完整學習迴圈**：「🎯 學習目標 → ✋ 動手試試 → 🌍 真實情境 → 🧠 觀念小測 → 📝 判讀快問快答 / 程式練習」，錯題自動進統一錯題本，進度存在 localStorage
 - **🧠 設計動機**：十個關鍵章節附「為什麼要這樣設計」深度解析（EAFP、HTTP 無狀態、pandas 向量化、async、delta time、模運算同餘、RAII、值語意、型別擦除、JIT）
 - **雙語介面**：右上角一鍵切換繁中 / English，教材內容同步切換
 - **🤖 AI 拍照解題**：卡住的題目直接拍照上傳並補充卡關處，AI 先讀題並輸出題意讓你確認、避免會錯意，確認後才計算——還會在模擬運行中連跑三次、通過範例測資且輸出一致才給完整詳解（用你自己的 Gemini 金鑰）
@@ -53,7 +59,7 @@
 - **進度可攜**：完成進度與刷題紀錄存瀏覽器（localStorage），並可一鍵匯出 / 匯入 JSON 帶到其他裝置
 - **鍵盤操作**：`Ctrl/Cmd + Enter` 直接執行程式；分頁與章節列表支援 Tab + Enter
 
-### 🗺️ 課程地圖（95 章）
+### 🗺️ 課程地圖（101 章）
 
 | 篇章 | 章節 | 內容 |
 |------|------|------|
@@ -68,6 +74,8 @@
 | C++ 專項 | 71–78 | STL 容器、template、智慧指標與 RAII、move 語意、lambda、`<algorithm>`、string_view、std::thread |
 | C 專項 | 79–86 | 指標深入、malloc/free、struct/union、函式指標、字串函式、巨集、系統呼叫、Makefile |
 | Java 專項 | 87–94 | Collections、泛型、Stream API、Optional、執行緒、Lock/Atomic、反射、JVM 與 GC |
+| 進階觀念 | 95–97 | 物件模型、函式參數進階、如何讀官方文件 |
+| 除錯與防呆 | 98–100 | 常見錯誤訊息、print / 二分定位 bug、輸入驗證與防呆 |
 
 > 切換語言分頁時會自動顯示該語言適用的章節：Python 模式 71 章（含應用篇），C++ / C / Java 模式各 47 章（共同基礎 + 該語言專項 + APCS 衝刺）。
 
@@ -197,11 +205,13 @@ python3 -m http.server 8000
 
 ### Overview
 
-This project is a complete learning path made of five pages:
+This project is a complete learning path made of seven pages:
 
 | Page | Role | Content |
 |------|------|---------|
-| 📚 **tutorial.html** | **Core: coding tutorial** | 95 interactive chapters, from "what is a program" through web scraping, data analysis, chat bots and game dev, plus dedicated C++ / C / Java tracks |
+| 📚 **tutorial.html** | **Core: coding tutorial** | 101 interactive chapters, from "what is a program" through web scraping, data analysis, chat bots, game dev, debugging, input validation, plus dedicated C++ / C / Java tracks |
+| 🗺 **studyplan.html** | **Learning map** | Three study paths (zero-to-code, APCS sprint, advanced/contest), weekly goals, chapter ranges, reading drills and judge practice recommendations |
+| 📊 **dashboard.html** | **Progress dashboard** | LocalStorage summary of completed tutorial chapters, accepted judge problems, code-reading attempts, mistakes and daily streak |
 | 🎯 **index.html** | **Practice: APCS judge** | 300 tiered problems with reference solutions in four languages, instant grading and solution hints |
 | 🔍 **reading.html** | **Code reading** | 2083 "read the code, pick the answer" comprehension questions across four APCS difficulty tiers with separate C/C++/Python/Java/JavaScript banks, plus per-level random draw (up to 50), instant reveal and per-question explanations |
 | 🤖 **ai-solve.html** | **AI photo solver** | Snap a photo of a problem and note where you're stuck; the AI (Gemini) first echoes back what it read for you to confirm, only then computes, runs the simulation three times, and gives a full walkthrough once sample tests pass with consistent output |
@@ -211,7 +221,7 @@ This project is a complete learning path made of five pages:
 
 - **Read and run**: every chapter pairs a lesson with a live editor. Python runs locally via Pyodide (WebAssembly); C / C++ / Java compile in the cloud via Judge0 CE
 - **One curriculum, four languages**: shared chapters (0–35, 68–70) carry language-specific lessons and examples — switch tabs to compare the same concept across languages
-- **Per-chapter loop**: learning goals → hands-on tweaks → auto-graded coding exercise; progress persists in localStorage
+- **Per-chapter loop**: learning goals → hands-on tweaks → real-life example → concept quiz → embedded code-reading drill / auto-graded coding exercise; wrong answers go into the unified mistakes book and progress persists in localStorage
 - **🧠 Design Motivation** sections in ten key chapters explain *why* things are designed the way they are (EAFP, stateless HTTP, pandas vectorization, async, delta time, modular arithmetic, RAII, value semantics, type erasure, JIT)
 - **Bilingual UI**: one-click Traditional Chinese / English toggle, lesson content included
 - **🤖 AI photo solver**: snap a photo of a problem you're stuck on; the AI first echoes back the problem it read for you to confirm (so it doesn't misread), only then solves, re-running the simulation three times and requiring sample tests to pass with consistent output before it hands over a full walkthrough (uses your own Gemini key)
@@ -221,7 +231,7 @@ This project is a complete learning path made of five pages:
 - **Portable progress**: stored in localStorage, with one-click JSON export / import across devices
 - **Keyboard**: `Ctrl/Cmd + Enter` to run; tabs and chapter list are keyboard-accessible
 
-### Curriculum map (95 chapters)
+### Curriculum map (101 chapters)
 
 | Track | Chapters | Topics |
 |-------|----------|--------|
@@ -236,6 +246,8 @@ This project is a complete learning path made of five pages:
 | C++ track | 71–78 | STL, templates, smart pointers & RAII, move semantics, lambdas, `<algorithm>`, string_view, threads |
 | C track | 79–86 | pointers, malloc/free, struct/union, function pointers, string functions, macros, syscalls, Makefiles |
 | Java track | 87–94 | Collections, generics, Stream API, Optional, threads, Lock/Atomic, reflection, JVM & GC |
+| Advanced concepts | 95–97 | object model, advanced parameters, reading official documentation |
+| Debugging & validation | 98–100 | common error messages, print / binary-search debugging, input validation and defensive checks |
 
 ### APCS practice
 

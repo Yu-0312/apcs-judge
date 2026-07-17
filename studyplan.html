@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>學習地圖與讀書計畫｜APCS 互動程式教室</title>
+<meta name="description" content="APCS 互動程式教室的站內學習地圖：零基礎入門、APCS 衝刺、進階競賽三條讀書路線，搭配教學章節、判讀題與題庫練習。">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0f1117">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗺</text></svg>">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--sidebar-bg:#161b22;--panel-bg:#1c2128;
+  --border:#30363d;--text:#e6edf3;--text-muted:#8b949e;
+  --green:#3fb950;--red:#f85149;--yellow:#d29922;--blue:#58a6ff;--purple:#bc8cff;--orange:#ffa657;
+  --accent:#58a6ff;--header-h:56px;
+}
+html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6}
+a{color:inherit;text-decoration:none}
+code,.mono{font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace}
+header{position:sticky;top:0;z-index:20;height:var(--header-h);display:flex;align-items:center;gap:12px;padding:0 18px;background:var(--sidebar-bg);border-bottom:1px solid var(--border)}
+.logo{font-size:16px;font-weight:700;color:var(--accent);white-space:nowrap}
+.hnav{margin-left:auto;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.hnav::-webkit-scrollbar{display:none}
+.hnav a{flex-shrink:0;color:var(--text-muted);font-size:12.5px;padding:5px 10px;border:1px solid var(--border);border-radius:6px}
+.hnav a:hover,.hnav a.on{color:var(--text);border-color:var(--accent)}
+.wrap{max-width:1120px;margin:0 auto;padding:24px 18px 84px}
+.intro{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,.6fr);gap:18px;align-items:stretch;margin-bottom:18px}
+.intro-main{background:linear-gradient(135deg,rgba(88,166,255,.12),rgba(63,185,80,.06));border:1px solid rgba(88,166,255,.32);border-radius:10px;padding:18px 20px}
+.intro-main h1{font-size:26px;line-height:1.25;margin-bottom:8px;letter-spacing:0}
+.intro-main p{font-size:14px;color:#cdd9e5}
+.progress-panel{background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:16px}
+.progress-panel h2{font-size:14px;color:var(--text);margin-bottom:10px}
+.meter{height:8px;background:#0d1117;border:1px solid var(--border);border-radius:999px;overflow:hidden;margin:8px 0}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--blue));transition:width .25s}
+.stat{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--text-muted)}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+.chip{font-size:13px;padding:7px 13px;border-radius:999px;border:1px solid var(--border);color:var(--text-muted);background:transparent;cursor:pointer;font-family:inherit}
+.chip:hover{color:var(--text);border-color:var(--text-muted)}
+.chip.on{color:var(--accent);border-color:var(--accent);background:rgba(88,166,255,.12);font-weight:700}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.plan{background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.plan[data-kind="starter"]{border-top:3px solid var(--green)}
+.plan[data-kind="apcs"]{border-top:3px solid var(--blue)}
+.plan[data-kind="advanced"]{border-top:3px solid var(--orange)}
+.plan-h{display:flex;align-items:flex-start;gap:10px}
+.plan-ic{font-size:22px;line-height:1}
+.plan h2{font-size:18px;line-height:1.25}
+.plan .desc{font-size:13.5px;color:#cdd9e5}
+.facts{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.fact{background:#0d1117;border:1px solid var(--border);border-radius:7px;padding:8px 10px}
+.fact b{display:block;font-size:11px;color:var(--text-muted);font-weight:600}
+.fact span{display:block;font-size:13px;color:var(--text);margin-top:2px}
+.weeks{display:flex;flex-direction:column;gap:8px}
+.week{border-left:3px solid var(--accent);background:rgba(255,255,255,.025);padding:8px 10px;border-radius:0 6px 6px 0}
+.week b{display:block;font-size:12.5px;color:var(--text);margin-bottom:2px}
+.week span{font-size:12.5px;color:#cdd9e5}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 11px;border-radius:7px;border:1px solid var(--border);font-size:12.5px;color:var(--text-muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#0d1117;font-weight:700}
+.btn:hover{border-color:var(--text-muted);color:var(--text)}
+.btn.primary:hover{filter:brightness(1.12);color:#0d1117}
+.map{margin-top:24px;background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:16px}
+.map h2{font-size:16px;margin-bottom:12px}
+.track{display:grid;grid-template-columns:120px 1fr;gap:10px;padding:10px 0;border-top:1px solid rgba(48,54,61,.65)}
+.track:first-of-type{border-top:0;padding-top:0}
+.track b{font-size:13px;color:var(--accent)}
+.track p{font-size:13px;color:#cdd9e5}
+footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:28px}
+@media(max-width:760px){
+  .intro{grid-template-columns:1fr}
+  .facts{grid-template-columns:1fr}
+  .track{grid-template-columns:1fr;gap:2px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🗺 學習地圖</div>
+  <nav class="hnav">
+    <a href="tutorial.html">📚 教學</a>
+    <a href="index.html">🎯 題庫</a>
+    <a href="reading.html">🔍 判讀</a>
+    <a href="ai-solve.html">🤖 AI 解題</a>
+    <a href="mistakes.html">📕 錯題本</a>
+    <a href="dashboard.html">📊 進度</a>
+    <a href="reference.html">📑 速查</a>
+  </nav>
+</header>
+
+<main class="wrap">
+  <section class="intro">
+    <div class="intro-main">
+      <h1>從「不知道先學什麼」變成「今天知道要做什麼」。</h1>
+      <p>這頁把教學章節、APCS 題庫、程式判讀與 C++ 速查整理成三條可執行路線。先選一條路線，照週次完成章節與練習，再回到題庫補強錯題。</p>
+    </div>
+    <aside class="progress-panel">
+      <h2>本機教學進度</h2>
+      <div class="stat"><span id="done-label">已完成 0 / 98 章</span><span id="pct-label">0%</span></div>
+      <div class="meter"><i id="meter-fill"></i></div>
+      <div class="stat"><span>資料來自瀏覽器 localStorage</span><span class="mono">tut_done</span></div>
+    </aside>
+  </section>
+
+  <div class="controls" id="filters"></div>
+  <section class="plans" id="plans"></section>
+
+  <section class="map">
+    <h2>章節地圖</h2>
+    <div class="track"><b>0–10 基礎</b><p>變數、輸入輸出、條件、迴圈、字串、串列、二維陣列、函式、dict/set。</p></div>
+    <div class="track"><b>11–26 演算法</b><p>排序搜尋、遞迴、前綴和、deque/heap、樹、BFS/DFS、最短路徑、DP、DSU、字串 hash/Trie。</p></div>
+    <div class="track"><b>27–35 實用</b><p>檔案、模組、OOP、例外、測試、CLI、CSV、API/JSON、終端小遊戲。</p></div>
+    <div class="track"><b>36–67 專項</b><p>Python 爬蟲、資料分析、Bot 與 pygame 四條專項軌，適合專題或作品集。</p></div>
+    <div class="track"><b>68–70 APCS</b><p>新制分級、程式識讀、快速冪、分治與逆序對。</p></div>
+    <div class="track"><b>71–94 語言</b><p>C++、C、Java 專屬章節，依語言分頁顯示。</p></div>
+    <div class="track"><b>95–97 進階</b><p>物件模型、函式參數、讀官方文件，適合開始寫較大程式前補觀念。</p></div>
+  </section>
+  <footer>要調整讀書計畫，只要編輯本頁的 <code>PLANS</code> 陣列即可。</footer>
+</main>
+
+<script>
+const FILTERS = [
+  {id:'all', label:'全部'},
+  {id:'starter', label:'零基礎'},
+  {id:'apcs', label:'APCS 衝刺'},
+  {id:'advanced', label:'進階競賽'}
+];
+const PLANS = [
+  {
+    id:'starter', icon:'🌱', title:'零基礎入門（4 週）',
+    desc:'適合第一次學程式，目標是能讀懂簡單程式、寫出基本輸入輸出與迴圈題。',
+    chapters:'0–10', reading:'初級判讀，每週 20 題', judge:'⭐ 題庫 15–25 題', hours:'每週 4–6 小時',
+    weeks:[
+      ['第 1 週','0–2：認識程式、變數、輸入輸出；每天至少執行一次範例。'],
+      ['第 2 週','3–5：運算子、if、迴圈；把每章動手試試都改出一個自己的版本。'],
+      ['第 3 週','6–8：字串、list、二維陣列；開始做初級判讀題。'],
+      ['第 4 週','9–10：函式與 dict/set；回頭補錯題本裡的題目。']
+    ]
+  },
+  {
+    id:'apcs', icon:'🎯', title:'APCS 衝刺（6 週）',
+    desc:'適合已會基本語法、想把 APCS 實作與程式識讀練成穩定節奏的人。',
+    chapters:'11–26, 68–70', reading:'初級→中高級，每週 60 題', judge:'⭐–⭐⭐⭐ 每週 12–18 題', hours:'每週 7–10 小時',
+    weeks:[
+      ['第 1 週','11–14：排序、搜尋、遞迴、前綴和；題庫做陣列與模擬。'],
+      ['第 2 週','15–18：枚舉、雙指標、stack/queue、樹走訪；判讀練流程追蹤。'],
+      ['第 3 週','19–22：BFS/DFS、最短路、DP 入門；每題寫下狀態定義。'],
+      ['第 4 週','23–26：進階 DP、DSU、字串；補 C++ STL 速查常用容器。'],
+      ['第 5 週','68–70：新制分級、快速冪、分治；每天一回隨機判讀。'],
+      ['第 6 週','混合複習：重做錯題本、限時做題、整理常錯模板。']
+    ]
+  },
+  {
+    id:'advanced', icon:'🚀', title:'進階 / 競賽（8 週）',
+    desc:'適合已能完成中等題，想補資料結構、語言專項與專題實作的學習者。',
+    chapters:'23–35, 36–67, 71–97', reading:'中高級→高級，每週 80 題', judge:'⭐⭐⭐–⭐⭐⭐⭐ 每週 10–15 題', hours:'每週 8–12 小時',
+    weeks:[
+      ['第 1–2 週','23–26：DP、DSU、字串 hash/Trie；每個主題各整理一份模板。'],
+      ['第 3 週','27–35：測試、CLI、CSV、API 與小專案；把程式拆成函式。'],
+      ['第 4–5 週','36–67：挑一條專項軌做作品，資料分析 / Bot / pygame 擇一深入。'],
+      ['第 6 週','71–94：依主力語言補 C++ STL / C 指標 / Java Collections。'],
+      ['第 7 週','95–97：物件模型、進階參數、讀官方文件；練習查文件解題。'],
+      ['第 8 週','限時混合訓練：高級題、判讀高級、錯題本總複習。']
+    ]
+  }
+];
+let active = 'all';
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function renderFilters(){
+  const el = document.getElementById('filters');
+  el.innerHTML = FILTERS.map(f => `<button class="chip${active===f.id?' on':''}" data-id="${f.id}">${esc(f.label)}</button>`).join('');
+  el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    active = b.dataset.id;
+    renderFilters();
+    renderPlans();
+  }));
+}
+function renderPlans(){
+  const items = active === 'all' ? PLANS : PLANS.filter(p => p.id === active);
+  document.getElementById('plans').innerHTML = items.map(p => `
+    <article class="plan" data-kind="${p.id}">
+      <div class="plan-h"><div class="plan-ic">${p.icon}</div><div><h2>${esc(p.title)}</h2><p class="desc">${esc(p.desc)}</p></div></div>
+      <div class="facts">
+        <div class="fact"><b>建議章節</b><span>${esc(p.chapters)}</span></div>
+        <div class="fact"><b>時間</b><span>${esc(p.hours)}</span></div>
+        <div class="fact"><b>判讀</b><span>${esc(p.reading)}</span></div>
+        <div class="fact"><b>題庫</b><span>${esc(p.judge)}</span></div>
+      </div>
+      <div class="weeks">${p.weeks.map(w => `<div class="week"><b>${esc(w[0])}</b><span>${esc(w[1])}</span></div>`).join('')}</div>
+      <div class="actions">
+        <a class="btn primary" href="tutorial.html">開始教學</a>
+        <a class="btn" href="reading.html">練判讀</a>
+        <a class="btn" href="index.html">刷題庫</a>
+      </div>
+    </article>
+  `).join('');
+}
+function renderProgress(){
+  let done = [];
+  try {
+    const raw = JSON.parse(localStorage.getItem('tut_done') || '[]');
+    if(Array.isArray(raw)) done = raw.filter(Number.isInteger);
+  } catch(e) {}
+  const total = 101;
+  const pct = Math.min(100, Math.round(done.length / total * 100));
+  document.getElementById('done-label').textContent = `已完成 ${done.length} / ${total} 章`;
+  document.getElementById('pct-label').textContent = `${pct}%`;
+  document.getElementById('meter-fill').style.width = `${pct}%`;
+}
+renderFilters();
+renderPlans();
+renderProgress();
+</script>
+</body>
+</html>
