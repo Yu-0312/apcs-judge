@@ -4,12 +4,12 @@
 (function (global) {
   'use strict';
   global.CONTENT_STATS = Object.freeze({
-    version: '20260717a',
+    version: '20260717b',
     tutorial: Object.freeze({
       total: 101,
       chapterIds: Object.freeze(Array.from({ length: 101 }, function (_, i) { return i; }))
     }),
     judge: Object.freeze({ total: 300 }),
-    reading: Object.freeze({ total: 2083 })
+    reading: Object.freeze({ total: 2563 })
   });
 })(window);
