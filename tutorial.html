@@ -189,6 +189,11 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .intro-card{background:linear-gradient(135deg,rgba(63,185,80,.08),rgba(121,192,255,.06));border:1px solid rgba(63,185,80,.3);padding:16px 18px;border-radius:8px;margin:14px 0}
 .intro-card h3{margin-top:0;color:var(--py)}
 .intro-card p{font-size:13.5px;margin:6px 0}
+.chapter-complete{display:flex;align-items:flex-start;gap:10px;background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.28);border-radius:7px;padding:12px 14px;margin:20px 0}
+.chapter-complete input{margin-top:3px;width:17px;height:17px;accent-color:var(--green)}
+.chapter-complete label{font-size:13px;color:#cdd9e5;cursor:pointer;line-height:1.55}
+.chapter-complete label b{display:block;color:var(--text);font-size:13.5px}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 
 /* === focus / keyboard accessibility === */
 .lang-tab:focus-visible,.chap:focus-visible,.btn:focus-visible,.quiz-opt:focus-visible,.cq-btn:focus-visible{outline:2px solid var(--lang-color);outline-offset:-2px}
@@ -231,7 +236,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 </head>
 <body>
 <header>
-  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub"><span id="chapter-total">95</span> 章 · APCS 考試準備 + 新制分級 + 程式識讀 + 專項教學</div></div>
+  <div><div class="logo" id="logo">📚 APCS 多語言教學</div><div class="sub"><span id="chapter-total">101</span> 章 · APCS 考試準備 + 新制分級 + 程式識讀 + 專項教學</div></div>
   <div class="hright">
     <a href="index.html">🎯 前往題庫</a>
     <a href="reading.html">🔍 程式判讀</a>
@@ -244,7 +249,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
     <button id="prog-imp-btn" class="hbtn" onclick="importProgress()" title="匯入進度">📂</button>
     <input type="file" id="prog-file" accept=".json,application/json" style="display:none">
     <button id="ui-lang-btn" class="hbtn" onclick="toggleUiLang()">🌐 EN</button>
-    <span><span class="status-dot" id="status-dot"></span><span id="status-text">Pyodide 載入中...</span><span class="ldbar" id="py-ldbar" style="display:none"><i></i></span></span>
+    <span><span class="status-dot" id="status-dot"></span><span id="status-text">Python 首次執行時載入</span><span class="ldbar" id="py-ldbar" style="display:none"><i></i></span></span>
   </div>
 </header>
 
@@ -260,7 +265,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
   <aside class="sidebar">
     <div class="sidebar-hdr">學習進度</div>
     <div class="progress-wrap">
-      <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+      <div class="progress-bar" id="prog-bar" role="progressbar" aria-label="教學完成進度" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><div class="progress-fill" id="prog-fill"></div></div>
       <div class="progress-text"><span id="prog-count">0 / 0 章</span><span id="prog-pct">0%</span></div>
     </div>
     <div class="chap-list" id="chap-list"></div>
@@ -277,7 +282,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
   </div>
   <div class="editor-panel">
     <div class="editor-toolbar">
-      <button class="btn btn-run" id="run-btn" onclick="runCode()" disabled>▶ 執行</button>
+      <button class="btn btn-run" id="run-btn" onclick="runCode()">▶ 執行</button>
       <button class="btn btn-sec" onclick="clearEditor()">清空</button>
       <button class="btn btn-sec" onclick="resetExample()">↺ 還原範例</button>
       <span style="flex:1"></span>
@@ -290,7 +295,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
     </div>
     <div class="output-panel">
       <div class="output-hdr">📤 輸出</div>
-      <div class="output-body" id="output-body">點擊上方「執行」測試程式</div>
+      <div class="output-body" id="output-body" role="status" aria-live="polite">點擊上方「執行」測試程式</div>
     </div>
   </div>
 </div>
@@ -300,16 +305,18 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
   <button id="mnav-lesson" class="on" onclick="setMobileView('lesson')"><span class="ic">📖</span><span id="mnav-lesson-t">教學</span></button>
   <button id="mnav-code" onclick="setMobileView('code')"><span class="ic">💻</span><span id="mnav-code-t">程式</span></button>
 </nav>
+<div id="tutorial-status" class="sr-only" role="status" aria-live="polite"></div>
 
 <!-- 教材資料（拆檔以利快取與協作；順序不拘，僅需先於主程式）。
      英文版兩檔共 443KB，改為切換到 EN 時才動態載入（見 ensureEnData） -->
-<script src="data/tutorial-chapters-zh.js?v=20260717a"></script>
-<script src="data/tutorial-chapter-meta.js?v=20260717a"></script>
-<script src="data/tutorial-lang-content-zh.js?v=20260717a"></script>
-<script src="data/tutorial-multi-examples.js?v=20260717a"></script>
-<script src="data/mistake-book.js?v=20260702a"></script>
-<script src="data/reading-questions.js?v=20260612"></script>
-<script src="data/tutorial-reallife.js?v=20260717a"></script>
+<script src="data/tutorial-chapters-zh.js?v=20260717b"></script>
+<script src="data/tutorial-chapter-meta.js?v=20260717b"></script>
+<script src="data/tutorial-lang-content-zh.js?v=20260717b"></script>
+<script src="data/tutorial-multi-examples.js?v=20260717b"></script>
+<script src="data/learning-state.js?v=20260717e"></script>
+<script src="data/mistake-book.js?v=20260717c"></script>
+<script src="data/tutorial-reading-drills.js?v=20260717b"></script>
+<script src="data/tutorial-reallife.js?v=20260717b"></script>
 <script>
 // CHAPTERS 已抽出至 data/tutorial-chapters-zh.js
 
@@ -320,7 +327,7 @@ let _enDataLoading = null;
 function ensureEnData(){
   if (CHAPTERS_EN_MAP) return Promise.resolve();
   if (_enDataLoading) return _enDataLoading;
-  _enDataLoading = Promise.all(['data/tutorial-chapters-en.js?v=20260717a', 'data/tutorial-lang-content-en.js?v=20260717a'].map(src =>
+  _enDataLoading = Promise.all(['data/tutorial-chapters-en.js?v=20260717b', 'data/tutorial-lang-content-en.js?v=20260717b'].map(src =>
     new Promise((res, rej) => {
       const s = document.createElement('script');
       s.src = src;
@@ -340,13 +347,22 @@ let currentLang = 'py';
 
 // ── Python（Web Worker 執行，逾時可中斷，不會凍結頁面） ──────────────────────
 const PY_TIMEOUT_MS = 30000;
+const OUTPUT_LIMIT_CHARS = 200000;
 let pyWorker = null, pyReady = false, pyFailed = false, pyReadyPromise = null;
 let pyJobSeq = 0;
 const pyJobs = new Map();
 
 const PY_WRAPPER = [
   'import sys, io, traceback',
-  '__out = io.StringIO(); __err = io.StringIO()',
+  'class _LimitedIO(io.StringIO):',
+  '    def __init__(self, limit):',
+  '        super().__init__(); self.limit = limit; self.truncated = False',
+  '    def write(self, s):',
+  '        s = str(s); left = self.limit - self.tell()',
+  '        if left <= 0: self.truncated = True; return len(s)',
+  '        if len(s) > left: self.truncated = True',
+  '        super().write(s[:left]); return len(s)',
+  '__out = _LimitedIO(200000); __err = _LimitedIO(200000)',
   '__old = (sys.stdin, sys.stdout, sys.stderr)',
   "__t = __stdin if (__stdin == '' or __stdin.endswith('\\n')) else __stdin + '\\n'",
   'sys.stdin = io.StringIO(__t); sys.stdout = __out; sys.stderr = __err',
@@ -358,7 +374,7 @@ const PY_WRAPPER = [
   '    traceback.print_exc(file=__err)',
   'finally:',
   '    sys.stdin, sys.stdout, sys.stderr = __old',
-  '__r_out = __out.getvalue(); __r_err = __err.getvalue()'
+  '__r_out = __out.getvalue(); __r_err = __err.getvalue(); __r_truncated = __out.truncated or __err.truncated'
 ].join('\n');
 
 const PY_WORKER_SRC =
@@ -373,7 +389,7 @@ const PY_WORKER_SRC =
   "    py.globals.set('__code', code);\n" +
   "    py.globals.set('__stdin', stdin);\n" +
   '    await py.runPythonAsync(WRAP);\n' +
-  "    postMessage({ id, out: py.globals.get('__r_out') || '', err: py.globals.get('__r_err') || '' });\n" +
+  "    postMessage({ id, out: py.globals.get('__r_out') || '', err: py.globals.get('__r_err') || '', truncated: !!py.globals.get('__r_truncated') });\n" +
   '  } catch (err) {\n' +
   "    postMessage({ id, out: '', err: String(err) });\n" +
   '  }\n' +
@@ -437,9 +453,9 @@ const UI_STR = {
     outHdr:'📤 輸出', outPlaceholder:'點擊上方「執行」測試程式',
     chapPrefix:n=>`第 ${n} 章`, chapPrefixFull:(n,t)=>`第 ${n} 章：${t}`,
     langToggleTitle:'切換為英文 / Switch to English',
-    statusLoading:'下載 Python 環境中（首次約 10–20 秒）...', statusReady:'Pyodide 已就緒', statusFailed:'Python 載入失敗，請重新整理',
+    statusLazy:'Python 首次執行時載入', statusLoading:'下載 Python 環境中（首次約 10–20 秒）...', statusReady:'Pyodide 已就緒', statusFailed:'Python 載入失敗，請再按一次執行',
     running:'執行中...', noOutput:'(無輸出)', errPrefix:'錯誤：\n',
-    pyTimeout:'⏱ 執行逾時：程式跑太久（可能無限迴圈）。Python 環境已自動重置，請修正後再執行',
+    pyTimeout:'⏱ 執行逾時：程式跑太久（可能無限迴圈）。Python 環境已自動重置，請修正後再執行', outputTruncated:'\n\n⚠️ 輸出超過 200,000 字元，已截斷。',
     errNet:'🌐 無法連線到雲端評測服務（C/C++/Java 需要網路），請確認網路後再試',
     errBusy:'🚦 雲端評測服務忙碌中（請求過於頻繁），請等幾秒再執行',
     err5xx:s=>`⚠️ 雲端評測服務暫時異常（HTTP ${s}），請稍後再試`,
@@ -448,6 +464,9 @@ const UI_STR = {
     errTLE:'⏱ 執行逾時（TLE）：程式超過時間限制，請檢查迴圈或演算法複雜度',
     errCompile:'🛠 編譯錯誤：\n',
     errService:d=>`⚠️ 雲端評測服務暫時異常（${d}），請稍後再試`,
+    errSourceLarge:'程式碼超過 100 KB，請縮短後再執行。', errInputLarge:'標準輸入超過 64 KB，請縮短後再執行。',
+    judgeDisclosure:'C／C++／Java 會將程式碼與標準輸入傳送到第三方 Judge0 服務執行。請勿提交個資、密碼或機密程式碼。\n\n本分頁同意一次後不再詢問。要繼續嗎？',
+    judgeDeclined:'已取消：程式碼未傳送到 Judge0。',
     metaLearn:'🎯 這章你會學到', metaTry:'✋ 動手試試（改右邊程式碼）',
     metaMcq:'🧠 觀念小測驗（點選答案，立即看解析）', mcqRight:'✅ 答對了！', mcqWrong:'❌ 不對喔。',
     metaQuiz:'📝 程式練習（在右邊編輯器寫程式碼，按下方按鈕檢查）',
@@ -459,7 +478,9 @@ const UI_STR = {
     cqPyHint:'💡 本章程式練習以 Python 為基準（涉及檔案 / 模組 / OOP / API 等 Python 慣用法）。請先切到 Python 嘗試，或直接讀左邊教材的概念。',
     mnavChap:'章節', mnavLesson:'教學', mnavCode:'程式',
     progExport:'匯出進度（下載 JSON）', progImport:'匯入進度',
-    progImportOk:'已匯入！目前共完成 {n} 章', progImportBad:'檔案格式不符，無法匯入（請選擇本站匯出的 tutorial-progress.json）'
+    readCompleteTitle:'完成本章', readCompleteHelp:'本章沒有程式評測。讀完教材並完成你需要的隨堂練習後，可勾選完成。',
+    readCompleteCheck:'我已閱讀並完成本章', completedAnnounce:'本章已標記完成', uncompletedAnnounce:'本章已改為未完成',
+    progImportOk:'已匯入！目前共完成 {n} 章', progImportTooLarge:'匯入失敗：檔案超過 12 MB。', progImportBad:'檔案格式不符，無法匯入（請選擇本站匯出的 tutorial-progress.json）'
   },
   en: {
     logo:'📚 Coding Tutorial × APCS Practice', subtitle1:'chapters · coding tutorial + APCS prep + tiered practice + code literacy',
@@ -472,9 +493,9 @@ const UI_STR = {
     outHdr:'📤 Output', outPlaceholder:'Press "Run" above to test the code',
     chapPrefix:n=>`Chapter ${n}`, chapPrefixFull:(n,t)=>`Chapter ${n}: ${t}`,
     langToggleTitle:'切換為中文 / Switch to Chinese',
-    statusLoading:'Downloading Python runtime (~10–20 s first time)...', statusReady:'Pyodide ready', statusFailed:'Failed to load Python — please refresh',
+    statusLazy:'Python loads on first run', statusLoading:'Downloading Python runtime (~10–20 s first time)...', statusReady:'Pyodide ready', statusFailed:'Failed to load Python — press Run to retry',
     running:'Running...', noOutput:'(no output)', errPrefix:'Error:\n',
-    pyTimeout:'⏱ Timeout: your program ran too long (possibly an infinite loop). The Python runtime was reset — fix the code and run again',
+    pyTimeout:'⏱ Timeout: your program ran too long (possibly an infinite loop). The Python runtime was reset — fix the code and run again', outputTruncated:'\n\n⚠️ Output exceeded 200,000 characters and was truncated.',
     errNet:'🌐 Cannot reach the cloud judge (C/C++/Java need network) — please check your connection and retry',
     errBusy:'🚦 The cloud judge is busy (rate limited) — wait a few seconds and retry',
     err5xx:s=>`⚠️ The cloud judge is temporarily unavailable (HTTP ${s}) — please retry later`,
@@ -483,6 +504,9 @@ const UI_STR = {
     errTLE:'⏱ Time limit exceeded (TLE): check your loops or algorithm complexity',
     errCompile:'🛠 Compile error:\n',
     errService:d=>`⚠️ The cloud judge is temporarily unavailable (${d}) — please retry later`,
+    errSourceLarge:'Source code exceeds 100 KB. Shorten it before running.', errInputLarge:'Standard input exceeds 64 KB. Shorten it before running.',
+    judgeDisclosure:'C/C++/Java sends your source code and standard input to the third-party Judge0 service. Do not submit personal data, passwords, or confidential code.\n\nYou will only be asked once after consenting in this tab. Continue?',
+    judgeDeclined:'Cancelled: no code was sent to Judge0.',
     metaLearn:'🎯 What you will learn', metaTry:'✋ Try it (edit the code on the right)',
     metaMcq:'🧠 Concept quiz (click an answer for instant feedback)', mcqRight:'✅ Correct!', mcqWrong:'❌ Not quite.',
     metaQuiz:'📝 Coding exercise (write code in the editor, then press the button below)',
@@ -494,7 +518,9 @@ const UI_STR = {
     cqPyHint:'💡 This exercise is Python-based (it uses files / modules / OOP / API idioms). Switch to Python to try it, or just read the lesson concepts on the left.',
     mnavChap:'Chapters', mnavLesson:'Lesson', mnavCode:'Code',
     progExport:'Export progress (download JSON)', progImport:'Import progress',
-    progImportOk:'Imported! {n} chapters completed in total', progImportBad:'Unrecognized file — please pick a tutorial-progress.json exported from this site'
+    readCompleteTitle:'Complete this chapter', readCompleteHelp:'This chapter has no coding check. Mark it complete after reading and doing the practice you need.',
+    readCompleteCheck:'I have read and completed this chapter', completedAnnounce:'Chapter marked complete', uncompletedAnnounce:'Chapter marked incomplete',
+    progImportOk:'Imported! {n} chapters completed in total', progImportTooLarge:'Import failed: the file exceeds 12 MB.', progImportBad:'Unrecognized file — please pick a tutorial-progress.json exported from this site'
   }
 };
 function T(){ return UI_STR[uiLang]; }
@@ -537,7 +563,7 @@ function applyUiLang(){
   if(btn){ btn.textContent = uiLang==='zh' ? '🌐 EN' : '🌐 中文'; btn.title = t.langToggleTitle; }
   const cfg = LANG_CFG[currentLang];
   if(cfg) document.getElementById('lang-note').textContent = uiLang === 'en' ? cfg.noteEn : cfg.note;
-  setText('status-text', pyReady ? t.statusReady : (pyFailed ? t.statusFailed : t.statusLoading));
+  setText('status-text', pyReady ? t.statusReady : (pyFailed ? t.statusFailed : (pyWorker ? t.statusLoading : t.statusLazy)));
   setText('mnav-chap-t', t.mnavChap);
   setText('mnav-lesson-t', t.mnavLesson);
   setText('mnav-code-t', t.mnavCode);
@@ -569,13 +595,14 @@ const LANG_CFG = {
 };
 
 function initPython() {
-  if (pyWorker) return;
+  if (pyWorker) return pyReadyPromise;
   pyFailed = false;
   const ldbar = document.getElementById('py-ldbar');
   if (ldbar) ldbar.style.display = 'inline-block';
   document.getElementById('status-dot').classList.remove('ready');
   document.getElementById('status-text').textContent = T().statusLoading;
-  startPyWorker().then(() => {
+  const readyPromise=startPyWorker();
+  readyPromise.then(() => {
     document.getElementById('status-dot').classList.add('ready');
     document.getElementById('status-text').textContent = T().statusReady;
     document.getElementById('run-btn').disabled = false;
@@ -586,6 +613,7 @@ function initPython() {
   }).finally(() => {
     if (ldbar) ldbar.style.display = 'none';
   });
+  return readyPromise;
 }
 
 function initEditor() {
@@ -763,20 +791,48 @@ let beginnerMode = (localStorage.getItem('tut_beginner') ?? '1') === '1';
 // 損壞的 localStorage 不能讓整頁掛掉：解析失敗就當作沒有進度
 let completed = new Set();
 try {
-  const _done = JSON.parse(localStorage.getItem('tut_done') || '[]');
+  const _done = (typeof LearningState!=='undefined') ? LearningState.tutorialCompleted() : JSON.parse(localStorage.getItem('tut_done') || '[]');
   if (Array.isArray(_done)) completed = new Set(_done.filter(Number.isInteger));
 } catch(e) {}
 function saveState(){
   localStorage.setItem('tut_beginner', beginnerMode ? '1' : '0');
   localStorage.setItem('tut_done', JSON.stringify([...completed]));
+  if(typeof LearningState!=='undefined')LearningState.setTutorialCompleted([...completed]);
 }
+function announceTutorial(msg){const el=document.getElementById('tutorial-status');if(el)el.textContent=msg||'';}
 
 // ── 編輯器草稿自動保存（per 章節 + 語言；切章、切語言、重整都不會弄丟程式碼） ─
 const DRAFTS_KEY = 'tut_drafts_v1';
+const PROGRESS_IMPORT_MAX_BYTES = 12 * 1024 * 1024;
+const MAX_TUTORIAL_DRAFTS = CHAPTERS.length * 4;
+const MAX_TUTORIAL_DRAFT_CHARS = 200000;
+const VALID_TUTORIAL_CHAPTER_IDS = new Set(CHAPTERS.map(chapter=>chapter.id));
+function validTutorialDraftKey(key){
+  const match=typeof key==='string'&&key.match(/^(\d{1,3})_(py|cpp|c|java)$/);
+  return !!(match&&VALID_TUTORIAL_CHAPTER_IDS.has(Number(match[1])));
+}
+function sanitizeTutorialDrafts(value, strict){
+  if(!value||typeof value!=='object'||Array.isArray(value)){
+    if(strict)throw new Error('bad drafts');
+    return {};
+  }
+  const entries=Object.entries(value);
+  if(entries.length>MAX_TUTORIAL_DRAFTS){
+    if(strict)throw new Error('too many drafts');
+    entries.length=MAX_TUTORIAL_DRAFTS;
+  }
+  const clean={};
+  for(const [key,draft] of entries){
+    const valid=validTutorialDraftKey(key)&&typeof draft==='string'&&draft.length<=MAX_TUTORIAL_DRAFT_CHARS;
+    if(!valid){if(strict)throw new Error('bad draft');continue;}
+    if(draft.trim())clean[key]=draft;
+  }
+  return clean;
+}
 let drafts = {};
 try {
   const _d = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '{}');
-  if (_d && typeof _d === 'object' && !Array.isArray(_d)) drafts = _d;
+  drafts = sanitizeTutorialDrafts(_d, false);
 } catch(e) {}
 let _draftKey = null;   // 目前編輯器內容所屬的 章id_語言
 let _draftBase = null;  // 該章載入時的範例（與範例相同就不存草稿）
@@ -807,27 +863,30 @@ function loadDraftInto(chap){
 // ── 進度匯出 / 匯入（換裝置、清快取時可帶走進度） ─────────────────────────
 function exportProgress(){
   flushDraft(); // 草稿一併打包，換裝置時寫到一半的程式碼帶得走
-  const data = { app:'apcs-tutorial', v:1, exportedAt:new Date().toISOString(), done:[...completed], drafts };
+  const data = { app:'apcs-tutorial', v:2, exportedAt:new Date().toISOString(), done:[...completed], drafts };
   const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'tutorial-progress.json';
   a.click();
-  URL.revokeObjectURL(a.href);
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
 }
 function importProgress(){ document.getElementById('prog-file').click(); }
 document.getElementById('prog-file').addEventListener('change', async e=>{
   const f = e.target.files[0];
   e.target.value = '';
   if(!f) return;
+  if(f.size>PROGRESS_IMPORT_MAX_BYTES){alert(T().progImportTooLarge);return;}
   try{
     const data = JSON.parse(await f.text());
     if(data.app !== 'apcs-tutorial' || !Array.isArray(data.done)) throw new Error('bad format');
-    data.done.forEach(id=>{ if(Number.isInteger(id)) completed.add(id); });
+    if(data.done.length>CHAPTERS.length||data.done.some(id=>!Number.isInteger(id)||!VALID_TUTORIAL_CHAPTER_IDS.has(id)))throw new Error('bad chapters');
+    data.done.forEach(id=>completed.add(id));
     // 草稿合併：只補進本機沒有的（本機現有草稿優先，不被匯入檔覆蓋）
-    if(data.drafts && typeof data.drafts === 'object' && !Array.isArray(data.drafts)){
-      for(const [k, v] of Object.entries(data.drafts)){
-        if(typeof v === 'string' && v.trim() && drafts[k] === undefined) drafts[k] = v;
+    if(data.drafts!==undefined){
+      const incomingDrafts=sanitizeTutorialDrafts(data.drafts,true);
+      for(const [k, v] of Object.entries(incomingDrafts)){
+        if(drafts[k] === undefined) drafts[k] = v;
       }
       try { localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts)); } catch(e) {}
     }
@@ -842,10 +901,21 @@ document.getElementById('prog-file').addEventListener('change', async e=>{
 function markDone(id){
   if(!completed.has(id)){
     completed.add(id);
+    if(typeof LearningState!=='undefined')LearningState.markTutorial(id,true);
     saveState();
     updateProgress();
     renderChapList();
+    announceTutorial(T().completedAnnounce);
   }
+}
+function toggleChapterComplete(id, checked){
+  const meta=CHAPTER_META[id];
+  if(meta&&meta.code)return;
+  if(checked)completed.add(id);else completed.delete(id);
+  if(typeof LearningState!=='undefined')LearningState.markTutorial(id,checked);
+  saveState();updateProgress();renderChapList();
+  announceTutorial(checked?T().completedAnnounce:T().uncompletedAnnounce);
+  if(currentChap&&currentChap.id===id)selectChap(id,{preserveEditor:true});
 }
 function updateProgress(){
   // 以「當前語言可見的章節」計算進度，避免分母永遠是全部章節數
@@ -855,6 +925,7 @@ function updateProgress(){
   const done = visible.filter(c => completed.has(c.id)).length;
   const pct = total ? Math.round(done / total * 100) : 0;
   document.getElementById('prog-fill').style.width = pct + '%';
+  const bar=document.getElementById('prog-bar');if(bar){bar.setAttribute('aria-valuemax',String(total));bar.setAttribute('aria-valuenow',String(done));}
   document.getElementById('prog-count').textContent = `${done} / ${total} ${T().chapUnit}`;
   document.getElementById('prog-pct').textContent = pct + '%';
 }
@@ -893,9 +964,15 @@ function answerReadingQuiz(chapId, qid, oi){
   }
   if(currentChap && currentChap.id === chapId) selectChap(chapId, {preserveEditor:true});
 }
+function renderChapterCompletion(chap, hasCode){
+  if(hasCode)return '';
+  const checked=completed.has(chap.id);
+  const t=T();
+  return `<div class="chapter-complete"><input type="checkbox" id="chapter-complete-${chap.id}" ${checked?'checked':''} onchange="toggleChapterComplete(${chap.id},this.checked)"><label for="chapter-complete-${chap.id}"><b>${t.readCompleteTitle}</b>${t.readCompleteHelp}<br><span>${t.readCompleteCheck}</span></label></div>`;
+}
 function renderMeta(chap){
   const meta = CHAPTER_META[chap.id];
-  if(!meta) return '';
+  if(!meta) return renderChapterCompletion(chap,false);
   const t = T();
   let html = '';
   if(meta.learn?.length){
@@ -948,6 +1025,7 @@ function renderMeta(chap){
     html += `</div>`;
   }
   html += renderReadingDrill(chap);
+  html += renderChapterCompletion(chap,!!meta.code);
   return html;
 }
 function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -973,15 +1051,15 @@ const _readingDrillCache = new Map();
 function getReadingDrill(chapId){
   const key = chapId + ':' + currentLang;
   if(_readingDrillCache.has(key)) return _readingDrillCache.get(key);
-  if(typeof READING_QUESTIONS === 'undefined') return [];
+  if(typeof TUTORIAL_READING_QUESTIONS === 'undefined') return [];
   const langMap = {py:'python', cpp:'cpp', c:'c', java:'java'};
   const lang = langMap[currentLang] || '';
   const cats = readingCatForChapter(chapId);
-  const pool = READING_QUESTIONS.filter(q => {
+  const pool = TUTORIAL_READING_QUESTIONS.filter(q => {
     const langOk = !q.lang || q.lang === lang || (currentLang !== 'py' && q.lang === 'c' && (q.cat === '基礎' || q.cat === '流程'));
     return langOk && cats.includes(q.cat) && q.options && q.options.length === 4;
   });
-  const fallback = READING_QUESTIONS.filter(q => (!q.lang || q.lang === lang) && q.options && q.options.length === 4);
+  const fallback = TUTORIAL_READING_QUESTIONS.filter(q => (!q.lang || q.lang === lang) && q.options && q.options.length === 4);
   const src = pool.length >= 3 ? pool : fallback;
   const picked = [];
   for(let i = 0; i < src.length && picked.length < 3; i++){
@@ -1031,9 +1109,18 @@ function chapterIdFromHash(){
   const m = decodeURIComponent(location.hash || '').match(/^#ch(\d+)-/);
   return m ? Number(m[1]) : null;
 }
-function getInitialChapterId(){
+function getInitialLang(){
+  const lang=new URLSearchParams(location.search).get('lang');
+  return ['py','cpp','c','java'].includes(lang)?lang:'py';
+}
+function getInitialChapterId(lang){
+  const raw=new URLSearchParams(location.search).get('chapter');
+  const fromQuery=raw!==null&&/^\d{1,3}$/.test(raw)?Number(raw):null;
+  if(Number.isInteger(fromQuery)&&fromQuery>=0&&fromQuery<=100&&CHAPTERS.some(c=>c.id===fromQuery)&&isChapAvailable(fromQuery,lang))return fromQuery;
   const fromHash = chapterIdFromHash();
-  return Number.isInteger(fromHash) && CHAPTERS.some(c => c.id === fromHash) ? fromHash : 0;
+  if(Number.isInteger(fromHash)&&CHAPTERS.some(c=>c.id===fromHash)&&isChapAvailable(fromHash,lang))return fromHash;
+  const first=getOrderedVisibleChapters(lang)[0];
+  return first?first.id:0;
 }
 function enhanceLessonAnchors(body, chap){
   if(!body || !chap) return;
@@ -1109,17 +1196,26 @@ function pickLangBlock(lc, lang){
   const t = lc && lc[lang];
   return (t && t.trim()) ? t : '';
 }
+function alignMarkdownChapterNumber(content, chap){
+  const shown=chapDisplayNum(chap.id);
+  if(shown===chap.id)return content;
+  return String(content)
+    .replace(new RegExp('^(\\s*#\\s*第\\s*)'+chap.id+'(\\s*章)'), '$1'+shown+'$2')
+    .replace(new RegExp('^(\\s*#\\s*Chapter\\s+)'+chap.id+'(\\b)', 'i'), '$1'+shown+'$2');
+}
 // 依目前語言取教材內容（Python 用 chap.content；其他用 LANG_CONTENT / LANG_CONTENT_EN）
 function getContent(chap){
+  let content='';
   if(currentLang === 'py'){
-    if(hasEN(chap)) return chEN(chap).content || chap.content;
-    return chap.content;
+    content=hasEN(chap) ? (chEN(chap).content || chap.content) : chap.content;
+  }else{
+    const src = (uiLang === 'en' && typeof LANG_CONTENT_EN !== 'undefined') ? LANG_CONTENT_EN : LANG_CONTENT;
+    const block = pickLangBlock(src[chap.id], currentLang);
+    if(block) content=block;
+    else if(uiLang === 'en' && hasEN(chap)) content=chEN(chap).content;
+    else content=chap.content;
   }
-  const src = (uiLang === 'en' && typeof LANG_CONTENT_EN !== 'undefined') ? LANG_CONTENT_EN : LANG_CONTENT;
-  const block = pickLangBlock(src[chap.id], currentLang);
-  if(block) return block;
-  if(uiLang === 'en' && hasEN(chap)) return chEN(chap).content;
-  return chap.content;
+  return alignMarkdownChapterNumber(content,chap);
 }
 
 // ── Per-chapter examples for C++ / C / Java ──────────────────────────────────
@@ -1138,7 +1234,8 @@ function chapSection(id){
   if(id <= 78) return {key:'topic-cpp',  label:'⚡ 專項教學 · C++', desc:'STL / RAII / move / lambda / 演算法庫 / Concurrency'};
   if(id <= 86) return {key:'topic-c',    label:'🔧 專項教學 · C',   desc:'指標 / malloc / struct / 函式指標 / 字串 / 巨集 / 系統呼叫'};
   if(id <= 94) return {key:'topic-java', label:'☕ 專項教學 · Java', desc:'Collections / Generics / Stream / Optional / Threads / JVM'};
-  return         {key:'core-deep', label:'🧠 進階觀念', desc:'物件模型、函式參數、讀官方文件'};
+  if(id <= 97) return {key:'core-deep', label:'🧠 進階觀念', desc:'物件模型、函式參數、讀官方文件'};
+  return         {key:'debug-safe', label:'🧯 除錯與防呆', desc:'讀 traceback、系統化除錯、防禦式程式設計'};
 }
 function renderChapList() {
   const list = document.getElementById('chap-list');
@@ -1165,6 +1262,7 @@ function renderChapList() {
     const _en = hasEN(c) ? chEN(c) : null;
     const _t = _en ? _en.title : c.title;
     const _g = _en ? _en.tag   : c.tag;
+    div.setAttribute('aria-label', `${_t}${done ? (uiLang==='en'?', completed':'，已完成') : (uiLang==='en'?', not completed':'，未完成')}`);
     div.innerHTML = `<div class="chap-num">${T().chapPrefix(chapDisplayNum(c.id))} · ${_g}</div><div class="chap-title">${_t}</div>`;
     list.appendChild(div);
   });
@@ -1178,9 +1276,9 @@ function selectChap(id, opts) {
   if(!currentChap) return;
   const body = document.getElementById('lesson-body');
   const prevScroll = body.scrollTop;
-  document.querySelectorAll('.chap').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.chap').forEach(el => {el.classList.remove('active');el.removeAttribute('aria-current');});
   const el = document.getElementById('chap-' + id);
-  if(el) el.classList.add('active');
+  if(el){el.classList.add('active');el.setAttribute('aria-current','true');}
   const _enCh = hasEN(currentChap) ? chEN(currentChap) : null;
   const _title = _enCh ? _enCh.title : currentChap.title;
   const _tag   = _enCh ? _enCh.tag   : currentChap.tag;
@@ -1234,31 +1332,59 @@ function resetExample() {
   }
 }
 
+const MAX_SOURCE_CHARS=100*1024;
+const MAX_STDIN_CHARS=64*1024;
+function limitRunnerOutput(value){
+  const text=String(value||'');
+  return {text:text.slice(0,OUTPUT_LIMIT_CHARS),truncated:text.length>OUTPUT_LIMIT_CHARS};
+}
+const JUDGE0_CONSENT_KEY='apcs_judge0_consent_v1';
+function hasJudge0Consent(){try{return sessionStorage.getItem(JUDGE0_CONSENT_KEY)==='1';}catch(e){return false;}}
+function requestJudge0Consent(){
+  if(hasJudge0Consent())return true;
+  if(!confirm(T().judgeDisclosure))return false;
+  try{sessionStorage.setItem(JUDGE0_CONSENT_KEY,'1');}catch(e){}
+  return true;
+}
+async function fetchWithTimeout(url,options,timeoutMs){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),timeoutMs||20000);
+  try{return await fetch(url,Object.assign({},options||{},{signal:controller.signal}));}
+  finally{clearTimeout(timer);}
+}
+
 async function executeCode(code, stdin, lang) {
   // returns {raw: full output text, stderr: boolean}
+  if(String(code||'').length>MAX_SOURCE_CHARS)return{raw:T().errSourceLarge,stderr:true};
+  if(String(stdin||'').length>MAX_STDIN_CHARS)return{raw:T().errInputLarge,stderr:true};
   if (lang === 'py') {
     try {
       const r = await runPython(code, stdin, PY_TIMEOUT_MS);
       const hasErr = !!(r.err && r.err.trim());
-      const raw = r.out + (hasErr ? (r.out ? '\n' : '') + r.err : '');
-      return { raw, stderr: hasErr };
+      const combined=limitRunnerOutput(r.out+(hasErr?(r.out?'\n':'')+r.err:''));
+      const truncated=!!r.truncated||combined.truncated;
+      return {raw:combined.text+(truncated?T().outputTruncated:''),stderr:hasErr||truncated};
     } catch (e) {
       if (e && e.message === 'PY_TIMEOUT') return { raw: T().pyTimeout, stderr: true };
       return { raw: String(e.message || e), stderr: true };
     }
   }
   // C / C++ / Java 走 Judge0 CE（Piston 公開 API 自 2026/02/15 起改白名單）
+  if(!requestJudge0Consent())return{raw:T().judgeDeclined,stderr:true,cancelled:true};
   const JUDGE0_LANG = { cpp: 54, c: 50, java: 62 };
   try {
     const data = await judge0Submit(code, stdin, JUDGE0_LANG[lang]);
     // Judge0 status：3=正常結束, 5=TLE, 6=編譯錯誤, 7~12=執行期錯誤, 13/14=服務內部錯誤
     const sid = data.status && data.status.id;
+    if (sid === 1 || sid === 2) return {raw: T().errService('request timeout'), stderr: true};
     if (sid === 5) return {raw: T().errTLE, stderr: true};
-    if (sid === 6) return {raw: T().errCompile + String(data.compile_output || ''), stderr: true};
+    if (sid === 6) { const compile=limitRunnerOutput(data.compile_output); return {raw:T().errCompile+compile.text+(compile.truncated?T().outputTruncated:''),stderr:true}; }
     if (sid >= 13) return {raw: T().errService((data.status && data.status.description) || sid), stderr: true};
-    const stdout = data.stdout || '';
-    const stderr = data.stderr || data.compile_output || '';
-    return {raw: stdout + (stderr ? '\n[stderr]\n' + stderr : ''), stderr: !!stderr};
+    const stdout = limitRunnerOutput(data.stdout);
+    const stderr = limitRunnerOutput(data.stderr || data.compile_output);
+    const combined=limitRunnerOutput(stdout.text+(stderr.text?'\n[stderr]\n'+stderr.text:''));
+    const truncated=stdout.truncated||stderr.truncated||combined.truncated;
+    return {raw:combined.text+(truncated?T().outputTruncated:''),stderr:!!stderr.text||truncated};
   } catch (e) {
     return {raw: String(e.message || e), stderr: true};
   }
@@ -1272,10 +1398,10 @@ async function judge0Submit(code, stdin, languageId) {
     if (delays[attempt]) await new Promise(r => setTimeout(r, delays[attempt]));
     let res;
     try {
-      res = await fetch('https://ce.judge0.com/submissions?base64_encoded=false&wait=true', {
+      res = await fetchWithTimeout('https://ce.judge0.com/submissions?base64_encoded=false&wait=true', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ language_id: languageId, source_code: code, stdin: stdin || '' })
-      });
+        body: JSON.stringify({ language_id: languageId, source_code: code, stdin: stdin || '', cpu_time_limit:5, wall_time_limit:10, memory_limit:262144, max_file_size:1024 })
+      },20000);
     } catch(e) {
       lastErr = T().errNet;
       continue;
@@ -1289,7 +1415,7 @@ async function judge0Submit(code, stdin, languageId) {
       await new Promise(r => setTimeout(r, 1200));
       // 輪詢途中斷網不往外丟原始錯誤：中止輪詢，回傳目前已知狀態
       try {
-        const r2 = await fetch('https://ce.judge0.com/submissions/' + data.token + '?base64_encoded=false');
+        const r2 = await fetchWithTimeout('https://ce.judge0.com/submissions/' + data.token + '?base64_encoded=false',{},12000);
         if (!r2.ok) break;
         data = await r2.json();
       } catch (e) { break; }
@@ -1328,7 +1454,7 @@ async function runCode() {
     out.textContent = T().errPrefix + (e.message || e);
   } finally {
     runBusy = false;
-    btn.disabled = (currentLang === 'py' && !pyReady);
+    btn.disabled = false;
   }
 }
 
@@ -1379,11 +1505,11 @@ document.getElementById('chap-list').addEventListener('keydown', e=>{
 
 updateStaticCounts();
 initEditor();
-switchLang('py');
+const initialLang=getInitialLang();
+switchLang(initialLang);
 applyUiLang();
-initPython();
 updateProgress();
-selectChap(getInitialChapterId());
+selectChap(getInitialChapterId(initialLang));
 window.addEventListener('hashchange', () => {
   const id = chapterIdFromHash();
   if(Number.isInteger(id) && (!currentChap || currentChap.id !== id)){
@@ -1420,6 +1546,7 @@ if (uiLang === 'en') {
   document.body.appendChild(b);
 })();
 </script>
-<script src="data/chat-widget.js?v=20260702a"></script>
+<script src="data/service-config.js?v=20260717e"></script>
+<script src="data/chat-widget.js?v=20260717e"></script>
 </body>
 </html>

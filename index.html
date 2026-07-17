@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>APCS 多級 多語言評分系統</title>
-<meta name="description" content="300 道 APCS 分級題目，Python、C++、C、Java 四語言即時評分，附官方解答與解題思路——全部在瀏覽器內完成。">
+<title>APCS 多級練習｜四語言範例檢查</title>
+<meta name="description" content="300 道 APCS 分級練習，支援 Python、C++、C、Java 執行公開範例，並附參考解答與解題思路。">
 <meta property="og:type" content="website">
-<meta property="og:title" content="APCS 練習題庫｜四語言即時評分">
-<meta property="og:description" content="300 道分級題目、四語言官方解答、即時評分與解題思路——零安裝、零註冊。">
+<meta property="og:title" content="APCS 練習題庫｜四語言範例檢查">
+<meta property="og:description" content="300 道分級題目、四語言參考解答、公開範例檢查與解題思路——零安裝、零註冊。">
 <meta property="og:url" content="https://yu-0312.github.io/apcs-judge/">
 <meta property="og:locale" content="zh_TW">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="APCS 練習題庫｜四語言即時評分">
-<meta name="twitter:description" content="300 道分級題目、即時評分與解題思路——零安裝、零註冊。">
+<meta name="twitter:title" content="APCS 練習題庫｜四語言範例檢查">
+<meta name="twitter:description" content="300 道分級題目、公開範例檢查與解題思路——零安裝、零註冊。">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0f1117">
@@ -53,6 +53,26 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 .status-dot{width:7px;height:7px;border-radius:50%;background:var(--yellow);display:inline-block;margin-right:4px;animation:pulse 1.5s infinite;}
 .status-dot.ready{background:var(--green);animation:none;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* First-visit next-step card */
+.onboard{position:fixed;z-index:80;top:64px;right:18px;width:min(430px,calc(100vw - 24px));background:rgba(28,33,40,.98);border:1px solid var(--border);border-radius:10px;box-shadow:0 14px 42px rgba(0,0,0,.45);padding:16px;}
+.onboard[hidden]{display:none;}
+.onboard-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;}
+.onboard-head h2{font-size:16px;margin-bottom:3px;}
+.onboard-head p{font-size:11px;color:var(--text-muted);line-height:1.5;}
+.onboard-close{margin-left:auto;background:none;border:0;color:var(--text-muted);font-size:20px;cursor:pointer;line-height:1;}
+.onboard-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.onboard-field{display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--text-muted);}
+.onboard-field select,.onboard-field input{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px 8px;font:inherit;color-scheme:dark;}
+.onboard-actions{display:flex;align-items:center;gap:8px;margin-top:12px;}
+.onboard-save{background:var(--green);color:#071108;border:0;border-radius:6px;padding:7px 12px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;}
+.onboard-next{margin-top:12px;padding-top:11px;border-top:1px solid var(--border);}
+.onboard-next[hidden]{display:none;}
+.onboard-message{font-size:12px;line-height:1.55;margin-bottom:8px;}
+.onboard-links{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.onboard-links a{border:1px solid var(--border);border-radius:6px;padding:7px 8px;color:var(--text);text-decoration:none;font-size:11px;background:rgba(255,255,255,.025);}
+.onboard-links a.primary{border-color:var(--lang-color);color:var(--lang-color);background:rgba(63,185,80,.07);}
+.sample-scope-note{font-size:10px;color:var(--yellow);white-space:nowrap;}
 
 /* Language tabs */
 .lang-tabs{height:var(--tab-h);display:flex;align-items:stretch;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0;}
@@ -187,6 +207,8 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
   .sample-inner{grid-template-columns:1fr;}
   .sample-col+.sample-col{border-left:none;border-top:1px solid var(--border);}
   .test-case{grid-template-columns:90px 1fr 1fr;}
+  .onboard{top:58px;right:12px;}
+  .onboard-grid,.onboard-links{grid-template-columns:1fr;}
   #mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;height:var(--mnav-h);background:var(--sidebar-bg);border-top:1px solid var(--border);z-index:50;padding-bottom:env(safe-area-inset-bottom);}
   #mobile-nav button{flex:1;background:transparent;border:none;color:var(--text-muted);font-size:11px;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-top:2px solid transparent;transition:color .15s;}
   #mobile-nav button.on{color:var(--lang-color);border-top-color:var(--lang-color);}
@@ -196,22 +218,54 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 </head>
 <body>
 <header>
-  <div><div class="logo" id="logo">APCS 多語言評分系統</div><div class="sub" id="sub-line"></div></div>
+  <div><div class="logo" id="logo">APCS 四語言範例檢查</div><div class="sub" id="sub-line"></div></div>
   <div class="hright">
     <a href="reading.html" title="程式判讀練習（APCS 程式識讀／統測判讀題）" style="color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;">🔍 程式判讀</a>
-    <a href="ai-solve.html" title="AI 解題：拍照掃描題目、模擬運行三次驗證後給詳解" style="color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;">🤖 AI 解題</a>
+    <a href="ai-solve.html" title="AI 解題：公開範例一致性檢查（非 AC 判定）" style="color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;">🤖 AI 解題</a>
     <a href="mistakes.html" title="錯題本：判讀題／實作題／AI 上傳錯題彙整" style="color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;">📕 錯題本</a>
     <a href="tutorial.html" id="tutorial-link" style="color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;">📚 基礎教學</a>
     <a href="studyplan.html" title="學習地圖與讀書計畫" style="color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;">🗺 學習地圖</a>
     <a href="dashboard.html" title="我的學習進度儀表板" style="color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;">📊 進度</a>
     <a href="reference.html" title="C++ STL 與常用函式速查表" style="color:var(--text-muted);text-decoration:none;padding:5px 10px;border:1px solid var(--border);border-radius:5px;">📑 速查</a>
+    <button id="onboard-open" class="hbtn" type="button" onclick="openOnboarding(true)" title="今天下一步">✨</button>
     <button id="prog-exp-btn" class="hbtn" onclick="exportProgress()" title="匯出刷題進度（下載 JSON）">💾</button>
     <button id="prog-imp-btn" class="hbtn" onclick="importProgress()" title="匯入刷題進度">📂</button>
     <input type="file" id="prog-file" accept=".json,application/json" style="display:none">
     <button id="ui-lang-btn" class="hbtn" onclick="toggleUiLang()">🌐 EN</button>
-    <span><span class="status-dot" id="status-dot"></span><span id="status-text">載入中...</span><span class="ldbar" id="py-ldbar" style="display:none"><i></i></span></span>
+    <span role="status" aria-live="polite"><span class="status-dot" id="status-dot"></span><span id="status-text">待命</span><span class="ldbar" id="py-ldbar" style="display:none"><i></i></span></span>
   </div>
 </header>
+
+<section id="onboard-card" class="onboard" role="dialog" aria-labelledby="onboard-title" hidden>
+  <div class="onboard-head">
+    <div><h2 id="onboard-title">✨ 今天下一步</h2><p id="onboard-subtitle">花半分鐘設定目標，取得適合你的入口。</p></div>
+    <button class="onboard-close" type="button" onclick="dismissOnboarding()" aria-label="關閉">×</button>
+  </div>
+  <form id="onboard-form">
+    <div class="onboard-grid">
+      <label class="onboard-field"><span id="onboard-goal-label">目前目標</span><select id="onboard-goal">
+        <option value="beginner">從零開始</option><option value="reading">加強程式識讀</option><option value="practice">加強實作</option><option value="exam">完整備考</option>
+      </select></label>
+      <label class="onboard-field"><span id="onboard-lang-label">主要語言</span><select id="onboard-lang">
+        <option value="py">Python</option><option value="cpp">C++</option><option value="c">C</option><option value="java">Java</option>
+      </select></label>
+      <label class="onboard-field"><span id="onboard-time-label">每週可投入</span><select id="onboard-time">
+        <option value="2">2 小時</option><option value="4">4 小時</option><option value="7">7 小時</option><option value="10">10+ 小時</option>
+      </select></label>
+      <label class="onboard-field"><span id="onboard-date-label">考試日期（可不填）</span><input id="onboard-date" type="date"></label>
+    </div>
+    <div class="onboard-actions"><button id="onboard-save" class="onboard-save" type="submit">產生今天建議</button></div>
+  </form>
+  <div id="onboard-next" class="onboard-next" aria-live="polite" hidden>
+    <p id="onboard-message" class="onboard-message"></p>
+    <div class="onboard-links">
+      <a id="onboard-tutorial" href="tutorial.html">📚 教學</a>
+      <a id="onboard-reading" href="reading.html">🔍 程式識讀</a>
+      <a id="onboard-judge" href="index.html?problem=p101&amp;lang=py">🎯 實作範例</a>
+      <a id="onboard-plan" href="studyplan.html">🗺 學習地圖</a>
+    </div>
+  </div>
+</section>
 
 <div class="lang-tabs">
   <div class="lang-tab" id="tab-py"   onclick="switchLang('py')"  >🐍 Python</div>
@@ -237,7 +291,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
           <option value="midhigh">⭐⭐⭐ 中高級</option>
           <option value="hard">⭐⭐⭐⭐ 高級</option>
         </select>
-        <label class="filter-chk"><input type="checkbox" id="filter-unsolved" onchange="onFilterChange()"><span id="filter-unsolved-label">只看未 AC</span></label>
+        <label class="filter-chk"><input type="checkbox" id="filter-unsolved" onchange="onFilterChange()"><span id="filter-unsolved-label">只看未通過範例</span></label>
       </div>
     </div>
     <div class="problem-list" id="problem-list"></div>
@@ -249,17 +303,17 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
     </div>
     <div class="editor-panel">
       <div class="editor-toolbar">
-        <button class="btn btn-run" id="run-btn" onclick="runCode()" disabled>▶ 執行並評分</button>
+        <button class="btn btn-run" id="run-btn" onclick="runCode()" aria-describedby="sample-scope-note" disabled>▶ 執行公開範例</button>
         <button class="btn btn-sec" id="clear-btn" onclick="clearEditor()">清空</button>
         <button class="btn btn-sample" id="sample-btn" onclick="loadSample()">載入解答</button>
         <button class="btn btn-sec" id="hint-btn" onclick="showHint()" title="顯示解題思路" disabled>💡 思路</button>
-        <span style="flex:1"></span>
+        <span style="flex:1"></span><span id="sample-scope-note" class="sample-scope-note">僅檢查題面公開範例</span>
         <span id="lang-label" style="font-size:11px;color:var(--text-muted);">-</span>
       </div>
       <div class="editor-wrap"><textarea id="code-editor"></textarea></div>
       <div class="results-panel">
-        <div class="results-hdr"><span id="results-hdr-label">📊 評測結果</span><span id="results-summary" style="margin-left:auto;"></span></div>
-        <div id="results-body"><div class="no-results"></div></div>
+        <div class="results-hdr"><span id="results-hdr-label">📊 範例結果</span><span id="results-summary" role="status" aria-live="polite" style="margin-left:auto;"></span></div>
+        <div id="results-body" aria-live="polite"><div class="no-results"></div></div>
       </div>
     </div>
   </div>
@@ -272,11 +326,12 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
 </nav>
 
 <!-- 題目資料（拆檔以利快取與協作）；解答與英文對照於需要時才動態載入 -->
-<script src="data/judge-problems.js?v=20260621b"></script>
-<script src="data/mistake-book.js?v=20260701a"></script>
+<script src="data/judge-problems.js?v=20260717d"></script>
+<script src="data/learning-state.js?v=20260717e"></script>
+<script src="data/mistake-book.js?v=20260717c"></script>
 <script>
 // ── 資料版本（更新 data/*.js 時同步調整，避免舊快取與頁面不同步） ───────────
-const DATA_VER = '20260621b';
+const DATA_VER = '20260717d';
 
 // ── Language config ───────────────────────────────────────────────────────────
 const LANGS = {
@@ -291,19 +346,63 @@ let currentLang = null;
 let currentProblem = null;
 let editor = null;
 let running = false;
-const SCORES_KEY = 'apcs_judge_scores_v1';
-let scores = loadScores(); // { 'py_b964': {passed,total}, ... }
+const SAMPLE_RESULTS_KEY = 'apcs_judge_sample_results_v2';
+const LEGACY_SCORES_KEY = 'apcs_judge_scores_v1';
+const VALID_RESULT_KEYS = new Set(PROBLEMS.flatMap(p => Object.keys(LANGS).map(lang => lang + '_' + p.id)));
 
-function loadScores() {
-  try {
-    const raw = localStorage.getItem(SCORES_KEY);
-    const obj = raw ? JSON.parse(raw) : {};
-    return (obj && typeof obj === 'object') ? obj : {};
-  } catch(e) { return {}; }
+function sanitizeSampleResults(value, migratedFrom) {
+  const clean = {};
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return clean;
+  for (const [key, result] of Object.entries(value)) {
+    if (!VALID_RESULT_KEYS.has(key) || !result || typeof result !== 'object') continue;
+    const passed = Number(result.passed), total = Number(result.total);
+    if (!Number.isInteger(passed) || !Number.isInteger(total) || total < 1 || passed < 0 || passed > total) continue;
+    clean[key] = {
+      passed, total,
+      checkedAt: typeof result.checkedAt === 'string' ? result.checkedAt : null,
+      sampleDataVersion: typeof result.sampleDataVersion === 'string' ? result.sampleDataVersion : null,
+      ...(migratedFrom ? { migratedFrom } : {})
+    };
+  }
+  return clean;
 }
 
-function saveScores() {
-  try { localStorage.setItem(SCORES_KEY, JSON.stringify(scores)); } catch(e) {}
+function loadSampleResults() {
+  let current = {}, hasCurrent = false, changed = false;
+  try {
+    const raw = localStorage.getItem(SAMPLE_RESULTS_KEY);
+    if (raw !== null) {
+      current = sanitizeSampleResults(JSON.parse(raw));
+      hasCurrent = true;
+    }
+  } catch (e) {}
+  // v1 曾把公開範例結果稱為 AC；保留舊資料但遷移到語意正確的新 key，不刪除原始備份。
+  try {
+    const legacy = sanitizeSampleResults(JSON.parse(localStorage.getItem(LEGACY_SCORES_KEY) || '{}'), 'legacy-sample-result-v1');
+    for (const [key, result] of Object.entries(legacy)) {
+      if (current[key] === undefined) { current[key] = result; changed = true; }
+    }
+    if (!hasCurrent || changed) localStorage.setItem(SAMPLE_RESULTS_KEY, JSON.stringify(current));
+  } catch (e) {}
+  return current;
+}
+
+let sampleResults = loadSampleResults(); // { 'py_b964': {passed,total,checkedAt,sampleDataVersion}, ... }
+
+function saveSampleResults() {
+  try { localStorage.setItem(SAMPLE_RESULTS_KEY, JSON.stringify(sampleResults)); } catch(e) {}
+}
+
+function sampleResultComplete(result, problem) {
+  return !!(result && problem && result.passed === problem.samples.length && result.total === problem.samples.length);
+}
+
+function completeSampleResultCount() {
+  let count = 0;
+  for (const p of PROBLEMS) for (const lang of Object.keys(LANGS)) {
+    if (sampleResultComplete(sampleResults[lang + '_' + p.id], p)) count++;
+  }
+  return count;
 }
 
 // ── 介面語言（與 tutorial.html 共用 apcs_ui_lang，跨頁面記住選擇） ───────────
@@ -311,12 +410,13 @@ let uiLang = (localStorage.getItem('apcs_ui_lang') || 'zh'); // 'zh' | 'en'
 
 const UI_STR = {
   zh: {
-    docTitle:'APCS 多級 多語言評分系統',
-    logo:n=>`APCS 多級 ${n} 評分系統`,
-    sub:t=>`${t} 題 · 初/中/中高/高級 · Python / C++ / C / Java`,
+    docTitle:'APCS 多級練習｜四語言範例檢查',
+    logo:n=>`APCS 多級 ${n} 範例檢查`,
+    sub:t=>`${t} 題 · 執行題面公開範例 · Python / C++ / C / Java`,
     tutorialLink:'📚 基礎教學',
     progExport:'匯出刷題進度（下載 JSON）', progImport:'匯入刷題進度',
     langToggleTitle:'切換為英文 / Switch to English',
+    statusPyIdle:'Python 將於首次執行時載入',
     statusPyLoading:'下載 Python 環境中（首次約 10–20 秒）...',
     statusPyReady:'Python 就緒',
     statusPyFailed:'Python 載入失敗，請重新整理',
@@ -325,36 +425,42 @@ const UI_STR = {
     listHdr:t=>`題目列表（${t} 題）`,
     searchPh:'🔍 搜尋題名 / 主題 / 編號',
     diffAll:'全部難度',
-    unsolvedLabel:'只看未 AC',
+    unsolvedLabel:'只看未通過範例',
     listEmpty:'沒有符合條件的題目',
     panelProb:'題目說明',
     pickPrompt:'選擇語言，再從左側點選題目',
     descLabel:'題目說明', inputLabel:'輸入說明', outputLabel:'輸出說明', samplesLabel:'範例測資',
     sampleN:n=>`範例 ${n}`, sampleIn:'輸入', sampleOut:'輸出',
-    btnRun:'▶ 執行並評分', btnRunningJava:'⏳ 執行中（約3秒）...', btnRunning:'⏳ 執行中...',
+    btnRun:'▶ 執行公開範例', btnRunningJava:'⏳ 執行範例中（約3秒）...', btnRunning:'⏳ 執行範例中...',
     btnClear:'清空', btnSample:'載入解答', btnHint:'💡 思路', hintBtnTitle:'顯示解題思路',
-    resultsHdr:'📊 評測結果',
-    resultsPlaceholder:'選擇題目後撰寫程式，點擊「執行並評分」',
-    resultsAfterSelect:'撰寫程式後點擊「執行並評分」',
+    resultsHdr:'📊 公開範例結果',
+    resultsPlaceholder:'選擇題目後撰寫程式，再執行題面提供的公開範例',
+    resultsAfterSelect:'撰寫程式後點擊「執行公開範例」',
     resultsLangSwitched:'已切換語言，重新撰寫或載入解答後點擊執行',
     expectedOut:'預期輸出', yourOut:'你的輸出',
-    testN:n=>`測資 ${n}`,
-    passedSummary:(p,t)=>`${p}/${t} 通過`,
-    allPass:'🎉 全部通過！', somePass:'⚠️ 部分通過', nonePass:'❌ 未通過',
-    passDetail:(p,t)=>`通過 ${p} / ${t} 筆測資`,
-    noOutput:'(無輸出)',
+    testN:n=>`公開範例 ${n}`,
+    passedSummary:(p,t)=>`${p}/${t} 範例通過`,
+    allPass:'🎉 所有公開範例通過！', somePass:'⚠️ 部分公開範例通過', nonePass:'❌ 公開範例未通過',
+    passDetail:(p,t)=>`通過 ${p} / ${t} 筆公開範例；不代表完整測資正確`,
+    noOutput:'(無輸出)', examplePass:'範例通過', exampleFail:'範例未過', listPass:'範例✓', listFail:'範例✗',
+    adaptedSuffix:'（同型練習）', adaptedBadge:'非原題題面',
     levelUnit:n=>`${n} 題`,
     probN:n=>`第 ${n} 題`,
     levelTitle:l=>`${l}練習`,
     alertNeedCode:'請先撰寫程式碼！',
+    alertSourceTooLong:n=>`程式碼過長（上限 ${n.toLocaleString()} 字元），請縮短後再執行。`,
+    alertInputTooLong:n=>`公開範例輸入過長（上限 ${n.toLocaleString()} 字元），已停止送出。`,
+    judge0Disclosure:'C／C++／Java 會把你的原始碼與本題公開範例輸入傳送到公共 Judge0 CE 執行。請勿提交密碼、金鑰或個人資料。\n\n要繼續嗎？',
     alertPickFirst:'請先選擇語言和題目',
     alertNoSolution:'此題目目前沒有參考解答',
     alertSolLoadFail:'解答資料載入失敗，請確認網路後再試',
-    confirmLoadSol:'確定要載入參考解答？（會同時顯示解題思路）',
-    importOk:n=>`已匯入！目前共 ${n} 筆 AC 紀錄`,
+    confirmLoadSol:'確定要載入完整參考解答？這會覆蓋目前編輯器內容，並記錄為已載入解答。',
+    importOk:n=>`已匯入！目前共 ${n} 筆語言 × 題目紀錄通過公開範例`,
+    importTooLarge:'匯入失敗：檔案超過 12 MB。',
     importBad:'檔案格式不符，無法匯入（請選擇本站匯出的 judge-progress.json）',
     enLoadFail:'英文內容載入失敗，請確認網路後再試 / Failed to load English content',
     hintTitle:'💡 解題思路',
+    hintLevel:(n,t)=>`提示第 ${n} / ${t} 層`, hintNext:'再看一層', hintDone:'先自己試試', hintCloseLabel:'關閉提示',
     hintFooter:'💭 提示：好的解題者會從題目敘述中的<strong style="color:var(--text)">關鍵字</strong>與<strong style="color:var(--text)">範例</strong>反推適合的演算法。',
     errNet:'🌐 無法連線到雲端評測服務，請確認網路後再試',
     errBusy:'🚦 雲端評測服務忙碌中（請求過於頻繁），請等幾秒再執行',
@@ -367,16 +473,20 @@ const UI_STR = {
     errService:d=>`⚠️ 評測服務暫時異常（${d}），請稍後再試`,
     errRuntime:d=>`💥 執行期錯誤（${d}）：\n`,
     errPyTimeout:'⏱ 執行逾時：程式跑太久（可能無限迴圈）。Python 環境已自動重置，請修正後再執行',
+    errOutputTruncated:'⚠️ 執行輸出超過 200,000 字元，已截斷；請減少輸出後再試', outputTruncatedMarker:'輸出已截斷',
     diffAt:n=>`差異從第 ${n} 行開始`, diffExpected:'此行預期：', diffMissing:'（缺少此行）', diffExtra:'（多出此行）',
-    mnavList:'題目', mnavProb:'題敘', mnavCode:'程式'
+    mnavList:'題目', mnavProb:'題敘', mnavCode:'程式',
+    sampleScope:'僅檢查題面公開範例',
+    onboard:{open:'今天下一步',title:'✨ 今天下一步',subtitle:'花半分鐘設定目標，取得適合你的入口。',goal:'目前目標',lang:'主要語言',time:'每週可投入',date:'考試日期（可不填）',save:'產生今天建議',close:'關閉',goals:['從零開始','加強程式識讀','加強實作','完整備考'],hours:['2 小時','4 小時','7 小時','10+ 小時'],links:['📚 教學','🔍 程式識讀','🎯 實作範例','🗺 學習地圖'],messages:{beginner:'今天先完成第 0 章，再做一小組判讀；先建立穩定節奏。',reading:'今天先做一回程式識讀，錯題再回教學補觀念。',practice:'今天先挑一題實作並跑公開範例；通過後仍要自行補邊界測試。',exam:'依考試日期與每週時間走學習地圖，今天先完成一個小區塊。'}}
   },
   en: {
-    docTitle:'APCS Multi-language Judge',
-    logo:n=>`APCS ${n} Judge`,
-    sub:t=>`${t} problems · 4 difficulty tiers · Python / C++ / C / Java`,
+    docTitle:'APCS Practice · Four-language Sample Checker',
+    logo:n=>`APCS ${n} Sample Checker`,
+    sub:t=>`${t} problems · public examples only · Python / C++ / C / Java`,
     tutorialLink:'📚 Tutorial',
     progExport:'Export progress (download JSON)', progImport:'Import progress',
     langToggleTitle:'切換為中文 / Switch to Chinese',
+    statusPyIdle:'Python loads on the first run',
     statusPyLoading:'Downloading Python runtime (~10–20 s first time)...',
     statusPyReady:'Python ready',
     statusPyFailed:'Failed to load Python — please refresh',
@@ -385,36 +495,42 @@ const UI_STR = {
     listHdr:t=>`Problems (${t})`,
     searchPh:'🔍 Search title / topic / ID',
     diffAll:'All difficulties',
-    unsolvedLabel:'Unsolved only',
+    unsolvedLabel:'Examples not passed',
     listEmpty:'No problems match the filters',
     panelProb:'Problem',
     pickPrompt:'Pick a language, then choose a problem on the left',
     descLabel:'Description', inputLabel:'Input', outputLabel:'Output', samplesLabel:'Sample Tests',
     sampleN:n=>`Sample ${n}`, sampleIn:'Input', sampleOut:'Output',
-    btnRun:'▶ Run & Grade', btnRunningJava:'⏳ Running (~3 s)...', btnRunning:'⏳ Running...',
+    btnRun:'▶ Run Public Examples', btnRunningJava:'⏳ Running examples (~3 s)...', btnRunning:'⏳ Running examples...',
     btnClear:'Clear', btnSample:'Load solution', btnHint:'💡 Hint', hintBtnTitle:'Show the solution approach',
-    resultsHdr:'📊 Results',
-    resultsPlaceholder:'Pick a problem, write code, then press "Run & Grade"',
-    resultsAfterSelect:'Write your code, then press "Run & Grade"',
+    resultsHdr:'📊 Public Example Results',
+    resultsPlaceholder:'Pick a problem, write code, then run the examples shown in the statement',
+    resultsAfterSelect:'Write your code, then press "Run Public Examples"',
     resultsLangSwitched:'Language switched — rewrite or load the solution, then run',
     expectedOut:'Expected', yourOut:'Your output',
-    testN:n=>`Test ${n}`,
-    passedSummary:(p,t)=>`${p}/${t} passed`,
-    allPass:'🎉 All passed!', somePass:'⚠️ Partially passed', nonePass:'❌ Not passed',
-    passDetail:(p,t)=>`Passed ${p} / ${t} tests`,
-    noOutput:'(no output)',
+    testN:n=>`Public example ${n}`,
+    passedSummary:(p,t)=>`${p}/${t} examples passed`,
+    allPass:'🎉 All public examples passed!', somePass:'⚠️ Some public examples passed', nonePass:'❌ Public examples not passed',
+    passDetail:(p,t)=>`Passed ${p} / ${t} public examples; this is not a full correctness verdict`,
+    noOutput:'(no output)', examplePass:'Sample Passed', exampleFail:'Sample Failed', listPass:'Sample ✓', listFail:'Sample ✗',
+    adaptedSuffix:' (adapted practice)', adaptedBadge:'Not the original statement',
     levelUnit:n=>`${n}`,
     probN:n=>`#${n}`,
     levelTitle:l=>`${l} Practice`,
     alertNeedCode:'Write some code first!',
+    alertSourceTooLong:n=>`Source code is too long (limit: ${n.toLocaleString()} characters).`,
+    alertInputTooLong:n=>`A public-example input exceeds the ${n.toLocaleString()} character limit; nothing was sent.`,
+    judge0Disclosure:'For C, C++, and Java, your source code and the public-example stdin will be sent to the public Judge0 CE service. Do not submit passwords, API keys, or personal data.\n\nContinue?',
     alertPickFirst:'Pick a language and a problem first',
     alertNoSolution:'No reference solution for this problem yet',
     alertSolLoadFail:'Failed to load solutions — please check your network and retry',
-    confirmLoadSol:'Load the reference solution? (The approach hint will also be shown)',
-    importOk:n=>`Imported! ${n} AC records in total`,
+    confirmLoadSol:'Load the full reference solution? This replaces the editor and records that the solution was loaded.',
+    importOk:n=>`Imported! ${n} language–problem records pass their public examples`,
+    importTooLarge:'Import failed: the file exceeds 12 MB.',
     importBad:'Unrecognized file — please pick a judge-progress.json exported from this site',
     enLoadFail:'英文內容載入失敗 / Failed to load English content, please check your network',
     hintTitle:'💡 Approach',
+    hintLevel:(n,t)=>`Hint layer ${n} of ${t}`, hintNext:'Show one more layer', hintDone:'Try it myself', hintCloseLabel:'Close hint',
     hintFooter:'💭 Tip: good solvers infer the right algorithm from the <strong style="color:var(--text)">keywords</strong> and <strong style="color:var(--text)">samples</strong> in the statement.',
     errNet:'🌐 Cannot reach the cloud judge — please check your network and retry',
     errBusy:'🚦 The cloud judge is busy (rate limited) — wait a few seconds and retry',
@@ -427,11 +543,121 @@ const UI_STR = {
     errService:d=>`⚠️ Judge service error (${d}) — please retry later`,
     errRuntime:d=>`💥 Runtime error (${d}):\n`,
     errPyTimeout:'⏱ Timeout: your program ran too long (possibly an infinite loop). The Python runtime was reset — fix the code and run again',
+    errOutputTruncated:'⚠️ Execution output exceeded 200,000 characters and was truncated; reduce output and retry', outputTruncatedMarker:'output truncated',
     diffAt:n=>`First difference at line ${n}`, diffExpected:'expected: ', diffMissing:'(missing line)', diffExtra:'(extra line)',
-    mnavList:'List', mnavProb:'Problem', mnavCode:'Code'
+    mnavList:'List', mnavProb:'Problem', mnavCode:'Code',
+    sampleScope:'Checks only the public examples in the statement',
+    onboard:{open:'Today\'s next step',title:'✨ Today\'s next step',subtitle:'Set a quick goal and jump to the right place.',goal:'Current goal',lang:'Primary language',time:'Weekly time',date:'Exam date (optional)',save:'Build today\'s suggestion',close:'Close',goals:['Start from zero','Improve code reading','Improve implementation','Full exam prep'],hours:['2 hours','4 hours','7 hours','10+ hours'],links:['📚 Tutorial','🔍 Code Reading','🎯 Sample Practice','🗺 Study Plan'],messages:{beginner:'Complete Chapter 0 today, then try a small code-reading set to build momentum.',reading:'Start with one code-reading round today, then review weak concepts in the tutorial.',practice:'Implement one problem and run its public examples; add your own edge cases afterward.',exam:'Use the study plan around your exam date and weekly time; finish one small block today.'}}
   }
 };
 function T(){ return UI_STR[uiLang]; }
+
+// ── 首訪「今天下一步」與安全深連結 ──────────────────────────────────────────
+const ONBOARDING_KEY = 'apcs_judge_onboarding_v1';
+const ONBOARDING_GOALS = ['beginner', 'reading', 'practice', 'exam'];
+const ONBOARDING_HOURS = [2, 4, 7, 10];
+
+function normalizeOnboarding(value) {
+  const v = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  const goal = ONBOARDING_GOALS.includes(v.goal) ? v.goal : 'beginner';
+  const lang = Object.prototype.hasOwnProperty.call(LANGS, v.lang) ? v.lang : 'py';
+  const weeklyHours = ONBOARDING_HOURS.includes(Number(v.weeklyHours)) ? Number(v.weeklyHours) : 4;
+  const examDate = typeof v.examDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v.examDate) ? v.examDate : '';
+  return { goal, lang, weeklyHours, examDate, configured:!!v.configured, dismissed:!!v.dismissed,
+    updatedAt:typeof v.updatedAt === 'string' ? v.updatedAt : null };
+}
+
+function loadOnboarding() {
+  try { return normalizeOnboarding(JSON.parse(localStorage.getItem(ONBOARDING_KEY) || '{}')); }
+  catch (e) { return normalizeOnboarding({}); }
+}
+
+function saveOnboarding(value) {
+  const clean = normalizeOnboarding(value);
+  try { localStorage.setItem(ONBOARDING_KEY, JSON.stringify(clean)); } catch (e) {}
+  return clean;
+}
+
+function renderOnboardingRecommendation(value) {
+  const v = normalizeOnboarding(value), t = T().onboard;
+  const card = document.getElementById('onboard-next');
+  const links = [
+    document.getElementById('onboard-tutorial'), document.getElementById('onboard-reading'),
+    document.getElementById('onboard-judge'), document.getElementById('onboard-plan')
+  ];
+  links[0].href = 'tutorial.html';
+  links[1].href = 'reading.html';
+  links[2].href = 'index.html?problem=p101&lang=' + encodeURIComponent(v.lang);
+  links[3].href = 'studyplan.html';
+  links.forEach((a, i) => { a.textContent = t.links[i]; a.classList.remove('primary'); });
+  links[{beginner:0,reading:1,practice:2,exam:3}[v.goal]].classList.add('primary');
+  const timing = uiLang === 'en'
+    ? ` ${v.weeklyHours}+ hours/week${v.examDate ? '; exam ' + v.examDate : ''}.`
+    : ` 每週 ${v.weeklyHours}+ 小時${v.examDate ? '；考試日 ' + v.examDate : ''}。`;
+  document.getElementById('onboard-message').textContent = t.messages[v.goal] + timing;
+  card.hidden = false;
+}
+
+function applyOnboardingUi() {
+  const t = T().onboard;
+  document.getElementById('onboard-open').title = t.open;
+  document.getElementById('onboard-title').textContent = t.title;
+  document.getElementById('onboard-subtitle').textContent = t.subtitle;
+  document.getElementById('onboard-goal-label').textContent = t.goal;
+  document.getElementById('onboard-lang-label').textContent = t.lang;
+  document.getElementById('onboard-time-label').textContent = t.time;
+  document.getElementById('onboard-date-label').textContent = t.date;
+  document.getElementById('onboard-save').textContent = t.save;
+  document.querySelector('.onboard-close').setAttribute('aria-label', t.close);
+  [...document.getElementById('onboard-goal').options].forEach((o, i) => { o.text = t.goals[i]; });
+  [...document.getElementById('onboard-time').options].forEach((o, i) => { o.text = t.hours[i]; });
+  const saved = loadOnboarding();
+  if (saved.configured && !document.getElementById('onboard-card').hidden) renderOnboardingRecommendation(saved);
+}
+
+function openOnboarding(force) {
+  const card = document.getElementById('onboard-card'), saved = loadOnboarding();
+  if (!force && (saved.configured || saved.dismissed)) return;
+  document.getElementById('onboard-goal').value = saved.goal;
+  document.getElementById('onboard-lang').value = saved.lang;
+  document.getElementById('onboard-time').value = String(saved.weeklyHours);
+  document.getElementById('onboard-date').value = saved.examDate;
+  if (saved.configured) renderOnboardingRecommendation(saved);
+  else document.getElementById('onboard-next').hidden = true;
+  card.hidden = false;
+  setTimeout(() => document.getElementById('onboard-goal').focus(), 0);
+}
+
+function dismissOnboarding() {
+  const saved = loadOnboarding();
+  saveOnboarding({ ...saved, dismissed:true, updatedAt:new Date().toISOString() });
+  document.getElementById('onboard-card').hidden = true;
+}
+
+function initOnboarding(suppressAutoOpen) {
+  document.getElementById('onboard-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const saved = saveOnboarding({
+      goal:document.getElementById('onboard-goal').value,
+      lang:document.getElementById('onboard-lang').value,
+      weeklyHours:Number(document.getElementById('onboard-time').value),
+      examDate:document.getElementById('onboard-date').value,
+      configured:true, dismissed:false, updatedAt:new Date().toISOString()
+    });
+    renderOnboardingRecommendation(saved);
+  });
+  applyOnboardingUi();
+  if (!suppressAutoOpen) openOnboarding(false);
+}
+
+function parsePracticeDeepLink() {
+  const params = new URLSearchParams(window.location.search);
+  const rawLang = params.get('lang'), rawProblem = params.get('problem');
+  const lang = rawLang && Object.prototype.hasOwnProperty.call(LANGS, rawLang) ? rawLang : null;
+  const safeProblemId = typeof rawProblem === 'string' && rawProblem.length > 0 && rawProblem.length <= 120 && /^[A-Za-z0-9_.:-]+$/.test(rawProblem);
+  const problem = safeProblemId && PROBLEMS.some(p => p.id === rawProblem) ? rawProblem : null;
+  return { lang, problem };
+}
 
 // 題目內容的英文對照：逐欄位 fallback（沒翻到的欄位顯示中文）
 function pv(p, field){
@@ -439,6 +665,14 @@ function pv(p, field){
     return PROBLEMS_EN[p.id][field];
   }
   return p[field];
+}
+
+function isAdaptedPractice(problem) {
+  return !!(problem && /練習版/.test(String(problem.desc || '')));
+}
+
+function displayProblemTitle(problem) {
+  return String(pv(problem, 'title') || '') + (isAdaptedPractice(problem) ? T().adaptedSuffix : '');
 }
 
 let _enLoading = null;
@@ -508,9 +742,18 @@ function applyUiLang(){
   if (ht) ht.textContent = t.hintTitle;
   const hf = document.getElementById('hint-footer');
   if (hf) hf.innerHTML = t.hintFooter;
+  const hn = document.getElementById('hint-next');
+  if (hn) hn.textContent = t.hintNext;
+  const hd = document.getElementById('hint-done');
+  if (hd) hd.textContent = t.hintDone;
+  const hc = document.getElementById('hint-close');
+  if (hc) hc.setAttribute('aria-label', t.hintCloseLabel);
+  if (isHintOpen()) refreshHintLanguage();
   document.getElementById('mnav-list-t').textContent = t.mnavList;
   document.getElementById('mnav-prob-t').textContent = t.mnavProb;
   document.getElementById('mnav-code-t').textContent = t.mnavCode;
+  document.getElementById('sample-scope-note').textContent = t.sampleScope;
+  applyOnboardingUi();
   if (currentLang) updateStatus(currentLang);
   renderProblemList();
   if (currentProblem) renderProblemContent();
@@ -522,10 +765,45 @@ function applyUiLang(){
 
 // ── 草稿自動保存（per 題目 + 語言；換題、換語言、重整都不會弄丟程式碼） ─────
 const DRAFTS_KEY = 'apcs_judge_drafts_v1';
+const PROGRESS_IMPORT_MAX_BYTES = 12 * 1024 * 1024;
+const MAX_DRAFT_RECORDS = 1200;
+const MAX_DRAFT_CHARS = 200000;
+
+function sanitizeDraftMap(value, strict) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    if (strict) throw new Error('bad drafts');
+    return {};
+  }
+  const entries = Object.entries(value);
+  if (entries.length > MAX_DRAFT_RECORDS) {
+    if (strict) throw new Error('too many drafts');
+    entries.length = MAX_DRAFT_RECORDS;
+  }
+  const clean = {};
+  for (const [key, draft] of entries) {
+    const valid = VALID_RESULT_KEYS.has(key) && typeof draft === 'string' && draft.length <= MAX_DRAFT_CHARS;
+    if (!valid) { if (strict) throw new Error('bad draft'); else continue; }
+    if (draft.trim()) clean[key] = draft;
+  }
+  return clean;
+}
+
+function sanitizeImportedOnboarding(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('bad onboarding');
+  const allowed = new Set(['goal','lang','weeklyHours','examDate','configured','dismissed','updatedAt']);
+  if (Object.keys(value).some(key => !allowed.has(key))) throw new Error('bad onboarding fields');
+  if (!ONBOARDING_GOALS.includes(value.goal) || !Object.prototype.hasOwnProperty.call(LANGS, value.lang)) throw new Error('bad onboarding choice');
+  if (!ONBOARDING_HOURS.includes(Number(value.weeklyHours))) throw new Error('bad onboarding hours');
+  if (typeof value.examDate !== 'string' || (value.examDate && !/^\d{4}-\d{2}-\d{2}$/.test(value.examDate))) throw new Error('bad onboarding date');
+  if (typeof value.configured !== 'boolean' || typeof value.dismissed !== 'boolean') throw new Error('bad onboarding flags');
+  if (value.updatedAt !== null && (typeof value.updatedAt !== 'string' || value.updatedAt.length > 40 || !Number.isFinite(Date.parse(value.updatedAt)))) throw new Error('bad onboarding time');
+  return normalizeOnboarding(value);
+}
+
 let drafts = {};
 try {
   const d = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '{}');
-  if (d && typeof d === 'object' && !Array.isArray(d)) drafts = d;
+  drafts = sanitizeDraftMap(d, false);
 } catch(e) {}
 let draftTimer = null;
 function dKey(){ return currentLang + '_' + currentProblem.id; }
@@ -548,13 +826,13 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 // ── 進度匯出 / 匯入（換裝置、清快取時可帶走刷題進度） ─────────────────────
 function exportProgress() {
   flushDraft(); // 草稿一併打包，換裝置時寫到一半的程式碼帶得走
-  const data = { app:'apcs-judge', v:1, exportedAt:new Date().toISOString(), scores, drafts };
+  const data = { app:'apcs-judge', v:2, exportedAt:new Date().toISOString(), sampleResults, drafts, onboarding:loadOnboarding() };
   const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'judge-progress.json';
   a.click();
-  URL.revokeObjectURL(a.href);
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 function importProgress() { document.getElementById('prog-file').click(); }
 document.addEventListener('DOMContentLoaded', () => {
@@ -562,27 +840,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const f = e.target.files[0];
     e.target.value = '';
     if (!f) return;
+    if (f.size > PROGRESS_IMPORT_MAX_BYTES) { alert(T().importTooLarge); return; }
     try {
       const data = JSON.parse(await f.text());
-      if (data.app !== 'apcs-judge' || !data.scores || typeof data.scores !== 'object') throw new Error('bad format');
-      // 合併：保留通過題數較高的紀錄
-      for (const [k, v] of Object.entries(data.scores)) {
-        if (!v || typeof v.passed !== 'number' || typeof v.total !== 'number') continue;
-        const cur = scores[k];
-        if (!cur || v.passed > cur.passed) scores[k] = { passed: v.passed, total: v.total };
+      if (data.app !== 'apcs-judge') throw new Error('bad format');
+      const incomingRaw = data.sampleResults || data.scores; // v2 語意 key；v1 匯出檔向後相容
+      if (!incomingRaw || typeof incomingRaw !== 'object') throw new Error('bad format');
+      if (Object.keys(incomingRaw).length > VALID_RESULT_KEYS.size) throw new Error('too many results');
+      const incoming = sanitizeSampleResults(incomingRaw, data.sampleResults ? null : 'legacy-export-v1');
+      const incomingDrafts = data.drafts === undefined ? null : sanitizeDraftMap(data.drafts, true);
+      const incomingOnboarding = data.onboarding === undefined ? null : sanitizeImportedOnboarding(data.onboarding);
+      // 合併：保留通過公開範例數較高的紀錄
+      for (const [k, v] of Object.entries(incoming)) {
+        const cur = sampleResults[k];
+        if (!cur || v.passed > cur.passed || (v.passed === cur.passed && v.total > cur.total)) sampleResults[k] = v;
       }
       // 草稿合併：只補進本機沒有的（本機現有草稿優先，不被匯入檔覆蓋）
-      if (data.drafts && typeof data.drafts === 'object' && !Array.isArray(data.drafts)) {
-        for (const [k, v] of Object.entries(data.drafts)) {
-          if (typeof v === 'string' && v.trim() && drafts[k] === undefined) drafts[k] = v;
+      if (incomingDrafts) {
+        for (const [k, v] of Object.entries(incomingDrafts)) {
+          if (drafts[k] === undefined) drafts[k] = v;
         }
         try { localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts)); } catch(e) {}
         if (currentProblem && currentLang && !editor.getValue().trim() && drafts[dKey()]) editor.setValue(drafts[dKey()]);
       }
-      saveScores();
+      if (incomingOnboarding) saveOnboarding(incomingOnboarding);
+      saveSampleResults();
       renderProblemList();
-      const solved = Object.values(scores).filter(s => s.passed === s.total).length;
-      alert(T().importOk(solved));
+      alert(T().importOk(completeSampleResultCount()));
     } catch (err) {
       alert(T().importBad);
     }
@@ -612,14 +896,20 @@ window.addEventListener('DOMContentLoaded', () => {
       if (it) { e.preventDefault(); it.click(); }
     }
   });
-  switchLang('py');
+  const deepLink = parsePracticeDeepLink();
+  switchLang(deepLink.lang || 'py');
+  if (deepLink.problem) {
+    const idx = PROBLEMS.findIndex(p => p.id === deepLink.problem);
+    if (idx >= 0) selectProblem(idx);
+  }
+  initOnboarding(!!deepLink.problem);
   // 上次使用英文介面：背景載入英文對照，到位後重繪
   if (uiLang === 'en') ensureEnData().then(applyUiLang).catch(() => {});
 });
 
 // ── Language switching ────────────────────────────────────────────────────────
 function switchLang(lang) {
-  if (running) return; // 評分中不切換語言，避免成績記到錯的語言
+  if (running) return; // 範例執行中不切換語言，避免結果記到錯的語言
   flushDraft();
   currentLang = lang;
   const cfg = LANGS[lang];
@@ -634,10 +924,7 @@ function switchLang(lang) {
     document.getElementById('results-body').innerHTML = `<div class="no-results">${T().resultsLangSwitched}</div>`;
     document.getElementById('results-summary').textContent = '';
   }
-  applyUiLang(); // 連帶 updateStatus + renderProblemList + renderProblemContent
-
-  // Python 環境延遲啟動
-  if (lang === 'py' && !pyWorker) initPython();
+  applyUiLang(); // 連帶 updateStatus + renderProblemList + renderProblemContent；Python 首次執行才載入
 }
 
 function updateStatus(lang) {
@@ -649,7 +936,8 @@ function updateStatus(lang) {
   if (lang === 'py') {
     if (pyReady) { dot.className = 'status-dot ready'; txt.textContent = t.statusPyReady; }
     else if (pyFailed) { dot.className = 'status-dot'; txt.textContent = t.statusPyFailed; }
-    else { dot.className = 'status-dot'; txt.textContent = t.statusPyLoading; if (ldbar) ldbar.style.display = 'inline-block'; }
+    else if (pyWorker) { dot.className = 'status-dot'; txt.textContent = t.statusPyLoading; if (ldbar) ldbar.style.display = 'inline-block'; }
+    else { dot.className = 'status-dot ready'; txt.textContent = t.statusPyIdle; }
   } else if (lang === 'java') {
     dot.className = 'status-dot ready';
     txt.textContent = t.statusJava;
@@ -657,19 +945,31 @@ function updateStatus(lang) {
     dot.className = 'status-dot ready';
     txt.textContent = t.statusReady(LANGS[lang].name);
   }
-  const canRun = lang !== 'py' || pyReady;
+  // Python 尚未載入時按鈕仍可按；第一次執行會啟動 Worker。載入途中則避免重複送出。
+  const canRun = lang !== 'py' || pyReady || !pyWorker;
   document.getElementById('run-btn').disabled = !canRun || !currentProblem || running;
 }
 
 // ── Python（Web Worker 執行，逾時可中斷，不會凍結頁面） ──────────────────────
 const PY_TIMEOUT_MS = 15000;
+const EXEC_OUTPUT_MAX_CHARS = 200000;
 let pyWorker = null, pyReady = false, pyFailed = false, pyReadyPromise = null;
 let pyJobSeq = 0;
 const pyJobs = new Map();
 
 const PY_WRAPPER = [
   'import sys, io, traceback',
-  '__out = io.StringIO(); __err = io.StringIO()',
+  'class _LimitedIO(io.StringIO):',
+  '    def __init__(self):',
+  '        super().__init__(); self.truncated = False',
+  '    def write(self, value):',
+  '        value = str(value); original_len = len(value)',
+  '        left = 200000 - self.tell()',
+  '        if left <= 0:',
+  '            self.truncated = True; return original_len',
+  '        if original_len > left: self.truncated = True',
+  '        super().write(value[:left]); return original_len',
+  '__out = _LimitedIO(); __err = _LimitedIO()',
   '__old = (sys.stdin, sys.stdout, sys.stderr)',
   "__t = __stdin if (__stdin == '' or __stdin.endswith('\\n')) else __stdin + '\\n'",
   'sys.stdin = io.StringIO(__t); sys.stdout = __out; sys.stderr = __err',
@@ -681,7 +981,8 @@ const PY_WRAPPER = [
   '    traceback.print_exc(file=__err)',
   'finally:',
   '    sys.stdin, sys.stdout, sys.stderr = __old',
-  '__r_out = __out.getvalue(); __r_err = __err.getvalue()'
+  '__r_out = __out.getvalue(); __r_err = __err.getvalue()',
+  '__r_out_truncated = __out.truncated; __r_err_truncated = __err.truncated'
 ].join('\n');
 
 const PY_WORKER_SRC =
@@ -696,9 +997,9 @@ const PY_WORKER_SRC =
   "    py.globals.set('__code', code);\n" +
   "    py.globals.set('__stdin', stdin);\n" +
   '    await py.runPythonAsync(WRAP);\n' +
-  "    postMessage({ id, out: py.globals.get('__r_out') || '', err: py.globals.get('__r_err') || '' });\n" +
+  "    postMessage({ id, out: py.globals.get('__r_out') || '', err: py.globals.get('__r_err') || '', outTruncated: !!py.globals.get('__r_out_truncated'), errTruncated: !!py.globals.get('__r_err_truncated') });\n" +
   '  } catch (err) {\n' +
-  "    postMessage({ id, out: '', err: String(err) });\n" +
+  "    postMessage({ id, out: '', err: String(err), outTruncated: false, errTruncated: false });\n" +
   '  }\n' +
   '};\n';
 
@@ -794,8 +1095,8 @@ function problemFilter() {
   return ({ p }) => {
     if (diff && (p.diff || 'easy') !== diff) return false;
     if (unsolved) {
-      const s = scores[currentLang + '_' + p.id];
-      if (s && s.passed === s.total) return false;
+      const s = sampleResults[currentLang + '_' + p.id];
+      if (sampleResultComplete(s, p)) return false;
     }
     if (q) {
       const en = (typeof PROBLEMS_EN !== 'undefined' && PROBLEMS_EN[p.id]) || {};
@@ -831,26 +1132,26 @@ function renderProblemList() {
 
   // Solved count for current language
   const solved = PROBLEMS.filter(p => {
-    const s = scores[currentLang + '_' + p.id];
-    return s && s.passed === s.total;
+    const s = sampleResults[currentLang + '_' + p.id];
+    return sampleResultComplete(s, p);
   }).length;
   document.getElementById('solved-count').textContent = `${solved} / ${PROBLEMS.length}`;
 }
 
 function renderProblemItem(p, i, d) {
     const key = currentLang + '_' + p.id;
-    const s = scores[key];
+    const s = sampleResults[key];
     let sh = '';
     if (s) {
-      if (s.passed === s.total) sh = '<span class="pstatus pass">AC</span>';
+      if (sampleResultComplete(s, p)) sh = `<span class="pstatus pass">${escH(T().listPass)}</span>`;
       else if (s.passed > 0) sh = `<span class="pstatus partial">${s.passed}/${s.total}</span>`;
-      else sh = '<span class="pstatus fail">WA</span>';
+      else sh = `<span class="pstatus fail">${escH(T().listFail)}</span>`;
     }
     const active = currentProblem?.id === p.id ? ' active' : '';
     return `<div class="problem-item${active}" style="--level-color:${d.color};" onclick="selectProblem(${i})" tabindex="0" role="button">
       <div class="pmeta">${escH(T().probN(String(i+1).padStart(2,'0')))} · ${escH(pv(p,'topic') || p.date)}</div>
       <div class="problem-row">
-        <span class="ptitle">${escH(pv(p,'title'))}</span>
+        <span class="ptitle">${escH(displayProblemTitle(p))}</span>
         <span class="pmarks">${difficultyStars(p.diff)}${sh}</span>
       </div>
     </div>`;
@@ -858,7 +1159,7 @@ function renderProblemItem(p, i, d) {
 
 // ── Select problem ────────────────────────────────────────────────────────────
 function selectProblem(idx) {
-  if (running) return; // 評分中不切題，避免成績記到錯的題目
+  if (running) return; // 範例執行中不切題，避免結果記到錯的題目
   flushDraft();
   currentProblem = PROBLEMS[idx];
   editor.setValue(drafts[dKey()] || '');
@@ -887,11 +1188,12 @@ function renderProblemContent() {
       </div>
     </div>`).join('');
   document.getElementById('problem-content').innerHTML = `
-    <div class="problem-title-h">${escH(pv(p,'title'))}</div>
+    <div class="problem-title-h">${escH(displayProblemTitle(p))}</div>
     <div class="problem-meta">
       <span class="badge">${escH(p.date)}</span>
       ${p.source ? `<span class="badge" style="color:#79c0ff;background:rgba(121,192,255,.12);border-color:rgba(121,192,255,.35);">🌏 ${escH(p.source)}</span>` : `<span class="badge">${escH(p.id)}</span>`}
       ${originalUrl ? `<a class="badge" href="${escAttr(originalUrl)}" target="_blank" rel="noopener" style="color:#3fb950;background:rgba(63,185,80,.10);border-color:rgba(63,185,80,.35);text-decoration:none;">🔗 ${uiLang==='en'?'Original':'原題'}</a>` : ''}
+      ${isAdaptedPractice(p) ? `<span class="badge" style="color:var(--yellow);background:rgba(210,153,34,.1);border-color:rgba(210,153,34,.4);">⚠ ${escH(t.adaptedBadge)}</span>` : ''}
       <span class="badge lang">${escH(cfg.icon)} ${escH(cfg.name)}</span>
       ${p.topic ? `<span class="badge topic">${escH(pv(p,'topic'))}</span>` : ''}
       ${difficultyBadge(p.diff)}
@@ -908,9 +1210,15 @@ async function runCode() {
   const code = editor.getValue().trim();
   if (!code) { alert(T().alertNeedCode); return; }
 
-  // 快照：評分過程中即使切題 / 切語言，成績也記在開跑當下的題目與語言上
+  // 快照：執行過程中即使切題 / 切語言，結果也記在開跑當下的題目與語言上
   const prob = currentProblem;
   const lang = currentLang;
+  const hintLevelUsed = getHintLevelUsed(prob.id, lang);
+  if (lang !== 'py') {
+    if (code.length > JUDGE0_MAX_SOURCE_CHARS) { alert(T().alertSourceTooLong(JUDGE0_MAX_SOURCE_CHARS)); return; }
+    if (prob.samples.some(s => s.input.length > JUDGE0_MAX_STDIN_CHARS)) { alert(T().alertInputTooLong(JUDGE0_MAX_STDIN_CHARS)); return; }
+    if (!ensureJudge0Consent()) return;
+  }
   running = true;
   const btn = document.getElementById('run-btn');
   btn.disabled = true;
@@ -942,12 +1250,13 @@ async function runCode() {
 
   const passed = results.filter(r => r.pass).length;
   const total = results.length;
-  // 與匯入相同的「保留較佳成績」規則：斷網或失誤的一次失敗不會把既有 AC 蓋掉
+  if (typeof LearningState !== 'undefined') LearningState.recordJudgeAttempt(prob.id, lang, total > 0 && passed === total, hintLevelUsed);
+  // 保留較佳公開範例結果：斷網或失誤不覆蓋既有完整通過紀錄。
   const skey = lang + '_' + prob.id;
-  const prevScore = scores[skey];
+  const prevScore = sampleResults[skey];
   if (!prevScore || passed >= prevScore.passed) {
-    scores[skey] = { passed, total };
-    saveScores();
+    sampleResults[skey] = { passed, total, checkedAt:new Date().toISOString(), sampleDataVersion:DATA_VER };
+    saveSampleResults();
   }
   if (passed < total) recordImplMistake(prob, lang, passed, total, code);
   renderProblemList();
@@ -971,19 +1280,56 @@ function recordImplMistake(prob, lang, passed, total, code) {
 }
 
 const JUDGE0_LANG = { cpp: 54, c: 50, java: 62 };
+const JUDGE0_FETCH_TIMEOUT_MS = 15000;
+const JUDGE0_MAX_SOURCE_CHARS = 100000;
+const JUDGE0_MAX_STDIN_CHARS = 100000;
+const JUDGE0_CONSENT_KEY = 'apcs_judge0_disclosure_v1';
+let judge0ConsentInMemory = false;
+
+function ensureJudge0Consent() {
+  try { if (sessionStorage.getItem(JUDGE0_CONSENT_KEY) === 'accepted') return true; }
+  catch (e) { if (judge0ConsentInMemory) return true; }
+  if (!window.confirm(T().judge0Disclosure)) return false;
+  judge0ConsentInMemory = true;
+  try { sessionStorage.setItem(JUDGE0_CONSENT_KEY, 'accepted'); } catch (e) {}
+  return true;
+}
+
+function assertJudge0Payload(code, stdins) {
+  if (String(code).length > JUDGE0_MAX_SOURCE_CHARS) throw new Error('JUDGE0_SOURCE_TOO_LARGE');
+  if (stdins.some(stdin => String(stdin || '').length > JUDGE0_MAX_STDIN_CHARS)) throw new Error('JUDGE0_STDIN_TOO_LARGE');
+}
+
+async function judge0Fetch(url, options, timeoutMs) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs || JUDGE0_FETCH_TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...(options || {}), signal:controller.signal });
+  } catch (e) {
+    if (e && e.name === 'AbortError') {
+      const timeoutError = new Error('JUDGE0_FETCH_TIMEOUT');
+      timeoutError.cause = e;
+      throw timeoutError;
+    }
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 // 送交 Judge0；429（速率限制）與 5xx／網路錯誤時自動退避重試，共 3 次。
 // wait=true 在服務忙碌時可能直接回 In Queue / Processing（status 1/2），改以 token 輪詢到完成。
 async function judge0Submit(code, stdin, languageId) {
+  assertJudge0Payload(code, [stdin]);
   const delays = [0, 1500, 4000];
   let lastErr = null;
   for (let attempt = 0; attempt < delays.length; attempt++) {
     if (delays[attempt]) await new Promise(r => setTimeout(r, delays[attempt]));
     let res;
     try {
-      res = await fetch('https://ce.judge0.com/submissions?base64_encoded=false&wait=true', {
+      res = await judge0Fetch('https://ce.judge0.com/submissions?base64_encoded=false&wait=true', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ language_id: languageId, source_code: code, stdin: stdin || '' })
+        body: JSON.stringify({ language_id: languageId, source_code: code, stdin: stdin || '', max_file_size: 1024 })
       });
     } catch(e) {
       lastErr = T().errNet;
@@ -997,7 +1343,8 @@ async function judge0Submit(code, stdin, languageId) {
       await new Promise(r => setTimeout(r, 1200));
       // 輪詢途中斷網不往外丟原始錯誤：中止輪詢，讓上層以 queued 狀態顯示友善訊息
       try {
-        const r2 = await fetch('https://ce.judge0.com/submissions/' + data.token + '?base64_encoded=false');
+        const r2 = await judge0Fetch('https://ce.judge0.com/submissions/' + data.token + '?base64_encoded=false');
+        if (r2.status === 429 || r2.status >= 500) continue;
         if (!r2.ok) break;
         data = await r2.json();
       } catch (e) { break; }
@@ -1007,25 +1354,42 @@ async function judge0Submit(code, stdin, languageId) {
   throw new Error(lastErr || T().errNoResp);
 }
 
-// Judge0 批次送出：一題的全部測資一次提交（比逐筆快數倍、較不易觸發速率限制）。
-// 公開 CE 站若停用 batch（非 2xx）就丟 BATCH_UNSUPPORTED，由呼叫端永久退回逐筆模式。
+// Judge0 批次送出：一題的全部公開範例一次提交。
+// 僅 404/405 代表 endpoint 確實不支援；429/5xx/逾時皆視為暫時失敗，不永久關閉 batch。
 let _j0BatchOk = true;
 async function judge0SubmitBatch(code, stdins, languageId) {
-  const res = await fetch('https://ce.judge0.com/submissions/batch?base64_encoded=false', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ submissions: stdins.map(stdin => ({ language_id: languageId, source_code: code, stdin: stdin || '' })) })
-  });
-  if (!res.ok) throw new Error('BATCH_UNSUPPORTED:' + res.status);
-  const created = await res.json();
-  if (!Array.isArray(created)) throw new Error('BATCH_UNSUPPORTED:resp');
+  assertJudge0Payload(code, stdins);
+  const delays = [0, 1500, 4000];
+  let created = null, lastError = 'unknown';
+  for (let attempt = 0; attempt < delays.length; attempt++) {
+    if (delays[attempt]) await new Promise(r => setTimeout(r, delays[attempt]));
+    let res;
+    try {
+      res = await judge0Fetch('https://ce.judge0.com/submissions/batch?base64_encoded=false', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ submissions: stdins.map(stdin => ({ language_id: languageId, source_code: code, stdin: stdin || '', max_file_size: 1024 })) })
+      });
+    } catch (e) {
+      lastError = e && e.message || 'network';
+      continue;
+    }
+    if (res.status === 404 || res.status === 405) throw new Error('BATCH_UNSUPPORTED:' + res.status);
+    if (res.status === 429 || res.status >= 500) { lastError = 'HTTP ' + res.status; continue; }
+    if (!res.ok) throw new Error('BATCH_FAILED:' + res.status);
+    try { created = await res.json(); }
+    catch (e) { throw new Error('BATCH_INVALID_RESPONSE'); }
+    if (!Array.isArray(created)) throw new Error('BATCH_INVALID_RESPONSE');
+    break;
+  }
+  if (!created) throw new Error('BATCH_TRANSIENT:' + lastError);
   const tokens = created.map(s => s && s.token).filter(Boolean);
-  if (tokens.length !== stdins.length) throw new Error('BATCH_UNSUPPORTED:partial');
+  if (tokens.length !== stdins.length) throw new Error('BATCH_PARTIAL_RESPONSE');
   const url = 'https://ce.judge0.com/submissions/batch?tokens=' + tokens.join(',') + '&base64_encoded=false';
   let subs = null;
   for (let p = 0; p < 20; p++) {
     await new Promise(r => setTimeout(r, 1200));
     try {
-      const r2 = await fetch(url);
+      const r2 = await judge0Fetch(url);
       if (!r2.ok) continue;
       const j = await r2.json();
       if (j && Array.isArray(j.submissions)) subs = j.submissions;
@@ -1036,9 +1400,17 @@ async function judge0SubmitBatch(code, stdins, languageId) {
   return subs || tokens.map(() => null);
 }
 
-// 輸出正規化：統一換行、去除每行行尾空白與結尾空行（行尾多一個空格不該被判 WA）
+// 輸出正規化：統一換行、去除每行行尾空白與結尾空行。
 function normOut(s) {
   return String(s).replace(/\r\n/g, '\n').split('\n').map(l => l.replace(/[ \t]+$/, '')).join('\n').replace(/\n+$/, '');
+}
+
+function boundedExecutionText(value, forcedTruncated) {
+  const raw = String(value || '');
+  const truncated = !!forcedTruncated || raw.length > EXEC_OUTPUT_MAX_CHARS;
+  if (!truncated) return { text:raw, truncated:false };
+  const marker = `\n…[${T().outputTruncatedMarker}]`;
+  return { text:raw.slice(0, Math.max(0, EXEC_OUTPUT_MAX_CHARS - marker.length)) + marker, truncated:true };
 }
 
 async function runSingle(code, stdin, expectedRaw, lang) {
@@ -1047,11 +1419,14 @@ async function runSingle(code, stdin, expectedRaw, lang) {
     let output = '';
     if (lang === 'py') {
       const r = await runPython(code, stdin, PY_TIMEOUT_MS);
-      if (r.err && r.err.trim()) {
-        const tail = r.err.trim().split('\n').slice(-3).join('\n');
-        return { pass: false, got: normOut(r.out), expected, error: tail };
+      const stdout = boundedExecutionText(r.out, r.outTruncated);
+      const stderr = boundedExecutionText(r.err, r.errTruncated);
+      if (stdout.truncated || stderr.truncated) return { pass:false, got:normOut(stdout.text), expected, error:T().errOutputTruncated };
+      if (stderr.text && stderr.text.trim()) {
+        const tail = stderr.text.trim().split('\n').slice(-3).join('\n');
+        return { pass: false, got: normOut(stdout.text), expected, error: tail };
       }
-      output = r.out;
+      output = stdout.text;
     } else {
       const data = await judge0Submit(code, stdin, JUDGE0_LANG[lang]);
       return judge0Result(data, expected);
@@ -1065,18 +1440,20 @@ async function runSingle(code, stdin, expectedRaw, lang) {
 }
 
 // 把一筆 Judge0 回應轉成評測結果（逐筆與批次共用）
-// Judge0 status：3=AC/正常結束, 5=TLE, 6=編譯錯誤, 7~12=執行期錯誤, ≥13=服務內部錯誤
+// Judge0 status：3=Accepted/正常結束, 5=TLE, 6=編譯錯誤, 7~12=執行期錯誤, ≥13=服務內部錯誤
 function judge0Result(data, expected) {
   const sid = data && data.status && data.status.id;
   if (!sid || sid <= 2) return { pass: false, got: '', expected, error: T().errQueued };
   if (sid === 5) return { pass: false, got: '', expected, error: T().errTLE };
-  if (sid === 6) return { pass: false, got: '', expected, error: T().errCompile + String(data.compile_output || '').split('\n').slice(0, 4).join('\n') };
+  const stdout = boundedExecutionText(data.stdout);
+  const stderr = boundedExecutionText(data.stderr || data.compile_output || '');
+  const truncatedNote = stdout.truncated || stderr.truncated ? '\n' + T().errOutputTruncated : '';
+  if (sid === 6) return { pass: false, got: '', expected, error: T().errCompile + stderr.text.split('\n').slice(0, 4).join('\n') + truncatedNote };
   if (sid >= 13) return { pass: false, got: '', expected, error: T().errService(data.status.description || sid) };
-  const stdout = data.stdout || '';
-  const stderr = data.stderr || data.compile_output || '';
-  if (sid >= 7 && sid <= 12) return { pass: false, got: normOut(stdout), expected, error: T().errRuntime(data.status.description || 'Runtime Error') + String(stderr).split('\n').slice(0, 4).join('\n') };
-  if (stderr && !stdout) return { pass: false, got: '', expected, error: stderr.split('\n').slice(0, 4).join('\n') };
-  const got = normOut(stdout);
+  if (sid >= 7 && sid <= 12) return { pass: false, got: normOut(stdout.text), expected, error: T().errRuntime(data.status.description || 'Runtime Error') + stderr.text.split('\n').slice(0, 4).join('\n') + truncatedNote };
+  if (stdout.truncated || stderr.truncated) return { pass:false, got:normOut(stdout.text), expected, error:T().errOutputTruncated };
+  if (stderr.text && !stdout.text) return { pass: false, got: '', expected, error: stderr.text.split('\n').slice(0, 4).join('\n') };
+  const got = normOut(stdout.text);
   return { pass: got === expected, got, expected, error: null };
 }
 
@@ -1115,7 +1492,7 @@ function renderResults(results, passed, total) {
     <div class="test-case">
       <div class="test-col"><div class="test-label">
         <div class="icon ${r.pass?'icon-pass':'icon-fail'}">${r.pass?'✓':'✗'}</div>
-        <span style="color:var(--${r.pass?'green':'red'})">${escH(t.testN(r.idx))} · ${r.pass?'AC':'WA'}</span>
+        <span style="color:var(--${r.pass?'green':'red'})">${escH(t.testN(r.idx))} · ${escH(r.pass?t.examplePass:t.exampleFail)}</span>
       </div></div>
       <div class="test-col">
         <div style="font-size:9px;color:var(--text-muted);margin-bottom:4px">${escH(t.expectedOut)}</div>
@@ -1159,32 +1536,114 @@ function ensureSolutions() {
 
 async function loadSample() {
   if (!currentProblem || !currentLang) { alert(T().alertPickFirst); return; }
+  const problem = currentProblem, lang = currentLang;
   try {
     await ensureSolutions();
   } catch (e) {
     alert(T().alertSolLoadFail);
     return;
   }
-  const sol = SOLUTIONS[currentLang][currentProblem.id];
+  if (currentProblem !== problem || currentLang !== lang) return;
+  const sol = SOLUTIONS[lang][problem.id];
   if (!sol) { alert(T().alertNoSolution); return; }
-  if (editor.getValue().trim() && !confirm(T().confirmLoadSol)) return;
+  if (!confirm(T().confirmLoadSol)) return;
   editor.setValue(sol);
   editor.focus();
-  // Show hint panel if hint exists
-  if (currentProblem.hint) showHint();
+  if (typeof LearningState !== 'undefined') LearningState.recordJudgeSolutionLoaded(problem.id, lang);
+}
+
+const MAX_HINT_LAYERS = 8;
+const hintLevelByKey = new Map();
+let activeHintDialog = null;
+let hintReturnFocus = null;
+
+function hintStateKey(problemId, lang) { return String(lang || '') + '_' + String(problemId || ''); }
+function getHintLevelUsed(problemId, lang) { return hintLevelByKey.get(hintStateKey(problemId, lang)) || 0; }
+
+function splitHintLayers(hint) {
+  const text = String(hint || '').trim();
+  if (!text) return [];
+  let parts = text.split(/\n+/).map(s => s.trim()).filter(Boolean);
+  if (parts.length === 1) {
+    const sentences = (text.match(/[^。！？；!?]+[。！？；!?]?/g) || []).map(s => s.trim()).filter(Boolean);
+    if (sentences.length > 1) parts = sentences;
+  }
+  if (parts.length > MAX_HINT_LAYERS) parts = parts.slice(0, MAX_HINT_LAYERS - 1).concat(parts.slice(MAX_HINT_LAYERS - 1).join('\n'));
+  return parts;
+}
+
+function rememberHintLevel(level) {
+  if (!activeHintDialog) return;
+  const next = Math.max(1, Math.min(level, activeHintDialog.layers.length));
+  activeHintDialog.level = next;
+  hintLevelByKey.set(activeHintDialog.key, Math.max(getHintLevelUsed(activeHintDialog.problem.id, activeHintDialog.lang), next));
+  if (typeof LearningState !== 'undefined') LearningState.recordJudgeHint(activeHintDialog.problem.id, activeHintDialog.lang, next);
+}
+
+function renderHintDialog() {
+  if (!activeHintDialog) return;
+  const t = T(), shown = activeHintDialog.layers.slice(0, activeHintDialog.level);
+  document.getElementById('hint-content').innerHTML = shown.map((layer, i) =>
+    `<section class="hint-layer" aria-label="${escAttr(t.hintLevel(i + 1, activeHintDialog.layers.length))}">${safeMarkdown(layer)}</section>`
+  ).join('');
+  document.getElementById('hint-level-status').textContent = t.hintLevel(activeHintDialog.level, activeHintDialog.layers.length);
+  const next = document.getElementById('hint-next');
+  next.textContent = t.hintNext;
+  next.hidden = activeHintDialog.level >= activeHintDialog.layers.length;
+  document.getElementById('hint-done').textContent = t.hintDone;
 }
 
 function showHint() {
-  if (!currentProblem) return;
-  const hint = pv(currentProblem, 'hint');
-  if (!hint) return;
-  document.getElementById('hint-content').innerHTML = safeMarkdown(hint);
-  document.getElementById('hint-overlay').style.display = 'flex';
+  if (!currentProblem || !currentLang) return;
+  const layers = splitHintLayers(pv(currentProblem, 'hint'));
+  if (!layers.length) return;
+  const key = hintStateKey(currentProblem.id, currentLang);
+  activeHintDialog = { problem:currentProblem, lang:currentLang, key, layers, level:Math.max(1, Math.min(getHintLevelUsed(currentProblem.id, currentLang) || 1, layers.length)) };
+  hintReturnFocus = document.activeElement && typeof document.activeElement.focus === 'function' ? document.activeElement : document.getElementById('hint-btn');
+  rememberHintLevel(activeHintDialog.level);
+  const overlay = document.getElementById('hint-overlay');
+  overlay.style.display = 'flex';
+  overlay.setAttribute('aria-hidden', 'false');
+  renderHintDialog();
+  requestAnimationFrame(() => document.getElementById('hint-dialog').focus());
 }
 
-function hideHint() {
-  document.getElementById('hint-overlay').style.display = 'none';
+function revealNextHint() {
+  if (!activeHintDialog || activeHintDialog.level >= activeHintDialog.layers.length) return;
+  rememberHintLevel(activeHintDialog.level + 1);
+  renderHintDialog();
+  const target = activeHintDialog.level < activeHintDialog.layers.length ? document.getElementById('hint-next') : document.getElementById('hint-done');
+  target.focus();
 }
+
+function isHintOpen() {
+  const overlay = document.getElementById('hint-overlay');
+  return !!(overlay && overlay.style.display !== 'none');
+}
+
+function refreshHintLanguage() {
+  if (!activeHintDialog) return;
+  const layers = splitHintLayers(pv(activeHintDialog.problem, 'hint'));
+  if (!layers.length) { hideHint(); return; }
+  activeHintDialog.layers = layers;
+  activeHintDialog.level = Math.min(activeHintDialog.level, layers.length);
+  renderHintDialog();
+}
+
+function hideHint(restoreFocus = true) {
+  const overlay = document.getElementById('hint-overlay');
+  if (!overlay || overlay.style.display === 'none') return;
+  overlay.style.display = 'none';
+  overlay.setAttribute('aria-hidden', 'true');
+  activeHintDialog = null;
+  const target = hintReturnFocus;
+  hintReturnFocus = null;
+  if (restoreFocus && target && target.isConnected && typeof target.focus === 'function') target.focus();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && isHintOpen()) { e.preventDefault(); hideHint(); }
+});
 
 // ── 手機版面板切換 ────────────────────────────────────────────────────────────
 function isMobileView() { return window.matchMedia('(max-width:960px)').matches; }
@@ -1237,13 +1696,18 @@ function safeMarkdown(text) {
 </script>
 
 <!-- Hint Overlay -->
-<div id="hint-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)hideHint()">
-  <div style="background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;max-width:680px;width:100%;max-height:80vh;overflow:auto;box-shadow:0 8px 40px rgba(0,0,0,.5);">
+<div id="hint-overlay" aria-hidden="true" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)hideHint()">
+  <div id="hint-dialog" role="dialog" aria-modal="true" aria-labelledby="hint-title-label" aria-describedby="hint-level-status hint-footer" tabindex="-1" style="background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;max-width:680px;width:100%;max-height:80vh;overflow:auto;box-shadow:0 8px 40px rgba(0,0,0,.5);outline:none;">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);">
       <div style="font-size:15px;font-weight:600;color:var(--lang-color);" id="hint-title-label">💡 解題思路</div>
-      <button onclick="hideHint()" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;line-height:1;">×</button>
+      <button id="hint-close" type="button" onclick="hideHint()" aria-label="關閉提示" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;line-height:1;">×</button>
     </div>
+    <div id="hint-level-status" role="status" aria-live="polite" style="padding:10px 20px 0;font-size:11px;color:var(--text-muted);"></div>
     <div id="hint-content" style="padding:20px;font-size:13px;line-height:1.8;color:#cdd9e5;"></div>
+    <div class="hint-actions">
+      <button id="hint-next" class="btn btn-run" type="button" onclick="revealNextHint()">再看一層</button>
+      <button id="hint-done" class="btn btn-sec" type="button" onclick="hideHint()">先自己試試</button>
+    </div>
     <div id="hint-footer" style="padding:10px 20px 14px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);">💭 提示：好的解題者會從題目敘述中的<strong style="color:var(--text)">關鍵字</strong>與<strong style="color:var(--text)">範例</strong>反推適合的演算法。</div>
   </div>
 </div>
@@ -1251,7 +1715,11 @@ function safeMarkdown(text) {
 #hint-content code {background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px;color:var(--lang-color);}
 #hint-content strong {color:var(--text);}
 #hint-content p {margin-bottom:8px;}
+.hint-layer+.hint-layer{border-top:1px solid var(--border);margin-top:14px;padding-top:14px;}
+.hint-actions{display:flex;gap:8px;justify-content:flex-end;padding:0 20px 14px;}
+.hint-actions [hidden]{display:none;}
 </style>
-<script src="data/chat-widget.js?v=20260702a"></script>
+<script src="data/service-config.js?v=20260717e"></script>
+<script src="data/chat-widget.js?v=20260717e"></script>
 </body>
 </html>

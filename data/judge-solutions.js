@@ -838,17 +838,24 @@ for _,d in ev:
     if cur>ans:ans=cur
 print(ans)`,
 p113:`import sys
-from sortedcontainers import SortedList
+from bisect import bisect_right
 input=sys.stdin.readline
 N,M=map(int,input().split())
-sl=SortedList(map(int,input().split()))
+tickets=sorted(map(int,input().split()))
 cust=list(map(int,input().split()))
+parent=list(range(N+1))
+def find(x):
+    while parent[x]!=x:
+        parent[x]=parent[parent[x]]
+        x=parent[x]
+    return x
 out=[]
 for m in cust:
-    i=sl.bisect_right(m)
-    if i==0:out.append('-1')
+    slot=find(bisect_right(tickets,m))
+    if slot==0:out.append('-1')
     else:
-        v=sl[i-1];out.append(str(v));sl.remove(v)
+        out.append(str(tickets[slot-1]))
+        parent[slot]=find(slot-1)
 print('\\n'.join(out))`,
 p114:`N,M,K=map(int,input().split())
 a=sorted(map(int,input().split()))

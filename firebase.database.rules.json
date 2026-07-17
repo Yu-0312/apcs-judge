@@ -1,0 +1,43 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "rooms": {
+      "global": {
+        "messages": {
+          ".read": "auth != null && query.orderByChild == 'ts' && query.limitToLast != null && query.limitToLast <= 200",
+          ".indexOn": ["ts"],
+          "$messageId": {
+            ".write": "auth != null && !data.exists() && newData.child('uid').val() == auth.uid",
+            ".validate": "newData.hasChildren(['name', 'text', 'uid', 'clientId', 'ts'])",
+            "name": {
+              ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 16"
+            },
+            "text": {
+              ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 500"
+            },
+            "uid": {
+              ".validate": "newData.isString() && newData.val() == auth.uid"
+            },
+            "clientId": {
+              ".validate": "newData.isString() && newData.val().length >= 8 && newData.val().length <= 64"
+            },
+            "ts": {
+              ".validate": "newData.isNumber() && newData.val() >= now - 60000 && newData.val() <= now + 5000"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      },
+      "$other": {
+        ".read": false,
+        ".write": false
+      }
+    }
+  }
+}

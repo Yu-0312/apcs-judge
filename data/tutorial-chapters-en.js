@@ -34,7 +34,7 @@ print("Hello,", name)
 
 | Area | Purpose |
 |------|---------|
-| **Left directory** | 21 chapters, easy to hard, follow order |
+| **Left directory** | 101 chapters across the full curriculum, filtered for the selected language |
 | **Middle (here)** | Lesson text + "Try it" + quiz |
 | **Right editor** | Real code you can modify and run |
 
@@ -51,18 +51,13 @@ There is a green **▶ Run** button on the top right.
 ## 🎯 Your Goal (no need to memorize)
 
 
-After reading these 21 chapters, you will:
+After completing the foundation path, you will:
 - Understand Python code
 - Write programs to solve small problems
 - Be ready for APCS elementary level questions
 
 
-> **Tip**: There is a "**Beginner Mode**" switch on the top right (green = on). When on:
-> - Only Python is shown (no C++/Java distraction)
-> - You must pass each chapter's quiz to unlock the next chapter
-> - Errors are automatically explained in English
->
-> When you're comfortable, turn it off to see all chapters and other languages.
+> **Tip**: Choose one primary language from the tabs above. Python is the friendliest first choice; later, switch to C++, C, or Java to compare how the same idea is expressed. Every applicable chapter is available without an unlock gate.
 
 
 ## 👇 Before You Start, Press "Run" Once
@@ -74,7 +69,7 @@ On the right, a "Hello" program is already prepared. Press the **▶ Run** butto
 See "Hello! I've taken the first step in learning to program 👋" in the output box? Congratulations, you just made the computer do its first thing!
 
 
-Now go to the quiz below. Answer correctly to unlock Chapter 1.
+Now use the quiz below to check your understanding, then continue to Chapter 1.
 ## 🗺 Learning Roadmap
 
 | Track | Chapters | Contents |
@@ -86,6 +81,7 @@ Now go to the quiz below. Answer correctly to unlock Chapter 1.
 | 📗🔥 New APCS & advanced | 68–70 | exam literacy, fast power, divide & conquer |
 | ⚡🔧☕ Language tracks | 71–94 | appear when you switch to C++ / C / Java mode |
 | 🧠 Core concepts | 95–97 | object model, function parameters, reading docs |
+| 🧰 Debugging & validation | 98–100 | error messages, systematic debugging, input validation |
 
 Three suggested paths:
 - **APCS exam**: 0–26 in order → 68–70 → grind the judge problems

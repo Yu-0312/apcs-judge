@@ -1,15 +1,13 @@
-# Python
+.DS_Store
 .venv/
+node_modules/
 __pycache__/
-*.pyc
-
-# 工作快取（gen-lang-content-en.py 的翻譯快取，重跑時可省成本）
-scripts/.lang-content-en-cache.json
-
-# 備份與系統檔
+*.py[cod]
+.firebase/
+firebase-debug.log*
 *.bak
 *.bak[0-9]
-.DS_Store
-
-# 本地工作檔（題目資料整理用匯出，不入版控）
 export/
+scripts/.lang-content-en-cache.json
+scripts/validate5-results.json
+scripts/artifacts/

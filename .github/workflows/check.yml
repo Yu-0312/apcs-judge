@@ -5,13 +5,54 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: 檢查教學練習資料產物
+        run: node scripts/build-tutorial-drills.js --check
       - name: 檢查資料與語法
         run: node scripts/check-data.js
+      - name: 檢查頁面連結與資產
+        run: node scripts/check-pages.js
+      - name: 檢查讀書計畫深連結
+        run: node scripts/check-studyplan-links.js
+      - name: 檢查本機狀態失敗邊界
+        run: node scripts/check-client-state.js
+      - name: 檢查首頁語意與 runner 契約
+        run: node scripts/check-index-contract.js
+      - name: 檢查教學 runner 輸出上限
+        run: node scripts/check-tutorial-runner-limits.js
+
+  solution-smoke:
+    name: 參考解答公開範例（${{ matrix.language }}）
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [py, c, cpp, java]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        if: matrix.language == 'py'
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v4
+        if: matrix.language == 'java'
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: 編譯並執行公開範例
+        run: node scripts/check-solutions.js --lang=${{ matrix.language }}

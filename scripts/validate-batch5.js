@@ -1,12 +1,27 @@
-// 一次性驗證腳本：解析 未命名文件 (5).txt 的所有「判讀題」，
-// 實際以 gcc 編譯＋執行每段 C 程式，取得真實 stdout，與標示答案比對。
+// 題目匯入驗證腳本：解析指定文字檔的所有「判讀題」，
+// 明確同意後才會以本機 gcc 編譯＋執行 C 程式，取得 stdout 與標示答案比對。
+// 注意：這不是安全沙箱。只可對你已審查、完全信任的輸入使用。
 // 分類：correct（可同步）/ wrong（答案錯）/ review（UB或無法驗證）/ incomplete（詳解不全或自我修正）
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { execSync } = require('child_process');
+const { spawnSync } = require('child_process');
 
-const SRC = path.join(os.homedir(), 'Downloads/未命名文件 (5).txt');
+const argv = process.argv.slice(2);
+function valueOf(flag) { const i = argv.indexOf(flag); return i >= 0 ? argv[i + 1] : ''; }
+const SRC = valueOf('--input');
+const OUTPUT = valueOf('--output') || path.join(os.tmpdir(), 'apcs-validate5-results.json');
+const COMPILER = valueOf('--compiler') || 'gcc';
+if (!SRC || !argv.includes('--execute-local-c')) {
+  console.error('用法：node scripts/validate-batch5.js --input <可信文字檔> --execute-local-c [--output <results.json>] [--compiler gcc]');
+  console.error('安全提醒：輸入中的 C 程式會在本機執行；請先人工審查，勿對不可信內容使用。');
+  process.exit(2);
+}
+if (!fs.existsSync(SRC) || !fs.statSync(SRC).isFile()) {
+  console.error('找不到輸入檔：' + SRC);
+  process.exit(2);
+}
+console.warn('⚠️ 將在本機執行已解析的 C 程式：' + path.resolve(SRC));
 const text = fs.readFileSync(SRC, 'utf-8').replace(/\r/g, '');
 const lines = text.split('\n');
 
@@ -91,17 +106,16 @@ function runC(code) {
   const cf = path.join(tmp, 'a.c'), bf = path.join(tmp, 'a.out');
   fs.writeFileSync(cf, src);
   try {
-    execSync(`gcc -w -std=c11 "${cf}" -o "${bf}" 2>/dev/null`, { timeout: 15000 });
+    const compiled = spawnSync(COMPILER, ['-w', '-std=c11', cf, '-o', bf], { timeout: 15000, encoding: 'utf-8' });
+    if (compiled.error || compiled.status !== 0) throw compiled.error || new Error(compiled.stderr || 'compile failed');
   } catch (e) {
     return { compileError: true };
   }
-  try {
-    const out = execSync(`"${bf}"`, { timeout: 3000, encoding: 'utf-8' });
-    return { output: out };
-  } catch (e) {
-    if (e.killed || e.signal === 'SIGTERM') return { timeout: true };
-    return { runError: true, output: e.stdout || '' };
-  }
+  const ran = spawnSync(bf, [], { timeout: 3000, encoding: 'utf-8', maxBuffer: 1024 * 1024 });
+  if (ran.error && ran.error.code === 'ETIMEDOUT') return { timeout: true };
+  if (ran.signal === 'SIGTERM') return { timeout: true };
+  if (ran.error || ran.status !== 0) return { runError: true, output: ran.stdout || '' };
+  return { output: ran.stdout || '' };
 }
 
 function norm(s){ return String(s).replace(/\s+/g,' ').trim(); }
@@ -178,5 +192,6 @@ console.log('判讀-需人工複核(UB/對不到選項/編譯異常)', results.r
 console.log('判讀-詳解不全/自我修正', results.incomplete.length);
 console.log('實作題(非選擇題,不入判讀題庫)', results.impl.length);
 
-fs.writeFileSync(path.join(__dirname, 'validate5-results.json'), JSON.stringify(results, null, 1));
-console.log('已輸出 scripts/validate5-results.json');
+fs.writeFileSync(OUTPUT, JSON.stringify(results, null, 1));
+fs.rmSync(tmp, { recursive: true, force: true });
+console.log('已輸出 ' + path.resolve(OUTPUT));

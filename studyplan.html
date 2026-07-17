@@ -8,6 +8,7 @@
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0f1117">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗺</text></svg>">
+<link rel="stylesheet" href="assets/enhance.css?v=20260717b">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -35,12 +36,21 @@ header{position:sticky;top:0;z-index:20;height:var(--header-h);display:flex;alig
 .meter{height:8px;background:#0d1117;border:1px solid var(--border);border-radius:999px;overflow:hidden;margin:8px 0}
 .meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--blue));transition:width .25s}
 .stat{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--text-muted)}
+.planner{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr);gap:14px;margin:18px 0;padding:16px;background:var(--panel-bg);border:1px solid var(--border);border-radius:10px}
+.planner h2{font-size:16px;margin-bottom:4px}.planner p{font-size:13px;color:var(--text-muted)}
+.planner-fields{display:grid;grid-template-columns:repeat(3,minmax(120px,1fr));gap:10px;margin-top:12px}
+.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11px;color:var(--text-muted);font-weight:700}
+.field select,.field input{width:100%;min-height:38px;padding:7px 9px;color:var(--text);background:#0d1117;border:1px solid var(--border);border-radius:7px;font:inherit;font-size:13px}
+.planner-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.today-card{display:flex;flex-direction:column;justify-content:space-between;gap:10px;padding:13px;background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.35);border-radius:8px}
+.today-card b{font-size:13px}.today-card span{font-size:12.5px;color:#cdd9e5}
 .controls{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
 .chip{font-size:13px;padding:7px 13px;border-radius:999px;border:1px solid var(--border);color:var(--text-muted);background:transparent;cursor:pointer;font-family:inherit}
 .chip:hover{color:var(--text);border-color:var(--text-muted)}
 .chip.on{color:var(--accent);border-color:var(--accent);background:rgba(88,166,255,.12);font-weight:700}
 .plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
 .plan{background:var(--panel-bg);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.plan.selected{box-shadow:0 0 0 2px rgba(88,166,255,.45)}
 .plan[data-kind="starter"]{border-top:3px solid var(--green)}
 .plan[data-kind="apcs"]{border-top:3px solid var(--blue)}
 .plan[data-kind="advanced"]{border-top:3px solid var(--orange)}
@@ -53,9 +63,13 @@ header{position:sticky;top:0;z-index:20;height:var(--header-h);display:flex;alig
 .fact b{display:block;font-size:11px;color:var(--text-muted);font-weight:600}
 .fact span{display:block;font-size:13px;color:var(--text);margin-top:2px}
 .weeks{display:flex;flex-direction:column;gap:8px}
-.week{border-left:3px solid var(--accent);background:rgba(255,255,255,.025);padding:8px 10px;border-radius:0 6px 6px 0}
+.week{display:grid;grid-template-columns:auto 1fr;gap:8px;border-left:3px solid var(--accent);background:rgba(255,255,255,.025);padding:8px 10px;border-radius:0 6px 6px 0}
+.week input{width:17px;height:17px;margin-top:2px;accent-color:var(--green)}
+.week.done{opacity:.72;border-left-color:var(--green)}
+.week.done b,.week.done span{text-decoration:line-through;text-decoration-thickness:1px}
 .week b{display:block;font-size:12.5px;color:var(--text);margin-bottom:2px}
 .week span{font-size:12.5px;color:#cdd9e5}
+.week-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}.week-links a{font-size:11.5px;color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 11px;border-radius:7px;border:1px solid var(--border);font-size:12.5px;color:var(--text-muted)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#0d1117;font-weight:700}
@@ -70,6 +84,7 @@ header{position:sticky;top:0;z-index:20;height:var(--header-h);display:flex;alig
 footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:28px}
 @media(max-width:760px){
   .intro{grid-template-columns:1fr}
+  .planner{grid-template-columns:1fr}.planner-fields{grid-template-columns:1fr}
   .facts{grid-template-columns:1fr}
   .track{grid-template-columns:1fr;gap:2px}
 }
@@ -97,10 +112,30 @@ footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:28px}
     </div>
     <aside class="progress-panel">
       <h2>本機教學進度</h2>
-      <div class="stat"><span id="done-label">已完成 0 / 98 章</span><span id="pct-label">0%</span></div>
+      <div class="stat"><span id="done-label">已完成 0 / 101 章</span><span id="pct-label">0%</span></div>
       <div class="meter"><i id="meter-fill"></i></div>
       <div class="stat"><span>資料來自瀏覽器 localStorage</span><span class="mono">tut_done</span></div>
     </aside>
+  </section>
+
+  <section class="planner" aria-labelledby="planner-title">
+    <div>
+      <h2 id="planner-title">建立可追蹤的讀書計畫</h2>
+      <p>選擇路線、主力語言與開始日期；每週完成後勾選，進度只儲存在這台裝置。</p>
+      <div class="planner-fields">
+        <div class="field"><label for="plan-select">學習路線</label><select id="plan-select"></select></div>
+        <div class="field"><label for="language-select">主力語言</label><select id="language-select"><option value="py">Python</option><option value="cpp">C++</option><option value="c">C</option><option value="java">Java</option></select></div>
+        <div class="field"><label for="start-date">開始日期</label><input id="start-date" type="date"></div>
+      </div>
+      <div class="planner-actions">
+        <button class="btn primary" type="button" id="save-plan">儲存計畫</button>
+        <button class="btn" type="button" id="reset-plan">重設勾選</button>
+      </div>
+    </div>
+    <div class="today-card" aria-live="polite">
+      <div><b id="today-title">今天下一步</b><br><span id="today-summary">選擇一條路線後，這裡會顯示當週任務。</span></div>
+      <a class="btn primary" id="today-action" href="tutorial.html">開始本週任務</a>
+    </div>
   </section>
 
   <div class="controls" id="filters"></div>
@@ -115,8 +150,9 @@ footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:28px}
     <div class="track"><b>68–70 APCS</b><p>新制分級、程式識讀、快速冪、分治與逆序對。</p></div>
     <div class="track"><b>71–94 語言</b><p>C++、C、Java 專屬章節，依語言分頁顯示。</p></div>
     <div class="track"><b>95–97 進階</b><p>物件模型、函式參數、讀官方文件，適合開始寫較大程式前補觀念。</p></div>
+    <div class="track"><b>98–100 除錯</b><p>常見錯誤訊息、系統化除錯、輸入驗證與防禦式程式設計。</p></div>
   </section>
-  <footer>要調整讀書計畫，只要編輯本頁的 <code>PLANS</code> 陣列即可。</footer>
+  <footer><a href="privacy.html">隱私權政策</a> · <a href="disclaimer.html">免責聲明</a> · 計畫與勾選紀錄僅保存在本機。</footer>
 </main>
 
 <script>
@@ -132,10 +168,10 @@ const PLANS = [
     desc:'適合第一次學程式，目標是能讀懂簡單程式、寫出基本輸入輸出與迴圈題。',
     chapters:'0–10', reading:'初級判讀，每週 20 題', judge:'⭐ 題庫 15–25 題', hours:'每週 4–6 小時',
     weeks:[
-      ['第 1 週','0–2：認識程式、變數、輸入輸出；每天至少執行一次範例。'],
-      ['第 2 週','3–5：運算子、if、迴圈；把每章動手試試都改出一個自己的版本。'],
-      ['第 3 週','6–8：字串、list、二維陣列；開始做初級判讀題。'],
-      ['第 4 週','9–10：函式與 dict/set；回頭補錯題本裡的題目。']
+      ['第 1 週','0–2：認識程式、變數、輸入輸出；每天至少執行一次範例。',0,'basic','o_avg'],
+      ['第 2 週','3–5：運算子、if、迴圈；把每章動手試試都改出一個自己的版本。',3,'basic','c294'],
+      ['第 3 週','6–8：字串、list、二維陣列；開始做初級判讀題。',6,'basic','o076'],
+      ['第 4 週','9–10：函式與 dict/set；回頭補錯題本裡的題目。',9,'basic','m_uniq_cnt']
     ]
   },
   {
@@ -143,30 +179,63 @@ const PLANS = [
     desc:'適合已會基本語法、想把 APCS 實作與程式識讀練成穩定節奏的人。',
     chapters:'11–26, 68–70', reading:'初級→中高級，每週 60 題', judge:'⭐–⭐⭐⭐ 每週 12–18 題', hours:'每週 7–10 小時',
     weeks:[
-      ['第 1 週','11–14：排序、搜尋、遞迴、前綴和；題庫做陣列與模擬。'],
-      ['第 2 週','15–18：枚舉、雙指標、stack/queue、樹走訪；判讀練流程追蹤。'],
-      ['第 3 週','19–22：BFS/DFS、最短路、DP 入門；每題寫下狀態定義。'],
-      ['第 4 週','23–26：進階 DP、DSU、字串；補 C++ STL 速查常用容器。'],
-      ['第 5 週','68–70：新制分級、快速冪、分治；每天一回隨機判讀。'],
-      ['第 6 週','混合複習：重做錯題本、限時做題、整理常錯模板。']
+      ['第 1 週','11–14：排序、搜尋、遞迴、前綴和；題庫做陣列與模擬。',11,'intermediate','m_prefix_sum_q'],
+      ['第 2 週','15–18：枚舉、雙指標、stack/queue、樹走訪；判讀練流程追蹤。',15,'intermediate','m_paren'],
+      ['第 3 週','19–22：BFS/DFS、最短路、DP 入門；每題寫下狀態定義。',19,'advanced','h_dijkstra'],
+      ['第 4 週','23–26：進階 DP、DSU、字串；補 C++ STL 速查常用容器。',23,'advanced','h_dsu_island'],
+      ['第 5 週','68–70：新制分級、快速冪、分治；每天一回隨機判讀。',68,'advanced','h_fast_pow'],
+      ['第 6 週','混合複習：重做錯題本、限時做題、整理常錯模板。',70,'advanced','p101']
     ]
   },
   {
     id:'advanced', icon:'🚀', title:'進階 / 競賽（8 週）',
     desc:'適合已能完成中等題，想補資料結構、語言專項與專題實作的學習者。',
-    chapters:'23–35, 36–67, 71–97', reading:'中高級→高級，每週 80 題', judge:'⭐⭐⭐–⭐⭐⭐⭐ 每週 10–15 題', hours:'每週 8–12 小時',
+    chapters:'23–35, 36–67, 71–100', reading:'中高級→高級，每週 80 題', judge:'⭐⭐⭐–⭐⭐⭐⭐ 每週 10–15 題', hours:'每週 8–12 小時',
     weeks:[
-      ['第 1–2 週','23–26：DP、DSU、字串 hash/Trie；每個主題各整理一份模板。'],
-      ['第 3 週','27–35：測試、CLI、CSV、API 與小專案；把程式拆成函式。'],
-      ['第 4–5 週','36–67：挑一條專項軌做作品，資料分析 / Bot / pygame 擇一深入。'],
-      ['第 6 週','71–94：依主力語言補 C++ STL / C 指標 / Java Collections。'],
-      ['第 7 週','95–97：物件模型、進階參數、讀官方文件；練習查文件解題。'],
-      ['第 8 週','限時混合訓練：高級題、判讀高級、錯題本總複習。']
+      ['第 1–2 週','23–26：DP、DSU、字串 hash/Trie；每個主題各整理一份模板。',23,'advanced','h_dsu_island'],
+      ['第 3 週','27–35：測試、CLI、CSV、API 與小專案；把程式拆成函式。',27,'advanced','ia_range_sum'],
+      ['第 4–5 週','36–67（Python）或主力語言專項 71–94：挑一條軌道做作品並整理模板。',36,'expert','p113'],
+      ['第 6 週','71–94：依主力語言補 C++ STL / C 指標 / Java Collections。',71,'expert','src141_APCSOnline_C2_permutation'],
+      ['第 7 週','95–100：物件模型、官方文件、除錯與防禦式程式設計。',95,'expert','p117'],
+      ['第 8 週','限時混合訓練：高級題、判讀高級、錯題本總複習。',100,'expert','src281_baltic_10_pcb']
     ]
   }
 ];
+const PLAN_KEY = 'apcs_study_plan_v2';
 let active = 'all';
+let planState = loadPlanState();
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function todayISO(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function loadPlanState(){
+  const fallback = {version:2,planId:'starter',language:'py',startDate:todayISO(),done:{starter:[],apcs:[],advanced:[]}};
+  try{
+    const value = JSON.parse(localStorage.getItem(PLAN_KEY) || 'null');
+    if(!value || value.version !== 2 || !PLANS.some(p=>p.id===value.planId)) return fallback;
+    value.language = ['py','cpp','c','java'].includes(value.language) ? value.language : 'py';
+    value.startDate = /^\d{4}-\d{2}-\d{2}$/.test(value.startDate||'') ? value.startDate : todayISO();
+    value.done = value.done && typeof value.done === 'object' ? value.done : fallback.done;
+    PLANS.forEach(p=>{ value.done[p.id] = Array.isArray(value.done[p.id]) ? [...new Set(value.done[p.id].filter(i=>Number.isInteger(i)&&i>=0&&i<p.weeks.length))] : []; });
+    return value;
+  }catch(e){ return fallback; }
+}
+function savePlanState(){ localStorage.setItem(PLAN_KEY, JSON.stringify(planState)); }
+function planHref(week,type){
+  if(type==='tutorial'){
+    let chapter=week[2];
+    if(chapter>=36&&chapter<=67&&planState.language!=='py') chapter=({cpp:71,c:79,java:87}[planState.language]||71);
+    if(chapter===71) chapter=({py:36,cpp:71,c:79,java:87}[planState.language]||36);
+    if((chapter===95||chapter===96)&&planState.language!=='py') chapter=98;
+    return `tutorial.html?chapter=${chapter}&lang=${planState.language}`;
+  }
+  if(type==='reading'){
+    const level={basic:'初級',intermediate:'中級',advanced:'中高級',expert:'高級'}[week[3]]||'初級';
+    return `reading.html?lang=${planState.language}&level=${encodeURIComponent(level)}&mode=random`;
+  }
+  return `index.html?problem=${week[4]}&lang=${planState.language}`;
+}
 function renderFilters(){
   const el = document.getElementById('filters');
   el.innerHTML = FILTERS.map(f => `<button class="chip${active===f.id?' on':''}" data-id="${f.id}">${esc(f.label)}</button>`).join('');
@@ -179,7 +248,7 @@ function renderFilters(){
 function renderPlans(){
   const items = active === 'all' ? PLANS : PLANS.filter(p => p.id === active);
   document.getElementById('plans').innerHTML = items.map(p => `
-    <article class="plan" data-kind="${p.id}">
+    <article class="plan${planState.planId===p.id?' selected':''}" data-kind="${p.id}">
       <div class="plan-h"><div class="plan-ic">${p.icon}</div><div><h2>${esc(p.title)}</h2><p class="desc">${esc(p.desc)}</p></div></div>
       <div class="facts">
         <div class="fact"><b>建議章節</b><span>${esc(p.chapters)}</span></div>
@@ -187,14 +256,27 @@ function renderPlans(){
         <div class="fact"><b>判讀</b><span>${esc(p.reading)}</span></div>
         <div class="fact"><b>題庫</b><span>${esc(p.judge)}</span></div>
       </div>
-      <div class="weeks">${p.weeks.map(w => `<div class="week"><b>${esc(w[0])}</b><span>${esc(w[1])}</span></div>`).join('')}</div>
+      <div class="weeks">${p.weeks.map((w,i) => {
+        const checked=(planState.done[p.id]||[]).includes(i);
+        return `<div class="week${checked?' done':''}"><input type="checkbox" data-plan="${p.id}" data-week="${i}" ${checked?'checked':''} aria-label="標記 ${esc(w[0])}完成"><span><b>${esc(w[0])}</b><span>${esc(w[1])}</span><span class="week-links"><a href="${planHref(w,'tutorial')}">對應教學</a><a href="${planHref(w,'reading')}">判讀練習</a><a href="${planHref(w,'judge')}">實作題</a></span></span></div>`;
+      }).join('')}</div>
       <div class="actions">
-        <a class="btn primary" href="tutorial.html">開始教學</a>
-        <a class="btn" href="reading.html">練判讀</a>
-        <a class="btn" href="index.html">刷題庫</a>
+        <button class="btn primary choose-plan" type="button" data-plan="${p.id}">${planState.planId===p.id?'目前路線':'選用這條路線'}</button>
+        <a class="btn" href="${planHref(p.weeks[0],'tutorial')}">從第一週開始</a>
       </div>
     </article>
   `).join('');
+  document.querySelectorAll('.choose-plan').forEach(button=>button.addEventListener('click',()=>{
+    planState.planId=button.dataset.plan;
+    document.getElementById('plan-select').value=planState.planId;
+    savePlanState(); renderPlans(); renderPlanner();
+  }));
+  document.querySelectorAll('.week input').forEach(box=>box.addEventListener('change',()=>{
+    const list=planState.done[box.dataset.plan]||[];
+    const i=Number(box.dataset.week);
+    planState.done[box.dataset.plan]=box.checked?[...new Set([...list,i])]:list.filter(v=>v!==i);
+    savePlanState(); renderPlans(); renderPlanner();
+  }));
 }
 function renderProgress(){
   let done = [];
@@ -208,6 +290,41 @@ function renderProgress(){
   document.getElementById('pct-label').textContent = `${pct}%`;
   document.getElementById('meter-fill').style.width = `${pct}%`;
 }
+function renderPlanner(){
+  const plan=PLANS.find(p=>p.id===planState.planId) || PLANS[0];
+  const start=new Date(`${planState.startDate}T00:00:00`);
+  const validStart=!Number.isNaN(start.getTime());
+  const elapsed=validStart?Math.floor((Date.now()-start.getTime())/604800000):0;
+  const current=Math.max(0,Math.min(plan.weeks.length-1,elapsed));
+  const completed=planState.done[plan.id]||[];
+  const next=plan.weeks.findIndex((_,i)=>!completed.includes(i));
+  const target=next<0?plan.weeks.length-1:Math.max(current,next);
+  const week=plan.weeks[Math.min(target,plan.weeks.length-1)];
+  document.getElementById('plan-select').value=planState.planId;
+  document.getElementById('language-select').value=planState.language;
+  document.getElementById('start-date').value=planState.startDate;
+  document.getElementById('today-title').textContent=next<0?'這條路線已完成':'今天下一步';
+  document.getElementById('today-summary').textContent=next<0?`已完成 ${plan.title}，建議回錯題本安排複習。`:`${week[0]}｜${week[1]}`;
+  const action=document.getElementById('today-action');
+  action.href=next<0?'mistakes.html':planHref(week,'tutorial');
+  action.textContent=next<0?'複習錯題':'開始本週教學';
+}
+function initPlanner(){
+  const select=document.getElementById('plan-select');
+  select.innerHTML=PLANS.map(p=>`<option value="${p.id}">${esc(p.title)}</option>`).join('');
+  renderPlanner();
+  document.getElementById('save-plan').addEventListener('click',()=>{
+    planState.planId=select.value;
+    planState.language=document.getElementById('language-select').value;
+    planState.startDate=document.getElementById('start-date').value||todayISO();
+    savePlanState(); active=planState.planId; renderFilters(); renderPlans(); renderPlanner();
+  });
+  document.getElementById('reset-plan').addEventListener('click',()=>{
+    if(!confirm('要清除目前路線的週次勾選嗎？')) return;
+    planState.done[planState.planId]=[]; savePlanState(); renderPlans(); renderPlanner();
+  });
+}
+initPlanner();
 renderFilters();
 renderPlans();
 renderProgress();

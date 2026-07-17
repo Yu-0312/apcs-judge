@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>隱私權政策｜APCS 互動程式教室</title>
+<meta name="description" content="APCS 互動程式教室的本機資料、Gemini、Judge0 與 Firebase 聊天室資料處理說明。">
+<link rel="stylesheet" href="assets/policy.css?v=20260717a">
+</head>
+<body>
+<header><a href="index.html">APCS 互動程式教室</a><a href="disclaimer.html">免責聲明</a><a href="dashboard.html">我的進度</a></header>
+<main>
+<h1>隱私權政策</h1><p class="updated">最後更新：2026 年 7 月 17 日</p>
+<div class="notice">大部分學習資料只存在你的瀏覽器；只有你主動使用 AI、線上執行或公共聊天室時，相關資料才會傳送至第三方服務。</div>
+
+<h2>1. 本機保存的資料</h2>
+<p>本站沒有自營帳號後端。教學進度、公開範例檢查結果、判讀紀錄、草稿、讀書計畫、每日一題與錯題本主要存於瀏覽器 <code>localStorage</code>。</p>
+<ul><li>Gemini API 金鑰與 AI 助教對話只放在目前分頁的 <code>sessionStorage</code>／記憶體，關閉分頁後失效；新版會移除舊版曾存入 <code>localStorage</code> 的金鑰。</li><li>AI 題目圖片預設不保存。只有你明確勾選時，重編碼後的縮圖才會存入本機錯題本。</li><li>完整學習備份不包含 API 金鑰。清除瀏覽器資料或換裝置前，請先自行匯出備份。</li></ul>
+
+<h2>2. 會傳給第三方的資料</h2>
+<h3>Google Gemini</h3><p>使用 AI 解題或 AI 助教時，你確認送出的題目文字、補充、教練模式回答、對話與自備 API 金鑰會直接傳給 Google。題目圖片會先在本機限制尺寸、重編碼為 JPEG 並移除原檔中繼資料；讀題完成後，解題或教練階段只傳你確認過的文字。</p>
+<h3>Judge0</h3><p>執行 C、C++ 或 Java 時，程式碼與測試輸入會送往公用 Judge0 服務。請勿放入個資、金鑰或機密。Python 通常在瀏覽器 Worker 中執行。</p>
+<h3>Firebase 公共聊天室</h3><p>聊天室啟用後會使用 Firebase Anonymous Authentication。你送出的暱稱、訊息、匿名 UID、客戶端識別碼與時間戳會寫入 Realtime Database，並可被其他已登入的訪客看到。請勿發布真實姓名、聯絡方式、金鑰或其他敏感資料。介面不保證可自行刪除單則訊息。</p>
+<h3>GitHub Pages 與 CDN</h3><p>GitHub Pages、jsDelivr、Cloudflare CDN 與 Google 資源可能依服務運作取得 IP 位址與基本連線資訊；其處理由各服務的隱私條款規範。</p>
+
+<h2>3. 追蹤與你的選擇</h2>
+<p>本站未安裝廣告或行為分析工具，也不販售資料。你可以不使用 AI、Judge0 或聊天室；可在儀表板匯出／清除本機學習資料，並可隨時清除目前工作階段的 API 金鑰。</p>
+
+<h2>4. 未成年人</h2><p>學生使用會對外傳輸資料的功能時，應由師長或家長協助確認，不要輸入可識別個人身分的資訊。</p>
+
+<h2>5. 聯絡方式</h2><p>需要詢問資料處理或協助處理公共聊天室訊息時，請寄信至 <a href="mailto:wang.yuchi.312@gmail.com">wang.yuchi.312@gmail.com</a>，或使用 <a href="https://github.com/Yu-0312/apcs-judge/issues" rel="noopener noreferrer">GitHub Issues</a>。</p>
+<footer>詳細版本亦保留於專案的「隱私權政策.md」。政策可能隨功能調整而更新。</footer>
+</main>
+</body></html>

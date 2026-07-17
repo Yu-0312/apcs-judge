@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate LANG_CONTENT_EN from LANG_CONTENT in tutorial.html."""
+"""Generate data/tutorial-lang-content-en.js from the tracked zh source file."""
 
 from __future__ import annotations
 
@@ -10,10 +10,10 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-HTML = ROOT / "tutorial.html"
+SOURCE = ROOT / "data" / "tutorial-lang-content-zh.js"
+OUTPUT = ROOT / "data" / "tutorial-lang-content-en.js"
 CACHE = ROOT / "scripts" / ".lang-content-en-cache.json"
 MARKER_START = "const LANG_CONTENT = {"
-MARKER_END = "\n// 依目前語言取教材內容"
 LANGS = ("cpp", "c", "java")
 
 
@@ -86,10 +86,12 @@ def parse_lang_content(block: str) -> dict[int, dict[str, str]]:
     return data
 
 
-def extract_lang_content(html: str) -> str:
-    start = html.index(MARKER_START) + len(MARKER_START)
-    end = html.index(MARKER_END, start)
-    return html[start:end]
+def extract_lang_content(source: str) -> str:
+    start = source.index(MARKER_START) + len(MARKER_START)
+    end = source.rfind("\n};")
+    if end < start:
+        raise ValueError(f"Cannot find LANG_CONTENT terminator in {SOURCE}")
+    return source[start:end]
 
 
 def protect_code_blocks(text: str) -> tuple[str, list[str]]:
@@ -178,20 +180,11 @@ def render_lang_content_en(data: dict[int, dict[str, str]]) -> str:
     return "\n".join(lines)
 
 
-def patch_html(html: str, en_block: str) -> str:
-    if "const LANG_CONTENT_EN = {" in html:
-        start = html.index("const LANG_CONTENT_EN = {")
-        end = html.index("};", start) + 2
-        return html[:start] + en_block + html[end:]
-    insert_at = html.index(MARKER_END)
-    return html[:insert_at] + "\n\n" + en_block + html[insert_at:]
-
-
 def main() -> None:
     from deep_translator import GoogleTranslator
 
-    html = HTML.read_text(encoding="utf-8")
-    zh = parse_lang_content(extract_lang_content(html))
+    source = SOURCE.read_text(encoding="utf-8")
+    zh = parse_lang_content(extract_lang_content(source))
 
     cache: dict[str, str] = {}
     if CACHE.exists():
@@ -232,33 +225,9 @@ def main() -> None:
             CACHE.write_text(json.dumps(cache, ensure_ascii=False, indent=2), encoding="utf-8")
 
     en_block = render_lang_content_en(en)
-    patched = patch_html(html, en_block)
-
-    # Patch getContent if not already patched
-    old_get = """function getContent(chap){
-  if(currentLang === 'py'){
-    if(hasEN(chap)) return chEN(chap).content || chap.content;
-    return chap.content;
-  }
-  const lc = LANG_CONTENT[chap.id];
-  return (lc && lc[currentLang]) || chap.content;
-}"""
-    new_get = """function getContent(chap){
-  if(currentLang === 'py'){
-    if(hasEN(chap)) return chEN(chap).content || chap.content;
-    return chap.content;
-  }
-  const src = (uiLang === 'en') ? LANG_CONTENT_EN : LANG_CONTENT;
-  const lc = src[chap.id];
-  return (lc && lc[currentLang]) || (uiLang === 'en' && hasEN(chap) ? chEN(chap).content : null) || chap.content;
-}"""
-    if old_get in patched:
-        patched = patched.replace(old_get, new_get)
-    elif "LANG_CONTENT_EN" not in patched.split("function getContent")[1][:400]:
-        print("Warning: getContent() patch not applied — update manually", file=sys.stderr)
-
-    HTML.write_text(patched, encoding="utf-8")
-    print(f"Done. Wrote {HTML} with {len(en)} chapters × up to 3 langs.")
+    header = "// Generated from tutorial-lang-content-zh.js by scripts/gen-lang-content-en.py\n"
+    OUTPUT.write_text(header + en_block + "\n", encoding="utf-8")
+    print(f"Done. Wrote {OUTPUT} with {len(en)} chapters × up to 3 langs.")
 
 
 if __name__ == "__main__":
