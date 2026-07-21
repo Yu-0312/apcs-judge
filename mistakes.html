@@ -130,6 +130,7 @@ pre.code{background:var(--code-bg);border:1px solid var(--border);border-radius:
       <span class="chip" role="button" tabindex="0" aria-pressed="false" data-type="reading">🔍 判讀題 <b id="c-reading">0</b></span>
       <span class="chip" role="button" tabindex="0" aria-pressed="false" data-type="impl">🎯 實作題 <b id="c-impl">0</b></span>
       <span class="chip" role="button" tabindex="0" aria-pressed="false" data-type="ai">🤖 AI 上傳 <b id="c-ai">0</b></span>
+      <span class="chip" role="button" tabindex="0" aria-pressed="false" data-type="due">🔁 今天該複習 <b id="c-due">0</b></span>
     </div>
     <input class="search" id="search" type="search" aria-label="搜尋錯題標題或題目內容" placeholder="🔍 搜尋標題／題目內容">
     <span class="spacer"></span>
@@ -195,18 +196,21 @@ function summaryText(r){
   return '';
 }
 
+function isDue(r){ return !!(r && r.nextReviewAt && Date.parse(r.nextReviewAt) <= Date.now()); }
 function refreshCounts(){
   const all = MistakeBook.all();
   $('c-all').textContent = all.length;
   $('c-reading').textContent = all.filter(r=>r.type==='reading').length;
   $('c-impl').textContent = all.filter(r=>r.type==='impl').length;
   $('c-ai').textContent = all.filter(r=>r.type==='ai').length;
+  if($('c-due')) $('c-due').textContent = all.filter(isDue).length;
 }
 
 function render(){
   refreshCounts();
   let recs = MistakeBook.all();
-  if (curType !== 'all') recs = recs.filter(r => r.type === curType);
+  if (curType === 'due') recs = recs.filter(isDue);
+  else if (curType !== 'all') recs = recs.filter(r => r.type === curType);
   if (curSearch){
     const q = curSearch.toLowerCase();
     // 只搜文字欄位；先前用 JSON.stringify 連 base64 圖片都掃，會出現亂猜的誤中
@@ -296,10 +300,17 @@ function implBody(r){
 
 function aiBody(r){
   let h = '';
-  const checkLabel=r.sampleChecked?'公開範例相符（非 AC）':(r.verified?'已驗證':'未驗證');
-  const checkColor=(r.sampleChecked||r.verified)?'var(--green)':'var(--yellow)';
+  const checkLabel=r.stressChecked?'對拍通過（非 AC）':(r.sampleChecked?'公開範例相符（非 AC）':(r.verified?'已驗證':'未驗證'));
+  const checkColor=(r.stressChecked||r.sampleChecked||r.verified)?'var(--green)':'var(--yellow)';
   h += '<div class="kv" style="margin-top:12px;">語言：<b>'+escH(LANG_LABEL[r.language]||r.language||'-')+'</b>'
      + '　檢查：<b style="color:'+checkColor+'">'+checkLabel+'</b></div>';
+  if(r.masteryState||r.nextReviewAt){
+    const label={learning:'學習中',review:'複習中',mastered:'已熟練'}[r.masteryState]||r.masteryState||'';
+    h += '<div class="kv">'+(label?'狀態：<b>'+escH(label)+'</b>':'')+(r.nextReviewAt?'　建議複習：<b>'+escH(fmtTime(r.nextReviewAt).slice(0,10))+'</b>':'')+'</div>';
+  }
+  if(Array.isArray(r.relatedTopics)&&r.relatedTopics.length){
+    h += '<div class="kv">延伸複習：'+r.relatedTopics.map(t=>'<code>'+escH(String(t))+'</code>').join('、')+'</div>';
+  }
   const imageUrl=safeImageDataUrl(r.image);
   if (imageUrl) h += '<div class="sec-label">題目照片</div><img class="rec-img" src="'+escH(imageUrl)+'" alt="題目">';
   if (r.problemStatement){ h += '<div class="sec-label">題目辨識</div><div class="md">'+renderMd(r.problemStatement)+'</div>'; }
