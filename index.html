@@ -309,6 +309,7 @@ header{height:var(--header-h);display:flex;align-items:center;padding:0 20px;bac
         <button class="btn btn-sec" id="clear-btn" onclick="clearEditor()">清空</button>
         <button class="btn btn-sample" id="sample-btn" onclick="loadSample()">載入解答</button>
         <button class="btn btn-sec" id="hint-btn" onclick="showHint()" title="顯示解題思路" disabled>💡 思路</button>
+        <button class="btn btn-sec" id="ai-solve-btn" onclick="openAiSolve()" title="用 AI 教練解這題（另開頁，帶入題目）">🤖 用 AI 解</button>
         <span style="flex:1"></span><span id="sample-scope-note" class="sample-scope-note">僅檢查題面公開範例</span>
         <span id="lang-label" style="font-size:11px;color:var(--text-muted);">-</span>
       </div>
@@ -346,6 +347,13 @@ const LANGS = {
 // ── State ─────────────────────────────────────────────────────────────────────
 let currentLang = null;
 let currentProblem = null;
+// 帶目前題目與語言到 AI 解題頁（教練引導或完整解題），省去重新貼題。
+function openAiSolve(){
+  if (!currentProblem) { alert(T().alertPickFirst); return; }
+  const lang = currentLang || 'py';
+  const url = 'ai-solve.html?problem=' + encodeURIComponent(currentProblem.id) + '&lang=' + encodeURIComponent(lang);
+  window.open(url, '_blank', 'noopener');
+}
 let editor = null;
 let running = false;
 const SAMPLE_RESULTS_KEY = 'apcs_judge_sample_results_v2';
