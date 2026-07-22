@@ -11,7 +11,7 @@
 
   var config = deepFreeze({
     schemaVersion: 1,
-    cacheVersion: '20260717f',
+    cacheVersion: '20260721a',
     gemini: {
       apiBase: 'https://generativelanguage.googleapis.com/v1beta',
       defaultModel: 'gemini-3.5-flash',
