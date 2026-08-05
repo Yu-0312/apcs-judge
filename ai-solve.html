@@ -317,8 +317,12 @@ table.tc td pre{margin:0;font-family:ui-monospace,Menlo,monospace;font-size:12px
   <div class="card" id="card-code-review" style="display:none;" aria-live="polite">
     <h2>🛡️ 執行前安全確認 <span class="tag" id="review-attempt">AI 產生內容</span></h2>
     <div class="warn-box" style="margin-bottom:12px;">AI 產生的程式碼可能有錯誤或不安全。請先檢查下方程式，不要放入密碼、API key 或個資。Python 會在瀏覽器 Worker 執行；C／C++／Java 原始碼與測資會傳送至 Judge0。</div>
-    <p class="hint" id="review-deep-note" hidden style="margin-bottom:10px;">🧠 深度思考已開啟：核可後，除了這份解答，也會執行 AI 另外產生的「隨機測資產生器」與「暴力解」（皆為瀏覽器本地 Python 沙箱）來做對拍。</p>
+    <p class="hint" id="review-deep-note" hidden style="margin-bottom:10px;">🧠 深度思考已開啟：核可後，除了這份解答，也會在瀏覽器本地 Python 沙箱執行 AI 另外產生的「隨機測資產生器」「暴力解」「刁鑽測資」與「最大規模測資」（用來抓範例外的錯誤與檢查是否過慢）；若下方出現候選 B，也會在同一個沙箱執行以做交叉比對，但只用於比對、不會單獨顯示其執行結果。</p>
     <pre class="code review-code" id="review-code"></pre>
+    <div id="review-code-b-wrap" hidden style="margin-top:12px;">
+      <div class="sec-label">候選 B（第二份獨立產生，僅用於交叉比對）</div>
+      <pre class="code review-code" id="review-code-b"></pre>
+    </div>
     <div class="field-row">
       <button class="btn ok" id="btn-approve-run" type="button">我已檢查，允許執行</button>
       <button class="btn ghost" id="btn-decline-run" type="button">不執行，只保留程式碼</button>
@@ -642,9 +646,12 @@ const READ_SCHEMA = { type:'object', properties:{
 }, required:['is_programming','problem_title','problem_statement','constraints','language','testcases'] };
 
 const SOLVE_SCHEMA = { type:'object', properties:{
-  approach:{type:'string'}, complexity:{type:'string'}, code:{type:'string'}, explanation:{type:'string'},
+  approach:{type:'string'}, complexity:{type:'string'}, code:{type:'string'},
+  self_check:{type:'string'},
+  confidence:{type:'string',enum:['low','medium','high']}, confidence_reason:{type:'string'},
+  explanation:{type:'string'},
   related_topics:{type:'array',items:{type:'string'}}
-}, required:['approach','code','explanation'] };
+}, required:['approach','code','self_check','confidence','explanation'] };
 
 const COACH_SCHEMA = { type:'object', properties:{
   level_title:{type:'string'}, hint:{type:'string'}, question:{type:'string'}, on_track:{type:'boolean'}
@@ -687,8 +694,10 @@ function coachPrompt(cf, notes, level, entries, thought){
   p+='\n請只回傳 level_title、hint、question。hint 用繁體中文、具體但保留思考空間；question 只能有一個、要能讓使用者動手推導下一步。';
   return p;
 }
-function solvePrompt(cf, notes, repair){
+function solvePrompt(cf, notes, repair, opts){
+  opts=opts||{};
   let p='你是一位資深競賽程式教練。以下是已由使用者「確認無誤」的題目，請據此解題。\n\n';
+  if(opts.independent) p+='這是同一題的「第二個獨立解答」，用於自我一致性交叉比對：請不要假設有其他解答存在，完全從頭獨立推導，鼓勵選用與常見寫法不同的演算法、資料結構或實作角度，只要一樣正確且複雜度合乎限制即可。\n\n';
   p+='【題目】'+cf.title+'\n'+cf.statement+'\n\n';
   if(cf.constraints&&cf.constraints.trim()) p+='【限制條件】\n'+cf.constraints.trim()+'\n\n';
   p+='【解題語言】'+cf.language+'（務必使用此語言）\n';
@@ -700,10 +709,14 @@ function solvePrompt(cf, notes, repair){
   p+='\n請先在心中依序思考再作答：\n';
   p+='1. 從限制條件推估所需的時間複雜度上限（例如 N≤10^6 通常要 O(N) 或 O(N log N)、不能用 O(N²)；N≤20 可能是指數或狀態壓縮）。approach 要說明你選的演算法為何在此範圍內夠快。\n';
   p+='2. 逐一檢查常見 APCS／實作陷阱：輸入格式與空白／換行、0 或 1 起始索引、整數溢位（C/C++ 大數用 long long）、邊界情形（N=0、N=1、空輸入、全部相同、最大值）、需要讀到 EOF 的多筆測資。\n';
+  p+='3. 在心中用每一組公開範例的輸入逐字元模擬你的程式輸出，確認與範例輸出完全相同（包含空白、換行、大小寫與多餘的提示文字），再定稿。\n';
   p+='\n輸出要求：\n';
   p+='- approach：用中文條列解題思路（演算法、資料結構、關鍵步驟）與「為何複雜度符合限制」的理由。\n';
   p+='- complexity：時間與空間複雜度（例如「時間 O(N log N)、空間 O(N)」）。\n';
   p+='- code：完整可直接編譯／執行的原始碼。務必：從 stdin 讀入、輸出到 stdout、不要印多餘提示字。Java 類別名稱一律 public class Main；Python 用 input()/print()。\n';
+  p+='- self_check：完成 code 後逐條回報第 2 點每一類陷阱是否已處理（例如「整數溢位：已用 long long，OK」）。若檢查時發現問題，請直接修正上面的 code 再回報，不要留著已知問題不修。\n';
+  p+='- confidence：你認為這份解答在「官方隱藏測資」下也會通過的信心，只能填 low / medium / high 三者之一；只要演算法、複雜度或某個陷阱處理沒有把握就不要填 high。\n';
+  p+='- confidence_reason：一句話說明信心評估的理由（例如「作法標準、陷阱皆已檢查」或「題目對某個邊界情形的定義不夠明確」）。\n';
   p+='- explanation：中文完整詳解（Markdown），含思路、逐步推導、程式碼重點、複雜度。\n';
   p+='- related_topics：2～4 個此題用到的核心觀念關鍵字（例如「前綴和」「二分搜尋」「並查集」「動態規劃」），供學生回教學頁複習。\n';
   if(repair){
@@ -713,18 +726,24 @@ function solvePrompt(cf, notes, repair){
 }
 // 對拍測資產生器 + 暴力解（皆為本地 Python），用來在公開範例之外找出候選解的錯誤。
 const GENTEST_SCHEMA = { type:'object', properties:{
-  generator_code:{type:'string'}, brute_code:{type:'string'}, note:{type:'string'}
+  generator_code:{type:'string'}, brute_code:{type:'string'}, note:{type:'string'},
+  tricky_cases:{type:'array', items:{type:'object', properties:{input:{type:'string'}, note:{type:'string'}}, required:['input']}},
+  max_scale_input:{type:'string'}
 }, required:['generator_code','brute_code'] };
 function stressPrompt(cf, sol){
-  let p='你是競賽程式的測試產生器作者。以下題目與一份候選解答已存在，請產生「對拍」用的兩支 Python3 程式，協助在公開範例之外找出候選解的錯誤。\n\n';
+  let p='你是競賽程式的測試產生器作者，同時也是這份候選解答最挑剔的對手。以下題目與一份候選解答已存在，請產生「對拍」與「刁鑽測資」用的材料，協助在公開範例之外找出候選解的錯誤。\n\n';
   p+='【題目】'+cf.title+'\n'+cf.statement+'\n';
   if(cf.constraints&&cf.constraints.trim()) p+='【限制條件】'+cf.constraints.trim()+'\n';
   p+='【候選解答語言】'+cf.language+'\n';
+  p+='【候選解答思路】\n'+String((sol&&sol.approach)||'').slice(0,3000)+'\n';
+  p+='【候選解答程式碼】\n```\n'+String((sol&&sol.code)||'').slice(0,6000)+'\n```\n';
   if(cf.testcases.length) p+='【公開範例輸入格式參考】\n'+cf.testcases.map((t,i)=>'範例'+(i+1)+' 輸入:\n'+t.input+'\n輸出:\n'+t.expected_output+'\n').join('');
-  p+='\n請回傳兩支「只用標準函式庫」的 Python3 程式：\n';
-  p+='- generator_code：從 stdin 讀入一行整數當亂數種子（seed=int(input()); random.seed(seed)），輸出「一筆合法且在限制範圍內的隨機測資」到 stdout，格式必須與題目輸入完全相同。為了能與暴力解逐一比對，請刻意產生「小規模」測資（例如 N 取 1～12、數值取小範圍），並涵蓋邊界。除了測資本身，不得輸出任何多餘文字。\n';
-  p+='- brute_code：一支「一定正確但可以很慢」的暴力／窮舉解，從 stdin 讀入、輸出到 stdout，格式與題目輸出完全相同。寧可慢也要正確，作為對拍的標準答案。\n';
-  p+='兩支程式都必須能直接以 python3 執行、不依賴第三方套件、不讀寫檔案或網路，且不得印出提示字。若此題不適合隨機對拍（例如答案不唯一、需要互動、或無明確輸入格式），請讓 generator_code 只執行 print("")（輸出空字串）。';
+  p+='\n請回傳：\n';
+  p+='- generator_code：只用標準函式庫的 Python3 程式，從 stdin 讀入一行整數當亂數種子（seed=int(input()); random.seed(seed)），輸出「一筆合法且在限制範圍內的隨機測資」到 stdout，格式必須與題目輸入完全相同。為了能與暴力解逐一比對，請刻意產生「小規模」測資（例如 N 取 1～12、數值取小範圍），並涵蓋邊界。除了測資本身，不得輸出任何多餘文字。\n';
+  p+='- brute_code：只用標準函式庫的 Python3 程式，一支「一定正確但可以很慢」的暴力／窮舉解，從 stdin 讀入、輸出到 stdout，格式與題目輸出完全相同。寧可慢也要正確，作為對拍與下面刁鑽測資的標準答案。\n';
+  p+='- tricky_cases：0～3 組你「針對上面這份候選解答的思路與程式碼」手工設計、最可能讓它出錯的測資（不是亂數產生）——例如它 approach 沒提到的邊界、程式碼裡看起來可疑的判斷式、或剛好卡在限制上下界的規模。每組只給 input（完整 stdin，格式需與題目輸入相同）與一句 note 說明你懷疑哪裡有問題。想不到有把握的就回傳空陣列，不要硬湊。\n';
+  p+='- max_scale_input：一筆「資料規模拉到限制上限」的測資（完整 stdin，格式需與題目輸入相同），只用來檢查候選解執行是否過慢，不需要暴力解也能算出的正確輸出。若限制條件不明確或無法構造就回傳空字串。\n';
+  p+='generator_code 與 brute_code 都必須能直接以 python3 執行、不依賴第三方套件、不讀寫檔案或網路，且不得印出提示字。若此題不適合隨機對拍（例如答案不唯一、需要互動、或無明確輸入格式），請讓 generator_code 只執行 print("")（輸出空字串），tricky_cases 與 max_scale_input 也回傳空。';
   return p;
 }
 // 教練批改：學生貼自己的程式，蘇格拉底式指出問題，永不給修好的程式，也永不執行程式。
@@ -840,26 +859,51 @@ function buildRepairDetail(v){
 // ═══ 對拍壓力測試（深度思考）：AI 產生 generator + 暴力解（本地 Python），在公開範例外找反例 ═══
 const STRESS_PER_RUN_TIMEOUT_MS = 6000;
 function stressCounterexampleDetail(ce){
-  const lines=['— 隨機對拍找到一組反例（第 '+ce.round+' 組，種子 '+ce.seed+'）：'];
+  const lines=[ce.round==='manual'
+    ? '— AI 手工設計的刁鑽測資發現一組反例'+(ce.note?'（懷疑點：'+ce.note+'）':'')+'：'
+    : '— 隨機對拍找到一組反例（第 '+ce.round+' 組，種子 '+ce.seed+'）：'];
   lines.push('    輸入: '+JSON.stringify(ce.input));
   lines.push('    暴力解(視為正確)輸出: '+JSON.stringify(ce.expected));
   lines.push('    你的程式輸出: '+JSON.stringify(ce.got));
   if(ce.error) lines.push('    你的程式執行錯誤: '+ce.error.replace(/\n/g,' '));
   return lines.join('\n');
 }
-async function stressTest(cf, sol, onProgress){
+const TLE_WARN_MS = 3000;
+async function stressTest(cf, sol, onProgress, opts){
+  opts=opts||{};
   let gen;
   try{
-    if(onProgress) onProgress('請 AI 產生隨機測資產生器與暴力解…');
+    if(onProgress) onProgress('請 AI 產生隨機測資產生器、暴力解與刁鑽測資…');
     gen=await callGemini([{text:stressPrompt(cf,sol)}], GENTEST_SCHEMA, {step:'solve', deepThink:true, timeoutMs:DEEP_THINK.timeoutMs});
   }catch(e){ return {ran:false, ok:true, reason:'無法取得對拍程式：'+String(e&&e.message||e)}; }
   const generator=String(gen&&gen.generator_code||''), brute=String(gen&&gen.brute_code||'');
+  const trickyCases=Array.isArray(gen&&gen.tricky_cases)?gen.tricky_cases.filter(t=>t&&typeof t.input==='string'&&t.input.trim()).slice(0,3):[];
+  const maxScaleInput=String(gen&&gen.max_scale_input||'').trim();
   if(!generator.trim()||!brute.trim()) return {ran:false, ok:true, reason:'AI 未提供對拍程式'};
   if(generator.length>100000||brute.length>100000) return {ran:false, ok:true, reason:'對拍程式過長，略過'};
   initPython();
+  let checked=0;
+  const knownInputs=[]; // 已知（輸入,暴力解答案）配對，供下面 best-of-2 交叉比對重複使用，避免多打一輪 API／執行
+
+  // 先跑 AI 針對這份候選解「手工設計」的刁鑽測資，通常比亂數更容易命中真正的邏輯漏洞。
+  for(let i=0;i<trickyCases.length;i++){
+    const tc=trickyCases[i];
+    if(onProgress) onProgress('檢查 AI 設計的刁鑽測資 '+(i+1)+' / '+trickyCases.length+'…');
+    let b;
+    try{ b=await runPython(brute, tc.input, STRESS_PER_RUN_TIMEOUT_MS); }catch(e){ continue; }
+    if(b.err&&b.err.trim()) continue; // 暴力解本身跑這組失敗，無法判定對錯，跳過不當反例
+    const expected=normOut(boundedExecutionText(b.out,b.outTruncated).text);
+    knownInputs.push({input:tc.input, expected});
+    const r=await runProgram(sol.code, sol.language, tc.input);
+    checked++;
+    const got=normOut(r.got||'');
+    if(!r.ok || got!==expected){
+      return {ran:true, ok:false, checked, counterexample:{round:'manual', seed:null, note:tc.note||'', input:tc.input, expected, got, error:r.error}};
+    }
+  }
+
   // Python 候選解可全在本地跑；其他語言得送 Judge0，故降低輪數以免觸發額度限制。
   const rounds=cf.language==='py'?DEEP_THINK.stressRounds:Math.min(DEEP_THINK.stressRounds,8);
-  let checked=0;
   for(let round=1; round<=rounds; round++){
     if(onProgress&&(round===1||round%5===0)) onProgress('對拍中… 第 '+round+' / '+rounds+' 組隨機測資');
     const seed=((round*2654435761)>>>0)%2000000000;
@@ -868,7 +912,7 @@ async function stressTest(cf, sol, onProgress){
     catch(e){ return {ran:false, ok:true, reason:'測資產生器無法執行，略過對拍', checked}; }
     if(g.err&&g.err.trim()) return {ran:false, ok:true, reason:'測資產生器發生錯誤，略過對拍', checked};
     const input=boundedExecutionText(g.out, g.outTruncated).text;
-    if(!input.trim()){ if(round===1) return {ran:false, ok:true, reason:'此題不適合隨機對拍（產生器未輸出測資）'}; break; }
+    if(!input.trim()){ if(round===1&&!checked) return {ran:false, ok:true, reason:'此題不適合隨機對拍（產生器未輸出測資）'}; break; }
     let b;
     try{ b=await runPython(brute, input, STRESS_PER_RUN_TIMEOUT_MS); }
     catch(e){ return {ran:false, ok:true, reason:'暴力解無法執行，略過對拍', checked}; }
@@ -878,8 +922,38 @@ async function stressTest(cf, sol, onProgress){
     checked++;
     const got=normOut(r.got||'');
     if(!r.ok || got!==expected){ return {ran:true, ok:false, checked, counterexample:{round, seed, input, expected, got, error:r.error}}; }
+    if(knownInputs.length<8) knownInputs.push({input, expected});
   }
-  return {ran:true, ok:true, checked};
+
+  const result={ran:true, ok:true, checked};
+
+  // TLE 探針：對拍與刁鑽測資都只涵蓋「小規模」，抓不到複雜度選錯導致的逾時；額外用最大規模測資量本地耗時。
+  if(opts.probeTLE && maxScaleInput){
+    if(onProgress) onProgress('對拍通過，檢查最大規模測資的執行時間…');
+    try{
+      const t0=performance.now();
+      const r=await runProgram(sol.code, sol.language, maxScaleInput);
+      const elapsedMs=Math.round(performance.now()-t0);
+      result.tleProbe={ ran:true, ok:r.ok&&elapsedMs<TLE_WARN_MS, elapsedMs, error:r.ok?null:r.error };
+    }catch(e){ result.tleProbe={ ran:false, reason:String(e&&e.message||e) }; }
+  }
+
+  // Best-of-2 交叉比對：重播已知（輸入,答案）配對在第二份「獨立生成」的候選 B 上，一致代表兩次不同推導都同意這個答案。
+  if(opts.solB && opts.solB.code && knownInputs.length){
+    if(onProgress) onProgress('與第二份獨立候選交叉比對中…');
+    let agree=0, total=0, disagreeExample=null;
+    for(const c of knownInputs){
+      let rb;
+      try{ rb=await runProgram(opts.solB.code, opts.solB.language, c.input); }catch(e){ continue; }
+      total++;
+      const gotB=normOut(rb.got||'');
+      if(rb.ok&&gotB===c.expected) agree++;
+      else if(!disagreeExample) disagreeExample={input:c.input, expected:c.expected, got:gotB, error:rb.error};
+    }
+    result.crossCheck={ ran: total>0, agree, total, allAgree: total>0&&agree===total, disagreeExample };
+  }
+
+  return result;
 }
 
 // ═══ 進度 UI ═══
@@ -1090,11 +1164,12 @@ $('btn-full-solve').onclick=()=>{
   $('mode-full').checked=true; updateSolveModeUi(); $('card-coach').style.display='none'; doSolve();
 };
 
-function requestCodeRunApproval(sol,attempt,deep){
+function requestCodeRunApproval(sol,attempt,deep,solB){
   if(codeReviewResolve){ const prior=codeReviewResolve; codeReviewResolve=null; prior(false); }
   $('review-code').textContent=String(sol&&sol.code||'');
   $('review-attempt').textContent=attempt>1?'第 '+attempt+' 次修正版':'第 1 次產生';
   { const dn=$('review-deep-note'); if(dn) dn.hidden=!deep; }
+  { const wrap=$('review-code-b-wrap'); if(wrap){ if(solB&&solB.code){ $('review-code-b').textContent=String(solB.code||''); wrap.hidden=false; } else wrap.hidden=true; } }
   $('card-code-review').style.display='block';
   $('card-code-review').scrollIntoView({behavior:'smooth',block:'start'});
   return new Promise(resolve=>{ codeReviewResolve=resolve; });
@@ -1127,7 +1202,7 @@ async function doSolve(){
     maxOutputTokens: deep?DEEP_THINK.maxOutputTokens:SOLVE_MAX_OUTPUT_TOKENS,
     thinkingBudget: deep?DEEP_THINK.thinkingBudget:0,
     timeoutMs: deep?DEEP_THINK.timeoutMs:GEMINI_TIMEOUT_MS };
-  let sol=null, verify=null, stress=null, lastRepair=null;
+  let sol=null, verify=null, stress=null, lastRepair=null, solB=null;
   try{
     for(let attempt=1; attempt<=maxAttempts; attempt++){
       setStep('gen','run', attempt===1?('呼叫 '+(deep?'旗艦推理模型':'Gemini')+' 產生解答…'):'第 '+attempt+' 次：依失敗結果修正解答…');
@@ -1136,10 +1211,25 @@ async function doSolve(){
       const s=await callGemini(parts, SOLVE_SCHEMA, solveOpts);
       if(!s||typeof s.code!=='string'||!s.code.trim()) throw new Error('Gemini 沒有回傳可執行程式碼');
       if(s.code.length>100000) throw new Error('Gemini 回傳的程式碼超過 100,000 字元，已停止處理');
-      sol={ language:cf.language, testcases:cf.testcases, approach:String(s.approach||'').slice(0,20000), complexity:String(s.complexity||'').slice(0,2000), code:s.code, explanation:String(s.explanation||'').slice(0,50000), relatedTopics:Array.isArray(s.related_topics)?s.related_topics.filter(x=>typeof x==='string').slice(0,6).map(x=>x.slice(0,60)):[], stress:null };
+      sol={ language:cf.language, testcases:cf.testcases, approach:String(s.approach||'').slice(0,20000), complexity:String(s.complexity||'').slice(0,2000), code:s.code,
+        selfCheck:String(s.self_check||'').slice(0,4000),
+        confidence:['low','medium','high'].includes(s.confidence)?s.confidence:'',
+        confidenceReason:String(s.confidence_reason||'').slice(0,500),
+        explanation:String(s.explanation||'').slice(0,50000), relatedTopics:Array.isArray(s.related_topics)?s.related_topics.filter(x=>typeof x==='string').slice(0,6).map(x=>x.slice(0,60)):[], stress:null };
       setStep('gen','ok', LANG_LABEL[cf.language]+' 解答已產生'+(attempt>1?'（第'+attempt+'次修正）':''));
 
-      const approved=await requestCodeRunApproval(sol,attempt,deep);
+      // Best-of-2 自我一致性：深度思考模式下，第一次產生時額外獨立生成第二份候選，僅用於後面的交叉比對，不單獨顯示或解鎖。
+      if(deep && attempt===1 && !solB && DEEP_THINK.candidates>=2){
+        try{
+          setStep('gen','run','另外獨立生成第二份候選，供稍後交叉比對…');
+          const partsB=[{text:solvePrompt(cf, notes.slice(0,4000), null, {independent:true})}];
+          const sb=await callGemini(partsB, SOLVE_SCHEMA, {...solveOpts, temperature:0.9});
+          if(sb&&typeof sb.code==='string'&&sb.code.trim()&&sb.code.length<=100000) solB={language:cf.language, code:sb.code};
+        }catch(e){ /* 候選 B 產生失敗不影響主流程，直接略過交叉比對 */ }
+        setStep('gen','ok', LANG_LABEL[cf.language]+' 解答已產生'+(solB?'（含第二份交叉比對候選）':''));
+      }
+
+      const approved=await requestCodeRunApproval(sol,attempt,deep,solB);
       if(!approved){
         setStep('run','bad','你選擇不執行 AI 產生的程式碼；未進行公開範例檢查');
         if(stepEls.stress) setStep('stress','bad','未執行對拍');
@@ -1162,17 +1252,22 @@ async function doSolve(){
         continue;
       }
       setStep('run','ok','三次輸出皆與公開範例相符且彼此一致（不代表 AC）');
-      // 深度思考：公開範例過關後，再用 AI 另寫的暴力解做隨機對拍，抓範例抓不到的錯。
+      // 深度思考：公開範例過關後，再用 AI 另寫的暴力解做刁鑽測資＋隨機對拍，並視情況做 TLE 探針與 best-of-2 交叉比對，抓範例抓不到的錯。
       if(deep && stepEls.stress){
         setStep('stress','run','準備對拍…');
-        stress=await stressTest(cf, sol, msg=>setStep('stress','run',msg));
+        stress=await stressTest(cf, sol, msg=>setStep('stress','run',msg), {solB, probeTLE:true});
         sol.stress=stress;
         if(stress.ran && !stress.ok){
           lastRepair={ code:sol.code, detail:stressCounterexampleDetail(stress.counterexample) };
           setStep('stress','bad', attempt<maxAttempts?('對拍在第 '+stress.checked+' 組後找到反例，讓 AI 修正…'):('對拍仍有反例（已試 '+maxAttempts+' 版）'));
           continue;
         }
-        if(stress.ran) setStep('stress','ok','通過 '+stress.checked+' 組隨機對拍（仍不代表 AC）');
+        if(stress.ran){
+          let okMsg='通過 '+stress.checked+' 組刁鑽測資與隨機對拍（仍不代表 AC）';
+          if(stress.tleProbe&&stress.tleProbe.ran&&!stress.tleProbe.ok) okMsg+='；⚠ 最大規模測資耗時 '+stress.tleProbe.elapsedMs+'ms，可能 TLE';
+          if(stress.crossCheck&&stress.crossCheck.ran) okMsg+=stress.crossCheck.allAgree?'；與獨立候選 B 交叉比對一致':'；與獨立候選 B 有分歧（僅供參考，未影響判定）';
+          setStep('stress','ok',okMsg);
+        }
         else setStep('stress','bad', stress.reason||'略過對拍');
       }
       break;
@@ -1234,9 +1329,18 @@ function showResult(cf, sol, verify, unlocked, saved){
   if(saved) html+='<div class="ok-box" style="margin-bottom:14px;">📕 已自動存入<a href="mistakes.html" style="color:#7ee787;font-weight:700;">錯題本</a>（以今天日期為標題，可到錯題本改名）。</div>';
   else html+='<div class="warn-box" style="margin-bottom:14px;">⚠️ 瀏覽器未能保存到錯題本。請先複製重要內容，並檢查／清理本機儲存空間後再試。</div>';
   html+='<div class="sec-label">題目（你確認的版本）</div><div class="md">'+renderMd(cf.statement)+'</div>';
+  if(sol.confidence){
+    const confLabel={low:'低',medium:'中',high:'高'}[sol.confidence]||sol.confidence;
+    html+='<div class="sec-label" style="margin-top:16px;">AI 信心自評</div>';
+    html+='<div class="'+(sol.confidence==='low'?'warn-box':'ok-box')+'">信心：'+confLabel+(sol.confidenceReason?'　'+escH(sol.confidenceReason):'')+'</div>';
+    if(sol.confidence==='low'){
+      html+='<div class="warn-box" style="margin-top:8px;">AI 對這份解答信心不高，即使通過下面的檢查也建議格外小心；若還沒開，建議勾選「深度思考」讓 AI 換旗艦模型並做隨機對拍後重新解一次。</div>';
+    }
+  }
   html+='<div class="sec-label" style="margin-top:16px;">解題思路</div><div class="md">'+renderMd(sol.approach)+'</div>';
   if(sol.complexity) html+='<div class="sec-label" style="margin-top:16px;">複雜度</div><div class="md">'+renderMd(sol.complexity)+'</div>';
   html+='<div class="sec-label" style="margin-top:16px;">解答程式碼 '+copyBtn(sol.code)+'</div><pre class="code">'+escH(sol.code)+'</pre>';
+  if(sol.selfCheck) html+='<div class="sec-label" style="margin-top:16px;">AI 自我審查（陷阱逐項核對）</div><div class="md">'+renderMd(sol.selfCheck)+'</div>';
   html+='<div class="sec-label" style="margin-top:16px;">公開範例一致性檢查（三次）</div>';
   if(verify){
     if(verify.rounds.length){
@@ -1255,10 +1359,22 @@ function showResult(cf, sol, verify, unlocked, saved){
   }
   const stress=sol.stress;
   if(stress){
-    html+='<div class="sec-label" style="margin-top:16px;">隨機測資對拍（深度思考）</div>';
-    if(stress.ran&&stress.ok) html+='<div class="ok-box">✓ 與 AI 另寫的暴力解對拍 '+stress.checked+' 組隨機測資皆一致（仍不含官方隱藏測資，不代表 AC）。</div>';
-    else if(stress.ran&&!stress.ok) html+='<div class="warn-box">✗ 對拍在第 '+stress.checked+' 組後找到反例，代表此解在某些輸入會出錯；詳解暫不解鎖。可再按一次解題讓 AI 重試，或改用教練批改自行修。</div>';
+    html+='<div class="sec-label" style="margin-top:16px;">刁鑽測資與隨機對拍（深度思考）</div>';
+    if(stress.ran&&stress.ok) html+='<div class="ok-box">✓ 與 AI 另寫的暴力解對拍 '+stress.checked+' 組測資（含手工設計的刁鑽測資）皆一致（仍不含官方隱藏測資，不代表 AC）。</div>';
+    else if(stress.ran&&!stress.ok){
+      const src=stress.counterexample&&stress.counterexample.round==='manual'?'AI 手工設計的刁鑽測資':'第 '+stress.counterexample.round+' 組隨機測資';
+      html+='<div class="warn-box">✗ '+src+'發現反例，代表此解在某些輸入會出錯（已檢查 '+stress.checked+' 組）；詳解暫不解鎖。可再按一次解題讓 AI 重試，或改用教練批改自行修。</div>';
+    }
     else html+='<div class="warn-box">對拍未執行：'+escH(stress.reason||'略過')+'</div>';
+    if(stress.tleProbe){
+      if(stress.tleProbe.ran&&stress.tleProbe.ok) html+='<div class="ok-box" style="margin-top:8px;">✓ TLE 探針：最大規模測資約 '+stress.tleProbe.elapsedMs+'ms 內完成。</div>';
+      else if(stress.tleProbe.ran) html+='<div class="warn-box" style="margin-top:8px;">⚠ TLE 探針：最大規模測資耗時約 '+stress.tleProbe.elapsedMs+'ms'+(stress.tleProbe.error?'（'+escH(stress.tleProbe.error)+'）':'')+'，複雜度可能不夠快，公開範例太小看不出來。</div>';
+    }
+    if(stress.crossCheck&&stress.crossCheck.ran){
+      html+= stress.crossCheck.allAgree
+        ? '<div class="ok-box" style="margin-top:8px;">✓ Best-of-2：另一份獨立生成的候選解答在 '+stress.crossCheck.total+' 組已知測資上輸出完全一致，可信度較高。</div>'
+        : '<div class="warn-box" style="margin-top:8px;">⚠ Best-of-2：另一份獨立生成的候選解答在 '+stress.crossCheck.total+' 組中有 '+(stress.crossCheck.total-stress.crossCheck.agree)+' 組與此解不同（僅供參考，未影響上方判定；兩者未必哪個對）。</div>';
+    }
   }
   html+='<div class="sec-label" style="margin-top:16px;">完整詳解</div>';
   if(unlocked) html+='<div class="md">'+renderMd(sol.explanation)+'</div>';
