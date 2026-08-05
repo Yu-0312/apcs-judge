@@ -253,6 +253,7 @@ table.tc td pre{margin:0;font-family:ui-monospace,Menlo,monospace;font-size:12px
   <div class="card" id="card-confirm" style="display:none;">
     <h2>✅ 第二關：AI 讀到的題目 — 請你確認（可修改）</h2>
     <div class="warn-box" style="margin-bottom:12px;">AI 先不解題。請確認下面的題目與公開範例是否轉錄正確，再選擇「完整解題」或不直接給程式碼的「教練引導」。</div>
+    <div id="read-checks"></div>
     <div class="field-row"><label class="fl" for="cf-title">題目名稱</label><input class="tin" id="cf-title" maxlength="200"></div>
     <div style="margin-top:12px;"><label class="fl" style="display:block;margin-bottom:6px;">題目敘述（含輸入／輸出格式）</label>
       <textarea class="tin" id="cf-stmt" rows="7" maxlength="30000"></textarea></div>
@@ -642,7 +643,8 @@ const READ_SCHEMA = { type:'object', properties:{
   is_programming:{type:'boolean'}, problem_title:{type:'string'}, problem_statement:{type:'string'},
   constraints:{type:'string'},
   language:{type:'string',enum:['py','cpp','c','java']},
-  testcases:{type:'array',items:{type:'object',properties:{input:{type:'string'},expected_output:{type:'string'}},required:['input','expected_output']}}
+  testcases:{type:'array',items:{type:'object',properties:{input:{type:'string'},expected_output:{type:'string'}},required:['input','expected_output']}},
+  uncertain_notes:{type:'array',items:{type:'string'}}
 }, required:['is_programming','problem_title','problem_statement','constraints','language','testcases'] };
 
 const SOLVE_SCHEMA = { type:'object', properties:{
@@ -669,6 +671,7 @@ function readPrompt(langPref, notes, problemText, hasImage){
   p+='5. language：建議解題語言，只能是 py / cpp / c / java。';
   if(langPref&&langPref!=='auto') p+=' 使用者指定用 '+langPref+'。';
   p+='\n6. testcases：從題目擷取所有「範例輸入／範例輸出」。input 為完整 stdin、expected_output 為完整 stdout，換行要精確。題目沒有範例就回傳 []。\n';
+  p+='7. uncertain_notes：老實列出你在轉錄時「不確定／看不清楚／原文本身含糊」的地方（例如圖片某一行模糊、某個限制條件的單位不明確、範例輸出的換行不確定）。每項一句話，沒有就回傳空陣列；不要為了填欄位硬湊。\n';
   if(problemText) p+='\n<problem_text>\n'+problemText+'\n</problem_text>\n';
   if(notes&&notes.trim()) p+='\n<user_context>\n'+notes.trim()+'\n</user_context>\n';
   return p;
@@ -884,6 +887,21 @@ async function stressTest(cf, sol, onProgress, opts){
   if(!generator.trim()||!brute.trim()) return {ran:false, ok:true, reason:'AI 未提供對拍程式'};
   if(generator.length>100000||brute.length>100000) return {ran:false, ok:true, reason:'對拍程式過長，略過'};
   initPython();
+
+  // 對拍全部建立在「暴力解一定正確」的假設上；先拿公開範例驗證這個假設，不然反例可能只是暴力解自己錯，會誤判候選解或浪費修正額度。
+  if(Array.isArray(cf.testcases) && cf.testcases.length){
+    if(onProgress) onProgress('先用公開範例驗證暴力解本身是否正確…');
+    for(let i=0;i<cf.testcases.length;i++){
+      const tc=cf.testcases[i];
+      let b;
+      try{ b=await runPython(brute, tc.input||'', STRESS_PER_RUN_TIMEOUT_MS); }
+      catch(e){ return {ran:false, ok:true, reason:'暴力解無法執行，略過對拍'}; }
+      if(b.err&&b.err.trim()) return {ran:false, ok:true, reason:'暴力解在公開範例上執行錯誤，可信度存疑，已略過對拍'};
+      const got=normOut(boundedExecutionText(b.out,b.outTruncated).text);
+      if(got!==normOut(tc.expected_output||'')) return {ran:false, ok:true, reason:'AI 產生的暴力解與公開範例第 '+(i+1)+' 組不符，可信度存疑，已略過對拍（候選解本身已另外通過公開範例檢查）'};
+    }
+  }
+
   let checked=0;
   const knownInputs=[]; // 已知（輸入,暴力解答案）配對，供下面 best-of-2 交叉比對重複使用，避免多打一輪 API／執行
 
@@ -989,37 +1007,118 @@ async function doRead(){
   $('card-confirm').style.display='none'; $('card-coach').style.display='none'; $('card-steps').style.display='none'; $('card-code-review').style.display='none'; $('result').style.display='none';
   setPhase(2);
   try{
-    readingRunning('呼叫 Gemini 結構化讀題中…');
+    readingRunning('呼叫 Gemini 結構化讀題中（同時獨立讀兩次交叉核對）…');
     const parts=[{text:readPrompt($('in-lang').value, $('in-notes').value.slice(0,4000), problemText, !!imageB64)}];
     if(imageB64) parts.push({inline_data:{mime_type:imageMime,data:imageB64}});
-    const r=await callGemini(parts, READ_SCHEMA, {step:'read'});
+    // 兩次讀題並行發出：交叉核對不增加使用者等待時間（讀題是全站最便宜的一層模型）。
+    const readReq=callGemini(parts, READ_SCHEMA, {step:'read'});
+    const readReq2=callGemini(parts, READ_SCHEMA, {step:'read', temperature:0.6}).catch(()=>null);
+    const r=await readReq;
     if(!r.is_programming){ readingDone(false,'提供的內容看起來不是完整的程式設計題目，請補上題目敘述、輸入輸出或更清楚的照片。'); setPhase(1); return; }
     readResult=r;
+
+    // Best-of-2 讀題：讀題模型很省，多讀一次成本低；兩次獨立結果不一致，代表題目在該處有歧義或難以辨識。
+    let readDiff=null;
+    try{
+      const r2=await readReq2;
+      if(r2&&r2.is_programming) readDiff=compareReads(r,r2);
+    }catch(e){ /* 第二次讀題失敗不影響主流程，僅跳過交叉核對 */ }
+
+    // 本地決定性核對（不呼叫 AI）：範例測資是否逐字出現在原文、限制條件的數字是否漏抄。純文字模式才能做，圖片模式沒有可比對的原文。
+    const testcaseIssues=checkTestcasesAgainstSource(Array.isArray(r.testcases)?r.testcases:[], problemText);
+    const constraintNumberIssues=checkConstraintNumbers(problemText, r.constraints);
+    const uncertainNotes=Array.isArray(r.uncertain_notes)?r.uncertain_notes.filter(x=>typeof x==='string'&&x.trim()).slice(0,5).map(x=>x.slice(0,300)):[];
+
     readingDone(true,'已結構化讀取：'+(r.problem_title||'題目'));
-    fillConfirm(r);
+    fillConfirm(r, {testcaseIssues, constraintNumberIssues, readDiff, uncertainNotes});
     $('card-confirm').style.display='block';
     $('card-confirm').scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){ readingDone(false, String(e&&e.message||e)); setPhase(1); }
   finally{ busy=false; $('btn-read').disabled=false; $('btn-reread').disabled=false; }
 }
 
+// ═══ 讀題正確性的本地核對（不需要額外呼叫 AI）═══
+function normForMatch(s){ return String(s||'').replace(/\s+/g,' ').trim(); }
+// 範例測資是否逐字（正規化空白後）出現在原始題目文字中；找不到不代表一定錯，但值得使用者手動核對。
+function checkTestcasesAgainstSource(cases, problemText){
+  if(!problemText||!Array.isArray(cases)||!cases.length) return null;
+  const hay=normForMatch(problemText);
+  return cases.map(c=>{
+    const inp=normForMatch(c&&c.input), exp=normForMatch(c&&c.expected_output);
+    return { inputFound: inp===''||hay.includes(inp), outputFound: exp===''||hay.includes(exp) };
+  });
+}
+// 只抓「與比較符號或時間／空間單位直接相鄰」的數字。刻意不取整行、也不含 = 與 ~：
+// 敘述句（「第 2 天記錄 = 31 度」）和程式碼片段（「i < n」）都會落在同一行，整行取數字會大量誤報。
+const CONSTRAINT_NUM='\\d[\\d,]*(?:\\.\\d+)?';
+const CONSTRAINT_RE=new RegExp('[≤≦<＜≥≧>＞]\\s*('+CONSTRAINT_NUM+')|('+CONSTRAINT_NUM+')\\s*[≤≦<＜≥≧>＞]|('+CONSTRAINT_NUM+')\\s*(?:秒|ms|MB|KB|bytes?)','g');
+function extractConstraintLikeNumbers(text){
+  const nums=new Set(); const re=new RegExp(CONSTRAINT_RE.source,'g'); let m;
+  while((m=re.exec(String(text||'')))){
+    const n=(m[1]||m[2]||m[3]||'').replace(/,/g,'');
+    if(n) nums.add(n);
+  }
+  return nums;
+}
+function checkConstraintNumbers(problemText, constraints){
+  if(!problemText) return null;
+  const src=extractConstraintLikeNumbers(problemText);
+  if(!src.size) return null;
+  // 逐個數字整體比對，不用子字串：否則「256」會讓漏抄的「25」被誤判為已抄。
+  const dst=new Set(String(constraints||'').match(/\d[\d,]*(?:\.\d+)?/g)?.map(x=>x.replace(/,/g,''))||[]);
+  const missing=[...src].filter(n=>!dst.has(n));
+  return missing.length?missing.slice(0,6):null;
+}
+// 兩次獨立讀題的比對：只比「會直接影響解題正確性」的欄位（限制條件、範例測資、建議語言），題目敘述本身用字不同不算分歧。
+function compareReads(a,b){
+  const diff={};
+  if(normForMatch(a.constraints)!==normForMatch(b.constraints)) diff.constraints={a:String(a.constraints||''),b:String(b.constraints||'')};
+  const ca=Array.isArray(a.testcases)?a.testcases:[], cb=Array.isArray(b.testcases)?b.testcases:[];
+  if(ca.length!==cb.length) diff.testcaseCount={a:ca.length,b:cb.length};
+  else{
+    const mism=[];
+    ca.forEach((t,i)=>{ const u=cb[i]||{}; if(normForMatch(t&&t.input)!==normForMatch(u.input)||normForMatch(t&&t.expected_output)!==normForMatch(u.expected_output)) mism.push(i+1); });
+    if(mism.length) diff.testcaseIndices=mism;
+  }
+  if((a.language||'')!==(b.language||'')) diff.language={a:a.language,b:b.language};
+  return Object.keys(diff).length?diff:null;
+}
+function renderReadChecks(checks){
+  const box=$('read-checks'); if(!box) return;
+  checks=checks||{};
+  let html='';
+  const notes=checks.uncertainNotes||[];
+  if(notes.length) html+='<div class="warn-box" style="margin-bottom:10px;">🔍 AI 自己標出讀題時不確定的地方，請特別核對：<ul style="margin:6px 0 0 18px;">'+notes.map(n=>'<li>'+escH(n)+'</li>').join('')+'</ul></div>';
+  if(checks.readDiff){
+    const d=checks.readDiff, lines=[];
+    if(d.constraints) lines.push('限制條件兩次讀題不同——第一次：「'+escH(d.constraints.a||'（空）')+'」；第二次：「'+escH(d.constraints.b||'（空）')+'」');
+    if(d.testcaseCount) lines.push('範例測資組數不同：第一次 '+d.testcaseCount.a+' 組，第二次 '+d.testcaseCount.b+' 組');
+    if(d.testcaseIndices) lines.push('第 '+d.testcaseIndices.join('、')+' 組範例測資，兩次讀題內容不同');
+    if(d.language) lines.push('建議解題語言不同：第一次 '+escH(d.language.a||'')+'，第二次 '+escH(d.language.b||''));
+    if(lines.length) html+='<div class="warn-box" style="margin-bottom:10px;">🔁 已獨立讀題兩次交叉核對，發現下面欄位不一致，代表題目在這裡可能有歧義或難以辨識，請務必手動確認：<br>'+lines.join('<br>')+'</div>';
+  }
+  if(checks.constraintNumberIssues&&checks.constraintNumberIssues.length) html+='<div class="warn-box" style="margin-bottom:10px;">🔢 原文中緊鄰限制符號／時間單位出現以下數字，但沒有出現在下面「限制條件」欄位，可能被漏抄：<code>'+checks.constraintNumberIssues.map(escH).join('</code>、<code>')+'</code></div>';
+  box.innerHTML=html;
+}
+
 // ═══ 第 2 關：確認表單 ═══
-function fillConfirm(r){
+function fillConfirm(r, checks){
   $('cf-title').value=String(r.problem_title||'').slice(0,200);
   $('cf-stmt').value=String(r.problem_statement||'').slice(0,30000);
   $('cf-constraints').value=String(r.constraints||'').slice(0,4000);
   $('cf-lang').value=['py','cpp','c','java'].includes(r.language)?r.language:'py';
   const cases=Array.isArray(r.testcases)?r.testcases.slice(0,20).map(t=>({input:String(t&&t.input||'').slice(0,50000),expected_output:String(t&&t.expected_output||'').slice(0,50000)})):[];
-  renderTC(cases);
+  renderTC(cases, checks&&checks.testcaseIssues);
   $('mode-full').checked=true;
   updateSolveModeUi();
+  renderReadChecks(checks);
 }
-function renderTC(list){
+function renderTC(list, issues){
   const box=$('tc-list'); box.innerHTML='';
-  if(!list.length) addTC('','');
-  else list.forEach(t=>addTC(t.input||'', t.expected_output||''));
+  if(!list.length) addTC('','',null);
+  else list.forEach((t,i)=>addTC(t.input||'', t.expected_output||'', issues&&issues[i]));
 }
-function addTC(inp,exp){
+function addTC(inp,exp,issue){
   const box=$('tc-list');
   const row=document.createElement('div'); row.className='tc-row';
   row.innerHTML='<div class="tc-col"><div class="tc-lab">輸入 (stdin)</div><textarea class="tc-in"></textarea></div>'
@@ -1028,6 +1127,12 @@ function addTC(inp,exp){
   row.querySelector('.tc-in').value=inp; row.querySelector('.tc-exp').value=exp;
   row.querySelector('.tc-in').maxLength=50000; row.querySelector('.tc-exp').maxLength=50000;
   row.querySelector('.rm').onclick=()=>row.remove();
+  if(issue&&(!issue.inputFound||!issue.outputFound)){
+    const w=document.createElement('div');
+    w.className='hint'; w.style.cssText='color:#f0b429;width:100%;margin-top:4px;';
+    w.textContent='⚠ 此組測資在原始題目文字中找不到逐字對應（可能只是格式差異，但也可能是 AI 轉錄或推測有誤），請手動核對。';
+    row.appendChild(w);
+  }
   box.appendChild(row);
 }
 $('btn-add-tc').onclick=()=>{ if($('tc-list').querySelectorAll('.tc-row').length>=20){alert('最多 20 組範例測資');return;} addTC('',''); };
