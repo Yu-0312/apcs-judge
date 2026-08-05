@@ -805,7 +805,8 @@ function judge0Result(data){
   if(sid>=7&&sid<=12) return {ok:false,got:normOut(stdout.text),error:'執行期錯誤（'+(data.status.description||'Runtime Error')+'）：\n'+stderr.text.split('\n').slice(0,6).join('\n')+(stdout.truncated||stderr.truncated?'\n輸出過長，已截斷。':'')};
   if(stdout.truncated||stderr.truncated) return {ok:false,got:normOut(stdout.text),error:'程式輸出超過 200,000 字元，已截斷並停止判定'};
   if(stderr.text&&!stdout.text) return {ok:false,got:'',error:stderr.text.split('\n').slice(0,6).join('\n')};
-  return {ok:true,got:normOut(stdout.text),error:null};
+  // time 是 Judge0 量到的「程式實際執行秒數」，不含排隊與網路來回，供 TLE 探針使用。
+  return {ok:true,got:normOut(stdout.text),error:null,timeSec:(typeof data.time!=='undefined'&&data.time!==null&&isFinite(parseFloat(data.time)))?parseFloat(data.time):null};
 }
 const PY_TIMEOUT_MS=15000; let pyWorker=null,pyReadyPromise=null,pyJobSeq=0; const pyJobs=new Map();
 const PY_WRAPPER=['import sys, io, traceback','class _LimitedIO(io.StringIO):','    def __init__(self):','        super().__init__(); self.truncated = False','    def write(self, s):','        s = str(s)','        left = 200000 - self.tell()','        if left <= 0: self.truncated = True; return len(s)','        if len(s) > left: self.truncated = True','        super().write(s[:left])','        return len(s)','__out = _LimitedIO(); __err = _LimitedIO()','__old = (sys.stdin, sys.stdout, sys.stderr)',"__t = __stdin if (__stdin == '' or __stdin.endswith('\\n')) else __stdin + '\\n'",'sys.stdin = io.StringIO(__t); sys.stdout = __out; sys.stderr = __err','try:',"    exec(compile(__code, '<user>', 'exec'), {'__name__': '__main__'})",'except SystemExit:','    pass','except BaseException:','    traceback.print_exc(file=__err)','finally:','    sys.stdin, sys.stdout, sys.stderr = __old','__r_out = __out.getvalue(); __r_err = __err.getvalue()','__r_out_truncated = __out.truncated; __r_err_truncated = __err.truncated'].join('\n');
@@ -868,7 +869,8 @@ function stressCounterexampleDetail(ce){
   if(ce.error) lines.push('    你的程式執行錯誤: '+ce.error.replace(/\n/g,' '));
   return lines.join('\n');
 }
-const TLE_WARN_MS = 3000;
+// 非 Python 用 Judge0 回報的實際執行秒數判定；Python 在 Pyodide 本地跑，比原生慢一個量級，門檻放寬。
+const TLE_WARN_MS = 3000, TLE_WARN_MS_PY = 8000;
 async function stressTest(cf, sol, onProgress, opts){
   opts=opts||{};
   let gen;
@@ -933,8 +935,11 @@ async function stressTest(cf, sol, onProgress, opts){
     try{
       const t0=performance.now();
       const r=await runProgram(sol.code, sol.language, maxScaleInput);
-      const elapsedMs=Math.round(performance.now()-t0);
-      result.tleProbe={ ran:true, ok:r.ok&&elapsedMs<TLE_WARN_MS, elapsedMs, error:r.ok?null:r.error };
+      // 牆鐘時間對 Judge0 而言包含排隊與網路，會嚴重高估；有 timeSec 就以它為準。
+      const measured=(typeof r.timeSec==='number'&&r.timeSec>=0);
+      const elapsedMs=measured?Math.round(r.timeSec*1000):Math.round(performance.now()-t0);
+      const warnMs=cf.language==='py'?TLE_WARN_MS_PY:TLE_WARN_MS;
+      result.tleProbe={ ran:true, ok:r.ok&&elapsedMs<warnMs, elapsedMs, warnMs, measured, local:cf.language==='py', error:r.ok?null:r.error };
     }catch(e){ result.tleProbe={ ran:false, reason:String(e&&e.message||e) }; }
   }
 
@@ -1367,8 +1372,9 @@ function showResult(cf, sol, verify, unlocked, saved){
     }
     else html+='<div class="warn-box">對拍未執行：'+escH(stress.reason||'略過')+'</div>';
     if(stress.tleProbe){
-      if(stress.tleProbe.ran&&stress.tleProbe.ok) html+='<div class="ok-box" style="margin-top:8px;">✓ TLE 探針：最大規模測資約 '+stress.tleProbe.elapsedMs+'ms 內完成。</div>';
-      else if(stress.tleProbe.ran) html+='<div class="warn-box" style="margin-top:8px;">⚠ TLE 探針：最大規模測資耗時約 '+stress.tleProbe.elapsedMs+'ms'+(stress.tleProbe.error?'（'+escH(stress.tleProbe.error)+'）':'')+'，複雜度可能不夠快，公開範例太小看不出來。</div>';
+      const tp=stress.tleProbe, tpSrc=tp.local?'（瀏覽器內執行，比實際評測慢）':(tp.measured?'（評測服務回報的實際執行時間）':'（含連線耗時，僅供參考）');
+      if(tp.ran&&tp.ok) html+='<div class="ok-box" style="margin-top:8px;">✓ TLE 探針：最大規模測資約 '+tp.elapsedMs+'ms 內完成'+tpSrc+'。</div>';
+      else if(tp.ran) html+='<div class="warn-box" style="margin-top:8px;">⚠ TLE 探針：最大規模測資耗時約 '+tp.elapsedMs+'ms'+tpSrc+'，超過 '+tp.warnMs+'ms 門檻'+(tp.error?'（'+escH(tp.error)+'）':'')+'，複雜度可能不夠快，公開範例太小看不出來。</div>';
     }
     if(stress.crossCheck&&stress.crossCheck.ran){
       html+= stress.crossCheck.allAgree
